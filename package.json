@@ -1,0 +1,36 @@
+{
+  "name": "pure",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "private": true,
+  "dependencies": {
+    "big-integer": "^1.6.7",
+    "ebus": "^0.12.0",
+    "engine.io": "^1.5.4",
+    "juri": "^1.0.1",
+    "pg": "^4.4.3",
+    "react": "^0.13.3",
+    "react-dom": "^0.1.0",
+    "winston": "^2.1.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^4.1.3",
+    "eslint": "^1.9.0",
+    "eslint-plugin-react": "^3.8.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scrollback/pure.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/scrollback/pure/issues"
+  },
+  "homepage": "https://github.com/scrollback/pure#readme"
+}
