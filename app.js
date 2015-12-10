@@ -1,11 +1,9 @@
 /*
-
 	for singletons.
 		* bus
 		* cache
 		* log
-		* config
-		
+		* config		
 */
 
 var bus = new (require("ebus"))(),
