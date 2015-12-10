@@ -1,0 +1,7 @@
+{
+	"ignore": "bower_components/**",
+ 	"presets": [
+ 		"es2015"
+ 	],
+ 	"sourceMaps": "inline"
+}
