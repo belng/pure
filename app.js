@@ -7,7 +7,7 @@
 */
 
 var bus = new (require("ebus"))(),
-	cache = require("./modules/store/store.js");
+	cache = new (require("sbcache")());
 
 module.exports = {
 	bus: bus,

@@ -1,4 +1,4 @@
-const Cache = require("sbcache"), cache = new Cache();
+const cache = require("../../app").cache;
 
 cache.getThreadById = function(threadId) {
 	return this.getEntity(threadId);
