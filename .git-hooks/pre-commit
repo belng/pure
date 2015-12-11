@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# Pass any changed js files through eslint
+npm run lint && npm run flow
+
+exit $?
