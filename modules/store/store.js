@@ -160,17 +160,4 @@ cache.getRelatedEntity = function(type, id, f) {
 	return results;
 };
 
-module.exports = Store;
-
-module.exports = function(core, config) {
-	const store = new Store();
-	require("./state-manager")(core, config, store, state);
-	require("./action-handler")(core, config, store, state);
-	require("./rule-manager")(core, config, store, state);
-	require("./socket")(core, config, store, state);
-	require("./session-manager")(core, config, store, state);
-	return store;
-};
-
-
 module.exports = cache;
