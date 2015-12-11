@@ -16,6 +16,10 @@ npm-debug.log
 node_modules
 bower_components
 
+# Type definitions
+#
+typings/
+
 # VSCode
 #
 *.vscode
