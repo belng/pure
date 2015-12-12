@@ -4,7 +4,7 @@
   "plugins": {
     "complete_strings": {},
     "doc_comment": {
-        "fullDocs": true
+      "fullDocs": true
     },
     "node": {},
     "modules": {},
