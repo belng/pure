@@ -1,3 +1,9 @@
+-- entities ids are variable-length byte arrays.
+-- For rooms and topics they are human-readable strings encoded with UTF-8.
+-- They may contain any unicode character except control whitespace punctuation.
+-- For texts and threads they are the colon character (:) followed by 15 random
+-- bytes. In JSON they are represented by :<20-char base64>.
+
 DROP TABLE IF EXISTS notes;
 
 DROP TABLE IF EXISTS members;

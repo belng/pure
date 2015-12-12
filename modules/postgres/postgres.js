@@ -69,7 +69,7 @@ module.exports = (c) => {
 
 		if (changes.queries) {
 			let response = changes.response = {};
-			for(let key in changes.queries) {
+			for (let key in changes.queries) {
 				counter.inc();
 				cache.query(key, changes.queries[key], (err, results) => {
 					jsonop(response, { entities: results });

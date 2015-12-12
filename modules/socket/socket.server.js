@@ -52,7 +52,7 @@ core.on("change", changes => {
 	});
 
 	for (let notifyUser of message.notify) {
-		if(notifyUser.resources) notifyUser.resources.forEach(resourceId => {
+		if (notifyUser.resources) notifyUser.resources.forEach(resourceId => {
 			if(!sockets[resourceId]) return;
 			sockets[resourceId].send(JSON.stringify(extract(message, notifyUser.id)));
 		});
