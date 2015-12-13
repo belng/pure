@@ -47,11 +47,12 @@
     "webpack-dev-server": "^1.14.0"
   },
   "scripts": {
-    "start": "node server",
+    "start": "node ./server",
     "test": "./node_modules/jest-cli/bin/jest.js",
     "flow": "./node_modules/flow-bin/cli.js check .",
     "lint": "git diff HEAD --name-only --diff-filter=ACM | grep '.js$' | xargs node ./node_modules/eslint/bin/eslint.js --quiet",
     "build": "./node_modules/webpack/bin/webpack.js",
+    "build-server": "node ./webpack-dev-server",
     "postinstall": "for file in `ls .git-hooks`; do ln -sf ../../.git-hooks/${file} .git/hooks/${file}; done"
   },
   "repository": {
