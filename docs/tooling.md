@@ -10,6 +10,18 @@ The following commands are configured in the repository,
 4. `npm run build` - build files with Webpack
 5. `npm run build-server` - start webpack development server to watch for changes and provide hot reloading
 
+## Maintaining code consistency with [EditorConfig](http://editorconfig.org/)
+
+### Why
+
+EditorConfig helps maintain consistent coding styles between different editors and IDEs. This repository contains an `.editorconfig` file, which can automatically set project-specific settings such as indentation.
+
+### Editor plugins
+
+* **Atom** - [`atom-editorconfig`](https://atom.io/packages/atom-editorconfig)
+* **Sublime Text** - [`EditorConfig`](https://packagecontrol.io/packages/EditorConfig)
+* **Brackets** - [`brackets-editorconfig`](https://github.com/kidwm/brackets-editorconfig/)
+
 ## Building files with [Webpack](https://webpack.github.io/)
 
 ### Why
@@ -152,7 +164,7 @@ const x: string = 123;
 * **Nuclide** - Inbuilt flow support
 * **Atom** - [`linter-flow`](https://atom.io/packages/linter-flow) (linting), [`ide-flow`](https://atom.io/packages/ide-flow) (liniting and auto-completion)
 * **Sublime Text** -  [`SublimeLinter-flow`](https://packagecontrol.io/packages/SublimeLinter-flow) (linting)
-* **Visual Studio Code** - [`flow-for-vscode`](https://github.com/flowtype/flow-for-vscode) (linting and auto-complete)
+* **Visual Studio Code** - [`flow-for-vscode`](https://github.com/flowtype/flow-for-vscode) (linting and auto-completion)
 * **Brackets** - [`brackets-flow`](https://github.com/fdecampredon/brackets-flow) (liniting and auto-completion)
 
 ### Setup
@@ -202,7 +214,7 @@ eval("console.log('Hello world!')"); // eslint-disable-line no-eval
 
 * **Atom** - [`linter-eslint`](https://atom.io/packages/linter-eslint)
 * **Sublime Text** - [`SublimeLinter-contrib-eslint`](https://packagecontrol.io/packages/SublimeLinter-contrib-eslint)
-* **Visual Studio Code** - [Inbuilt (need to be enabled)](https://code.visualstudio.com/updates/v0_8_0#_languages-javascript-linting-as-you-type)
+* **Visual Studio Code** - [Inbuilt (needs to be enabled)](https://code.visualstudio.com/updates/v0_8_0#_languages-javascript-linting-as-you-type)
 * **Brackets** - [`brackets-eslint`](https://github.com/zaggino/brackets-eslint)
 
 ### Setup
