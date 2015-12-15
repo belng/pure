@@ -36,10 +36,12 @@ core.on("http/init", httpServer => {
 
 			message.resourceId = resourceId;
 
-			core.emit("state", message, err => {
+			core.emit("setstate", message, err => {
 				if (err) return sendError(
 					socket, err.code || "ERR_UNKNOWN", err.message, message
 				);
+				
+				if(message.response) socket.send(message.response);
 			});
 		});
 	});

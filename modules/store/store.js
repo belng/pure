@@ -1,36 +1,22 @@
 const cache = require("../../app").cache;
 
-cache.getThreadById = function(threadId) {
-	return this.getEntity(threadId);
+cache.getThreadById = function(threadId, callback) {
+	return this.getEntity(threadId, callback);
 };
 
-cache.getTextById = function(textId) {
-	return this.getEntity(textId);
+cache.getTextById = function(textId, callback) {
+	return this.getEntity(textId, callback);
 };
 
-cache.getRelation = function(roomId, userId) {
-	return this.getEntity(userId + "_" + roomId);
+cache.getRelation = function(roomId, userId, callback) {
+	return this.getEntity(userId + "_" + roomId, callback);
 };
 
-cache.getRoom = function(id) {
-	return this.getEntity(id);
+cache.getRoom = function(id, callback) {
+	return this.getEntity(id, callback);
 };
 
-cache.getUserRole = function(userId, roomId) {
-	let rel, role, uId;
-
-	uId = (typeof userId === "string") ? userId : this.get("user");
-	rel = this.getRelation(roomId, uId);
-
-	if (rel && rel.role && rel.role !== "none") {
-		role = rel.role;
-	} else {
-		role = (!uId || userUtils.isGuest(uId)) ? "guest" : "registered";
-	}
-	return role;
-};
-
-cache.getTexts = function(roomId, threadId, time, r) {
+cache.getTexts = function(roomId, threadId, time, r, callback) {
 	const q = {}, range = [];
 	let key;
 
@@ -48,10 +34,10 @@ cache.getTexts = function(roomId, threadId, time, r) {
 	}
 	q.order = "time";
 	key = this.cache.sliceToKey(q);
-	return this.cache.query(key, range);
+	return this.cache.query(key, range, callback);
 };
 
-cache.getThreads = function(roomId, time, r) {
+cache.getThreads = function(roomId, time, r, callback) {
 	const q = {}, range = [];
 	let key;
 
@@ -69,7 +55,7 @@ cache.getThreads = function(roomId, time, r) {
 	}
 	q.order = "startTime";
 	key = this.cache.sliceToKey(q);
-	return this.cache.query(key, range);
+	return this.cache.query(key, range, callback);
 };
 
 cache.getNearByRooms = function() {
@@ -77,7 +63,7 @@ cache.getNearByRooms = function() {
 };
 
 cache.getUser = function(id) {
-	const userObj = this.getEntity(id || this.get("app", "user"));
+	const userObj = this.getEntity(id || this.get("app", "user"), callback);
 
 	if (typeof userObj === "object") {
 		if (userObj.type === "user") {
@@ -86,34 +72,6 @@ cache.getUser = function(id) {
 	} else {
 		return userObj;
 	}
-};
-
-cache.isUserAdmin = function(userId, roomId) {
-	const role = this.getUserRole(userId, roomId);
-	return permissionWeights[role] >= permissionWeights.moderator;
-};
-
-cache.isUserBanned = function(userId, roomId) {
-	const role = this.getUserRole(userId, roomId);Store.prototypeStore.prototypeStore.prototypeStore.prototypeStore.prototypeStore.prototypeStore.prototype
-	return permissionWeights[role] <= permissionWeights.banned;
-};
-
-cache.isRoomReadable = function(roomId, userId) {
-	const roomObj = this.getRoom(roomId);
-	const readLevel = (roomObj && roomObj.guides && roomObj.guides.authorizer &&
-						roomObj.guides.authorizer.readLevel) ? roomObj.guides.authorizer.readLevel : "guest";
-
-	return (permissionWeights[this.getUserRole(userId, roomId)] >= permissionWeights[readLevel]);
-};
-
-cache.isHidden = function(text) {
-	const { tags } = text;
-
-	if (Array.isArray(tags) && (tags.indexOf("thread-hidden") > -1 || tags.indexOf("hidden") > -1 || tags.indexOf("abusive") > -1)) {
-		return true;
-	}
-
-	return false;
 };
 
 cache.getRelatedEntity = function(type, id, f) {
