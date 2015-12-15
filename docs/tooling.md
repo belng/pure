@@ -2,7 +2,7 @@
 
 We use various tooling to improve the developer workflow. This document lists most of them.
 
-The following commands are configured in the repository,
+The following commands are configured in this repository,
 
 1. `npm test` - run tests with Jest
 2. `npm run flow` - typecheck files with Flow
@@ -12,8 +12,6 @@ The following commands are configured in the repository,
 
 ## Maintaining code consistency with [EditorConfig](http://editorconfig.org/)
 
-### Why
-
 EditorConfig helps maintain consistent coding styles between different editors and IDEs. This repository contains an `.editorconfig` file, which can automatically set project-specific settings such as indentation.
 
 ### Editor plugins
@@ -21,6 +19,25 @@ EditorConfig helps maintain consistent coding styles between different editors a
 * **Atom** - [`atom-editorconfig`](https://atom.io/packages/atom-editorconfig)
 * **Sublime Text** - [`EditorConfig`](https://packagecontrol.io/packages/EditorConfig)
 * **Brackets** - [`brackets-editorconfig`](https://github.com/kidwm/brackets-editorconfig/)
+
+## ES201x with Babel
+
+Babel allows to use latest JavaScript syntax as well as custom syntaxes like JSX and Flow type annotations, and then transpiles them to ES5 code.
+
+Babel is configured to transpile the following features in this repository,
+
+1. [All new features in ES2015](https://babeljs.io/docs/learn-es2015/)
+2. [React's JSX syntax](https://facebook.github.io/jsx/)
+3. Async functions
+4. Class properties
+5. Object rest and spread
+6. [Flow type annotations](flowtype.org/docs/type-annotations.html)
+7. Traling comma in function arguments
+
+### Editor plugins
+
+* **Atom** - [`language-babel`](https://atom.io/packages/language-babel)
+* **Sublime Text** - [`Babel`](https://packagecontrol.io/packages/Babel)
 
 ## Building files with [Webpack](https://webpack.github.io/)
 
