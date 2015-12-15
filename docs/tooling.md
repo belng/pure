@@ -10,6 +10,8 @@ The following commands are configured in this repository,
 4. `npm run build` - build files with Webpack
 5. `npm run build-server` - start webpack development server to watch for changes and provide hot reloading
 
+**NOTE:** You need at least Node v5.0.0 for these to work
+
 ## Maintaining code consistency with [EditorConfig](http://editorconfig.org/)
 
 EditorConfig helps maintain consistent coding styles between different editors and IDEs. This repository contains an `.editorconfig` file, which can automatically set project-specific settings such as indentation.
