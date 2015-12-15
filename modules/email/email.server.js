@@ -3,10 +3,6 @@ let log = ("../lib/logger.js"),
 	redis = require("redis"),
 	cache = app.cache, config = app.config, core = app.core;
 
-function addMessage(msg) {
-
-}
-
 module.exorts = () => {
 	redis = redis.createClient();
 	redis.select(config.redisDB);
@@ -15,10 +11,20 @@ module.exorts = () => {
 		return;
 	}
 	require("./welcomeEmail.js")(cache, config);
-	require("./dailyEmail.js")(cache, config);
+	let emailDigest = require("./emailDigest.js");
+	let sendMentionMail = emailDigest.sendMentionMail;
 
-	core.on("text", (msg, cb) => {
-		cb();
-		addMessage(msg);
+	core.onchange((changes) => {
+		let entities = changes.entities || {};
+		for (let id in entities) {
+			if (entities[id].type === "text") {
+				let text = entities[id];
+				if (text.mentions && text.mentions.length !== 0) {
+					text.mentions.forEach((username) => {
+						sendMentionMail(username);
+					});
+				}
+			}
+		}
 	});
 };
