@@ -1,6 +1,6 @@
 # Tooling
 
-We use various tooling to improve the developer workflow. This document lists most of them.
+We use various tooling to improve the developer workflow. This document lists most of them. You only need to run `npm install` to install all the required dependencies, and install the necessary plugins for your Editor.
 
 The following commands are configured in this repository,
 
