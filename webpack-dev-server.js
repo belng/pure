@@ -1,4 +1,4 @@
-global.__DEV__ = true;
+process.env.NODE_ENV = "development";
 
 const webpack = require("webpack");
 const WebpackDevServer = require("webpack-dev-server");
@@ -17,8 +17,7 @@ new WebpackDevServer(webpack(config), {
 	contentBase: "./static",
 	publicPath: config.output.publicPath,
 	hot: true,
-	historyApiFallback: true,
-	stats: { colors: true }
+	historyApiFallback: true
 }).listen(port, host, err => {
 	if (err) {
 		console.error(err);
