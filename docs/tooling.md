@@ -20,7 +20,7 @@ EditorConfig helps maintain consistent coding styles between different editors a
 * **Sublime Text** - [`EditorConfig`](https://packagecontrol.io/packages/EditorConfig)
 * **Brackets** - [`brackets-editorconfig`](https://github.com/kidwm/brackets-editorconfig/)
 
-## ES201x with Babel
+## ES201x with [Babel](https://babeljs.io/)
 
 Babel allows to use latest JavaScript syntax as well as custom syntaxes like JSX and Flow type annotations, and then transpiles them to ES5 code.
 
