@@ -32,7 +32,6 @@ CREATE TABLE users (
 	timezone smallint,
 	locale smallint,
 	params jsonb,
-
 	numVotes  integer,
 	numPoints integer
 ) INHERITS (entities);
@@ -45,7 +44,6 @@ CREATE TABLE items (
 	creator text,
 	updater text,
 	terms tsvector,
-
 	numMembers integer,
 	numPresent integer,
 	numChildren integer,
