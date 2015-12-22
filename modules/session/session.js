@@ -1,17 +1,18 @@
 "use strict";
 
 // sign with default (HMAC SHA256)
-var jwt = require('jsonwebtoken'),
+var jwt = require("jsonwebtoken"),
 	app = require("../../app.js"),
+	core = app.core,
 	config = app.config,
 	iss = config.host,
 	aud = config.host,
-	sub, key = config.session.privateKey;
+	key = config.session.privateKey;
 
 function getEmailFromSession(session) {
 	return new Promise(function(resolve, reject) {
 		jwt.verify(session, key, { aud: aud}, function(err, decoded) {
-			if(err) return reject(err);
+			if (err) return reject(err);
 			else resolve(decoded.sub);
 		});
 	});
@@ -28,17 +29,17 @@ function generateSession(sub) { // not sure if this should strictly be mailto id
 			type: "JWS"
 		}, function(session) {
 			resolve(session);
-		})
+		});
 	});
 }
 
 function sessionHandler(changes, next) {
-		var signin = {};
-	if(changes.auth && changes.auth.session) {
+	let signin = {};
+	if (changes.auth && changes.auth.session) {
 		getEmailFromSession(changes.auth.session)
 		.then(function(sub) {
-			if(email.indexOf(":") === 0) {
-				signin.identities = [sub];
+			if (sub.indexOf(":") === 0) {
+				signin.identities = [ sub ];
 			} else {
 				changes.auth.user = sub;
 				signin.id = sub;
@@ -48,16 +49,13 @@ function sessionHandler(changes, next) {
 			next();
 		})
 		.catch(next);
-	} else if(changes.response && changes.response.app && changes.response.app.user) {
+	} else if (changes.response && changes.response.app && changes.response.app.user) {
 		generateSession(changes.response.app.user).then(function(session) {
 			changes.response.app.session =	session;
 			next();
 		});
 	}
 }
-
-
-
 
 module.exports = function() {
 	core.on("setstate", sessionHandler, "authentication");
