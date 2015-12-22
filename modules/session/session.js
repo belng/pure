@@ -2,6 +2,7 @@
 
 // sign with default (HMAC SHA256)
 var jwt = require("jsonwebtoken"),
+	tokenValidity = 604800, // seven days
 	app = require("../../app.js"),
 	core = app.core,
 	config = app.config,
@@ -23,7 +24,7 @@ function generateSession(sub) { // not sure if this should strictly be mailto id
 		jwt.sign({
 			iss: iss, sub: sub, aud: aud,
 			iat: Math.floor((new Date()).getTime() / 1000),
-			exp: Math.floor((new Date()).getTime() / 1000) + 604800 // seven days
+			exp: Math.floor((new Date()).getTime() / 1000) + tokenValidity // seven days
 		}, key, {
 			algorithm: "HS256",
 			type: "JWS"
@@ -49,14 +50,17 @@ function sessionHandler(changes, next) {
 			next();
 		})
 		.catch(next);
-	} else if (changes.response && changes.response.app && changes.response.app.user) {
-		generateSession(changes.response.app.user).then(function(session) {
-			changes.response.app.session =	session;
-			next();
-		});
 	}
 }
 
 module.exports = function() {
 	core.on("setstate", sessionHandler, "authentication");
+	core.on("setstate", function(changes, next) {
+		if (changes.response && changes.response.app && changes.response.app.user) {
+			generateSession(changes.response.app.user).then(function(session) {
+				changes.response.app.session =	session;
+				next();
+			});
+		}
+	}, "modifier");
 };
