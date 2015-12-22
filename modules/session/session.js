@@ -40,9 +40,9 @@ function sessionHandler(changes, next) {
 		getEmailFromSession(changes.auth.session)
 		.then(function(sub) {
 			if (sub.indexOf(":") === 0) {
-				signin.identities = [ sub ];
+				signin.identities = [ sub ]; // probably a signup stage 2- when user chooses a name.
 			} else {
-				changes.auth.user = sub;
+				changes.auth.user = sub; // sign in
 				signin.id = sub;
 			}
 			signin.params = {};
@@ -50,6 +50,11 @@ function sessionHandler(changes, next) {
 			next();
 		})
 		.catch(next);
+	} else if (changes.auth && changes.auth.signin && changes.auth.signin.identities && changes.auth.signin.identities.length) {
+		generateSession(changes.auth.signin.identities[0]).then(function(session) {
+			changes.auth.session =	session;
+			next();
+		});
 	}
 }
 

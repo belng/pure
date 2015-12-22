@@ -11,7 +11,7 @@ function signinhandler(changes, next) {
 		if (changes.auth.signin.id) {
 			cache.getEntity(changes.auth.signin.id, function(err, entity) {
 				if (err) return next(err);
-				if(!entity) return next(new Error("INVALID_USERID"));
+				if (!entity) return next(new Error("INVALID_USERID"));
 				changes.app = (changes.app || {}).user = entity.id;
 				((changes.response = (changes.response || {})).app || {}).user = entity.id;
 				(changes.response.entities = changes.response.entities || {})[entity.id] = entity;
