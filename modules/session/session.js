@@ -17,10 +17,10 @@ function getEmailFromSession(session) {
 	});
 }
 
-function generateSession(mailToIdent) { // not sure if this should strictly be mailto ident?
+function generateSession(sub) { // not sure if this should strictly be mailto ident?
 	return new Promise(function(resolve) {
 		jwt.sign({
-			iss: iss, sub: ident.replace("mailto:",""), aud: aud,
+			iss: iss, sub: sub, aud: aud,
 			iat: Math.floor((new Date()).getTime() / 1000),
 			exp: Math.floor((new Date()).getTime() / 1000) + 604800 // seven days
 		}, key, {
@@ -36,15 +36,20 @@ function sessionHandler(changes, next) {
 		var signin = {};
 	if(changes.auth && changes.auth.session) {
 		getEmailFromSession(changes.auth.session)
-		.then(function(email) {
-			signin.identities = ["mailto:"+user.email];
+		.then(function(sub) {
+			if(email.indexOf(":") === 0) {
+				signin.identities = [sub];
+			} else {
+				changes.auth.user = sub;
+				signin.id = sub;
+			}
 			signin.params = {};
-			changes.auth.signin = response;
+			changes.auth.signin = signin;
 			next();
 		})
 		.catch(next);
 	} else if(changes.response && changes.response.app && changes.response.app.user) {
-		generateSession(changes.response.app.user.identities[0]).then(function(session) {
+		generateSession(changes.response.app.user).then(function(session) {
 			changes.response.app.session =	session;
 			next();
 		});
