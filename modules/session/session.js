@@ -38,11 +38,7 @@ function sessionHandler(changes, next) {
 		getEmailFromSession(changes.auth.session)
 		.then(function(email) {
 			signin.identities = ["mailto:"+user.email];
-			signin.params = {
-				session: {
-					verified: true,
-				}
-			};
+			signin.params = {};
 			changes.auth.signin = response;
 			next();
 		})
