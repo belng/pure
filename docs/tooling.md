@@ -1,8 +1,8 @@
 # Tooling
 
-We use various tooling to improve the developer workflow. This document lists most of them.
+We use various tooling to improve the developer workflow. This document lists most of them. You only need to run `npm install` to install all the required dependencies, and install the necessary plugins for your Editor.
 
-The following commands are configured in the repository,
+The following commands are configured in this repository,
 
 1. `npm test` - run tests with Jest
 2. `npm run flow` - typecheck files with Flow
@@ -10,9 +10,9 @@ The following commands are configured in the repository,
 4. `npm run build` - build files with Webpack
 5. `npm run build-server` - start webpack development server to watch for changes and provide hot reloading
 
-## Maintaining code consistency with [EditorConfig](http://editorconfig.org/)
+**NOTE:** You need at least Node v5.0.0 for these to work
 
-### Why
+## Maintaining code consistency with [EditorConfig](http://editorconfig.org/)
 
 EditorConfig helps maintain consistent coding styles between different editors and IDEs. This repository contains an `.editorconfig` file, which can automatically set project-specific settings such as indentation.
 
@@ -21,6 +21,25 @@ EditorConfig helps maintain consistent coding styles between different editors a
 * **Atom** - [`atom-editorconfig`](https://atom.io/packages/atom-editorconfig)
 * **Sublime Text** - [`EditorConfig`](https://packagecontrol.io/packages/EditorConfig)
 * **Brackets** - [`brackets-editorconfig`](https://github.com/kidwm/brackets-editorconfig/)
+
+## ES201x with [Babel](https://babeljs.io/)
+
+Babel allows to use latest JavaScript syntax as well as custom syntaxes like JSX and Flow type annotations, and then transpiles them to ES5 code.
+
+Babel is configured to transpile the following features in this repository,
+
+1. [All new features in ES2015](https://babeljs.io/docs/learn-es2015/)
+2. [React's JSX syntax](https://facebook.github.io/jsx/)
+3. Async functions
+4. Class properties
+5. Object rest and spread
+6. [Flow type annotations](flowtype.org/docs/type-annotations.html)
+7. Traling comma in function arguments
+
+### Editor plugins
+
+* **Atom** - [`language-babel`](https://atom.io/packages/language-babel)
+* **Sublime Text** - [`Babel`](https://packagecontrol.io/packages/Babel)
 
 ## Building files with [Webpack](https://webpack.github.io/)
 
@@ -162,7 +181,7 @@ const x: string = 123;
 ### Editor plugins
 
 * **Nuclide** - Inbuilt flow support
-* **Atom** - [`linter-flow`](https://atom.io/packages/linter-flow) (linting), [`ide-flow`](https://atom.io/packages/ide-flow) (liniting and auto-completion)
+* **Atom** - [`linter-flow`](https://atom.io/packages/linter-flow) (linting), [`nuclide-flow`](https://atom.io/packages/nuclide-flow) (liniting and auto-completion),  [`ide-flow`](https://atom.io/packages/ide-flow) (liniting and auto-completion)
 * **Sublime Text** -  [`SublimeLinter-flow`](https://packagecontrol.io/packages/SublimeLinter-flow) (linting)
 * **Visual Studio Code** - [`flow-for-vscode`](https://github.com/flowtype/flow-for-vscode) (linting and auto-completion)
 * **Brackets** - [`brackets-flow`](https://github.com/fdecampredon/brackets-flow) (liniting and auto-completion)
