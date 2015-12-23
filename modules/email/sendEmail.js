@@ -1,3 +1,5 @@
+"use strict";
+
 let nodemailer = require("nodemailer"),
 	log = require("../../lib/logger"),
 	transport, config;

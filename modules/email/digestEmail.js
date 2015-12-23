@@ -10,35 +10,54 @@ let config, send, connStr, constants,
 	connstr = "pg://" + config.pg.username + ":" + config.pg.password + "@" + config.pg.server + "/" + config.pg.db,
 	template = handlebars.compile(fs.readFileSync(__dirname + "/views/" + config.appName + ".digest.hbs", "utf-8"));
 
+function getSubject(rels) {
+	var counts = rels.length - 1, heading = "";
+	heading = "[" + rels[0].room + "] " + rels[0].threads[0].threadTitle + " +"+ counts + " more";
+	return heading;
+}
 
-function initMailSending (row) {
-	let user = row.id,
-		emailAdd = row.identities,
+function initMailSending (userRel) {
+	let user = userRel.currentUser,
+		rels = userRel.currentRels,
+		emailAdd = user.identities.filter((ident) => ident.indexOf("mailto:") === 0),
 		emailHtml = template({
-			
-		})
+			token: jwt.sign({ email: emailId }, config.secret, {expiresIn: "5 days"}),
+			domain: config.domain,
+			rooms: rels
+		}),
+		emailSub = getSubject(rels);
+	send(config.from, emailAdd, emailsub, emailHtml);
 }
 
 function sendDigestEmail () {
-	let startPoint = Date().now - 2 * DIGEST_DELAY,
+	let sendEmailToUser = require("./welcomeEmail").sendEmailToUser,
+		startPoint = Date().now - 2 * DIGEST_DELAY,
 		start = lastEmailSent < startPoint ? lastEmailSent : startPoint,
-		end = Date().now - DIGEST_DELAY;
+		end = Date().now - DIGEST_DELAY,
+		cUserRel;
+
 	pg.readStream(connstr, {
-		$: `WITH u AS (SELECT * FROM users WHERE lastOnline > &{start} AND lastOnline < &{end}),
-			t AS (SELECT * FROM threadMembers WHERE updateTime > statusTime AND updateTime > &{start})
-			SELECT * FROM u JOIN threadRels ON u.id = t.user ORDER BY u.id`,
+		$: `WITH
+				u AS (SELECT * FROM users, roomrelations rr WHERE rr.user = users.id AND role >= &{follower}
+				AND statusTime > &{start} AND statusTime < &{end}), 
+				t AS (SELECT * FROM threads LEFT OUTER JOIN threadrelations tr ON tr.item = threads.id
+				WHERE updateTime > statusTime AND updateTime > &{start})
+			SELECT * FROM u, t WHERE t.parents[1] = u.item AND u.id = t.user ORDER BY u.id`,
 		start: start,
-		end: end
-	}).on("row", (row) => {
-		initMailSending(row);
-	});
-	
-	pg.write(connString, {
-		$: "UPDATE jobs SET lastrun=&{end} WHERE jobid=&{jid}",
 		end: end,
-		jid: constants.JOB_EMAIL_DIGEST
-	}, function (err, results) {
-		if(!err) log.i("successfully updated jobs");
+		follower: constants.ROLE_FOLLOWER
+	}).on("row", (userRel) => {
+		cUserRel = sendEmailToUser(userRel) || {};
+		
+		if (Object.keys(s).length !== 0) initMailSending(cUserRel);
+	}).on("end", function() {
+		pg.write(connString, {
+			$: "UPDATE jobs SET lastrun=&{end} WHERE jobid=&{jid}",
+			end: end,
+			jid: constants.JOB_EMAIL_DIGEST
+		}, function (err, results) {
+			if(!err) log.i("successfully updated jobs");
+		});
 	});
 }
 
@@ -48,4 +67,4 @@ module.exports = (row) => {
 	lastEmailSent = row.lastrun;
 	setInterval(sendDigestEmail, DIGEST_INTERVAL);
 }
-
+module.exports.initMailSending = initMailSending;
