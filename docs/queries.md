@@ -1,0 +1,4 @@
+### getTextRels ###
+
+```sql
+SELECT * FROM 
