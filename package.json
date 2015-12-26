@@ -58,7 +58,7 @@
     "webpack": "^1.12.9"
   },
   "scripts": {
-    "start": "node index",
+    "start": "node index-server",
     "test": "./node_modules/jest-cli/bin/jest.js",
     "flow": "./node_modules/flow-bin/cli.js check .",
     "lint": "git diff HEAD --name-only --diff-filter=ACM | grep '.js$' | xargs node ./node_modules/eslint/bin/eslint.js --quiet",
