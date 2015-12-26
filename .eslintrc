@@ -196,7 +196,7 @@
     "prefer-spread": 1,
     "prefer-reflect": 0,
     "prefer-template": 0,
-    "require-yield": 2,
+    "require-yield": 0,
 
     "react/display-name": 0,
     "react/forbid-prop-types": 0,
