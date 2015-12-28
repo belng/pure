@@ -6,6 +6,6 @@ import Hello from "./components/views/Hello";
 
 document.addEventListener("readystatechange", () => {
 	if (document.readyState === "complete") {
-		ReactDOM.render(<Hello />, document.getElementById("app-container"));
+		ReactDOM.render(<Hello />, document.getElementById("root"));
 	}
 });

@@ -32,6 +32,8 @@ CREATE TABLE users (
 	timezone smallint,
 	locale smallint,
 	params jsonb,
+	resources jsonb,
+	presence smallint,
 	numVotes  integer,
 	numPoints integer
 ) INHERITS (entities);
@@ -69,9 +71,10 @@ CREATE TABLE relations (
 	item text,
 	tags smallint[],
 	role smallint,
-	status smallint,
 	roleTime bigint,
-	statusTime bigint,
+	readTime bigint,
+	resources jsonb,
+	presence smallint,
 	interest float(24),
 	reputation float(24),
 	resource text,
@@ -83,11 +86,11 @@ CREATE TABLE relations (
 	expireTime bigint
 );
 
-CREATE TABLE roomrelations () EXTENDS relations;
-CREATE TABLE threadrelations () EXTENDS relations;
-CREATE TABLE textrelations () EXTENDS relations;
-CREATE TABLE topicrelations () EXTENDS relations;
-CREATE TABLE privchatrelations () EXTENDS relations;
+CREATE TABLE roomrelations () INHERITS (relations);
+CREATE TABLE threadrelations () INHERITS (relations);
+CREATE TABLE textrelations () INHERITS (relations);
+CREATE TABLE topicrelations () INHERITS (relations);
+CREATE TABLE privchatrelations () INHERITS (relations);
 
 CREATE TABLE notes (
 	"user" text,
