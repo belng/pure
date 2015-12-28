@@ -181,7 +181,7 @@ const x: string = 123;
 ### Editor plugins
 
 * **Nuclide** - Inbuilt flow support
-* **Atom** - [`linter-flow`](https://atom.io/packages/linter-flow) (linting), [`ide-flow`](https://atom.io/packages/ide-flow) (liniting and auto-completion)
+* **Atom** - [`linter-flow`](https://atom.io/packages/linter-flow) (linting), [`nuclide-flow`](https://atom.io/packages/nuclide-flow) (liniting and auto-completion),  [`ide-flow`](https://atom.io/packages/ide-flow) (liniting and auto-completion)
 * **Sublime Text** -  [`SublimeLinter-flow`](https://packagecontrol.io/packages/SublimeLinter-flow) (linting)
 * **Visual Studio Code** - [`flow-for-vscode`](https://github.com/flowtype/flow-for-vscode) (linting and auto-completion)
 * **Brackets** - [`brackets-flow`](https://github.com/fdecampredon/brackets-flow) (liniting and auto-completion)

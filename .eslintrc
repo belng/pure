@@ -184,7 +184,7 @@
     "arrow-parens": 0,
     "arrow-spacing": [2, { "before": true, "after": true }],
     "constructor-super": 2,
-    "generator-star-spacing": [2, "after"],
+    "generator-star-spacing": [2, "before"],
     "no-class-assign": 2,
     "no-const-assign": 2,
     "no-dupe-class-members": 2,
@@ -196,7 +196,7 @@
     "prefer-spread": 1,
     "prefer-reflect": 0,
     "prefer-template": 0,
-    "require-yield": 2,
+    "require-yield": 0,
 
     "react/display-name": 0,
     "react/forbid-prop-types": 0,

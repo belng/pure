@@ -32,7 +32,8 @@ CREATE TABLE users (
 	timezone smallint,
 	locale smallint,
 	params jsonb,
-
+	resources jsonb,
+	presence smallint,
 	numVotes  integer,
 	numPoints integer
 ) INHERITS (entities);
@@ -40,59 +41,60 @@ CREATE TABLE users (
 CREATE TABLE items (
 	name text, -- room display name, thread title
 	body text, -- room description, thread start message
-	meta jsonb, -- guides, image dimensions
-	parent text, -- room or thread
+	meta jsonb, -- guides, image dimensions, counts
+	parents text[], -- room or thread
 	creator text,
 	updater text,
-	terms tsvector,
-
-	numMembers integer,
-	numPresent integer,
-	numChildren integer,
-	numUpvotes integer,
-	numFlags integer,
-	score float(24)
+	terms tsvector
 ) INHERITS (entities);
 
-CREATE TABLE roots (
+CREATE TABLE rooms (
 	params jsonb -- owner-private information
 ) INHERITS (items);
 
-CREATE TABLE posts (
-	room text,
+CREATE TABLE threads (
 	topics text[]
 ) INHERITS (items);
 
+CREATE TABLE texts (
+	room text
+) INHERITS (items);
+
+CREATE TABLE topics (
+	room text
+) INHERITS (items);
+
+CREATE TABLE privchat () INHERITS (items);
+
 CREATE TABLE relations (
-	"user" text, -- not FK; may be id or identity
+	"user" text, -- may be id or identity
 	item text,
 	tags smallint[],
 	role smallint,
-	status smallint,
 	roleTime bigint,
-	statusTime bigint,
+	readTime bigint,
+	resources jsonb,
+	presence smallint,
 	interest float(24),
-	reputation float(24)
-);
-
-CREATE TABLE members () INHERITS (relations);
-CREATE TABLE watchers () INHERITS (relations);
-CREATE TABLE presence (
-	resource text
-) INHERITS (relations);
-
-CREATE TABLE transits (
+	reputation float(24),
+	resource text,
 	message text,
 	admin text,
 	transitRole smallint,
 	transitType smallint,
 	createTime bigint,
 	expireTime bigint
-) INHERITS (relations);
+);
+
+CREATE TABLE roomrelations () INHERITS (relations);
+CREATE TABLE threadrelations () INHERITS (relations);
+CREATE TABLE textrelations () INHERITS (relations);
+CREATE TABLE topicrelations () INHERITS (relations);
+CREATE TABLE privchatrelations () INHERITS (relations);
 
 CREATE TABLE notes (
 	"user" text,
 	entities text,
 	event smallint,
 	data jsonb
-);
+) INHERITS (entities);
