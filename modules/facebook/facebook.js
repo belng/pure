@@ -1,4 +1,6 @@
-var app = require("./../../app.js"), request = require("request");
+var app = require("./../../app.js"), request = require("request"),
+	returnTemplate, loginTemplate,
+	handlebars = require("handlebars");
 
 function getTokenFromCode(code, secret, cliendID, host) {
 	return new Promise (function (resolve) {
@@ -106,6 +108,24 @@ function fbAuth(changes, next) {
 	});
 }
 
+function oAuthRedirect(http, next) {
+	var path = http.req.path.substring(3);
+	path = path.split("/");
+	if (path[0] === "google") {
+		if (path[1] === "login") {
+			return http.res.end(loginTemplate({
+				client_id: config.facebook.client_id,
+				redirect_uri: "https://" + config.host + "/r/google/return"
+			}));
+		} else if (path[1] === "return") {
+			http.res.end(returnTemplate({}));
+		}
+	}
+}
+
 module.exports = function() {
-	core.on("setstate", fbauth, 900);
+	app.core.on("setstate", fbauth, 900);
+	returnTemplate = handlebars.compile(fs.readFileSync(__dirname + "/facebook-return.hbs", "utf8"));
+	loginTemplate = handlebars.compile(fs.readFileSync(__dirname + "/facebook-login.hbs", "utf8"));
+	app.core.on("http/request", oAuthRedirect, 1000);
 };

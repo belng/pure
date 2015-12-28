@@ -2,7 +2,9 @@
 sources:
 https://developers.google.com/identity/protocols/OAuth2UserAgent#validatetoken
 */
-var app = require("./../../app.js"), request = require("request");
+var app = require("./../../app.js"), request = require("request"),
+	loginTemplate, returnTemplate, handlebars = require("handlebars");
+
 // TODO: most of the code is copy paste from facebook module. see if u can avoid that when u get time.
 function getTokenFromCode(code, secret, cliendID, host) {
 	return new Promise (function (resolve) {
@@ -114,7 +116,24 @@ function googleAuth(changes, next) {
 		});
 	});
 }
+function oAuthRedirect(http, next) {
+	var path = http.req.path.substring(3);
+	path = path.split("/");
+	if (path[0] === "google") {
+		if (path[1] === "login") {
+			return http.res.end(loginTemplate({
+				client_id: config.google.client_id,
+				redirect_uri: "https://" + config.host + "/r/facegoogle/return"
+			}));
+		} else if (path[1] === "return") {
+			http.res.end(returnTemplate({}));
+		}
+	}
+}
 
 module.exports = function() {
 	core.on("setstate", googleAuth, 900);
+	returnTemplate = handlebars.compile(fs.readFileSync(__dirname + "/google-return.hbs", "utf8"));
+	loginTemplate = handlebars.compile(fs.readFileSync(__dirname + "/google-login.hbs", "utf8"));
+	app.core.on("http/request", oAuthRedirect, 1000);
 };
