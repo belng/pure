@@ -1,10 +1,43 @@
 ### Sign in/up/out ###
 
-There will be six authentication modules facebook, google, signout, guest*, resource and session, as well as a helper module signin.
+There will be eight authentication modules facebook, google, signin, signup, signout, guest*, resource and session.
 
 After passing through all these modules, the change object will have an `auth.user` property that contains the ID of the user; this will be used by the authorizer and by other subsequent modules.
 
 \* guest will not be implemented for HeyNeighbor.
+
+#### Example
+
+During sign-up, the dialogue between client and server is something like:
+
+```
+1. client: { auth: { facebook: { token: "9b6dba..." } } }
+2. server: { app: { signup: { identities: [ ... ], signedIdentities: "<jws(identities)>", params... } } }
+3. client: { auth: { signup: { id: "abc", identities, signedIdentities, params } } }
+4. server: { app: { session: "<jws()>" } }
+```
+
+Module order is:
+
+1. **facebook / google**
+   reads auth.facebook or auth.google and writes the auth.signin partial user object
+
+3. **signin**
+   Reads auth.signin, loads user and if exists deletes auth.signin and sets auth.user = id
+
+4. **signup**
+   If auth.signin still exists, moves it to response.signup and adds signedIdentities.
+   If auth.signup exists, verifies signedIdentities, moves it to entities[id] and adds auth.user = id
+
+5. **session**
+    If auth.user is defined, adds response.app.session = jws.sign(auth.user)
+    If auth.session is defined, adds auth.user = jws.verify(auth.session).sub
+
+6. **resource**
+    If auth.user is defined, sets resmap[auth.resource] = auth.user
+    Else, sets auth.user = resmap[auth.resource]; resmap is a module-local JS variable.
+
+#### Details
 
 **The client** does sign in/up/out by sending an `auth` property on the change object. The response will set `app.user` to a user id for successful sign in/up, to `null` to indicate sign out, or leave it undefined and have a separate `app.signup` property containing a partial user object if a sign up is needed.
 
@@ -19,7 +52,7 @@ The `auth` property contains a facebook or google token or a session ID, for bot
 }
 ```
 
-Unlike the current app, sign up does not rely on any server-side storage of a past unsuccessful sign in (guest with identity). The login token must be sent again, and a second facebook API call will be made during sign up. This one-time overhead allows us to avoid storing and invalidate guests.
+Unlike the current app, sign up does not rely on any server-side storage of a past unsuccessful sign in (guest with identity); instead the response `app.signup` will contain a special `signedIdentities` token that must be sent back to the server when the user creates the account.
 
 **The socket module** stores in-memory session IDs for each connection, and adds it to every incoming change.
 
@@ -59,6 +92,10 @@ Unlike the current app, sign up does not rely on any server-side storage of a pa
 }
 ```
 
+**The guest module** is unspecified.
+
+**The signout module** sets `auth.user` and `response.app.user` to null.
+
 **The signin module** makes a database query with the identities in partial to load a user.
 
 If a user exists, it adds the user id to `auth.user` and to `response.app.user`, and the user object to `response.entities`. It then compares the signin object with the pre-existing user, and writes any updates to `entities`.
@@ -85,7 +122,9 @@ If a user exists, it adds the user id to `auth.user` and to `response.app.user`,
 }
 ```
 
-If no user exists, and no `auth.signup` exists, `auth.signin` is copied to `response.app.signup`.
+**The signup module**
+
+If no `auth.signup` exists, `auth.signin` is copied to `response.app.signup`.
 
 ```javascript
 {
@@ -102,7 +141,7 @@ If no user exists, and no `auth.signup` exists, `auth.signin` is copied to `resp
 }
 ```
 
-If `auth.signup` exists, `signin` is merged into it and the combined object is added to `entities` and `response.entities`. The id from signup is copied into `auth.user` and `response.app.user`.
+If `auth.signup` exists, it is moved to `entities` as well as `response.entities`. The id from signup is copied into `auth.user` and `response.app.user`.
 
 ```javascript
 {
@@ -124,7 +163,6 @@ If `auth.signup` exists, `signin` is merged into it and the combined object is a
 }
 ```
 
-**The signout module** sets `auth.user` and `response.app.user` to null.
 
 **The session module** does two things: If `auth.session` is defined, it decodes JWS and adds `auth.user`. If `response.app.user` is defined, adds `response.app.session` property with a JWS token.
 
