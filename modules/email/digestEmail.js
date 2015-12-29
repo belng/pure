@@ -6,7 +6,7 @@ let config, send, connStr, constants,
 	fs = require("fs"),
 	handlebars = require("handlebars"),
 	pg = require("../lib/pg"),
-	jwt = require("jsonwebtoken"),
+	jwt = require("jsonwebtoken"), lastEmailSent,
 	connstr = "pg://" + config.pg.username + ":" + config.pg.password + "@" + config.pg.server + "/" + config.pg.db,
 	template = handlebars.compile(fs.readFileSync(__dirname + "/views/" + config.appName + ".digest.hbs", "utf-8"));
 
@@ -30,11 +30,10 @@ function initMailSending (userRel) {
 }
 
 function sendDigestEmail () {
-	let sendEmailToUser = require("./welcomeEmail").sendEmailToUser,
+	let getMailObj = require("./prepareMailObj"),
 		startPoint = Date().now - 2 * DIGEST_DELAY,
 		start = lastEmailSent < startPoint ? lastEmailSent : startPoint,
-		end = Date().now - DIGEST_DELAY,
-		cUserRel;
+		end = Date().now - DIGEST_DELAY;
 
 	pg.readStream(connstr, {
 		$: `WITH
@@ -47,10 +46,12 @@ function sendDigestEmail () {
 		end: end,
 		follower: constants.ROLE_FOLLOWER
 	}).on("row", (userRel) => {
-		cUserRel = sendEmailToUser(userRel) || {};
+		let emailObj = getMailObj(userRel) || {};
 		
-		if (Object.keys(s).length !== 0) initMailSending(cUserRel);
+		if (Object.keys(emailObj).length !== 0) initMailSending(emailObj);
 	}).on("end", function() {
+		let c = getMailObj({}); // empty obj to get email obj for last row data
+		initMailSending(c);
 		pg.write(connString, {
 			$: "UPDATE jobs SET lastrun=&{end} WHERE jobid=&{jid}",
 			end: end,
