@@ -5,96 +5,84 @@
 -- bytes. In JSON they are represented by :<20-char base64>.
 
 DROP TABLE IF EXISTS notes;
-
-DROP TABLE IF EXISTS members;
-DROP TABLE IF EXISTS watchers;
-DROP TABLE IF EXISTS presence;
-DROP TABLE IF EXISTS transits;
-DROP TABLE IF EXISTS relations;
-
-DROP TABLE IF EXISTS roots;
-DROP TABLE IF EXISTS posts;
-DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS relations CASCADE;
+DROP TABLE IF EXISTS items CASCADE;
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS entities;
 
-CREATE TABLE entities (
+CREATE TABLE users (
 	id text PRIMARY KEY,
-	type smallint,
-	tags smallint[],
+	tags smallint[], -- e.g. admin, manager
+	name text, -- user display name
+	identities text[], -- user-private
+	timezone smallint,
+	locale smallint,
+	params jsonb, -- user-private information
+	resources jsonb, -- { resourceId: foreground/background }
+	presence smallint, -- foreground/background/none
+	counts jsonb,
 	createTime bigint,
 	updateTime bigint,
 	deleteTime bigint
 );
 
-CREATE TABLE users (
-	identities text[],
-	timezone smallint,
-	locale smallint,
-	params jsonb,
-	resources jsonb,
-	presence smallint,
-	numVotes  integer,
-	numPoints integer
-) INHERITS (entities);
-
 CREATE TABLE items (
+	id uuid PRIMARY KEY,
 	name text, -- room display name, thread title
 	body text, -- room description, thread start message
+	tags smallint[], -- e.g. image, hidden, sticky, city, nbrhd, aptmt
 	meta jsonb, -- guides, image dimensions, counts
-	parents text[], -- room or thread
+	parents uuid[], -- room or thread
 	creator text,
 	updater text,
-	terms tsvector
-) INHERITS (entities);
+	terms tsvector,
+	counts jsonb,
+	createTime bigint,
+	updateTime bigint,
+	deleteTime bigint
+);
 
 CREATE TABLE rooms (
 	params jsonb -- owner-private information
 ) INHERITS (items);
 
 CREATE TABLE threads (
-	topics text[]
+	score float(24) -- sort ordering
 ) INHERITS (items);
 
-CREATE TABLE texts (
-	room text
-) INHERITS (items);
-
-CREATE TABLE topics (
-	room text
-) INHERITS (items);
-
-CREATE TABLE privchat () INHERITS (items);
+CREATE TABLE texts  () INHERITS (items);
+CREATE TABLE topics () INHERITS (items);
+CREATE TABLE privs  () INHERITS (items);
 
 CREATE TABLE relations (
-	"user" text, -- may be id or identity
-	item text,
-	tags smallint[],
+	"user" text,
+	item uuid,
+	tags smallint[], -- mute, upvote, home, work
 	role smallint,
 	roleTime bigint,
-	readTime bigint,
-	resources jsonb,
-	presence smallint,
 	interest float(24),
 	reputation float(24),
-	resource text,
+
+	resources jsonb, -- { resource: writing/reading }
+	presence smallint, -- writing/reading/none
+	presenceTime bigint,
+
 	message text,
 	admin text,
 	transitRole smallint,
 	transitType smallint,
-	createTime bigint,
 	expireTime bigint
 );
 
-CREATE TABLE roomrelations () INHERITS (relations);
+CREATE TABLE roomrelations   () INHERITS (relations);
 CREATE TABLE threadrelations () INHERITS (relations);
-CREATE TABLE textrelations () INHERITS (relations);
-CREATE TABLE topicrelations () INHERITS (relations);
-CREATE TABLE privchatrelations () INHERITS (relations);
+CREATE TABLE textrelations   () INHERITS (relations);
+CREATE TABLE topicrelations  () INHERITS (relations);
+CREATE TABLE privrelations   () INHERITS (relations);
 
 CREATE TABLE notes (
 	"user" text,
-	entities text,
-	event smallint,
-	data jsonb
-) INHERITS (entities);
+	event smallint, -- e.g. mention, invite, request
+	"group" text, -- e.g. thread in which mentioned, room to which invited
+	count integer, -- this event in this group id
+	data jsonb -- information like
+);

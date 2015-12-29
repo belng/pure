@@ -17,7 +17,7 @@ module.exports = {
 	entry: __DEV__ ? [ ...entry, "webpack-hot-middleware/client" ] : [ ...entry ],
 	output: {
 		path: path.resolve(__dirname, "static/dist/scripts"),
-		publicPath: "/dist/scripts",
+		publicPath: "/s/dist/scripts",
 		filename: "bundle.min.js",
 		sourceMapFilename: "bundle.min.js.map"
 	},
