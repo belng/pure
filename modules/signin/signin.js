@@ -3,8 +3,7 @@
 // sign with default (HMAC SHA256)
 var app = require("../../app.js"),
 	core = app.core,
-	cache = app.cache,
-	objectUtils = require("../../lib/object-utils.js");
+	cache = app.cache;
 
 function signinhandler(changes, next) {
 	if (changes.auth && changes.auth.signin) {
@@ -15,6 +14,7 @@ function signinhandler(changes, next) {
 				changes.app = (changes.app || {}).user = entity.id;
 				((changes.response = (changes.response || {})).app || {}).user = entity.id;
 				(changes.response.entities = changes.response.entities || {})[entity.id] = entity;
+				delete changes.auth.signin;
 				return next();
 			});
 		} else if (changes.auth.signin.identities.length) {
@@ -24,16 +24,15 @@ function signinhandler(changes, next) {
 					changes.app = (changes.app || {}).user = entity.id;
 					(changes.response.app = (changes.response = (changes.response || {})).app || {}).user = entity.id;
 					(changes.response.entities = changes.response.entities || {})[entity.id] = entity;
+					delete changes.auth.signin;
 				} else {
-					if (!changes.auth.signup) changes.auth.signup = changes.auth.signin;
-					else {
-						changes.auth.signup = objectUtils.merge(changes.auth.signup, changes.auth.signup);
-					}
 					(changes.response.app = (changes.response = (changes.response || {})).app || {}).user = null;
 				}
 				return next();
 			});
 		}
+	} else {
+		return next();
 	}
 }
 

@@ -39,23 +39,20 @@ function sessionHandler(changes, next) {
 	if (changes.auth && changes.auth.session) {
 		getEmailFromSession(changes.auth.session)
 		.then(function(sub) {
-			if (sub.indexOf(":") === 0) {
-				signin.identities = [ sub ]; // probably a signup stage 2- when user chooses a name.
-			} else {
-				changes.auth.user = sub; // sign in
-				signin.id = sub;
-			}
+			changes.auth.user = sub; // sign in
+			signin.id = sub;
 			signin.params = {};
-			changes.auth.signin = signin;
 			next();
 		})
 		.catch(next);
-	} else if (changes.auth && changes.auth.signin && changes.auth.signin.identities && changes.auth.signin.identities.length) {
+	}/* is needed?
+
+	else if (changes.auth && changes.auth.signin && changes.auth.signin.identities && changes.auth.signin.identities.length) {
 		generateSession(changes.auth.signin.identities[0]).then(function(session) {
 			changes.auth.session =	session;
 			next();
 		});
-	}
+	}*/
 }
 
 module.exports = function() {
