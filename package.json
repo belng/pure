@@ -27,7 +27,7 @@
   "devDependencies": {
     "babel-eslint": "^5.0.0-beta6",
     "babel-jest": "^6.0.1",
-    "babel-loader": "^6.2.0",
+    "babel-loader": "^6.2.1",
     "babel-plugin-syntax-async-functions": "^6.3.13",
     "babel-plugin-syntax-async-generators": "^6.3.13",
     "babel-plugin-syntax-class-properties": "^6.3.13",
