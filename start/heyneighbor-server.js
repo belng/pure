@@ -1,3 +1,5 @@
+"use strict";
+
 require("babel/register");
 
 const core = require("../core"),
