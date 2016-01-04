@@ -1,9 +1,9 @@
 "use strict";
 
 // sign with default (HMAC SHA256)
-var app = require("../../app.js"),
-	core = app.core,
-	cache = app.cache;
+var core = require("../../core.js"),
+	bus = core.bus,
+	cache = core.cache;
 
 function signinhandler(changes, next) {
 	if (changes.auth && changes.auth.signin) {
@@ -37,5 +37,5 @@ function signinhandler(changes, next) {
 }
 
 module.exports = function() {
-	core.on("setstate", signinhandler, "authentication");
+	bus.on("setstate", signinhandler, "authentication");
 };

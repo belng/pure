@@ -1,5 +1,5 @@
-var app = require("./../../app.js"), request = require("request"),
-	fs = require("fs"),
+var core = require("./../../core.js"), request = require("request"),
+	fs = require("fs"), bus= core.bus, config = core.config,
 	returnTemplate, loginTemplate,
 	handlebars = require("handlebars");
 
@@ -91,7 +91,7 @@ function fbAuth(changes, next) {
 	key = changes.auth.facebook.code || changes.auth.facebook.accessToken;
 	if (!key) return next(new Error("FACEBOOK_AUTH_FAILED"));
 
-	promise = ((changes.auth.facebook.code) ? getTokenFromCode(key, app.config.facebook.client_secret, app.config.facebook.client_id, app.config.host) : verifyToken(key, app.config.facebook.client_id));
+	promise = ((changes.auth.facebook.code) ? getTokenFromCode(key, config.facebook.client_secret, config.facebook.client_id, config.host) : verifyToken(key, config.facebook.client_id));
 
 	promise.then(function(err, token) {
 		if (err) return next(err);
@@ -111,8 +111,8 @@ function oAuthRedirect(http) {
 	if (path[0] === "google") {
 		if (path[1] === "login") {
 			return http.res.end(loginTemplate({
-				client_id: app.config.facebook.client_id,
-				redirect_uri: "https://" + app.config.host + "/r/google/return"
+				client_id: config.facebook.client_id,
+				redirect_uri: "https://" + config.host + "/r/google/return"
 			}));
 		} else if (path[1] === "return") {
 			http.res.end(returnTemplate({}));
@@ -121,8 +121,8 @@ function oAuthRedirect(http) {
 }
 
 module.exports = function() {
-	app.core.on("setstate", fbAuth, 900);
+	bus.on("setstate", fbAuth, 900);
 	returnTemplate = handlebars.compile(fs.readFileSync(__dirname + "/facebook-return.hbs", "utf8"));
 	loginTemplate = handlebars.compile(fs.readFileSync(__dirname + "/facebook-login.hbs", "utf8"));
-	app.core.on("http/request", oAuthRedirect, 1000);
+	bus.on("http/request", oAuthRedirect, 1000);
 };

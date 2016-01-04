@@ -2,8 +2,8 @@
 sources:
 https://developers.google.com/identity/protocols/OAuth2UserAgent#validatetoken
 */
-var app = require("./../../app.js"), request = require("request"),
-	fs = require("fs"),
+var core = require("./../../core.js"), request = require("request"),
+	fs = require("fs"), bus = core.bus, config = core.config,
 	loginTemplate, returnTemplate, handlebars = require("handlebars");
 
 // TODO: most of the code is copy paste from facebook module. see if u can avoid that when u get time.
@@ -16,9 +16,9 @@ function getTokenFromCode(code) {
 			},
 			body: require("querystring").stringify({
 				code: code,
-				redirect_uri: "https://" + app.config.global.host + "/r/google/return",
-				client_id: app.config.google.client_id,
-				client_secret: app.config.google.client_secret,
+				redirect_uri: "https://" + config.global.host + "/r/google/return",
+				client_id: config.google.client_id,
+				client_secret: config.google.client_secret,
 				grant_type: "authorization_code"
 			})
 		}, function(err, res, tokenBody) {
@@ -112,8 +112,8 @@ function oAuthRedirect(http) {
 	if (path[0] === "google") {
 		if (path[1] === "login") {
 			return http.res.end(loginTemplate({
-				client_id: app.config.google.client_id,
-				redirect_uri: "https://" + app.config.host + "/r/facegoogle/return"
+				client_id: config.google.client_id,
+				redirect_uri: "https://" + config.host + "/r/facegoogle/return"
 			}));
 		} else if (path[1] === "return") {
 			http.res.end(returnTemplate({}));
@@ -122,8 +122,8 @@ function oAuthRedirect(http) {
 }
 
 module.exports = function() {
-	app.core.on("setstate", googleAuth, 900);
+	bus.on("setstate", googleAuth, 900);
 	returnTemplate = handlebars.compile(fs.readFileSync(__dirname + "/google-return.hbs", "utf8"));
 	loginTemplate = handlebars.compile(fs.readFileSync(__dirname + "/google-login.hbs", "utf8"));
-	app.core.on("http/request", oAuthRedirect, 1000);
+	bus.on("http/request", oAuthRedirect, 1000);
 };

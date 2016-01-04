@@ -1,13 +1,13 @@
 "use strict";
 
 // sign with default (HMAC SHA256)
-var app = require("../../app.js"),
+var core = require("../../core.js"),
 	jwt = require("jsonwebtoken"),
 	objectUtils = require("../../lib/object-utils.js"),
 	tokenValidity = 604800, // seven days
-	core = app.core,
-	cache = app.cache,
-	config = app.config,
+	bus = core.bus,
+	cache = core.cache,
+	config = core.config,
 	iss = config.host,
 	aud = config.host,
 	key = config.session.privateKey;

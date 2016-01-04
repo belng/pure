@@ -16,6 +16,6 @@ try {
 
 core.config = jsonop(defaults, config);
 
-require("./modules/http/http");
-require("./modules/socket/socket-server");
+require("./modules/socket/socket-server"); 
 require("./modules/ui/ui-server");
+require("./modules/http/http"); // if fired before socket server then the http/init listen might not be listening..
