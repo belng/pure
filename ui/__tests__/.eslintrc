@@ -1,0 +1,12 @@
+{
+  "extends": "../../.eslintrc",
+  "env": {
+    "node": true
+  },
+  "globals": {
+    "jest": false,
+    "describe": false,
+    "it": false,
+    "expect": false
+  }
+}

@@ -1,1 +1,34 @@
+# Backup files
+#
+*~
+
+# OS X
+#
+.DS_Store
+
+# Sass
+#
+.sass-cache
+
+# Node
+#
+npm-debug.log
 node_modules
+bower_components
+
+# Type definitions
+#
+typings/
+
+# VSCode
+#
+*.vscode
+jsconfig.json
+
+# Built files
+#
+*.bundle
+*.bundle.js
+*.min.js
+*.min.css
+*.map
