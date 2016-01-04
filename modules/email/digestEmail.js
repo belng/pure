@@ -34,17 +34,38 @@ function sendDigestEmail () {
 		startPoint = Date().now - 2 * DIGEST_DELAY,
 		start = lastEmailSent < startPoint ? lastEmailSent : startPoint,
 		end = Date().now - DIGEST_DELAY;
+	
+	function getTimezone(hour) {
+		let UtcHrs = new Date().getUTCHours(),
+		c = UtcHrs > 12 ? 24 - UtcHrs : UtcHrs
 
+		let d = c > hour ? c-hour : hour-c,
+			tz = d * 60;
+
+		let tzMin = tz - 30,
+			tzMax = tz + 30;
+		return {min: tzMin, max: tzMax}
+	}
+	
+	
+	let tz = getTimezone(config.digestEmailTime)
+	
+	if(config.debug) {
+		start = 0, end = date().now, tz.min = 0, tz.max = 100000
+	}
+	
 	pg.readStream(connstr, {
 		$: `WITH
 				u AS (SELECT * FROM users, roomrelations rr WHERE rr.user = users.id AND role >= &{follower}
-				AND statusTime > &{start} AND statusTime < &{end}), 
-				t AS (SELECT * FROM threads LEFT OUTER JOIN threadrelations tr ON tr.item = threads.id
+				AND statusTime > &{start} AND statusTime < &{end} AND timezone >= &{min} AND timezone < &{max}), 
+				t AS (SELECT * FROM threads LEFT OUTER JOIN roomrelations rr ON rr.item = threads.parents[1]
 				WHERE updateTime > statusTime AND updateTime > &{start})
 			SELECT * FROM u, t WHERE t.parents[1] = u.item AND u.id = t.user ORDER BY u.id`,
 		start: start,
 		end: end,
-		follower: constants.ROLE_FOLLOWER
+		follower: constants.ROLE_FOLLOWER,
+		min: tz.min,
+		max: tz.max
 	}).on("row", (userRel) => {
 		let emailObj = getMailObj(userRel) || {};
 		
@@ -66,6 +87,12 @@ module.exports = (row) => {
 	let app = require("../../app"), config = app.config, constants = app.constants;
 	send = require("./sendEmail");
 	lastEmailSent = row.lastrun;
-	setInterval(sendDigestEmail, DIGEST_INTERVAL);
+	let UtcMnts = new Date().getUTCMinutes();
+	let delay = UtcMnts < 30 ? 30 : 90;
+	
+	setTimeout(function(){
+		sendDigestEmail();
+		setInterval(sendDigestEmail, DIGEST_INTERVAL);
+	}, (delay-UtcMnts)*60000);
 }
 module.exports.initMailSending = initMailSending;

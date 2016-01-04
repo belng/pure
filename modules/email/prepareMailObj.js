@@ -33,7 +33,9 @@ function relFromUserRel(rel) {
 }
 
 function sendEmailToUser(userRel) {
-	
+//	if (userRel.uid === null) {
+//		console.log(userRel)
+//	}
 	let rel = relFromUserRel(userRel),
 		user = userFromUserRel(userRel),
 		cUserRel = false;
@@ -54,14 +56,23 @@ function sendEmailToUser(userRel) {
 			}
 		];
 	} else {
-		if(rel.room === currentR[currentR.length-1].room ||
+//		console.log(currentR)
+		if(/*rel.room === currentR[currentR.length-1].room ||*/
 		   rel.parent === currentR[currentR.length-1].room) {
 			currentR[currentR.length-1].threads.push(rel)
 		}
+		
+//		for (let i=0; i<currentR.length; i++) {
+//			if(rel.parent === currentR[0].room) {
+//				
+//			}
+//		}
 		else {
 			currentR.push({room: rel.room ? rel.room : rel.parent, threads: [rel]});
 		}
 	}
+//	console.log(currentR)
+	
 	if (cUserRel) {
 
 		cUserRel.currentRels.sort ((a, b) => { // sort according to the no of threads in a room	
@@ -80,6 +91,7 @@ function sendEmailToUser(userRel) {
 }
 
 module.exports = function (userRel) {
+	
 	if (Object.keys(userRel).length === 0) {
 		let cu = currentU, cr = currentR;
 		currentU = false, currentR = false;
