@@ -7,7 +7,7 @@
   "dependencies": {
     "babel-polyfill": "^6.3.14",
     "babel-register": "^6.3.13",
-    "big-integer": "^1.6.7",
+    "big-integer": "^1.6.10",
     "ebus": "^0.12.0",
     "engine.io": "^1.5.4",
     "handlebars": "^4.0.5",
