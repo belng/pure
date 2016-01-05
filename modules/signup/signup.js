@@ -65,6 +65,5 @@ function signuphandler(changes, next) {
 	}
 }
 
-module.exports = function() {
-	core.on("setstate", signuphandler, "authentication");
-};
+bus.on("setstate", signuphandler, "authentication");
+console.log("signup module ready...");

@@ -1,8 +1,10 @@
+"use strict";
 let engine = require("engine.io"),
 	core = require("../../core"),
+	bus = core.bus,
 	config = core.config,
 	constants = require("../../lib/constants"),
-	uid = require("../../lib/uid"),
+	uid = require("../../lib/uid-server"),
 	notify = require("../../lib/notify"),
 	sockets = {};
 
@@ -15,7 +17,7 @@ function sendError(socket, code, reason, event) {
 	}));
 }
 
-core.on("http/init", httpServer => {
+bus.on("http/init", httpServer => {
 	let socketServer = engine.attach(httpServer);
 
 	socketServer.on("connection", socket => {
@@ -23,7 +25,7 @@ core.on("http/init", httpServer => {
 		sockets[resourceId] = socket;
 
 		socket.on("close", () => {
-			core.emit("presence/offline", { resourceId });
+			bus.emit("presence/offline", { resourceId });
 			delete sockets[resourceId];
 		});
 
@@ -36,7 +38,7 @@ core.on("http/init", httpServer => {
 
 			message.resourceId = resourceId;
 
-			core.emit("setstate", message, err => {
+			bus.emit("setstate", message, err => {
 				if (err) return sendError(
 					socket, err.code || "ERR_UNKNOWN", err.message, message
 				);
@@ -47,7 +49,7 @@ core.on("http/init", httpServer => {
 	});
 });
 
-core.on("setstate", changes => {
+bus.on("setstate", changes => {
 	notify(changes, core, {}).on("data", (change, rel) => {
 		Object.keys(rel.resources).forEach(function(e) {
 			if (!sockets[e]) return;

@@ -106,7 +106,7 @@ function googleAuth(changes, next) {
 		});
 	});
 }
-function oAuthRedirect(http) {
+function oAuthRedirect(req, res, next) {
 	var path = http.req.path.substring(3);
 	path = path.split("/");
 	if (path[0] === "google") {
@@ -121,9 +121,21 @@ function oAuthRedirect(http) {
 	}
 }
 
-module.exports = function() {
-	bus.on("setstate", googleAuth, 900);
-	returnTemplate = handlebars.compile(fs.readFileSync(__dirname + "/google-return.hbs", "utf8"));
-	loginTemplate = handlebars.compile(fs.readFileSync(__dirname + "/google-login.hbs", "utf8"));
-	bus.on("http/request", oAuthRedirect, 1000);
-};
+bus.on("setstate", googleAuth, 900);
+returnTemplate = handlebars.compile(fs.readFileSync(__dirname + "/google-return.hbs", "utf8"));
+loginTemplate = handlebars.compile(fs.readFileSync(__dirname + "/google-login.hbs", "utf8"));
+
+bus.on("http/request", function(payload, callback) {
+	payload.push({
+		get: {
+			"/r/google/*": oAuthRedirect
+		}
+	});
+	callback(null, payload);
+}, 1000);
+
+console.log("google module ready...");
+
+
+
+

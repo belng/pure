@@ -36,6 +36,5 @@ function signinhandler(changes, next) {
 	}
 }
 
-module.exports = function() {
-	bus.on("setstate", signinhandler, "authentication");
-};
+bus.on("setstate", signinhandler, "authentication");
+console.log("signin module ready...");

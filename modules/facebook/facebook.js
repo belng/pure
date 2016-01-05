@@ -105,7 +105,7 @@ function fbAuth(changes, next) {
 	});
 }
 
-function oAuthRedirect(http) {
+function oAuthRedirect(req, res, next) {
 	var path = http.req.path.substring(3);
 	path = path.split("/");
 	if (path[0] === "google") {
@@ -120,9 +120,16 @@ function oAuthRedirect(http) {
 	}
 }
 
-module.exports = function() {
-	bus.on("setstate", fbAuth, 900);
-	returnTemplate = handlebars.compile(fs.readFileSync(__dirname + "/facebook-return.hbs", "utf8"));
-	loginTemplate = handlebars.compile(fs.readFileSync(__dirname + "/facebook-login.hbs", "utf8"));
-	bus.on("http/request", oAuthRedirect, 1000);
-};
+bus.on("setstate", fbAuth, 900);
+returnTemplate = handlebars.compile(fs.readFileSync(__dirname + "/facebook-return.hbs", "utf8"));
+loginTemplate = handlebars.compile(fs.readFileSync(__dirname + "/facebook-login.hbs", "utf8"));
+bus.on("http/request", function(payload, next) {
+	payload.push({
+		get: {
+			"/r/facebook/*": oAuthRedirect
+		}
+	});
+	next(null, payload);
+}, 1000);
+
+console.log("facebook module ready...");

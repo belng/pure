@@ -55,14 +55,14 @@ function sessionHandler(changes, next) {
 	}*/
 }
 
-module.exports = function() {
-	bus.on("setstate", sessionHandler, "authentication");
-	bus.on("setstate", function(changes, next) {
-		if (changes.response && changes.response.app && changes.response.app.user) {
-			generateSession(changes.response.app.user).then(function(session) {
-				changes.response.app.session =	session;
-				next();
-			});
-		}
-	}, "modifier");
-};
+bus.on("setstate", sessionHandler, "authentication");
+bus.on("setstate", function(changes, next) {
+	if (changes.response && changes.response.app && changes.response.app.user) {
+		generateSession(changes.response.app.user).then(function(session) {
+			changes.response.app.session =	session;
+			next();
+		});
+	}
+}, "modifier");
+
+console.log("session module ready...");
