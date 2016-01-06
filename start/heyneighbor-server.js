@@ -3,13 +3,18 @@
 require("source-map-support").install();*/
 require("babel-register")({
 	ignore: function(filename) {
-		if (/node_modules\/sbcache/.test(filename)) {
-			return false;
+		if (/node_modules/.test(filename)) {
+			if (/node_modules\/sbcache/.test(filename)) {
+				return false;
+			} else {
+				return true;
+			}
 		} else {
-			return true;
+			return false;
 		}
 	},
 });
+require("babel-polyfill");
 
 const core = require("../core"),
 	jsonop = require("jsonop"),
