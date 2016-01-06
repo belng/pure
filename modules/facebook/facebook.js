@@ -1,3 +1,5 @@
+import route from "koa-route";
+
 var core = require("./../../core.js"), request = require("request"),
 	fs = require("fs"), bus= core.bus, config = core.config,
 	returnTemplate, loginTemplate,
@@ -105,31 +107,21 @@ function fbAuth(changes, next) {
 	});
 }
 
-function oAuthRedirect(req, res, next) {
-	var path = http.req.path.substring(3);
-	path = path.split("/");
-	if (path[0] === "google") {
-		if (path[1] === "login") {
-			return http.res.end(loginTemplate({
-				client_id: config.facebook.client_id,
-				redirect_uri: "https://" + config.host + "/r/google/return"
-			}));
-		} else if (path[1] === "return") {
-			http.res.end(returnTemplate({}));
-		}
-	}
-}
-
 bus.on("setstate", fbAuth, 900);
 returnTemplate = handlebars.compile(fs.readFileSync(__dirname + "/facebook-return.hbs", "utf8"));
 loginTemplate = handlebars.compile(fs.readFileSync(__dirname + "/facebook-login.hbs", "utf8"));
-bus.on("http/request", function(payload, next) {
-	payload.push({
-		get: {
-			"/r/facebook/*": oAuthRedirect
-		}
-	});
-	next(null, payload);
-}, 1000);
+
+bus.on("http/init", app => {	
+	app.use(route.get("/r/facebook/login", function *() {
+		this.body = loginTemplate({
+			client_id: config.facebook.client_id,
+			redirect_uri: "https://" + config.host + "/r/facebook/return"
+		});
+	}));
+
+	app.use(route.get("/r/facebook/return", function *() {
+		this.body = returnTemplate({});
+	}));
+});
 
 console.log("facebook module ready...");

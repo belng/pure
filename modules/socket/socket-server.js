@@ -17,8 +17,8 @@ function sendError(socket, code, reason, event) {
 	}));
 }
 
-bus.on("http/init", httpServer => {
-	let socketServer = engine.attach(httpServer);
+bus.on("http/init", app => {
+	let socketServer = engine.attach(app.httpServer);
 
 	socketServer.on("connection", socket => {
 		let resourceId = uid(16);

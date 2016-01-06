@@ -27,13 +27,13 @@ if (process.env.NODE_ENV !== "production") {
 	app.use(mount("/test", serve("test/static")));
 }
 
+app.httpServer = httpServer;
+core.bus.emit("http/init", app);
+
+
 // Serve files under static/dist for any requests to /dist/
 app.use(mount("/dist", serve("static/dist"), { defer: true }));
-
 app.use(route.get("/", home));
 app.use(route.get("/:room", room));
 app.use(route.get("/:room/:thread", thread));
 app.use(route.get("/:room/:thread/:title", thread));
-
-
-core.bus.emit("http/init", httpServer);

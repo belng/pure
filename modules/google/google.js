@@ -2,6 +2,9 @@
 sources:
 https://developers.google.com/identity/protocols/OAuth2UserAgent#validatetoken
 */
+
+import route from "koa-route";
+
 var core = require("./../../core.js"), request = require("request"),
 	fs = require("fs"), bus = core.bus, config = core.config,
 	loginTemplate, returnTemplate, handlebars = require("handlebars");
@@ -106,36 +109,22 @@ function googleAuth(changes, next) {
 		});
 	});
 }
-function oAuthRedirect(req, res, next) {
-	var path = http.req.path.substring(3);
-	path = path.split("/");
-	if (path[0] === "google") {
-		if (path[1] === "login") {
-			return http.res.end(loginTemplate({
-				client_id: config.google.client_id,
-				redirect_uri: "https://" + config.host + "/r/facegoogle/return"
-			}));
-		} else if (path[1] === "return") {
-			http.res.end(returnTemplate({}));
-		}
-	}
-}
 
 bus.on("setstate", googleAuth, 900);
 returnTemplate = handlebars.compile(fs.readFileSync(__dirname + "/google-return.hbs", "utf8"));
 loginTemplate = handlebars.compile(fs.readFileSync(__dirname + "/google-login.hbs", "utf8"));
 
-bus.on("http/request", function(payload, callback) {
-	payload.push({
-		get: {
-			"/r/google/*": oAuthRedirect
-		}
-	});
-	callback(null, payload);
-}, 1000);
+bus.on("http/init", app => {
+	app.use(route.get("/r/google/login", function *() {
+		this.body = loginTemplate({
+			client_id: config.google.client_id,
+			redirect_uri: "https://" + config.host + "/r/facegoogle/return"
+		});
+	}));
+
+	app.use(route.get("/r/google/return", function *() {
+		this.body = returnTemplate({});
+	}));
+});
 
 console.log("google module ready...");
-
-
-
-
