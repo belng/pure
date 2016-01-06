@@ -32,3 +32,4 @@ jsconfig.json
 *.min.js
 *.min.css
 *.map
+config/server.json
