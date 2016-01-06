@@ -26,7 +26,9 @@ try {
 	config = require("./../config/server.json");
 } catch (e) {
 	config = {};
+	console.log(e);
 }
+console.log(config);
 core.config = jsonop(defaults, config);
 
 require("./../modules/socket/socket-server");

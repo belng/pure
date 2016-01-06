@@ -19,7 +19,7 @@ function getTokenFromCode(code) {
 			},
 			body: require("querystring").stringify({
 				code: code,
-				redirect_uri: "https://" + config.global.host + "/r/google/return",
+				redirect_uri: "https://" + config.host + "/r/google/return",
 				client_id: config.google.client_id,
 				client_secret: config.google.client_secret,
 				grant_type: "authorization_code"

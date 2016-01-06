@@ -1,5 +1,5 @@
-var socket = eio('ws://' + location.hostname+(location.port?":"+location.port:""));
-
+var socket = eio('wss://' + location.hostname+(location.port?":"+location.port:""));
+console.log("trying to open socket");
 socket.on('open', function(){
 	console.log("socket ready!");
 	socket.on('message', function(data){
@@ -27,9 +27,10 @@ function sendAuth(auth) {
 }
 
 function onMessage(e) {
-	var data = parseMessage(e.data), auth = {};
-	auth[e.provider]={
-		core: e.code
+	console.log(e.data);
+	var data = e.data, auth = {};
+	auth[data.provider]={
+		code: data.code
 	};
 	sendAuth(auth);
 }

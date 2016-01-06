@@ -5,7 +5,7 @@ let engine = require("engine.io"),
 	config = core.config,
 	constants = require("../../lib/constants"),
 	uid = require("../../lib/uid-server"),
-	notify = require("../../lib/notify"),
+//	notify = require("../../lib/notify"),
 	sockets = {};
 
 function sendError(socket, code, reason, event) {
@@ -51,11 +51,11 @@ bus.on("http/init", app => {
 	});
 });
 
-bus.on("setstate", changes => {
+/*bus.on("setstate", changes => {
 	notify(changes, core, {}).on("data", (change, rel) => {
 		Object.keys(rel.resources).forEach(function(e) {
 			if (!sockets[e]) return;
 			sockets[e].send(JSON.stringify(change));
 		});
 	});
-});
+});*/
