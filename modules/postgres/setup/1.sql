@@ -11,9 +11,9 @@ DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
 	id text PRIMARY KEY,
-	tags smallint[], -- e.g. admin, manager
 	name text, -- user display name
 	identities text[], -- user-private
+	tags smallint[], -- e.g. admin, manager
 	timezone smallint,
 	locale smallint,
 	params jsonb, -- user-private information
@@ -29,7 +29,8 @@ CREATE TABLE items (
 	id uuid PRIMARY KEY,
 	name text, -- room display name, thread title
 	body text, -- room description, thread start message
-	tags smallint[], -- e.g. image, hidden, sticky, city, nbrhd, aptmt
+	type smallint,
+	tags smallint[], -- e.g. image, hidden, sticky, city, area, spot
 	meta jsonb, -- guides, image dimensions, counts
 	parents uuid[], -- room or thread
 	creator text,
@@ -53,14 +54,14 @@ CREATE TABLE texts  () INHERITS (items);
 CREATE TABLE topics () INHERITS (items);
 CREATE TABLE privs  () INHERITS (items);
 
-CREATE TABLE relations (
+CREATE TABLE rels (
 	"user" text,
 	item uuid,
+	type smallint,
 	tags smallint[], -- mute, upvote, home, work
 	role smallint,
 	roleTime bigint,
 	interest float(24),
-	reputation float(24),
 
 	resources jsonb, -- { resource: writing/reading }
 	presence smallint, -- writing/reading/none
@@ -73,16 +74,18 @@ CREATE TABLE relations (
 	expireTime bigint
 );
 
-CREATE TABLE roomrelations   () INHERITS (relations);
-CREATE TABLE threadrelations () INHERITS (relations);
-CREATE TABLE textrelations   () INHERITS (relations);
-CREATE TABLE topicrelations  () INHERITS (relations);
-CREATE TABLE privrelations   () INHERITS (relations);
+CREATE TABLE roomrels   () INHERITS (rels);
+CREATE TABLE threadrels () INHERITS (rels);
+CREATE TABLE textrels   () INHERITS (rels);
+CREATE TABLE topicrels  () INHERITS (rels);
+CREATE TABLE privrels   () INHERITS (rels);
 
 CREATE TABLE notes (
 	"user" text,
 	event smallint, -- e.g. mention, invite, request
+	eventTime bigint,
 	"group" text, -- e.g. thread in which mentioned, room to which invited
 	count integer, -- this event in this group id
+	score float(24),
 	data jsonb -- information like
 );

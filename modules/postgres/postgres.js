@@ -2,8 +2,8 @@ const jsonop = require("jsonop"),
 	Counter = require("../lib/counter"),
 	pg = require("../lib/pg"),
 	log = require("../lib/log"),
-	queryHandlers = require("./queries"),
-	entityHandlers = require("./entities");
+	queryHandler = require("./queries"),
+	entityHandler = require("./entities");
 
 const { bus, cache, config } = require("../core");
 
@@ -13,59 +13,47 @@ function broadcast (entity) {
 	pg.notify(channel, payload);
 }
 
-function runQuery(handlers, query, results, i, callback) {
-	let sql;
-
-	if (i < handlers.length && (sql = handlers[i](query, results))) {
-		log.d(sql);
-		pg.read(config.connStr, sql, (err, res) => {
-			if (err) return callback(err);
-			runQuery(handlers, query, res, i + 1, callback);
-		});
-	} else {
-		callback(null, results);
-	}
-}
-
-function runAction (handler, action, callback) {
-	pg.write(config.connStr, handler(action), (err) => {
-		if (err) return callback(err);
-	});
-}
-
 cache.onChange((changes) => {
-	const cb = (err, results) => {
+	const cb = (key, range, err, results) => {
 		if (err) { return log.e(err); }
-		cache.setState(results);
+		cache.setState({
+			knowledge: { [key]: [range] },
+			indexes: { [key]: results }
+		});
 	};
 
 	if (changes.queries) {
 		for (const key in changes.queries) {
-			const query = cache.keyToSlice(key, changes.queries[key]);
-
-			runQuery(queryHandlers[query.type], query, null, 0, cb);
+			for (const range of changes.queries[key]) {
+				pg.read(
+					config.connStr,
+					queryHandler(cache.keyToSlice(key), range),
+					cb.bind(null, key, range);
+				);
+			}
 		}
 	}
 });
 
 pg.onNotification((payload) => {
-	bus.emit("postchange", JSON.parse(payload));
+	bus.emit("statechange", JSON.parse(payload));
 });
 
-bus.on("prechange", (changes, next) => {
+bus.on("setstate", (changes, next) => {
 	const counter = new Counter();
 
 	if (changes.entities) {
-		const cb = (entity) => { broadcast(entity); counter.dec(); };
+		const sql = [];
 
 		for (const id in changes.entities) {
-			const entity = changes.entities[id];
-
-			counter.inc();
-			runAction(
-				entityHandlers[entity.type], entity, cb.bind(null, entity)
-			);
+			sql.push(entityHandler(changes.entities[id]));
 		}
+		counter.inc();
+		pg.write(config.connStr, sql, (err, results) => {
+			if (err) { counter.err(err); }
+			results.forEach((result) => broadcast(result[0]));
+			counter.dec();
+		});
 	}
 
 	if (changes.queries) {
