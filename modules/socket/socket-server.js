@@ -36,29 +36,22 @@ core.on("http/init", httpServer => {
 
 			message.resourceId = resourceId;
 
-			core.emit("state", message, err => {
+			core.emit("setstate", message, err => {
 				if (err) return sendError(
 					socket, err.code || "ERR_UNKNOWN", err.message, message
 				);
+				
+				if(message.response) socket.send(message.response);
 			});
 		});
 	});
 });
 
-core.on("change", changes => {
-	notify(changes, core, { }).on("data", (note) => {
-		if (!sockets[note.resourceId]) return;
-		sockets[note.resourceId].send(JSON.stringify(note.changes));
-	});
-
-	for (let notifyUser of message.notify) {
-		if (notifyUser.resources) notifyUser.resources.forEach(resourceId => {
-			if(!sockets[resourceId]) return;
-			sockets[resourceId].send(JSON.stringify(extract(message, notifyUser.id)));
+core.on("setstate", changes => {
+	notify(changes, core, {}).on("data", (change, rel) => {
+		Object.keys(rel.resources).forEach(function(e) {
+			if (!sockets[e]) return;
+			sockets[e].send(JSON.stringify(change));
 		});
-	}
-});
-
-core.on("response", changes => {
-
+	});
 });
