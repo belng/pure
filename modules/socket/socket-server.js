@@ -24,12 +24,14 @@ bus.on("http/init", httpServer => {
 		let resourceId = uid(16);
 		sockets[resourceId] = socket;
 
+		console.log("socket connection created");
 		socket.on("close", () => {
 			bus.emit("presence/offline", { resourceId });
 			delete sockets[resourceId];
 		});
 
 		socket.on("message", message => {
+			console.log("message:", message);
 			try {
 				message = JSON.parse(message);
 			} catch (e) {
@@ -37,7 +39,7 @@ bus.on("http/init", httpServer => {
 			}
 
 			message.resourceId = resourceId;
-
+			console.log("emitting setstate", message);
 			bus.emit("setstate", message, err => {
 				if (err) return sendError(
 					socket, err.code || "ERR_UNKNOWN", err.message, message
