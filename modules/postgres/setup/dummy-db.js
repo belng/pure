@@ -5,7 +5,7 @@ let pg = require("../../../lib/pg"),
 	uid = require('node-uuid'),
 	constants = require("../../../lib/constants.json"),
 	connstr = "pg://scrollback: @localhost/ptest", users = [], rooms = [], threads = [], texts = [],
-	numUsers = 1000, numRooms = 500, numThreads = 20000, numTexts = 50000, numMembers = 5000;
+	numUsers = 1000, numRooms = 500, numThreads = 20000, numTexts = 50000, numRoomRel = 5000, numThreadRel = 10000, numTextRel = 15000;
 //116207038
 function r(n) { 
 	return Math.floor(Math.random() * n); 
@@ -177,13 +177,13 @@ repeat(insertUser, numUsers)
 	return repeat(insertText, numTexts);
 }).then(function () {
 	console.log("Done. Inserting room relations...");
-	return repeat(insertRoomrel, numMembers);
+	return repeat(insertRoomrel, numRoomRel);
 }).then(function () {
 	console.log("Done. Inserting watchers...");
-	return repeat(insertThreadrel, numMembers);
+	return repeat(insertThreadrel, numThreadRel);
 }).then(function () {
 	console.log("Done. Inserting presence...");
-	return repeat(insertTextrel, numMembers);
+	return repeat(insertTextrel, numTextRel);
 }).then(function () {
 	console.log("All done...");
 })
