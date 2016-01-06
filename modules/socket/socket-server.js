@@ -41,6 +41,7 @@ bus.on("http/init", app => {
 			message.resourceId = resourceId;
 			console.log("emitting setstate", message);
 			bus.emit("setstate", message, err => {
+				console.log(err, message);
 				if (err) return sendError(
 					socket, err.code || "ERR_UNKNOWN", err.message, message
 				);

@@ -20,7 +20,7 @@ document.getElementById("facebook").onclick = function(){
 
 
 function sendAuth(auth) {
-	socket.send(JSON.parse({
+	socket.send(JSON.stringify({
 		type: "setstate",
 		auth: auth
 	}));
