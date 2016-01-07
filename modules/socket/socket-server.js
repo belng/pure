@@ -5,7 +5,7 @@ let engine = require("engine.io"),
 	config = core.config,
 	constants = require("../../lib/constants"),
 	uid = require("../../lib/uid-server"),
-//	notify = require("../../lib/notify"),
+	notify = require("./dispatch"),
 	sockets = {};
 
 function sendError(socket, code, reason, event) {
