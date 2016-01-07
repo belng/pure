@@ -53,14 +53,15 @@ function sendDigestEmail () {
 	if(config.debug) {
 		start = 0, end = date().now, tz.min = 0, tz.max = 100000
 	}
+
 	
 	pg.readStream(connstr, {
-		$: `WITH
-				u AS (SELECT * FROM users, roomrelations rr WHERE rr.user = users.id AND role >= &{follower}
-				AND statusTime > &{start} AND statusTime < &{end} AND timezone >= &{min} AND timezone < &{max}), 
-				t AS (SELECT * FROM threads LEFT OUTER JOIN roomrelations rr ON rr.item = threads.parents[1]
-				WHERE updateTime > statusTime AND updateTime > &{start})
-			SELECT * FROM u, t WHERE t.parents[1] = u.item AND u.id = t.user ORDER BY u.id`,
+		$: `WITH 
+             urel AS (WITH u AS (SELECT * FROM users, roomrelations rr WHERE rr.user=users.id AND role >= &{follower} 
+	                           AND statusTime > &{start} AND statusTime < &{end} AND timezone >= &{min} AND timezone < &{max}) 
+                      SELECT u.id uid, rooms.name rname, * FROM u, rooms WHERE u.item=rooms.id)
+            SELECT urel.uid uid, urel.rname rname, threads.name title, * FROM threads, urel where urel.item = threads.parents[1] 
+            AND updateTime > statusTime AND updateTime > &{start} order by uid`,
 		start: start,
 		end: end,
 		follower: constants.ROLE_FOLLOWER,

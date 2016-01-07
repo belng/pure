@@ -5,7 +5,7 @@ let currentU = false, currentR = false;
 
 function userFromUserRel(user) {
 	return {
-		id: user.user,
+		id: user.uid,
 		identities: user.identities,
 		createTime: user.createTime,
 		params: user.params, 
@@ -18,9 +18,9 @@ function relFromUserRel(rel) {
 	return {
 		user: rel.user, // id or identity
 		topics: rel.topics,
-		threadTitle: rel.name, //room display name or thread title
+		threadTitle: rel.title, //room display name or thread title
 		body: rel.body,
-		parent: rel.parents ? rel.parents[0] : "" ,
+		parent: rel.rname ? rel.rname : "" ,
 		item: rel.item,
 		tags: rel.tags,
 		role: rel.role,
@@ -33,15 +33,10 @@ function relFromUserRel(rel) {
 }
 
 function sendEmailToUser(userRel) {
-//	if (userRel.uid === null) {
-//		console.log(userRel)
-//	}
 	let rel = relFromUserRel(userRel),
 		user = userFromUserRel(userRel),
 		cUserRel = false;
-//	console.log(user.id, currentU.id)
 	if(user.id !== currentU.id) {
-//		console.log((currentU))
 		if (currentU) {
 			cUserRel = {
 				currentUser: currentU, 
@@ -56,23 +51,16 @@ function sendEmailToUser(userRel) {
 			}
 		];
 	} else {
-//		console.log(currentR)
+		
 		if(/*rel.room === currentR[currentR.length-1].room ||*/
 		   rel.parent === currentR[currentR.length-1].room) {
 			currentR[currentR.length-1].threads.push(rel)
 		}
 		
-//		for (let i=0; i<currentR.length; i++) {
-//			if(rel.parent === currentR[0].room) {
-//				
-//			}
-//		}
 		else {
 			currentR.push({room: rel.room ? rel.room : rel.parent, threads: [rel]});
 		}
-	}
-//	console.log(currentR)
-	
+	}	
 	if (cUserRel) {
 
 		cUserRel.currentRels.sort ((a, b) => { // sort according to the no of threads in a room	
@@ -91,7 +79,7 @@ function sendEmailToUser(userRel) {
 }
 
 module.exports = function (userRel) {
-	
+//	console.log(userRel)
 	if (Object.keys(userRel).length === 0) {
 		let cu = currentU, cr = currentR;
 		currentU = false, currentR = false;
