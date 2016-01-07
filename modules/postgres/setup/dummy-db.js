@@ -4,12 +4,8 @@ let pg = require("../../../lib/pg"),
 	casual = require("casual"),
 	uid = require('node-uuid'),
 	constants = require("../../../lib/constants.json"),
-	connstr = "pg://scrollback: @localhost/ptest", users = [], rooms = [], threads = [], texts = [],
-	numUsers = 1000, numRooms = 500, numThreads = 20000, numTexts = 50000, numRoomRel = 5000, numThreadRel = 10000, numTextRel = 15000;
-//116207038
-function r(n) { 
-	return Math.floor(Math.random() * n); 
-}
+	connstr = "pg://scrollback: @localhost/pure", users = [], rooms = [], threads = [], texts = [],
+	numUsers = 10, numRooms = 5, numThreads = 20, numTexts = 50;
 
 function getId() {
 	let u = casual.username.toLowerCase().replace(/\_|\./g, "-");
@@ -35,7 +31,6 @@ function insertUser(done) {
 		ident: casual.email.toLowerCase()
 	}], done);	
 }
-
 
 function insertRoom(done) {
 	let id = uid.v4(), room = casual.state;
@@ -99,7 +94,7 @@ function insertText(done) {
 	}], done);
 }
 
-function insertRoomrel(done) {
+function insertRoomrel(usr, room, cb) {
 	pg.write(connstr, [{
 		$: `INSERT INTO roomrelations (
 			"user", item, role, roletime, interest
@@ -107,14 +102,14 @@ function insertRoomrel(done) {
 			&{user}, &{item}, &{role},
 			extract(epoch from now())*1000, &{interest}
 		)`,
-		user: users[Math.floor(Math.random() * users.length)],
-		item: rooms[Math.floor(Math.random() * rooms.length)],
+		user: usr,
+		item: room,
 		role: constants.ROLE_FOLLOWER,
 		interest: Math.floor(Math.random() * 50)
-	}], done);
+	}], cb);	
 }
 
-function insertThreadrel(done) {
+function insertThreadrel(usr, thread, cb) {
 	pg.write(connstr, [{
 		$: `INSERT INTO threadrelations (
 			"user", item, role, roletime, interest
@@ -122,14 +117,14 @@ function insertThreadrel(done) {
 			&{user}, &{item}, &{role},
 			extract(epoch from now())*1000, &{interest}
 		)`,
-		user: users[Math.floor(Math.random() * users.length)],
-		item: threads[Math.floor(Math.random() * threads.length)],
+		user: usr,
+		item: thread,
 		role: constants.ROLE_FOLLOWER,
 		interest: Math.floor(Math.random() * 30)
-	}], done);
+	}], cb);
 }
 
-function insertTextrel(done) {
+function insertTextrel(usr, text, cb) {
 	pg.write(connstr, [{
 		$: `INSERT INTO textrelations (
 			"user", item, role, roletime, interest
@@ -137,22 +132,22 @@ function insertTextrel(done) {
 			&{user}, &{item}, &{role},
 			extract(epoch from now())*1000, &{interest}
 		)`,
-		user: users[Math.floor(Math.random() * users.length)],
-		item: threads[Math.floor(Math.random() * threads.length)],
+		user: usr,
+		item: text,
 		role: Math.random() < 0.5 ? constants.ROLE_FOLLOWER : constants.ROLE_MENTIONED,
 		interest: Math.floor(Math.random() * 30)
-	}], done);
+	}], cb);
 }
 
-function repeat(fn, times) {
+function repeat(fn, repeatEl) {
 	return new Promise(function (resolve, reject) {
 		function next() {
 			fn(function (err, result) {
 				if (err) {
 					return reject(err);
 				}
-				times--;
-				if (times > 0) {
+				repeatEl--;
+				if (repeatEl > 0) {
 					next();	
 				}
 				else {
@@ -160,9 +155,23 @@ function repeat(fn, times) {
 				}
 			});
 		}
-		next();
+		
+		if(typeof repeatEl === 'number') {
+			next();	
+		} else {
+			users.forEach(function(usr){
+				for (let i=0; i<Math.floor(Math.random() * repeatEl.length); i++) {
+					
+					fn(usr, repeatEl[i], function(err, result) {
+						if (err) throw err;
+					})	
+				}
+			});
+			resolve();
+		}
 	});
 }
+
 
 console.log("Inserting users...");
 repeat(insertUser, numUsers)
@@ -177,13 +186,13 @@ repeat(insertUser, numUsers)
 	return repeat(insertText, numTexts);
 }).then(function () {
 	console.log("Done. Inserting room relations...");
-	return repeat(insertRoomrel, numRoomRel);
+	return repeat(insertRoomrel, rooms)
 }).then(function () {
-	console.log("Done. Inserting watchers...");
-	return repeat(insertThreadrel, numThreadRel);
+	console.log("Done. Inserting thread relations...");
+	return repeat(insertThreadrel, threads);
 }).then(function () {
-	console.log("Done. Inserting presence...");
-	return repeat(insertTextrel, numTextRel);
+	console.log("Done. Inserting text relations...");
+	return repeat(insertTextrel, texts);
 }).then(function () {
 	console.log("All done...");
 })
