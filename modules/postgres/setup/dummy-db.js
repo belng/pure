@@ -159,15 +159,38 @@ function repeat(fn, repeatEl) {
 		if(typeof repeatEl === 'number') {
 			next();	
 		} else {
-			users.forEach(function(usr){
+//			users.forEach(function(usr){
+//				for (let i=0; i<Math.floor(Math.random() * repeatEl.length); i++) {
+//					
+//					fn(usr, repeatEl[i], function(err, result) {
+//						if (err) return reject(err);
+//					})	
+//				}
+//			});
+//			
+//			resolve();
+			
+			Promise.all(users.map(usr => {
+				const promises = [];
+				
 				for (let i=0; i<Math.floor(Math.random() * repeatEl.length); i++) {
-					
-					fn(usr, repeatEl[i], function(err, result) {
-						if (err) throw err;
-					})	
+					promises.push(
+						new Promise((resolve, reject) => {
+							fn(usr, repeatEl[i], function(err, result) {
+								if (err) {
+									reject(err)
+								} else {
+									resolve(result);
+								}
+							});
+						})
+					)
 				}
-			});
-			resolve();
+				
+				return Promise.all(promises);
+			}))
+			.then(resolve)
+			.catch(reject);
 		}
 	});
 }
