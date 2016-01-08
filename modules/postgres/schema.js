@@ -1,15 +1,18 @@
 const constants = require("../../lib/constants");
-const TABLES = {}, COLUMNS = {};
+const TABLES = {}, COLUMNS = {}, TYPES = {};
 
 exports.TABLES = TABLES;
 exports.COLUMNS = COLUMNS;
+exports.TYPES = TYPES;
 
+TABLES[constants.TYPE_ITEM] = "items";
 TABLES[constants.TYPE_ROOM] = "rooms";
 TABLES[constants.TYPE_TEXT] = "texts";
 TABLES[constants.TYPE_THREAD] = "threads";
 TABLES[constants.TYPE_TOPIC] = "topics";
 TABLES[constants.TYPE_PRIV] = "privs";
 TABLES[constants.TYPE_USER] = "users";
+TABLES[constants.TYPE_REL] = "rels";
 TABLES[constants.TYPE_ROOMREL] = "roomrels";
 TABLES[constants.TYPE_TEXTREL] = "textrels";
 TABLES[constants.TYPE_THREADREL] = "threadrels";
@@ -17,6 +20,23 @@ TABLES[constants.TYPE_TOPICREL] = "topicrels";
 TABLES[constants.TYPE_PRIVREL] = "privrels";
 TABLES[constants.TYPE_USERREL] = "userrels";
 TABLES[constants.TYPE_NOTE] = "notes";
+
+TYPES.item = constants.TYPE_ITEM;
+TYPES.room = constants.TYPE_ROOM;
+TYPES.text = constants.TYPE_TEXT;
+TYPES.thread = constants.TYPE_THREAD;
+TYPES.topic = constants.TYPE_TOPIC;
+TYPES.priv = constants.TYPE_PRIV;
+TYPES.user = constants.TYPE_USER;
+TYPES.rel = constants.TYPE_REL;
+TYPES.roomrel = constants.TYPE_ROOMREL;
+TYPES.textrel = constants.TYPE_TEXTREL;
+TYPES.threadrel = constants.TYPE_THREADREL;
+TYPES.topicrel = constants.TYPE_TOPICREL;
+TYPES.privrel = constants.TYPE_PRIVREL;
+TYPES.userrel = constants.TYPE_USERREL;
+TYPES.note = constants.TYPE_NOTE;
+
 
 COLUMNS[constants.TYPE_USER] = [
 	"id",

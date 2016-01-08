@@ -17,7 +17,7 @@ cache.onChange((changes) => {
 	const cb = (key, range, err, results) => {
 		if (err) { return log.e(err); }
 		cache.setState({
-			knowledge: { [key]: [range] },
+			knowledge: { [key]: [ range ] },
 			indexes: { [key]: results }
 		});
 	};
@@ -28,7 +28,7 @@ cache.onChange((changes) => {
 				pg.read(
 					config.connStr,
 					queryHandler(cache.keyToSlice(key), range),
-					cb.bind(null, key, range);
+					cb.bind(null, key, range)
 				);
 			}
 		}
