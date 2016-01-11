@@ -63,7 +63,7 @@ function getSignature(policy, config) {
 	return signature;
 }
 
-module.exports = function(core, config) {
+module.exports = function() {
 	let app = require("../../app");
 	core = app.core;
 	config = app.config;
@@ -84,5 +84,5 @@ module.exports = function(core, config) {
 		};
 
 		next();
-	}, 500);
+	}, "modifier");
 };
