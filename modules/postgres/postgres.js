@@ -1,83 +1,76 @@
-let jsonop = require("jsonop"),
-	Cache = require("sbcache"),
-	Counter = require("../../lib/counter.js"),
-	{keyrangeToQuery} = require("./querykeyrange"),
-	pg = require("../../lib/pg.js"),
-	log = require("../../lib/log.js"),
-	queryHandlers = require("./postgres/queries"),
-	actionHandlers = require("./postgres/updates"),
-	core, cache, config;
+const jsonop = require("jsonop"),
+	Counter = require("../lib/counter"),
+	pg = require("../lib/pg"),
+	log = require("../lib/log"),
+	queryHandler = require("./queries"),
+	entityHandler = require("./entities");
+
+const { bus, cache, config } = require("../core");
 
 function broadcast (entity) {
-	let channel, payload = JSON.stringify(entity);
-	channel = "HeyNeighbor";
+	const channel = "heyneighbor", payload = JSON.stringify(entity);
+
 	pg.notify(channel, payload);
 }
 
-function runQuery(handlers, query, results, i, callback) {
-	let sql;
-	if (i < handlers.length && (sql = handlers[i](query, results))) {
-		log.d(sql);
-		pg.read(config.connStr, sql, (err, res) => {
-			if (err) return callback(err);
-			runQuery(handlers, query, res, i + 1, callback);
+cache.onChange((changes) => {
+	const cb = (key, range, err, results) => {
+		if (err) { return log.e(err); }
+		cache.setState({
+			knowledge: { [key]: [ range ] },
+			indexes: { [key]: results }
 		});
-	} else {
-		callback();
-	}
-}
+	};
 
-function runAction (handler, action, callback) {
-	pg.write(config.connStr, handler(action), (err) => {
-		if (err) return callback(err);
-	});
-}
-
-module.exports = (c) => {
-	core = c;
-	cache = core.cache = new Cache();
-	config = core.config.store;
-
-	cache.onChange((changes) => {
-		if (changes.queries) {
-			for (let key in changes.queries) {
-				let query = keyrangeToQuery(key, changes.queries[key]);
-				runQuery(
-					queryHandlers[query.type], query, null, 0,
-					() => cache.setState(query.results)
-				)
-			}
-		}
-	});
-
-	pg.onNotification((payload) => {
-		core.emit("stateChange", JSON.parse(payload));
-	});
-
-	core.on("state", (changes, next) => {
-		let counter = new Counter();
-
-		if (changes.entities) {
-			for (let entity of changes.entities) {
-				counter.inc();
-				runAction(
-					actionHandlers[entity.type], entity,
-					() => { broadcast(entity); counter.dec(); }
+	if (changes.queries) {
+		for (const key in changes.queries) {
+			for (const range of changes.queries[key]) {
+				pg.read(
+					config.connStr,
+					queryHandler(cache.keyToSlice(key), range),
+					cb.bind(null, key, range)
 				);
 			}
 		}
+	}
+});
 
-		if (changes.queries) {
-			let response = changes.response = {};
-			for (let key in changes.queries) {
+pg.onNotification((payload) => {
+	bus.emit("statechange", JSON.parse(payload));
+});
+
+bus.on("setstate", (changes, next) => {
+	const counter = new Counter();
+
+	if (changes.entities) {
+		const sql = [];
+
+		for (const id in changes.entities) {
+			sql.push(entityHandler(changes.entities[id]));
+		}
+		counter.inc();
+		pg.write(config.connStr, sql, (err, results) => {
+			if (err) { counter.err(err); }
+			results.forEach((result) => broadcast(result[0]));
+			counter.dec();
+		});
+	}
+
+	if (changes.queries) {
+		const response = changes.response = {},
+			cb = (key, err, results) => {
+				if (err) { jsonop(response, { app: { error: err } }); }
+				jsonop(response, { indexes: { [key]: results } });
+				counter.dec();
+			};
+
+		for (const key in changes.queries) {
+			for (const range of changes.queries[key]) {
 				counter.inc();
-				cache.query(key, changes.queries[key], (err, results) => {
-					jsonop(response, { entities: results });
-					counter.dec();
-				});
+				cache.query(key, range, cb.bind(null, key));
 			}
 		}
+	}
 
-		counter.then(next);
-	});
-};
+	counter.then(next);
+});
