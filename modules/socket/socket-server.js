@@ -31,7 +31,6 @@ bus.on("http/init", app => {
 		});
 
 		socket.on("message", message => {
-			console.log("message:", message);
 			try {
 				message = JSON.parse(message);
 			} catch (e) {
@@ -53,6 +52,7 @@ bus.on("http/init", app => {
 });
 
 bus.on("setstate", changes => {
+	if(changes.knowledge || changes.indexes) return;
 	notify(changes, core, {}).on("data", (change, rel) => {
 		Object.keys(rel.resources).forEach(function(e) {
 			if (!sockets[e]) return;
