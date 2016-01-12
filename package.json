@@ -42,7 +42,7 @@
     "opn": "^3.0.3",
     "react-addons-test-utils": "^0.14.6",
     "react-hot-loader": "^1.3.0",
-    "webpack": "^1.12.10"
+    "webpack": "^1.12.11"
   },
   "scripts": {
     "start": "node index-server",
