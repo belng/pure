@@ -4,8 +4,8 @@ let pg = require("../../../lib/pg"),
 	casual = require("casual"),
 	uid = require('node-uuid'),
 	constants = require("../../../lib/constants.json"),
-	connstr = "pg://scrollback: @localhost/pure", users = [], rooms = [], threads = [], texts = [],
-	numUsers = 10, numRooms = 5, numThreads = 20, numTexts = 50;
+	connstr = "pg://hn:hn@localhost/hn", users = [], rooms = [], threads = [], texts = [],
+	numUsers = 50, numRooms = 5, numThreads = 200, numTexts = 5000;
 
 function getId() {
 	let u = casual.username.toLowerCase().replace(/\_|\./g, "-");
