@@ -1,0 +1,7 @@
+language: node_js
+sudo: false
+services: redis-server
+
+notifications:
+ email:
+  "devs@scrollback.io"

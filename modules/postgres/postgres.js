@@ -51,6 +51,7 @@ bus.on("setstate", (changes, next) => {
 		counter.inc();
 		pg.write(config.connStr, sql, (err, results) => {
 			if (err) { return counter.err(err); }
+			// TODO: Create model objects here.
 			console.log("PgWrite Results", results[0].rows);
 			results.forEach((result) => broadcast(result.rows[0]));
 			counter.dec();

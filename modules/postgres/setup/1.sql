@@ -32,7 +32,7 @@ CREATE TABLE items (
 	type smallint,
 	tags smallint[], -- e.g. image, hidden, sticky, city, area, spot
 	meta jsonb, -- guides, image dimensions, counts
-	parents uuid[], -- room or thread
+	parents uuid[][], -- room or thread
 	creator text,
 	updater text,
 	terms tsvector,
@@ -43,6 +43,7 @@ CREATE TABLE items (
 );
 
 CREATE TABLE rooms (
+	identities text[][],
 	params jsonb -- owner-private information
 ) INHERITS (items);
 

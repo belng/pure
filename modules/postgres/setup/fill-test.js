@@ -1,7 +1,7 @@
 "use strict";
 
-let constants = require("../../../../lib/constants.json"),
-	uid = require("../../../../lib/uid.server"),
+let constants = require("./../../../lib/constants.json"),
+	uid = require("./../../../lib/uid-server"),
 	pg = require("../pg.js"),
 	casual = require("casual"),
 	logger = require("winston"),
