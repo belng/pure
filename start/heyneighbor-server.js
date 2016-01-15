@@ -1,19 +1,7 @@
 "use strict";
 /*
 require("source-map-support").install();*/
-require("babel-register")({
-	ignore: function(filename) {
-		if (/node_modules/.test(filename)) {
-			if (/node_modules\/sbcache/.test(filename)) {
-				return false;
-			} else {
-				return true;
-			}
-		} else {
-			return false;
-		}
-	},
-});
+require("babel-register");
 require("babel-polyfill");
 
 const core = require("../core"),
