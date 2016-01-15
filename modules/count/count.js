@@ -1,8 +1,6 @@
 "use strict";
 
-let constants = require("../../lib/constants"),
-	jsonop = require("/home/chandra/jsonop/jsonop"), core, bus,
-	cache;
+let constants = require("../../lib/constants"), core, bus, cache;
 function incCount(entity, n) {
 	let type = entity.type, userId = entity.creator, op;
 	(function () {
