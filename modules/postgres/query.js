@@ -1,5 +1,5 @@
 const pg = require("../../lib/pg"),
-	{ TABLES, TYPES } = require("./schema");
+	{ TABLES, TYPES } = require("../../lib/schema");
 
 const MAX_LIMIT = 1024;
 

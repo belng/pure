@@ -1,21 +1,21 @@
 const jsonop = require("jsonop"),
-	Counter = require("../lib/counter"),
-	pg = require("../lib/pg"),
-	log = require("../lib/log"),
-	queryHandler = require("./queries"),
-	entityHandler = require("./entities");
+	Counter = require("../../lib/counter"),
+	pg = require("../../lib/pg"),
+	log = console,
+	queryHandler = require("./query"),
+	entityHandler = require("./entity");
 
-const { bus, cache, config } = require("../core");
+const { bus, cache, config } = require("../../core");
+
+const channel = "heyneighbor";
 
 function broadcast (entity) {
-	const channel = "heyneighbor", payload = JSON.stringify(entity);
-
-	pg.notify(channel, payload);
+	pg.notify(config.connStr, channel, entity);
 }
 
 cache.onChange((changes) => {
 	const cb = (key, range, err, results) => {
-		if (err) { return log.e(err); }
+		if (err) { return log.error(err); }
 		cache.setState({
 			knowledge: { [key]: [ range ] },
 			indexes: { [key]: results }
@@ -35,8 +35,8 @@ cache.onChange((changes) => {
 	}
 });
 
-pg.onNotification((payload) => {
-	bus.emit("statechange", JSON.parse(payload));
+pg.listen(config.connStr, channel, (payload) => {
+	bus.emit("statechange", payload);
 });
 
 bus.on("setstate", (changes, next) => {
@@ -50,8 +50,9 @@ bus.on("setstate", (changes, next) => {
 		}
 		counter.inc();
 		pg.write(config.connStr, sql, (err, results) => {
-			if (err) { counter.err(err); }
-			results.forEach((result) => broadcast(result[0]));
+			if (err) { return counter.err(err); }
+			console.log("PgWrite Results", results[0].rows);
+			results.forEach((result) => broadcast(result.rows[0]));
 			counter.dec();
 		});
 	}
