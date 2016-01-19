@@ -1,7 +1,7 @@
 "use strict";
 
-let crypto = require('crypto'),
-	core, config;
+let { bus, cache, config } = require("../../core"),
+	crypto = require('crypto');
 
 function getDate(long) {
 	let date = new Date();
@@ -63,26 +63,21 @@ function getSignature(policy, config) {
 	return signature;
 }
 
-module.exports = function() {
-	let app = require("../../app");
-	core = app.core;
-	config = app.config;
-	core.on('upload/getPolicy', function(policyReq, next){
-		let keyPrefix = getKeyPrefix(policyReq.user.id, policyReq.uploadType, policyReq.textId),
-			policy = getPolicy(keyPrefix, config),
-			signature = getSignature(policy, config);
+bus.on('upload/getPolicy', function(policyReq, next){
+	let keyPrefix = getKeyPrefix(policyReq.user.id, policyReq.uploadType, policyReq.textId),
+		policy = getPolicy(keyPrefix, config),
+		signature = getSignature(policy, config);
 
-		policyReq.response = {
-			acl: config.acl,
-			policy: policy,
-			keyPrefix: keyPrefix,
-			bucket: config.bucket,
-			"x-amz-algorithm": config.algorithm,
-			"x-amz-credential": getCredential(config),
-			"x-amz-date": getDate(true),
-			"x-amz-signature": signature
-		};
+	policyReq.response = {
+		acl: config.acl,
+		policy: policy,
+		keyPrefix: keyPrefix,
+		bucket: config.bucket,
+		"x-amz-algorithm": config.algorithm,
+		"x-amz-credential": getCredential(config),
+		"x-amz-date": getDate(true),
+		"x-amz-signature": signature
+	};
 
-		next();
-	}, "modifier");
-};
+	next();
+}, "modifier");

@@ -1,7 +1,7 @@
 jest.autoMockOff();
 
 require("../upload");
-let core = require("../../../core");
+let core = require("../../../core").bus;
 
 
 describe("Generate policies", function() {
