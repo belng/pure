@@ -12,12 +12,9 @@ const app = koa();
 
 app.listen(7528);
 
-if (process.env.NODE_ENV === "production") {
-	// Serve files under static/dist for any requests to /dist/
-	app.use(mount("/dist", serve("static/dist")));
-} else {
+if (process.env.NODE_ENV !== "production") {
 	const compiler = webpack(webpackConfig);
-
+	app.use(mount("/test", serve("../../test/public")));
 	// Enable Webpack Dev Server
 	app.use(webpackDevMiddleware(compiler, {
 		publicPath: webpackConfig.output.publicPath,
@@ -26,7 +23,11 @@ if (process.env.NODE_ENV === "production") {
 
 	// Enable Hot reloading
 	app.use(webpackHotMiddleware(compiler));
+	app.use(mount("/test", serve("test/static"), { defer: true }));
 }
+
+// Serve files under static/dist for any requests to /dist/
+app.use(mount("/dist", serve("static/dist"), { defer: true }));
 
 app.use(route.get("/", home));
 app.use(route.get("/:room", room));

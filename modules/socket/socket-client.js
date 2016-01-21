@@ -1,10 +1,10 @@
 /* eslint-env browser */
 
 var eio = require("engine.io-client/engine.io"),
-	app = require("../../app.js"),
-	backOff = 1, client,
-	protocol = app.config.server.protocol,
-	host = app.config.server.apiHost;
+	core = require("../../core.js"),
+	backOff = 1, client, config = core.config, bus = core.bus,
+	protocol = config.server.protocol,
+	host = config.server.apiHost;
 
 function disconnected() {
 
@@ -14,7 +14,7 @@ function disconnected() {
 	if (backOff < 256) backOff *= 2;
 	else backOff = 256;
 
-	app.core.emit("setstate", {
+	bus.emit("setstate", {
 		app: { connectionStatus, backOff}
 	});
 	setTimeout(connect, backOff * 1000);
@@ -22,7 +22,7 @@ function disconnected() {
 
 function onMessage(message) {
 	var stateChange = JSON.parse(message); // change it to string pack
-	app.core.emit("setstate", stateChange);
+	bus.emit("setstate", stateChange);
 }
 
 function connect() {
@@ -35,7 +35,7 @@ function connect() {
 	client.on("open", function() {
 		var connectionStatus = "online";
 		backOff = 1;
-		app.core.emit("setstate", {
+		bus.emit("setstate", {
 			app: { connectionStatus, backOff}
 		});
 	});

@@ -3,9 +3,9 @@
 // sign with default (HMAC SHA256)
 var jwt = require("jsonwebtoken"),
 	tokenValidity = 604800, // seven days
-	app = require("../../app.js"),
-	core = app.core,
-	config = app.config,
+	core = require("../../core.js"),
+	bus = core.bus,
+	config = core.config,
 	iss = config.host,
 	aud = config.host,
 	key = config.session.privateKey;
@@ -55,14 +55,14 @@ function sessionHandler(changes, next) {
 	}*/
 }
 
-module.exports = function() {
-	core.on("setstate", sessionHandler, "authentication");
-	core.on("setstate", function(changes, next) {
-		if (changes.response && changes.response.app && changes.response.app.user) {
-			generateSession(changes.response.app.user).then(function(session) {
-				changes.response.app.session =	session;
-				next();
-			});
-		}
-	}, "modifier");
-};
+bus.on("setstate", sessionHandler, "authentication");
+bus.on("setstate", function(changes, next) {
+	if (changes.response && changes.response.app && changes.response.app.user) {
+		generateSession(changes.response.app.user).then(function(session) {
+			changes.response.app.session =	session;
+			next();
+		});
+	}
+}, "modifier");
+
+console.log("session module ready...");

@@ -1,9 +1,11 @@
+"use strict";
 let engine = require("engine.io"),
 	core = require("../../core"),
+	bus = core.bus,
 	config = core.config,
 	constants = require("../../lib/constants"),
-	uid = require("../../lib/uid"),
-	notify = require("../../lib/notify"),
+	uid = require("../../lib/uid-server"),
+//	notify = require("../../lib/notify"),
 	sockets = {};
 
 function sendError(socket, code, reason, event) {
@@ -15,19 +17,21 @@ function sendError(socket, code, reason, event) {
 	}));
 }
 
-core.on("http/init", httpServer => {
-	let socketServer = engine.attach(httpServer);
+bus.on("http/init", app => {
+	let socketServer = engine.attach(app.httpServer);
 
 	socketServer.on("connection", socket => {
 		let resourceId = uid(16);
 		sockets[resourceId] = socket;
 
+		console.log("socket connection created");
 		socket.on("close", () => {
-			core.emit("presence/offline", { resourceId });
+			bus.emit("presence/offline", { resourceId });
 			delete sockets[resourceId];
 		});
 
 		socket.on("message", message => {
+			console.log("message:", message);
 			try {
 				message = JSON.parse(message);
 			} catch (e) {
@@ -35,8 +39,9 @@ core.on("http/init", httpServer => {
 			}
 
 			message.resourceId = resourceId;
-
-			core.emit("setstate", message, err => {
+			console.log("emitting setstate", message);
+			bus.emit("setstate", message, err => {
+				console.log(err, message);
 				if (err) return sendError(
 					socket, err.code || "ERR_UNKNOWN", err.message, message
 				);
@@ -47,11 +52,11 @@ core.on("http/init", httpServer => {
 	});
 });
 
-core.on("setstate", changes => {
+/*bus.on("setstate", changes => {
 	notify(changes, core, {}).on("data", (change, rel) => {
 		Object.keys(rel.resources).forEach(function(e) {
 			if (!sockets[e]) return;
 			sockets[e].send(JSON.stringify(change));
 		});
 	});
-});
+});*/

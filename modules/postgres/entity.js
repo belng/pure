@@ -1,25 +1,111 @@
-"use strict";
-
-const TYPE_TO_TABLE = {
-	text: "texts",
-	thread: "threads",
-	room: "rooms",
-	topic: "topics",
-	note: "notes",
-	user: "users",
-
-}
+const pg = require("../../lib/pg"),
+	constants = require("../../lib/constants"),
+	{ TABLES, COLUMNS } = require("../../lib/schema");
 
 module.exports = function (entity) {
-	const parts = [{ $: "INSERT INTO " + TYPE_TO_TABLE[entity.type] }],
-		colNames = [],
-		colValues = {};
+	const names = Object.keys(entity).filter(
+		name => COLUMNS[entity.type].indexOf(name) >= 0
+	);
 
-	for (const name in entity) {
-		if (name === "id") {
-			
-		}
+	if (entity.type === constants.TYPE_ROOM) {
+		names.push("terms");
 	}
 
-	return query;
-}
+	if (entity.createTime) { // INSERT
+		return pg.cat([
+			'INSERT INTO "' + TABLES[entity.type] + '" (',
+			'"' + names.map(name => name.toLowerCase()).join('", "') + '"',
+			") VALUES (",
+			pg.cat(names.map(name => {
+				switch (name) {
+				case "terms":
+					return {
+						$: "to_tsvector(&{locale}, &{name} || ' ' || &{body})",
+						locale: "english",
+						name: entity.name,
+						body: entity.body
+					};
+				default:
+					return {
+						$: `&{${name}}`,
+						[name]: entity[name]
+					};
+				}
+			}), ", "),
+			") RETURNING *"
+		], " ");
+	} else { // UPDATE
+		return pg.cat([
+			'UPDATE "' + TABLES[entity.type] + '" SET',
+			pg.cat(names.map(name => {
+				switch (name) {
+				case "id":
+				case "createTime":
+					return false; // do not update this column.
+				case "terms":
+					return {
+						$: '"terms" = to_tsvector(&{locale}, ' +
+							(entity.name ? "&{name}" : '"name"') +
+							" || ' ' || " +
+							(entity.body ? "&{body}" : '"body"') +
+							")",
+						locale: "english",
+						name: entity.name,
+						body: entity.body
+					};
+				case "meta":
+				case "params":
+				case "data":
+				case "resources":
+					return {
+						$: `"${name}" = jsonop("${name}", &{${name}})`,
+						[name]: entity[name]
+					};
+				default:
+					return {
+						$: `"${name.toLowerCase()}" = &{${name}}`,
+						[name]: entity[name]
+					};
+				}
+			}).filter(sql => sql), ", "),
+
+			"WHERE",
+			entity.id ? {
+				$: '"id" = &{id}',
+				id: entity.id
+			} :
+			entity.user && entity.item ? {
+				$: '"user" = &{user} AND "item" = &{item}',
+				user: entity.user,
+				item: entity.item
+			} :
+			entity.user && entity.event && entity.group ? {
+				$: '"user" = &{user} AND "event" = &{event}' +
+					' AND "group" = &{group}',
+				user: entity.user,
+				event: entity.item,
+				group: entity.group
+			} : "FALSE",
+			"RETURNING *"
+		], " ");
+	}
+
+	return pg.cat([
+		'INSERT INTO "' + TABLES[entity.type] + '" (',
+		'"' + names.join('", "') + '"',
+		") VALUES (",
+		pg.cat(names.map(name => {
+			switch (name) {
+			case "terms":
+				return {
+					$: "to_tsvector(&{locale}, &{name} || ' ' || &{body})",
+					locale: "english",
+					name: entity.name,
+					body: entity.body
+				};
+			}
+		}), ", "),
+		") ON CONFLICT DO UPDATE SET",
+		"RETURNING *"
+	]);
+};
