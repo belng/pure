@@ -1,6 +1,6 @@
 const pg = require("../../lib/pg"),
 	constants = require("../../lib/constants"),
-	{ TABLES, COLUMNS } = require("./schema");
+	{ TABLES, COLUMNS } = require("../../lib/schema");
 
 module.exports = function (entity) {
 	const names = Object.keys(entity).filter(
@@ -14,7 +14,7 @@ module.exports = function (entity) {
 	if (entity.createTime) { // INSERT
 		return pg.cat([
 			'INSERT INTO "' + TABLES[entity.type] + '" (',
-			'"' + names.join('", "') + '"',
+			'"' + names.map(name => name.toLowerCase()).join('", "') + '"',
 			") VALUES (",
 			pg.cat(names.map(name => {
 				switch (name) {
@@ -63,7 +63,7 @@ module.exports = function (entity) {
 					};
 				default:
 					return {
-						$: `"${name}" = &{${name}}`,
+						$: `"${name.toLowerCase()}" = &{${name}}`,
 						[name]: entity[name]
 					};
 				}
