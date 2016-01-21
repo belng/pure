@@ -11,7 +11,7 @@ const core = require("../core"),
 let config;
 
 try {
-	config = require("./../config/server.json");
+	config = require("../config/server");
 } catch (e) {
 	config = {};
 	console.log(e);
@@ -27,6 +27,11 @@ require("./../modules/google/google");
 require("./../modules/session/session");
 require("./../modules/signin/signin");
 require("./../modules/signup/signup");
+
+/*###########*/
+require("./../modules/count/count");
+require("./../modules/note/note");
+require("./../modules/upload/upload");
 
 // require("./../modules/ui/ui-server");
 require("./../modules/http/http"); // if fired before socket server then the http/init listener might not be listening..
