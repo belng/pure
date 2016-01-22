@@ -1,21 +1,34 @@
-const core = require("./../../core"), cache = core.cache;
+const core = require("./../../core");
+const rules = [];
 
+rules.push(require("./rules/isBanned.js"));
 
-function authorizerEntity(entity, resource) {
-	let promise = new Promise(function(reject, resolve) {
-		
+function authorizeEntity(entity, resource) {
+	const promise = new Promise(function (reject, resolve) {
+		const promises = [];
+
+		rules.forEach(function(rule) {
+			promises.push(rule(entity, resource));
+		});
+
+		Promise.all(promises).then(function() {
+			resolve();
+		}, function(reason) {
+			reject(reason);
+		});
 	});
-	
+
 	return promise;
 }
 
 core.bus.on("setstate", (changes, next) => {
-	let promises = [];
+	const promises = [];
+
 	if (!changes.entities) return next();
 	Object.keys(changes.entities).forEach(function(key) {
 		promises.push(authorizeEntity(changes.entities[key], changes.auth.resource));
 	});
-	
+
 	Promise.all(promises).then(function() {
 		next();
 	}, function(reason) {
