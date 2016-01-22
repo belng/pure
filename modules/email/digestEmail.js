@@ -1,18 +1,8 @@
 "use strict";
 const DIGEST_INTERVAL = 60 * 60 * 1000,
 	  DIGEST_DELAY = 24 * 60 * 60 * 1000;
-
-let config = {
-		pg: {
-			username: "scrollback",
-			password: "",
-			server: "localhost",
-			db: "pure"
-		},
-		appName: "scrollback",
-		secret: "ASD",
-		debug: true
-	}, send, connStr, constants = require("../../lib/constants.json"),
+let config = require("../../core").config.email,
+	send, connStr, constants = require("../../lib/constants"),
 	log = require("winston"),
 	fs = require("fs"),
 	handlebars = require("handlebars"),
@@ -68,9 +58,9 @@ function sendDigestEmail () {
 	
 	pg.readStream(connstr, {
 		$: `WITH 
-             urel AS (WITH u AS (SELECT * FROM users, roomrelations rr WHERE rr.user=users.id AND role >= &{follower} 
-	                           AND presencetime > &{start} AND presencetime < &{end} AND timezone >= &{min} AND timezone < &{max}) 
-                      SELECT u.id uid, rooms.name rname, * FROM u, rooms WHERE u.item=rooms.id)
+              urel AS (WITH u AS (SELECT * FROM users, roomrelations rr WHERE rr.user=users.id AND role >= &{follower} 
+	          AND presencetime > &{start} AND presencetime < &{end} AND timezone >= &{min} AND timezone < &{max}) 
+              SELECT u.id uid, rooms.name rname, * FROM u, rooms WHERE u.item=rooms.id)
             SELECT urel.uid uid, urel.rname rname, threads.name title, * FROM threads, urel where urel.item = threads.parents[1] 
             AND threads.updateTime > urel.presencetime order by uid`,
 		start: start,
@@ -102,7 +92,6 @@ function sendDigestEmail () {
 }
 
 module.exports = (row) => {
-//	let app = require("../../app");
 	send = require("./sendEmail");
 	lastEmailSent = row.lastrun;
 	let UtcMnts = new Date().getUTCMinutes();

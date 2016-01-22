@@ -1,26 +1,19 @@
 "use strict";
 
 let pg = require("../../lib/pg"),
-	log = require("winston"),
+	winston = require("winston"),
 	constants = require("../../lib/constants.json"),
-	config = {
-		pg: {
-			username: "scrollback",
-			password: "",
-			server: "localhost",
-			db: "pure"
-		},
-		auth: true
-	},
-	connString = "pg://" + config.pg.username + ":" + config.pg.password + "@" + config.pg.server + "/" + config.pg.db;
+	conf = require("../../core").config, config = conf.email,
+	connString = "pg://" + config.pg.username + ":" + config.pg.password + "@" + 
+	config.pg.server + "/" + config.pg.db;
 
-module.exports = () => {
+(() => {
 	if(!config.auth) {
-		log.info("Email module not enabled");
+		winston.info("Email module not enabled")
 		return;
 	}
-	let /*sendWelcomeEmail = require ("./welcomeEmail"),
-		sendMentionEmail = require("./mentionEmail"),*/
+	let sendWelcomeEmail = require ("./welcomeEmail"),
+		sendMentionEmail = require("./mentionEmail"),
 		sendDigestEmail = require ("./digestEmail");
 	pg.read(connString, {
 		$: "SELECT * FROM jobs WHERE jobid in (&(jids))",
@@ -29,16 +22,15 @@ module.exports = () => {
 		results.forEach((row) => {
 			switch(row.jobid) {
 				case constants.JOB_EMAIL_WELCOME:
-					sendWelcomeEmail(row);
+					sendWelcomeEmail(row, config);
 					break;
 				case constants.JOB_EMAIL_MENTION:
-					sendMentionEmail(row);
+					sendMentionEmail(row, config);
 					break;
 				case constants.JOB_EMAIL_DIGEST:
-					sendDigestEmail(row);
+					sendDigestEmail(row, config);
 					break;
 			}
 		});
-	});	
-}
-
+	});
+})();

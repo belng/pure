@@ -35,3 +35,5 @@ require("./../modules/upload/upload");
 
 // require("./../modules/ui/ui-server");
 require("./../modules/http/http"); // if fired before socket server then the http/init listener might not be listening..
+
+require("./../modules/email/email-daemon");

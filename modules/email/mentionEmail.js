@@ -2,20 +2,17 @@
 const MENTION_INTERVAL = 10 * 60 * 1000,
 	  MENTION_DELAY = 10 * 60 * 1000;
 
-let pg = require("../lib/pg"),
-	/*fs = require("fs"),
-	jwt = require("jsonwebtoken"),
-	handlebars = require("handlebars"), extract(epoch from now()) * 1000
-	send = require("./sendEmail.js"),
-	template = handlebars.compile(fs.readFileSync(__dirname + "/views/" + config.appName + ".digest.hbs", "utf-8")),
-	*/config, constants, lastEmailSent,
-	connStr = "pg://" + config.pg.username + ":" + config.pg.password + "@" + config.pg.server + "/" + config.pg.db;
+let pg = require("../../lib/pg"),
+	config = require("../../core").config.email, 
+	constants = require("../../lib/constants"),
+	connStr = "pg://" + config.pg.username + ":" + config.pg.password + "@" + config.pg.server + "/" + config.pg.db,
+	lastEmailSent;
 
 function sendMentionEmail() {
 	let getMailObj = require("./prepareMailObj"),
 		initMailSending = require("./digestEmail").initMailSending,
 		start = lastEmailSent,
-		end = Date().now - MENTION_DELAY,
+		end = Date().now - MENTION_DELAY;
 	pg.readStream(connstr, {
 		$: `with
 				r as (SELECT * FROM textrelations, users WHERE "user" = id AND role = &{mention})
@@ -41,7 +38,6 @@ function sendMentionEmail() {
 }
 
 module.exports = (row) => {
-	let app = require("../../app"), config = app.config, constants = app.constants;
 	lastEmailSent = row.lastrun;
 	setInterval(sendMentionEmail, MENTION_INTERVAL);
 }

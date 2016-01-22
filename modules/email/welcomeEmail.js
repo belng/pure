@@ -7,8 +7,9 @@ let fs = require("fs"),
 	handlebars = require("handlebars"),
 	pg = require("../../lib/pg"),
 	send = require("./sendEmail.js"),
+	constants = require("../../lib/constants"),
 	template = handlebars.compile(fs.readFileSync(__dirname + "/views/welcomeEmail.hbs", "utf-8")),
-	config, constants, lastEmailSent,
+	lastEmailSent, config = require("../../core").config.email,
 	connStr = "pg://" + config.pg.username + ":" + config.pg.password + "@" + config.pg.server + "/" + config.pg.db;
 
 
@@ -55,7 +56,6 @@ function sendWelcomeEmail () {
 }
 
 module.exports = (row) => {
-	app = require("./test/app"), config = app.config, constants = app.constants;
 	lastEmailSent = row.lastrun;
 	setInterval(sendWelcomeEmail, WELCOME_INTERVAL);
 }
