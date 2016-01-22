@@ -59,42 +59,44 @@ bus.on("setstate", (changes, next) => {
 			let item = changes.entities[entity.item] || {};
 			
 			item.counts = item.counts || {};
-			counter.inc();
-//			console.log(entity)
-			cache.getEntity(id, function (err, prev) {
-//				console.log("prev: ", prev)
-				if (prev && prev.role !== constants.ROLE_NONE) {
-					item.counts[ROLES[prev.role]] = -1;
+			
+			if (entity.__op__ && entity.__op__.role && entity.__op__.roles[0] === "union") {
+				let rem = entity.__op__.roles[0].slice(1);
+				rem.forEach((role) => {
+					if (ROLES[role]) {
+						item.counts[ROLES[role]] = -1
+					}
+				});
+			}
+			
+			entity.roles.forEach((role) => {
+				if (ROLES[role]) {
+					item.counts[ROLES[role]] = 1;
 				}
-				
-				if (entity.role !== constants.ROLE_NONE) {
-					item.counts[ROLES[entity.role]] = 1;
-				}
-				
-				item.id = entity.item;
-				
-				switch(entity.type) {
-					case constants.TYPE_TEXTREL:
-						item.type = constants.TYPE_TEXT;
-						break;
-					case constants.TYPE_THREADREL:
-						item.type = constants.TYPE_THREAD;
-						break;
-					case constants.TYPE_ROOMREL:
-						item.type = constants.TYPE_ROOM;
-						break;
-					case constants.TYPE_PRIVREL:
-						item.type = constants.TYPE_PRIV;
-						break;
-					case constants.TYPE_TOPICREL:
-						item.type = constants.TYPE_TOPIC;
-						break;
-				}
+			})
+			
+			item.id = entity.item;
 
-				changes.entities[entity.item] = item;
-				counter.dec();
-			});
+			switch(entity.type) {
+				case constants.TYPE_TEXTREL:
+					item.type = constants.TYPE_TEXT;
+					break;
+				case constants.TYPE_THREADREL:
+					item.type = constants.TYPE_THREAD;
+					break;
+				case constants.TYPE_ROOMREL:
+					item.type = constants.TYPE_ROOM;
+					break;
+				case constants.TYPE_PRIVREL:
+					item.type = constants.TYPE_PRIV;
+					break;
+				case constants.TYPE_TOPICREL:
+					item.type = constants.TYPE_TOPIC;
+					break;
+			}
+
+			changes.entities[entity.item] = item;
 		}
 	}
-	counter.then(next);
+	next();
 }, "modifier");
