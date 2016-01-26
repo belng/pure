@@ -48,7 +48,7 @@
     "opn": "^4.0.0",
     "react-addons-test-utils": "^0.14.6",
     "react-hot-loader": "^1.3.0",
-    "webpack": "^1.12.11",
+    "webpack": "^1.12.12",
     "sbcache": "../sbcache",
     "jsonop": "^2.0.3"
   },
