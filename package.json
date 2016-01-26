@@ -12,7 +12,7 @@
     "dev": "^0.1.3",
     "ebus": "^0.12.0",
     "engine.io": "^1.6.7",
-    "engine.io-client": "^1.6.5",
+    "engine.io-client": "^1.6.8",
     "handlebars": "^4.0.5",
     "jest": "^0.1.40",
     "jsonwebtoken": "^5.5.3",
