@@ -2,7 +2,7 @@
 
 const { COLUMNS } = require("../lib/schema");
 
-module.exports = class User {
+module.exports = class Item {
 	constructor(data) {
 		for (const name of COLUMNS[data.type]) {
 			this[name] = data[name] || data[name.toLowerCase()];
