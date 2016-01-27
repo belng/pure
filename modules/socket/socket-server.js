@@ -5,8 +5,17 @@ let engine = require("engine.io"),
 	config = core.config,
 	constants = require("../../lib/constants"),
 	uid = require("../../lib/uid-server"),
-//	notify = require("../../lib/notify"),
-	sockets = {};
+	notify = require("./dispatch"),
+	sockets = {},
+	packer = require("stringPack")([
+		require("../../models/Item"),
+		require("../../models/Room"),
+		require("../../models/Thread"),
+		require("../../models/Text"),
+		require("../../models/Note"),
+		require("../../models/User"),
+		require("../../models/Relation")
+	]);
 
 function sendError(socket, code, reason, event) {
 	socket.send(JSON.stringify({
@@ -31,7 +40,6 @@ bus.on("http/init", app => {
 		});
 
 		socket.on("message", message => {
-			console.log("message:", message);
 			try {
 				message = JSON.parse(message);
 			} catch (e) {
@@ -46,17 +54,18 @@ bus.on("http/init", app => {
 					socket, err.code || "ERR_UNKNOWN", err.message, message
 				);
 				
-				if(message.response) socket.send(message.response);
+				if(message.response) socket.send(packer.encode(message.response));
 			});
 		});
 	});
 });
 
-/*bus.on("setstate", changes => {
+bus.on("setstate", changes => {
+	if(changes.knowledge || changes.indexes) return;
 	notify(changes, core, {}).on("data", (change, rel) => {
 		Object.keys(rel.resources).forEach(function(e) {
 			if (!sockets[e]) return;
 			sockets[e].send(JSON.stringify(change));
 		});
 	});
-});*/
+});

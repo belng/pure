@@ -1,4 +1,6 @@
 "use strict";
+let bus = new (require("ebus"))();
+exports.constants = require("./lib/constants.json");
 exports.bus = new (require("ebus"))();
 exports.cache = new (require("sbcache"))({
 	/* TODO: add is, id functions! */
