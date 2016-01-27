@@ -2,10 +2,22 @@ const pg = require("../../lib/pg"),
 	constants = require("../../lib/constants"),
 	{ TABLES, COLUMNS } = require("../../lib/schema");
 
+let ops = require("../../lib/defaultOps");
+
+/*
+	defaultOps: {
+		counts: { __any__: "inc" }
+	}
+	
+	
+*/
+
 module.exports = function (entity) {
 	const names = Object.keys(entity).filter(
 		name => COLUMNS[entity.type].indexOf(name) >= 0
 	);
+	
+	const ops = jsonop(ops, entity.__op__);
 
 	if (entity.type === constants.TYPE_ROOM) {
 		names.push("terms");
@@ -57,9 +69,11 @@ module.exports = function (entity) {
 				case "params":
 				case "data":
 				case "resources":
+					// todo: add op
 					return {
-						$: `"${name}" = jsonop("${name}", &{${name}})`,
-						[name]: entity[name]
+						$: `"${name}" = jsonop("${name}", &{${name}}, &{${name}_op})`,
+						[name]: entity[name],
+						[name + "_op"]: ops[name]
 					};
 				default:
 					return {

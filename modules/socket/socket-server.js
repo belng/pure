@@ -35,7 +35,9 @@ bus.on("http/init", app => {
 
 		console.log("socket connection created");
 		socket.on("close", () => {
-			bus.emit("presence/offline", { resourceId });
+			bus.emit("presence/offline", {
+				resourceId
+			});
 			delete sockets[resourceId];
 		});
 
@@ -46,26 +48,34 @@ bus.on("http/init", app => {
 				return sendError(socket, "ERR_EVT_PARSE", e.message);
 			}
 
-			message.resourceId = resourceId;
+			message.id = uid(16);
+			(message.auth = message.auth | {}).resource = resourceId;
 			console.log("emitting setstate", message);
 			bus.emit("setstate", message, err => {
 				console.log(err, message);
 				if (err) return sendError(
 					socket, err.code || "ERR_UNKNOWN", err.message, message
 				);
-				
-				if(message.response) socket.send(packer.encode(message.response));
+
+				if (message.response) {
+					if (message.auth && message.auth.session && message.app && message.app.user) {
+						bus.emit("presence/online", {
+							resource: resourceId,
+							user: message.app.user
+						});
+					}
+					socket.send(packer.encode(message.response));
+				}
 			});
 		});
 	});
 });
 
-bus.on("setstate", changes => {
-	if(changes.knowledge || changes.indexes) return;
+bus.on("statechange", changes => {
 	notify(changes, core, {}).on("data", (change, rel) => {
-		Object.keys(rel.resources).forEach(function(e) {
+		Object.keys(rel.resources).forEach(function (e) {
 			if (!sockets[e]) return;
-			sockets[e].send(JSON.stringify(change));
+			sockets[e].send(packer.encode(change));
 		});
 	});
 });
