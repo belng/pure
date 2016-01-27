@@ -1,19 +1,7 @@
 "use strict";
 /*
 require("source-map-support").install();*/
-require("babel-register")({
-	ignore: function(filename) {
-		if (/node_modules/.test(filename)) {
-			if (/node_modules\/sbcache/.test(filename)) {
-				return false;
-			} else {
-				return true;
-			}
-		} else {
-			return false;
-		}
-	},
-});
+require("babel-register");
 require("babel-polyfill");
 
 const core = require("../core"),
@@ -23,7 +11,7 @@ const core = require("../core"),
 let config;
 
 try {
-	config = require("./../config/server.json");
+	config = require("../config/server");
 } catch (e) {
 	config = {};
 	console.log(e);
@@ -39,6 +27,11 @@ require("./../modules/google/google");
 require("./../modules/session/session");
 require("./../modules/signin/signin");
 require("./../modules/signup/signup");
+
+/*###########*/
+require("./../modules/count/count");
+require("./../modules/note/note");
+require("./../modules/upload/upload");
 
 // require("./../modules/ui/ui-server");
 require("./../modules/http/http"); // if fired before socket server then the http/init listener might not be listening..
