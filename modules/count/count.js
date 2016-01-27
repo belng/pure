@@ -2,14 +2,10 @@
 
 const { TABLES, COLUMNS, TYPES, ROLES } = require("../../lib/schema");
 let constants = require("../../lib/constants"),
-	Counter = require("../../lib/counter"),
 	{ bus, cache } = require("../../core");
 
-
 bus.on("setstate", (changes, next) => {
-	if(!changes.entities) return;
-	
-	let counter = new Counter();
+	if(!changes.entities) return next();
 	
 	for (let id in changes.entities) {
 		let entity = changes.entities[id];
@@ -94,7 +90,6 @@ bus.on("setstate", (changes, next) => {
 					item.type = constants.TYPE_TOPIC;
 					break;
 			}
-
 			changes.entities[entity.item] = item;
 		}
 	}
