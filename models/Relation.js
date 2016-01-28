@@ -1,3 +1,5 @@
+import {COLUMNS} from "../lib/schema";
+
 export default class Relation {
 	constructor(data) {
 		for (const name of COLUMNS[data.type]) {

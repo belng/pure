@@ -1,4 +1,4 @@
-
+import {COLUMNS} from "../lib/schema";
 
 export default class Note {
 	constructor(data) {
@@ -17,6 +17,6 @@ export default class Note {
 	}
 
 	getId() {
-		return this.note.user + "_" + this.note.event + "_" + this.note.data.textId;
+		return this.user + "_" + this.event + "_" + this.data.textId;
 	}
 }

@@ -2,10 +2,9 @@
 
 "use strict";
 
-import { bus, cache } from '../../core';
+import {Constants, bus, cache } from '../../core';
 import Counter from '../../lib/counter';
 import Relation from '../../models/Relation';
-import Constants from '../../lib/Constants';
 
 bus.on("setstate", (changes, next) => {
 	if(!changes.entities) return next();
@@ -40,8 +39,8 @@ bus.on("setstate", (changes, next) => {
 				type: Constants.TYPE_THREADREL,
 				roles: role
 			}
-//			relation = new Relation(threadRel)
-			changes.entities[/*relation.getId()*/ user+"_"+text.parents[0][0]] = threadRel;
+			let relation = new Relation(threadRel)
+			changes.entities[relation.getId()] = relation;
 		});
 	}
 	next();
