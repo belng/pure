@@ -9,12 +9,13 @@ export default class Item {
 		}
 	}
 
-	packArguments() {
+	packArguments(): Object {
 		const data = {};
 
 		for (const name of COLUMNS[this.type]) {
 			data[name] = this[name];
 		}
+
 		return data;
 	}
 

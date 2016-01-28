@@ -1,6 +1,6 @@
 /* @flow */
 
-import { cache, Constants } from "./../../core";
+import { cache, Constants } from "../../../core";
 
 export default function(user, entity) {
 	return new Promise((resolve, reject) => {

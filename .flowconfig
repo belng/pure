@@ -8,6 +8,8 @@
 .*/node_modules/fbjs.*
 .*/node_modules/babylon.*
 .*/node_modules/babel.*
+.*/__tests__/*
+.*/tests/*
 
 [include]
 
@@ -17,3 +19,6 @@ interfaces/
 [options]
 suppress_comment=\\(.\\|\n\\)*\\$FlowIssue
 suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe
+
+esproposal.class_static_fields=enable
+esproposal.class_instance_fields=enable

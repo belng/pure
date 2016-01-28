@@ -13,7 +13,7 @@ fs.readdirSync(__dirname + "/badwords").forEach(filename => {
 })
 
 function check (text, re) {
-	return text.toLower()
+	return text.toLowerCase()
 		.replace(/[4@]/g, "a")
 		.replace(/* other substitutions */)
 		.replace(/* runs of non-alpha with spaces */)
