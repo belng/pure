@@ -1,5 +1,3 @@
-/* @flow */
-
 "use strict";
 
 import { bus, cache, config } from "../../core";

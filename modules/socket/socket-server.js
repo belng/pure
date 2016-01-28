@@ -1,5 +1,3 @@
-/* @flow */
-
 "use strict";
 let engine = require("engine.io"),
 	core = require("../../core"),
@@ -55,7 +53,7 @@ bus.on("http/init", app => {
 				if (err) return sendError(
 					socket, err.code || "ERR_UNKNOWN", err.message, message
 				);
-				
+
 				if(message.response) socket.send(packer.encode(message.response));
 			});
 		});

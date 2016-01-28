@@ -1,5 +1,3 @@
-/* @flow */
-
 const app = require("../../app"), cache = app.cache,
 	  core = app.core, generate = require("../lib/generate.browser.js");
 
@@ -30,11 +28,11 @@ cache.createThread = (thread) => {
 };
 
 cache.sendAuth = (auth) => {
-	
+
 };
 
 cache.sendPresence = (presence) => {
-	
+
 };
 
 module.exports = cache;

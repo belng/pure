@@ -1,5 +1,3 @@
-/* @flow */
-
 import koa from "koa";
 import route from "koa-route";
 import mount from "koa-mount";

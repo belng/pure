@@ -1,4 +1,4 @@
-/* @flow */
+
 
 import Item from "./Item.js";
 

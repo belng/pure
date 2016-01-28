@@ -1,5 +1,3 @@
-/* @flow */
-
 export default class User {
 	identities: Array<string>;
 

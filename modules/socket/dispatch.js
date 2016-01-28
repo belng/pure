@@ -1,5 +1,3 @@
-/* @flow */
-
 "use strict";
 import pg from './pg.js';
 import {EventEmitter} from 'events';
@@ -8,7 +6,7 @@ function dispatch(changes, core, options) {
 	let groups = {},
 		stream = new EventEmitter();
 
-	for (let key in changes.entities) {		
+	for (let key in changes.entities) {
 		if (!groups[changes.entities[key].parent[0]]) {
 			groups[changes.entities[key].parent[0]] = {};
 		}

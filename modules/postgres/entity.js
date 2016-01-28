@@ -1,4 +1,4 @@
-/* @flow */
+
 
 import pg from '../../lib/pg';
 import Constants from '../../lib/Constants';

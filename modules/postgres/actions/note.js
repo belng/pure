@@ -1,4 +1,4 @@
-/* @flow */
+
 
 "use strict";
 import log from '../../lib/logger.js';

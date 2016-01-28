@@ -1,4 +1,4 @@
-/* @flow */
+
 
 export default class Note {
 	constructor(data) {
