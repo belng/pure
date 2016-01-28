@@ -58,10 +58,10 @@ bus.on("http/init", app => {
 				);
 
 				if (message.response) {
-					if (message.auth && message.auth.session && message.app && message.app.user) {
+					if (message.auth && message.auth.user) {
 						bus.emit("presence/online", {
 							resource: resourceId,
-							user: message.app.user
+							user: message.auth.user
 						});
 					}
 					socket.send(packer.encode(message.response));
