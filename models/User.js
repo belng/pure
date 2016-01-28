@@ -1,3 +1,5 @@
+/* @flow */
+
 export default class User {
 	constructor(data) {
 		if (data.type !== "user") throw (new Error("invalid_type"));

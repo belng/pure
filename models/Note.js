@@ -1,3 +1,5 @@
+/* @flow */
+
 export default class Note {
 	constructor(data) {
 		for (const name of COLUMNS[data.type]) {

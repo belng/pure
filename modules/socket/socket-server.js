@@ -1,3 +1,5 @@
+/* @flow */
+
 "use strict";
 let engine = require("engine.io"),
 	core = require("../../core"),

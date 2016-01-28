@@ -1,3 +1,5 @@
+/* @flow */
+
 import jsonop from 'jsonop';
 import Counter from '../../lib/counter';
 import pg from '../../lib/pg';

@@ -1,3 +1,5 @@
+/* @flow */
+
 "use strict";
 
 import Constants from './../../../lib/Constants.json';

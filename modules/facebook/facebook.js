@@ -1,3 +1,5 @@
+/* @flow */
+
 import route from "koa-route";
 
 import { bus, config } from './../../core.js';

@@ -1,3 +1,5 @@
+/* @flow */
+
 import { cache, Constants } from "./../../core";
 
 export default function(user, entity) {

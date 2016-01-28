@@ -1,3 +1,5 @@
+/* @flow */
+
 import pg from '../../lib/pg';
 import { TABLES, TYPES } from '../../lib/schema';
 

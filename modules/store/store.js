@@ -1,3 +1,5 @@
+/* @flow */
+
 import {cache} from '../../app';
 
 cache.getThreadById = function(threadId, callback) {

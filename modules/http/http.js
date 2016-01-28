@@ -1,3 +1,5 @@
+/* @flow */
+
 import koa from "koa";
 import http from "http";
 import route from "koa-route";

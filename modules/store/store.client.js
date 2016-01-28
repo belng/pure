@@ -1,3 +1,5 @@
+/* @flow */
+
 const app = require("../../app"), cache = app.cache,
 	  core = app.core, generate = require("../lib/generate.browser.js");
 

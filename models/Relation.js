@@ -1,3 +1,5 @@
+/* @flow */
+
 export default class Relation {
 	constructor(data) {
 		for (const name of COLUMNS[data.type]) {

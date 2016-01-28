@@ -1,3 +1,5 @@
+/* @flow */
+
 let http = require("http");
 
 module.exports = (core) => {

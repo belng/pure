@@ -1,3 +1,5 @@
+/* @flow */
+
 "use strict";
 
 import { TABLES, COLUMNS, TYPES, ROLES } from "../../lib/schema";

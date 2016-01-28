@@ -1,3 +1,5 @@
+/* @flow */
+
 import jsonop from 'jsonop';
 import Cache from 'sbcache';
 import Counter from '../../lib/counter.js';

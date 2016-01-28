@@ -1,3 +1,5 @@
+/* @flow */
+
 /* eslint-env browser */
 
 import eio from 'engine.io-client/engine.io';

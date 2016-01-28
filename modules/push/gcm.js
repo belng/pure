@@ -1,3 +1,5 @@
+/* @flow */
+
 import xmpp from 'node-xmpp';
 import { bus, config } from "../../core";
 

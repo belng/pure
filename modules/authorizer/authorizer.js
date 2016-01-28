@@ -1,3 +1,5 @@
+/* @flow */
+
 import core from "./../../core";
 
 const rules = [];

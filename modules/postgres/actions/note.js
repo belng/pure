@@ -1,3 +1,5 @@
+/* @flow */
+
 "use strict";
 import log from '../../lib/logger.js';
 import pg from '../../lib/pg.js';

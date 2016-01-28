@@ -1,3 +1,5 @@
+/* @flow */
+
 import { COLUMNS } from "../lib/schema";
 
 export default class Item {

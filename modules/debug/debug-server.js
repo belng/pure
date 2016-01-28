@@ -1,3 +1,5 @@
+/* @flow */
+
 /*
 	Production process debug port.
 

@@ -1,3 +1,5 @@
+/* @flow */
+
 "use strict";
 
 // var pg = require("../../lib/pg.js");

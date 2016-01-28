@@ -1,3 +1,5 @@
+/* @flow */
+
 import Item from "./Item.js";
 
 export default class Text extends Item {

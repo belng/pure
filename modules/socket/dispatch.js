@@ -1,3 +1,5 @@
+/* @flow */
+
 "use strict";
 import pg from './pg.js';
 import {EventEmitter} from 'events';
