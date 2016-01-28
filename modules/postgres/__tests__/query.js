@@ -5,7 +5,7 @@ jest.autoMockOff();
 console.log("Starting");
 
 const query = require("../query"),
-	Constants = require("../../../lib/Constants");
+	Constants = require("../../../lib/constants.json");
 
 
 describe ("Query", () => {

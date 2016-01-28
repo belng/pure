@@ -2,7 +2,7 @@
 
 "use strict";
 
-import Constants from './../../../lib/Constants.json';
+import Constants from './../../../lib/constants.json';
 import uid from './../../../lib/uid-server';
 import pg from '../pg.js';
 import casual from 'casual';

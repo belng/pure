@@ -1,7 +1,7 @@
 "use strict";
 jest.autoMockOff();
 
-let Constants = require("../../../lib/Constants"),
+let Constants = require("../../../lib/constants.json"),
 	Counter = require("../../../lib/counter"),
 	{ bus, cache } = require("../../../core");
 
@@ -40,7 +40,7 @@ describe("create note for a text relation(item present in entities)", () => {
 				 text: 'some text message',
 				 thread: undefined,
 				 createTime: 1453364778965,
-				 room: 'scrollback' 
+				 room: 'scrollback'
 			  }
 		});
 	});
@@ -50,7 +50,7 @@ describe("create note for a text(item not in entities)", () => {
 	require("../note");
 	cache.put({
 		entities: {
-			"hags732-dsf-sdr32-32eds": 
+			"hags732-dsf-sdr32-32eds":
 			{
 				id: "hags732-dsf-sdr32-32eds",
 				body: "some text message",
@@ -86,7 +86,7 @@ describe("create note for a text(item not in entities)", () => {
 				 text: 'some text message',
 				 thread: undefined,
 				 createTime: 1453364778965,
-				 room: 'scrollback' 
+				 room: 'scrollback'
 			  }
 		});
 	});

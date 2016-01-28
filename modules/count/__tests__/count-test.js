@@ -4,7 +4,7 @@ jest.autoMockOff();
 
 let core = require("../../../core"),
 	assert = require('assert'),
-	Constants = require("../../../lib/Constants"),
+	Constants = require("../../../lib/constants.json"),
 	bus = core.bus,
 	cache = core.cache;
 //let count = require("../count");
@@ -58,7 +58,7 @@ describe("incriment count", () => {
 			});
 			assert.deepEqual(changes.entities["testinguser"], {counts: { threads: 1 }, id: 'testinguser'});
 		})
-			
+
 	});
 
 	it("should add count- to parents and user on delete text", () => {
@@ -84,7 +84,7 @@ describe("incriment count", () => {
 			assert.deepEqual(changes.entities["testinguser"], { counts: { texts: -1 }, id: 'testinguser' })
 		})
 	});
-	
+
 	it("should add count- to parents and user on delete thread", () => {
 		bus.emit("setstate", {
 			entities: {
@@ -109,7 +109,7 @@ describe("incriment count", () => {
 			assert.deepEqual(changes.entities["testinguser"], {counts: { threads: -1 }, id: 'testinguser'});
 		})
 	});
-	
+
 	it("should add follower count to related item", () => {
 		bus.emit("setstate", {
 			entities: {
@@ -129,7 +129,7 @@ describe("incriment count", () => {
 			});
 		})
 	});
-	
+
 	it("should remove 1 follower count of related item", () => {
 		cache.put({
 			entities: {
@@ -138,11 +138,11 @@ describe("incriment count", () => {
 					user: "testinguser",
 					item: "sjfk34-sf9s-sdf43-amv-sdjfh34",
 					type: Constants.TYPE_ROOMREL,
-					role: Constants.ROLE_FOLLOWER 
+					role: Constants.ROLE_FOLLOWER
 				}
 			}
 		});
-		
+
 		bus.emit("setstate", {
 			entities: {
 				"testinguser_scrollback": {
@@ -161,7 +161,7 @@ describe("incriment count", () => {
 			});
 		})
 	});
-	
+
 	it("should remove 1 follower count and add banned to related item", () => {
 		cache.put({
 			entities: {
@@ -170,11 +170,11 @@ describe("incriment count", () => {
 					user: "testinguser",
 					item: "sjfk34-sf9s-sdf43-amv-sdjfh34",
 					type: Constants.TYPE_ROOMREL,
-					role: Constants.ROLE_FOLLOWER 
+					role: Constants.ROLE_FOLLOWER
 				}
 			}
 		});
-		
+
 		bus.emit("setstate", {
 			entities: {
 				"testinguser_scrollback": {
@@ -193,7 +193,7 @@ describe("incriment count", () => {
 			});
 		})
 	});
-	
+
 	it("should remove 1 banned count and add follower to related item", () => {
 		cache.put({
 			entities: {
@@ -202,11 +202,11 @@ describe("incriment count", () => {
 					user: "testinguser",
 					item: "sjfk34-sf9s-sdf43-amv-sdjfh34",
 					type: Constants.TYPE_ROOMREL,
-					role: Constants.ROLE_BANNED 
+					role: Constants.ROLE_BANNED
 				}
 			}
 		});
-		
+
 		bus.emit("setstate", {
 			entities: {
 				"testinguser_scrollback": {

@@ -4,7 +4,7 @@ jest.autoMockOff();
 
 let {bus, cache} = require("../../../core"),
 	assert = require('assert'),
-	Constants = require("../../../lib/Constants");
+	Constants = require("../../../lib/constants.json");
 
 require("../relations");
 describe("create relation on reply to a thread", ()=> {
