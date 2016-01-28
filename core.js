@@ -1,10 +1,13 @@
 "use strict";
-let bus = new (require("ebus"))();
-exports.constants = require("./lib/constants.json");
-exports.bus = new (require("ebus"))();
-exports.cache = new (require("sbcache"))({
+
+import Ebus from "ebus";
+import SbCache from "sbcache";
+
+export { default as Constants } from "./lib/constants.json";
+export const bus = new Ebus();
+export const cache = new SbCache({
 	/* TODO: add is, id functions! */
 	entityOp: { counts: { __all__: "inc" } }
 });
 
-exports.bus.setDebug(5);
+bus.setDebug(5);

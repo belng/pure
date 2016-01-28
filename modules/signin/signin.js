@@ -1,9 +1,8 @@
 "use strict";
 
+import { bus, cache } from '../../core.js';
+
 // sign with default (HMAC SHA256)
-var core = require("../../core.js"),
-	bus = core.bus,
-	cache = core.cache;
 
 function signinhandler(changes, next) {
 	if (changes.auth && changes.auth.signin) {

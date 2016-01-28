@@ -1,6 +1,4 @@
-"use strict";
-
-module.exports = class Note {
+export default class Note {
 	constructor(data) {
 		for (const name of COLUMNS[data.type]) {
 			this[name] = data[name] || data[name.toLowerCase()];

@@ -1,16 +1,15 @@
 "use strict";
 
+import { bus, cache, config } from '../../core.js';
+import jwt from 'jsonwebtoken';
+import objectUtils from '../../lib/object-utils.js';
+
 // sign with default (HMAC SHA256)
-var core = require("../../core.js"),
-	jwt = require("jsonwebtoken"),
-	objectUtils = require("../../lib/object-utils.js"),
-	tokenValidity = 604800, // seven days
-	bus = core.bus,
-	cache = core.cache,
-	config = core.config,
-	iss = config.host,
-	aud = config.host,
-	key = config.session.privateKey;
+var tokenValidity = 604800,
+    // seven days
+    iss = config.host,
+    aud = config.host,
+    key = config.session.privateKey;
 
 function getIdentitiesFromJWT(token) {
 	return new Promise(function(resolve, reject) {

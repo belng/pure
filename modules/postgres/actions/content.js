@@ -1,8 +1,8 @@
 "use strict";
 
-var pg = require("../../lib/pg.js"),
-	log = require("../../lib/logger.js"),
-	userUtils = require("../../lib/user-utils.js");
+import pg from '../../lib/pg.js';
+import log from '../../lib/logger.js';
+import userUtils from '../../lib/user-utils.js';
 
 module.exports = function (action) {
 	var queries = [], updateObject;

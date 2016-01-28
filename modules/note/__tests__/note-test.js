@@ -1,7 +1,7 @@
 "use strict";
 jest.autoMockOff();
 
-let constants = require("../../../lib/constants"),
+let Constants = require("../../../lib/Constants"),
 	Counter = require("../../../lib/counter"),
 	{ bus, cache } = require("../../../core");
 
@@ -12,8 +12,8 @@ describe("create note for a text relation(item present in entities)", () => {
 			"hags732-dsf-sdr32-32eds": {
 				id: "hags732-dsf-sdr32-32eds",
 				body: "some text message",
-				type: constants.TYPE_TEXT,
-				tags: [constants.TAG_POST_STICKY],
+				type: Constants.TYPE_TEXT,
+				tags: [Constants.TAG_POST_STICKY],
 				parents: [["sdf43-dsf43-f34-r-w", "scrollback"]],
 				creator: "sbtestinguser",
 				createTime: Date.now()
@@ -21,8 +21,8 @@ describe("create note for a text relation(item present in entities)", () => {
 			"testinguser_hags732-dsf-sdr32-32eds": {
 				"user": "testinguser",
 				item: "hags732-dsf-sdr32-32eds",
-				role: constants.ROLE_MENTIONED,
-				type: constants.TYPE_TEXTREL
+				role: Constants.ROLE_MENTIONED,
+				type: Constants.TYPE_TEXTREL
 			}
 		}
 	}, (e, c) => {
@@ -54,8 +54,8 @@ describe("create note for a text(item not in entities)", () => {
 			{
 				id: "hags732-dsf-sdr32-32eds",
 				body: "some text message",
-				type: constants.TYPE_TEXT,
-				tags: [constants.TAG_POST_STICKY],
+				type: Constants.TYPE_TEXT,
+				tags: [Constants.TAG_POST_STICKY],
 				parents: [["sdf43-dsf43-f34-r-w", "scrollback"]],
 				creator: "sbtestinguser",
 				createTime: Date.now()
@@ -67,8 +67,8 @@ describe("create note for a text(item not in entities)", () => {
 			"testinguser_hags732-dsf-sdr32-32eds": {
 				"user": "testinguser",
 				item: "hags732-dsf-sdr32-32eds",
-				role: constants.ROLE_MENTIONED,
-				type: constants.TYPE_TEXTREL
+				role: Constants.ROLE_MENTIONED,
+				type: Constants.TYPE_TEXTREL
 			}
 		}
 	}, (e, c) => {

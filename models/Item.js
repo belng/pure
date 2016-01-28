@@ -1,8 +1,6 @@
-"use strict";
+import { COLUMNS } from "../lib/schema";
 
-const { COLUMNS } = require("../lib/schema");
-
-module.exports = class Item {
+export default class Item {
 	constructor(data) {
 		for (const name of COLUMNS[data.type]) {
 			this[name] = data[name] || data[name.toLowerCase()];
@@ -33,4 +31,4 @@ module.exports = class Item {
 	isAncestor(ancestorId) {
 		return (this.parentId || []).indexOf(ancestorId) >= 0;
 	}
-};
+}

@@ -1,9 +1,11 @@
 import route from "koa-route";
 
-var core = require("./../../core.js"), request = require("request"),
-	fs = require("fs"), bus= core.bus, config = core.config,
-	returnTemplate, loginTemplate,
-	handlebars = require("handlebars");
+import { bus, config } from './../../core.js';
+import request from 'request';
+import fs from 'fs';
+import handlebars from 'handlebars';
+
+var returnTemplate, loginTemplate;
 
 function getTokenFromCode(code, secret, clientID, host) {
 	console.log(arguments);
@@ -118,7 +120,7 @@ bus.on("setstate", fbAuth, 900);
 returnTemplate = handlebars.compile(fs.readFileSync(__dirname + "/facebook-return.hbs", "utf8"));
 loginTemplate = handlebars.compile(fs.readFileSync(__dirname + "/facebook-login.hbs", "utf8"));
 
-bus.on("http/init", app => {	
+bus.on("http/init", app => {
 	app.use(route.get("/r/facebook/login", function *() {
 		this.body = loginTemplate({
 			client_id: config.facebook.client_id,

@@ -1,10 +1,10 @@
 /* eslint-env browser */
 
-var eio = require("engine.io-client/engine.io"),
-	core = require("../../core.js"),
-	backOff = 1, client, config = core.config, bus = core.bus,
-	protocol = config.server.protocol,
-	host = config.server.apiHost;
+import eio from 'engine.io-client/engine.io';
+import { bus, config } from '../../core.js';
+/* eslint-env browser */
+
+var backOff = 1, client, protocol = config.server.protocol, host = config.server.apiHost;
 
 function disconnected() {
 

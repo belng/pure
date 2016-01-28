@@ -1,5 +1,4 @@
-"use strict";
-module.exports = class User {
+export default class User {
 	constructor(data) {
 		if (data.type !== "user") throw (new Error("invalid_type"));
 		for (const name of COLUMNS["user"]) {
@@ -15,7 +14,7 @@ module.exports = class User {
 		}
 		return data;
 	}
-	
+
 	hasIdentity(identity) {
 		return (this.identities || []).indexOf(identity) >= 0;
 	}
@@ -23,4 +22,4 @@ module.exports = class User {
 	addIdentity(identity) {
 		if (!this.hadIdentity(identity)) this.identities.push();
 	}
-};
+}

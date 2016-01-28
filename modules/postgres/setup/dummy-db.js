@@ -1,11 +1,11 @@
 "use strict";
 
-let pg = require("../../../lib/pg"),
-	casual = require("casual"),
-	uid = require('node-uuid'),
-	constants = require("../../../lib/constants.json"),
-	connstr = "pg://hn:hn@localhost/hn", users = [], rooms = [], threads = [], texts = [],
-	numUsers = 50, numRooms = 5, numThreads = 200, numTexts = 5000;
+import pg from '../../../lib/pg';
+import casual from 'casual';
+import uid from 'node-uuid';
+import Constants from '../../../lib/Constants.json';
+
+let connstr = "pg://hn:hn@localhost/hn", users = [], rooms = [], threads = [], texts = [], numUsers = 50, numRooms = 5, numThreads = 200, numTexts = 5000;
 
 function getId() {
 	let u = casual.username.toLowerCase().replace(/\_|\./g, "-");
@@ -26,7 +26,7 @@ function insertUser(done) {
 			extract(epoch from now())*1000
 		)`,
 		id: id,
-		tags: constants.TAG_USER_EMAIL,
+		tags: Constants.TAG_USER_EMAIL,
 		name: casual.name,
 		ident: casual.email.toLowerCase()
 	}], done);	
@@ -63,7 +63,7 @@ function insertThread(done) {
 			&{name}, &{body}, ARRAY[&{parents}]::uuid[], &{creator}, &{updater}
 		)`,
 		id: id,
-		tags: Math.random() < 0.2 ? constants.TAG_POST_HIDDEN : constants.TAG_POST_STICKY,
+		tags: Math.random() < 0.2 ? Constants.TAG_POST_HIDDEN : Constants.TAG_POST_STICKY,
 		name: casual.sentence,
 		body: casual.description,
 		parents: rooms[Math.floor(Math.random() * rooms.length)],
@@ -86,7 +86,7 @@ function insertText(done) {
 			&{body}, ARRAY[&{parents}]::uuid[], &{creator}, &{updater}
 		)`,
 		id: id,
-		tags: Math.random() < 0.3 ? constants.TAG_POST_HIDDEN : constants.TAG_POST_STICKY,
+		tags: Math.random() < 0.3 ? Constants.TAG_POST_HIDDEN : Constants.TAG_POST_STICKY,
 		body: casual.description,
 		parents: threads[Math.floor(Math.random() * threads.length)],
 		creator: users[Math.floor(Math.random() * users.length)],
@@ -104,7 +104,7 @@ function insertRoomrel(usr, room, cb) {
 		)`,
 		user: usr,
 		item: room,
-		role: constants.ROLE_FOLLOWER,
+		role: Constants.ROLE_FOLLOWER,
 		interest: Math.floor(Math.random() * 50)
 	}], cb);	
 }
@@ -119,7 +119,7 @@ function insertThreadrel(usr, thread, cb) {
 		)`,
 		user: usr,
 		item: thread,
-		role: constants.ROLE_FOLLOWER,
+		role: Constants.ROLE_FOLLOWER,
 		interest: Math.floor(Math.random() * 30)
 	}], cb);
 }
@@ -134,7 +134,7 @@ function insertTextrel(usr, text, cb) {
 		)`,
 		user: usr,
 		item: text,
-		role: Math.random() < 0.5 ? constants.ROLE_FOLLOWER : constants.ROLE_MENTIONED,
+		role: Math.random() < 0.5 ? Constants.ROLE_FOLLOWER : Constants.ROLE_MENTIONED,
 		interest: Math.floor(Math.random() * 30)
 	}], cb);
 }

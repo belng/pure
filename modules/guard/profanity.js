@@ -1,5 +1,6 @@
-let fs = require("fs"),
-	filters = {};
+import fs from "fs";
+
+const filters = {};
 
 fs.readdirSync(__dirname + "/badwords").forEach(filename => {
 	if(filename.length === 2) {
@@ -29,9 +30,9 @@ module.exports = (core) => {
 				].join(" "),
 				appliedFilters = [],
 				matches;
-			
+
 			/* TODO: populate appliedFilters using entity.parents[*].params.profanity */
-			
+
 			matches = appliedFilters.map(re => check(text, re)).filter(a => !!a);
 			if (matches.length) return next(Error("ERR_PROFANITY"));
 			next();

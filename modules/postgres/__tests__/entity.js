@@ -5,7 +5,7 @@ jest.autoMockOff();
 console.log("Starting");
 
 const entity = require("../entity"),
-	constants = require("../../../lib/constants");
+	Constants = require("../../../lib/Constants");
 
 
 
@@ -15,8 +15,8 @@ describe ("Entity insert/update", () => {
 			id: "43b2bbd2-d041-4771-9907-7b77dd1fb187",
 			name: "bangalore",
 			body: "",
-			type: constants.TYPE_ROOM,
-			tags: [ constants.TAG_ROOM_CITY ],
+			type: Constants.TYPE_ROOM,
+			tags: [ Constants.TAG_ROOM_CITY ],
 			meta: {},
 			params: {},
 			parents: [],
@@ -30,8 +30,8 @@ describe ("Entity insert/update", () => {
 			id: "43b2bbd2-d041-4771-9907-7b77dd1fb187",
 			name: "bangalore",
 			body: "",
-			type: constants.TYPE_ROOM,
-			tags: [ constants.TAG_ROOM_CITY ],
+			type: Constants.TYPE_ROOM,
+			tags: [ Constants.TAG_ROOM_CITY ],
 			meta: {},
 			params: {},
 			parents: [],

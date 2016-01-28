@@ -1,15 +1,11 @@
-const core = require("./../../core"),
-	  cache = core.cache,
-	  constants = core.constants;
+import { cache, Constants } from "./../../core";
 
-module.exports = function (user, entity) {
-	var promise = new Promise(function(resolver, reject) {
-		cache.getRelation(user, entity, function(err, relation) {
-			if(err) return reject(err);
-			if(relation.role === constants.ROLE_BANNED) return reject("banned");
+export default function(user, entity) {
+	return new Promise((resolve, reject) => {
+		cache.getRelation(user, entity, (err, relation) => {
+			if (err) return reject(err);
+			if (relation.role === Constants.ROLE_BANNED) return reject("banned");
 			resolve();
 		});
 	});
-	
-	return promise;
-};
+}

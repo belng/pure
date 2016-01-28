@@ -1,20 +1,12 @@
 "use strict";
 
-let constants = require("./../../../lib/constants.json"),
-	uid = require("./../../../lib/uid-server"),
-	pg = require("../pg.js"),
-	casual = require("casual"),
-	logger = require("winston"),
-	connStr = "pg://localhost/aravind",
-	scale = 100,
-	numUsers = Math.max(5, 10 * scale),
-	numRooms = Math.max(5, scale),
-	numTopics = Math.max(5, scale),
-	numThreads = Math.max(5, 10 * scale),
-	numTexts = Math.max(5, 100 * scale),
-	numMembers = Math.max(5, 10 * scale),
-	numWatchers = Math.max(5, 10 * scale),
-	numPresence = Math.max(5, 10 * scale);
+import Constants from './../../../lib/Constants.json';
+import uid from './../../../lib/uid-server';
+import pg from '../pg.js';
+import casual from 'casual';
+import logger from 'winston';
+
+let connStr = "pg://localhost/aravind", scale = 100, numUsers = Math.max(5, 10 * scale), numRooms = Math.max(5, scale), numTopics = Math.max(5, scale), numThreads = Math.max(5, 10 * scale), numTexts = Math.max(5, 100 * scale), numMembers = Math.max(5, 10 * scale), numWatchers = Math.max(5, 10 * scale), numPresence = Math.max(5, 10 * scale);
 
 logger.warn(
 	numUsers,
@@ -56,8 +48,8 @@ function insertUser(i, done) {
 			id, type, tags, createTime, updateTime,
 			identities, timezone, locale
 		) VALUES (
-			$(id), ${constants.TYPE_USER},
-			'{${constants.TAG_USER_EMAIL}}',
+			$(id), ${Constants.TYPE_USER},
+			'{${Constants.TAG_USER_EMAIL}}',
 			extract(epoch from now())*1000000,
 			extract(epoch from now())*1000000,
 			$\{ident}, 330, 91
@@ -74,7 +66,7 @@ function insertRoom(i, done) {
 			id, type, createTime, updateTime,
 			name, body, creator, updater
 		) VALUES (
-			$(id), ${constants.TYPE_ROOM},
+			$(id), ${Constants.TYPE_ROOM},
 			extract(epoch from now())*1000000,
 			extract(epoch from now())*1000000,
 			$(id), $(body), $(uid), $(uid)
@@ -92,7 +84,7 @@ function insertTopic(i, done) {
 			id, type, createTime, updateTime,
 			name, body, creator, updater
 		) VALUES (
-			$(id), ${constants.TYPE_TOPIC},
+			$(id), ${Constants.TYPE_TOPIC},
 			extract(epoch from now())*1000000,
 			extract(epoch from now())*1000000,
 			$(id), $(body), $(uid), $(uid)
@@ -105,15 +97,15 @@ function insertTopic(i, done) {
 
 function insertThread(i, done) {
 	let tags = [];
-	if (Math.random() < 0.03) tags.push(constants.TAG_POST_HIDDEN);
-	else if (Math.random() < 0.01) tags.push(constants.TAG_POST_STICKY);
+	if (Math.random() < 0.03) tags.push(Constants.TAG_POST_HIDDEN);
+	else if (Math.random() < 0.01) tags.push(Constants.TAG_POST_STICKY);
 
 	pg.write(connStr, [{
 		$: `INSERT INTO posts (
 			id, type, tags, createTime, updateTime,
 			name, body, parent, room, topics, creator, updater
 		) VALUES (
-			$(id), ${constants.TYPE_THREAD},
+			$(id), ${Constants.TYPE_THREAD},
 			ARRAY[$(tags)]::smallint[],
 			extract(epoch from now())*1000000,
 			extract(epoch from now())*1000000,
@@ -131,14 +123,14 @@ function insertThread(i, done) {
 
 function insertText(i, done) {
 	let tags = [];
-	if (Math.random() < 0.02) tags.push(constants.TAG_POST_HIDDEN);
+	if (Math.random() < 0.02) tags.push(Constants.TAG_POST_HIDDEN);
 
 	pg.write(connStr, [{
 		$: `INSERT INTO posts (
 			id, type, tags, createTime, updateTime,
 			body, parent, room, creator, updater
 		) VALUES (
-			$(id), ${constants.TYPE_TEXT},
+			$(id), ${Constants.TYPE_TEXT},
 			ARRAY[$(tags)]::smallint[],
 			extract(epoch from now())*1000000,
 			extract(epoch from now())*1000000,
@@ -155,16 +147,16 @@ function insertText(i, done) {
 
 function insertMember(i, done) {
 	let tags = [];
-	if (Math.random() < 0.01) tags.push(constants.TAG_REL_MUTE);
-	if (Math.random() < 0.01) tags.push(constants.TAG_REL_LIKE);
-	if (Math.random() < 0.001) tags.push(constants.TAG_REL_FLAG);
+	if (Math.random() < 0.01) tags.push(Constants.TAG_REL_MUTE);
+	if (Math.random() < 0.01) tags.push(Constants.TAG_REL_LIKE);
+	if (Math.random() < 0.001) tags.push(Constants.TAG_REL_FLAG);
 
 	pg.write(connStr, [{
 		$: `INSERT INTO members (
 			"user", item, tags, role
 		) VALUES (
 			$(uid), $(rid), ARRAY[$(tags)]::smallint[],
-			${constants.ROLE_FOLLOWER}
+			${Constants.ROLE_FOLLOWER}
 		)`,
 		rid: roomId(r(numRooms)),
 		uid: userId(r(numUsers)),
@@ -174,16 +166,16 @@ function insertMember(i, done) {
 
 function insertWatcher(i, done) {
 	let tags = [];
-	if (Math.random() < 0.01) tags.push(constants.TAG_REL_MUTE);
-	if (Math.random() < 0.01) tags.push(constants.TAG_REL_LIKE);
-	if (Math.random() < 0.001) tags.push(constants.TAG_REL_FLAG);
+	if (Math.random() < 0.01) tags.push(Constants.TAG_REL_MUTE);
+	if (Math.random() < 0.01) tags.push(Constants.TAG_REL_LIKE);
+	if (Math.random() < 0.001) tags.push(Constants.TAG_REL_FLAG);
 
 	pg.write(connStr, [{
 		$: `INSERT INTO watchers (
 			"user", item, tags, role
 		) VALUES (
 			$(uid), $(rid), ARRAY[$(tags)]::smallint[],
-			${constants.ROLE_FOLLOWER}
+			${Constants.ROLE_FOLLOWER}
 		)`,
 		rid: threadId(r(numThreads)),
 		uid: userId(r(numUsers)),
@@ -202,8 +194,8 @@ function insertPresence(i, done) {
 		uid: userId(r(numUsers)),
 		res: uid(),
 		status: Math.random() < 0.05 ?
-			constants.STATUS_ONLINE :
-			constants.STATUS_OFFLINE
+			Constants.STATUS_ONLINE :
+			Constants.STATUS_OFFLINE
 	}], done);
 }
 

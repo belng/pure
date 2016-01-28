@@ -1,9 +1,9 @@
 "use strict";
 
-let {bus, cache} = require("../../core"),
-	Counter = require("../../lib/counter"),
-	Relation = require("../../models/Relation"),
-	constants = require("../../lib/constants");
+import { bus, cache } from '../../core';
+import Counter from '../../lib/counter';
+import Relation from '../../models/Relation';
+import Constants from '../../lib/Constants';
 
 bus.on("setstate", (changes, next) => {
 	if(!changes.entities) return next();
@@ -11,31 +11,31 @@ bus.on("setstate", (changes, next) => {
 	for (let id in changes.entities) {
 		let entity = changes.entities[id],
 			text, threadRel, role, user;
-		
-		if( entity.type === constants.TYPE_TEXTREL && entity.roles.indexOf(constants.ROLE_MENTIONED) > -1 ) {
+
+		if( entity.type === Constants.TYPE_TEXTREL && entity.roles.indexOf(Constants.ROLE_MENTIONED) > -1 ) {
 			text = changes.entities[entity.item];
-			role = [constants.ROLE_MENTIONED];
+			role = [Constants.ROLE_MENTIONED];
 			user = entity.user;
 			if(!text) {
 				counter.inc()
-				cache.getEntity(entity.item, (err, item) => { 
+				cache.getEntity(entity.item, (err, item) => {
 					text = item;
 					counter.dec();
 				});
 			}
 		}
-		
-		if(entity.type === constants.TYPE_TEXT) {
+
+		if(entity.type === Constants.TYPE_TEXT) {
 			text = entity;
-			role = [constants.ROLE_FOLLOWER];
+			role = [Constants.ROLE_FOLLOWER];
 			user = entity.creator
 		}
-		
+
 		counter.then(() => {
 			threadRel = {
 				item: text.parents[0][0],
 				user: user,
-				type: constants.TYPE_THREADREL,
+				type: Constants.TYPE_THREADREL,
 				roles: role
 			}
 //			relation = new Relation(threadRel)
@@ -45,4 +45,3 @@ bus.on("setstate", (changes, next) => {
 	next();
 //	counter.then(next)
 })
-

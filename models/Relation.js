@@ -1,5 +1,4 @@
-"use strict";
-module.exports = class Relation {
+export default class Relation {
 	constructor(data) {
 		for (const name of COLUMNS[data.type]) {
 			this[name] = data[name] || data[name.toLowerCase()];
@@ -14,8 +13,8 @@ module.exports = class Relation {
 		}
 		return data;
 	}
-	
+
 	getId() {
 		return this.user + "_" + this.item;
 	}
-};
+}

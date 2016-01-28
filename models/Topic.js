@@ -1,5 +1,7 @@
-"use strict";
-var Item = require("./Item.js");
-module.exports = class Topic extends Item {
-	constructor() {}
-};
+import Item from "./Item.js";
+
+export default class Topic extends Item {
+	constructor() {
+		super();
+	}
+}

@@ -1,7 +1,7 @@
-var xmpp = require('node-xmpp'),
-	core = require("../../core"),
-	bus = core.bus,
-	config = core.config, options, xmppClient, backOff = 1;
+import xmpp from 'node-xmpp';
+import { bus, config } from "../../core";
+
+let options, xmppClient, backOff = 1;
 
 
 options = {
