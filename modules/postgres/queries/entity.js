@@ -1,8 +1,10 @@
+
+
 "use strict";
 
-var pg = require("../../lib/pg.js");
-var log = require('./../../lib/logger.js');
-var sessionUtils = require("../../lib/session-utils.js");
+import pg from '../../lib/pg.js';
+import log from './../../lib/logger.js';
+import sessionUtils from '../../lib/session-utils.js';
 
 module.exports = [
 	function (query) {

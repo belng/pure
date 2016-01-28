@@ -1,5 +1,7 @@
-const pg = require("../../lib/pg"),
-	{ TABLES, TYPES } = require("../../lib/schema");
+
+
+import pg from '../../lib/pg';
+import { TABLES, TYPES } from '../../lib/schema';
 
 const MAX_LIMIT = 1024;
 

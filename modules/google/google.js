@@ -3,11 +3,13 @@ sources:
 https://developers.google.com/identity/protocols/OAuth2UserAgent#validatetoken
 */
 
+import fs from "fs";
+import request from "request";
+import handlebars from "handlebars";
 import route from "koa-route";
+import { bus, config } from "./../../core";
 
-var core = require("./../../core.js"), request = require("request"),
-	fs = require("fs"), bus = core.bus, config = core.config,
-	loginTemplate, returnTemplate, handlebars = require("handlebars");
+let loginTemplate, returnTemplate;
 
 // TODO: most of the code is copy paste from facebook module. see if u can avoid that when u get time.
 function getTokenFromCode(code) {

@@ -1,6 +1,8 @@
+
+
 "use strict";
 
-var pg = require("../../lib/pg.js");
+import pg from '../../lib/pg.js';
 
 module.exports = [
 	function(query) {

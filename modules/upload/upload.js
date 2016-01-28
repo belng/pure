@@ -1,7 +1,7 @@
 "use strict";
 
-let { bus, cache, config } = require("../../core"),
-	crypto = require('crypto');
+import { bus, cache, config } from "../../core";
+import crypto from 'crypto';
 
 function getDate(long) {
 	let date = new Date();

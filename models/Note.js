@@ -1,12 +1,22 @@
-"use strict";
+import {COLUMNS} from "../lib/schema";
 
-module.exports = class Note {
-	constructor (note) {
-		this.note = note;
-		this.getId = this.getid();
+export default class Note {
+	constructor(data) {
+		for (const name of COLUMNS[data.type]) {
+			this[name] = data[name] || data[name.toLowerCase()];
+		}
 	}
-	
-	getid() {
-		return this.note.user + "_" + this.note.event + "_" + this.note.data.textId;
+
+	packArguments() {
+		const data = {};
+
+		for (const name of COLUMNS[this.type]) {
+			data[name] = this[name];
+		}
+		return data;
+	}
+
+	getId() {
+		return this.user + "_" + this.event + "_" + this.data.textId;
 	}
 }

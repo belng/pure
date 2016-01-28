@@ -1,12 +1,12 @@
-let jsonop = require("jsonop"),
-	Cache = require("sbcache"),
-	Counter = require("../../lib/counter.js"),
-	{keyrangeToQuery} = require("./querykeyrange"),
-	pg = require("../../lib/pg.js"),
-	log = require("../../lib/log.js"),
-	queryHandlers = require("./postgres/queries"),
-	actionHandlers = require("./postgres/updates"),
-	core, cache, config;
+import jsonop from 'jsonop';
+import Cache from 'sbcache';
+import Counter from '../../lib/counter.js';
+import './querykeyrange';
+import pg from '../../lib/pg.js';
+import log from '../../lib/log.js';
+import queryHandlers from './postgres/queries';
+import actionHandlers from './postgres/updates';
+let core, cache, config;
 
 function broadcast (entity) {
 	let channel, payload = JSON.stringify(entity);

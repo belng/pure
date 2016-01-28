@@ -1,7 +1,9 @@
+
+
 "use strict";
 
-var pg = require("../../lib/pg.js");
-var log = require('./../../lib/logger.js');
+import pg from '../../lib/pg.js';
+import log from './../../lib/logger.js';
 
 /*
 	Warning: This does not lock the table or do proper upserts.

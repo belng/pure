@@ -59,8 +59,7 @@ CREATE TABLE rels (
 	"user" text,
 	item uuid,
 	type smallint,
-	tags smallint[], -- mute, upvote, home, work
-	role smallint,
+	roles smallint[], -- mute, upvote, home, work
 	roleTime bigint,
 	interest float(24),
 

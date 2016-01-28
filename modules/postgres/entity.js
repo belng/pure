@@ -1,13 +1,15 @@
-const pg = require("../../lib/pg"),
-	constants = require("../../lib/constants"),
-	{ TABLES, COLUMNS } = require("../../lib/schema");
+
+
+import pg from '../../lib/pg';
+import Constants from '../../lib/Constants';
+import { TABLES, COLUMNS } from '../../lib/schema';
 
 module.exports = function (entity) {
 	const names = Object.keys(entity).filter(
 		name => COLUMNS[entity.type].indexOf(name) >= 0
 	);
 
-	if (entity.type === constants.TYPE_ROOM) {
+	if (entity.type === Constants.TYPE_ROOM) {
 		names.push("terms");
 	}
 

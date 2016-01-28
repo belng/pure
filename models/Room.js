@@ -1,3 +1,7 @@
-"use strict";
-var Item = require("./Item.js");
-module.exports = class Room extends Item {};
+
+
+import Item from "./Item.js";
+
+export default class Room extends Item {
+
+}

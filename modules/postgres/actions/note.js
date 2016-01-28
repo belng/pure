@@ -1,6 +1,8 @@
+
+
 "use strict";
-var log = require('../../lib/logger.js');
-var pg = require("../../lib/pg.js");
+import log from '../../lib/logger.js';
+import pg from '../../lib/pg.js';
 // var userUtils = require("../../lib/user-utils.js");
 
 module.exports = function (action) {
