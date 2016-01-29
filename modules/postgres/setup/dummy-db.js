@@ -7,7 +7,7 @@ import casual from 'casual';
 import uid from 'node-uuid';
 import Constants from '../../../lib/constants.json';
 
-let connstr = "pg://hn:hn@localhost/hn", users = [], rooms = [], threads = [], texts = [], numUsers = 50, numRooms = 5, numThreads = 200, numTexts = 5000;
+let connstr = "pg://scrollback:@localhost/pure", users = [], rooms = [], threads = [], texts = [], numUsers = 5, numRooms = 10, numThreads = 20, numTexts = 200;
 
 function getId() {
 	let u = casual.username.toLowerCase().replace(/\_|\./g, "-");
@@ -99,9 +99,9 @@ function insertText(done) {
 function insertRoomrel(usr, room, cb) {
 	pg.write(connstr, [{
 		$: `INSERT INTO roomrels (
-			"user", item, role, roletime, interest
+			"user", item, roles, roletime, interest
 		) VALUES (
-			&{user}, &{item}, &{role},
+			&{user}, &{item}, ARRAY[&{role}]::smallint[],
 			extract(epoch from now())*1000, &{interest}
 		)`,
 		user: usr,
@@ -114,9 +114,9 @@ function insertRoomrel(usr, room, cb) {
 function insertThreadrel(usr, thread, cb) {
 	pg.write(connstr, [{
 		$: `INSERT INTO threadrels (
-			"user", item, role, roletime, interest
+			"user", item, roles, roletime, interest
 		) VALUES (
-			&{user}, &{item}, &{role},
+			&{user}, &{item}, ARRAY[&{role}]::smallint[],
 			extract(epoch from now())*1000, &{interest}
 		)`,
 		user: usr,
@@ -129,9 +129,9 @@ function insertThreadrel(usr, thread, cb) {
 function insertTextrel(usr, text, cb) {
 	pg.write(connstr, [{
 		$: `INSERT INTO textrels (
-			"user", item, role, roletime, interest
+			"user", item, roles, roletime, interest
 		) VALUES (
-			&{user}, &{item}, &{role},
+			&{user}, &{item}, ARRAY[&{role}]::smallint[],
 			extract(epoch from now())*1000, &{interest}
 		)`,
 		user: usr,
