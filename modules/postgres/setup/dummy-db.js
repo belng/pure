@@ -7,7 +7,7 @@ import casual from 'casual';
 import uid from 'node-uuid';
 import Constants from '../../../lib/constants.json';
 
-let connstr = "pg://scrollback:@localhost/pure", users = [], rooms = [], threads = [], texts = [], numUsers = 5, numRooms = 10, numThreads = 20, numTexts = 200;
+let connstr = "pg://hn:hn@localhost/hn", users = [], rooms = [], threads = [], texts = [], numUsers = 15, numRooms = 10, numThreads = 20, numTexts = 200;
 
 function getId() {
 	let u = casual.username.toLowerCase().replace(/\_|\./g, "-");
@@ -15,10 +15,12 @@ function getId() {
 	else return u
 }
 
-
 function insertUser(done) {
-	let id = getId();
+	let id = getId(),ident, tag, tags = [Constants.TAG_USER_EMAIL, Constants.TAG_USER_GUEST, Constants.TAG_USER_FACEBOOK, Constants.TAG_USER_GOOGLE];
+	tag = tags[Math.floor(Math.random() * tags.length)];
+	
 	users.push(id);
+	
 	pg.write(connstr, [{
 		$: `INSERT INTO users (
 			id, tags, name, identities, timezone, locale, createtime, updatetime 
@@ -28,9 +30,9 @@ function insertUser(done) {
 			extract(epoch from now())*1000
 		)`,
 		id: id,
-		tags: Constants.TAG_USER_EMAIL,
+		tags: tag,
 		name: casual.name,
-		ident: casual.email.toLowerCase()
+		ident: tag === Constants.TAG_USER_GUEST ? "guest" : "mailto:" + casual.email.toLowerCase()
 	}], done);	
 }
 
@@ -209,6 +211,7 @@ repeat(insertUser, numUsers)
 	return repeat(insertTextrel, texts);
 }).then(function () {
 	console.log("All done...");
+	process.exit()
 })
 .catch(function (e) {
 	console.log(e)
