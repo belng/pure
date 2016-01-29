@@ -98,7 +98,7 @@ function insertText(done) {
 
 function insertRoomrel(usr, room, cb) {
 	pg.write(connstr, [{
-		$: `INSERT INTO roomrelations (
+		$: `INSERT INTO roomrels (
 			"user", item, role, roletime, interest
 		) VALUES (
 			&{user}, &{item}, &{role},
@@ -113,7 +113,7 @@ function insertRoomrel(usr, room, cb) {
 
 function insertThreadrel(usr, thread, cb) {
 	pg.write(connstr, [{
-		$: `INSERT INTO threadrelations (
+		$: `INSERT INTO threadrels (
 			"user", item, role, roletime, interest
 		) VALUES (
 			&{user}, &{item}, &{role},
@@ -128,7 +128,7 @@ function insertThreadrel(usr, thread, cb) {
 
 function insertTextrel(usr, text, cb) {
 	pg.write(connstr, [{
-		$: `INSERT INTO textrelations (
+		$: `INSERT INTO textrels (
 			"user", item, role, roletime, interest
 		) VALUES (
 			&{user}, &{item}, &{role},
