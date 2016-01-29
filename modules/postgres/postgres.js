@@ -5,8 +5,8 @@ const jsonop = require("jsonop"),
 	queryHandler = require("./query"),
 	entityHandler = require("./entity");
 
-const { bus, cache, config } = require("../../core");
-
+const { bus, cache, config} = require("../../core");
+const types = require("./../../models/models");
 const channel = "heyneighbor";
 
 function broadcast (entity) {
@@ -51,7 +51,12 @@ bus.on("setstate", (changes, next) => {
 		counter.inc();
 		pg.write(config.connStr, sql, (err, results) => {
 			if (err) { return counter.err(err); }
-			// TODO: Create model objects here.
+			
+			results.map((row) => {
+				for(const col in row) {
+					row[col] = new Types[col](row[col]);
+				}
+			});
 			console.log("PgWrite Results", results[0].rows);
 			results.forEach((result) => broadcast(result.rows[0]));
 			counter.dec();

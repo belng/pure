@@ -1,16 +1,9 @@
 const pg = require("../../lib/pg"),
 	constants = require("../../lib/constants"),
-	{ TABLES, COLUMNS } = require("../../lib/schema");
+	{ TABLES, COLUMNS } = require("../../lib/schema"),
+	  jsonop = require("jsonop");
 
 let ops = require("../../lib/defaultOps");
-
-/*
-	defaultOps: {
-		counts: { __any__: "inc" }
-	}
-	
-	
-*/
 
 module.exports = function (entity) {
 	const names = Object.keys(entity).filter(

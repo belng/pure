@@ -12,31 +12,37 @@ function propOp (prop, op) {
 }
 
 function fromPart (slice) {
-	const parts = [];
-
-	parts.push('SELECT * FROM "' + TABLES[TYPES[slice.type]] + '"');
+	const fields = [], joins = [];	
+	
+	fields.push('row_to_json("' + TABLES[TYPES[slice.type]] + '.*") as "' + slice.type + '"');
+	
+	
+	joins.('"' + TABLES[TYPES[slice.type]] + '"');
 
 	if (slice.join) {
 		for (const type in slice.join) {
-			parts.push(
+			joins.push(
 				'LEFT OUTER JOIN "' + TABLES[TYPES[type]] + '" ON "' +
 				TABLES[TYPES[type]] + '"."' + slice.join[type] + '" = "' +
 				TABLES[TYPES[slice.type]] + '"."id"'
 			);
+			fields.push('row_to_json("' + TABLES[TYPES[type]] + '.*") as "' + type + '"');
 		}
 	}
 
 	if (slice.link) {
 		for (const type in slice.link) {
-			parts.push(
+			joins.push(
 				'LEFT OUTER JOIN "' + TABLES[TYPES[type]] + '" ON "' +
 				TABLES[TYPES[slice.type]] + '"."' + slice.join[type] + '" = "' +
 				TABLES[TYPES[type]] + '"."id"'
 			);
+			
+			fields.push('row_to_json("' + TABLES[TYPES[type]] + '.*") as "' + type + '"');
 		}
 	}
 
-	return pg.cat(parts, " ");
+	return pg.cat(['SELECT ', pg.cat(fields, ","), pg.cat(joins, " ")], " ");
 }
 
 function wherePart (filter) {
@@ -110,7 +116,12 @@ function beforeQuery (slice, start, before, exclude) {
 	return pg.cat([
 		"SELECT * FROM (",
 		query,
-		`) r ORDER BY "${slice.order}" ASC`
+		{ 
+			$: `) r ORDER BY "&{type}"->'&{order}' ASC`,
+			type: slice.type,
+			order: slice.order
+		}
+		
 	], " ");
 }
 
