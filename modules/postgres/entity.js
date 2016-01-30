@@ -3,15 +3,13 @@ const pg = require("../../lib/pg"),
 	{ TABLES, COLUMNS } = require("../../lib/schema"),
 	  jsonop = require("jsonop");
 
-let ops = require("../../lib/defaultOps");
+let defaultOps = require("../../lib/defaultOps");
 
 module.exports = function (entity) {
 	const names = Object.keys(entity).filter(
 		name => COLUMNS[entity.type].indexOf(name) >= 0
 	);
-	
-	const ops = jsonop(ops, entity.__op__);
-
+	const ops = jsonop(defaultOps, entity.__op__ || {});
 	if (entity.type === constants.TYPE_ROOM) {
 		names.push("terms");
 	}
@@ -59,14 +57,14 @@ module.exports = function (entity) {
 						body: entity.body
 					};
 				case "meta":
+				case "identities":
 				case "params":
 				case "data":
 				case "resources":
-					// todo: add op
 					return {
 						$: `"${name}" = jsonop("${name}", &{${name}}, &{${name}_op})`,
 						[name]: entity[name],
-						[name + "_op"]: ops[name]
+						[name + "_op"]: ops[name] || {}
 					};
 				default:
 					return {
