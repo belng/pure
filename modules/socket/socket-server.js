@@ -7,15 +7,13 @@ let engine = require("engine.io"),
 	uid = require("../../lib/uid-server"),
 	notify = require("./dispatch"),
 	sockets = {},
-	packer = require("stringPack")([
-		require("../../models/Item"),
-		require("../../models/Room"),
-		require("../../models/Thread"),
-		require("../../models/Text"),
-		require("../../models/Note"),
-		require("../../models/User"),
-		require("../../models/Relation")
-	]);
+	models = require("../../models/models.js"),
+	stringPack = require("stringPack"),
+	packerArg;
+
+packerArg = Object.keys(models).sort().map(key =>models[key]);
+packer = stringPack(packerArg);
+
 
 function sendError(socket, code, reason, event) {
 	socket.send(JSON.stringify({
@@ -43,7 +41,7 @@ bus.on("http/init", app => {
 
 		socket.on("message", message => {
 			try {
-				message = JSON.parse(message);
+				message = packer.decode(message);
 			} catch (e) {
 				return sendError(socket, "ERR_EVT_PARSE", e.message);
 			}

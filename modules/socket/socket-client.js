@@ -4,7 +4,13 @@ var eio = require("engine.io-client/engine.io"),
 	core = require("../../core.js"),
 	backOff = 1, client, config = core.config, bus = core.bus,
 	protocol = config.server.protocol,
-	host = config.server.apiHost;
+	host = config.server.apiHost,
+	models = require("../../models/models.js"),
+	stringPack = require("stringPack"),
+	packerArg;
+
+packerArg = Object.keys(models).sort().map(key =>models[key]);
+packer = stringPack(packerArg);
 
 function disconnected() {
 
@@ -21,7 +27,7 @@ function disconnected() {
 }
 
 function onMessage(message) {
-	var stateChange = JSON.parse(message); // change it to string pack
+	var stateChange = packer.decode(message);
 	bus.emit("setstate", stateChange);
 }
 
@@ -42,3 +48,7 @@ function connect() {
 
 	client.on("message", onMessage);
 }
+
+bus.emit("setstate", (state, next) => {
+	client.send(packer.encode(state))
+}, 1);
