@@ -15,9 +15,7 @@ function fromPart (slice) {
 	const fields = [], joins = [];	
 	
 	fields.push('row_to_json("' + TABLES[TYPES[slice.type]] + '.*") as "' + slice.type + '"');
-	
-	
-	joins.('"' + TABLES[TYPES[slice.type]] + '"');
+	joins.push('"' + TABLES[TYPES[slice.type]] + '"');
 
 	if (slice.join) {
 		for (const type in slice.join) {
@@ -42,7 +40,7 @@ function fromPart (slice) {
 		}
 	}
 
-	return pg.cat(['SELECT ', pg.cat(fields, ","), pg.cat(joins, " ")], " ");
+	return pg.cat(['SELECT ', pg.cat(fields, ","), "FROM" ,pg.cat(joins, " ")], " ");
 }
 
 function wherePart (filter) {
