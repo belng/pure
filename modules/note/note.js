@@ -1,34 +1,32 @@
 "use strict";
 
-const { TABLES, COLUMNS, TYPES, ROLES } = require("../../lib/schema");
-let constants = require("../../lib/constants"),
-	Counter = require("../../lib/counter"),
-	Note = require("../../models/Note"),
-	{ bus, cache } = require("../../core");
-
+import { TABLES, COLUMNS, TYPES, ROLES } from '../../lib/schema';
+import Counter from '../../lib/counter';
+import Note from '../../models/Note';
+import {Constants, bus, cache } from '../../core';
 
 bus.on("setstate", (changes, next) => {
 	if(!changes.entities) return next();
-	let counter = new Counter(), isItem = true, note;
-	
+	let counter = new Counter(), note;
+
 	for(let id in changes.entities) {
 		let entity = changes.entities[id];
-		
+
 		if (
-			(entity.type === constants.TYPE_TEXTREL ||
-			entity.type === constants.TYPE_THREADREL) && 
-			entity.role === constants.ROLE_MENTIONED
+			(entity.type === Constants.TYPE_TEXTREL ||
+			entity.type === Constants.TYPE_THREADREL) &&
+			entity.role === Constants.ROLE_MENTIONED
 		) {
-			let item = changes.entities[entity.item], 
+			let item = changes.entities[entity.item],
 				noteObj = {
 					user: entity.user,
-					event: constants.NOTE_MENTION,
+					event: Constants.NOTE_MENTION,
 					eventTime: Date.now(),
 					count: 1,
-					score: 50
+					score: 50,
+					type: Constants.TYPE_NOTE
 				};
 			if(!item) {
-				isItem = false;
 				counter.inc()
 				cache.getEntity(entity.item, (err, text) => {
 					noteObj.group = text.parents[0][0];
@@ -38,10 +36,10 @@ bus.on("setstate", (changes, next) => {
 						text: text.body,
 						thread: text.name,
 						createTime: text.createTime,
-						room: entity.type === constants.TYPE_TEXTREL ? text.parents[0][1] : text.parents[0][0]
+						room: entity.type === Constants.TYPE_TEXTREL ? text.parents[0][1] : text.parents[0][0]
 					}
 					note = new Note (noteObj);
-					changes.entities[note.getId] = noteObj;
+					changes.entities[note.getId()] = note;
 					counter.dec();
 				});
 			} else {
@@ -52,14 +50,12 @@ bus.on("setstate", (changes, next) => {
 					text: item.body,
 					thread: item.name,
 					createTime: item.createTime,
-					room: entity.type === constants.TYPE_TEXTREL ? item.parents[0][1] : item.parents[0][0]
+					room: entity.type === Constants.TYPE_TEXTREL ? item.parents[0][1] : item.parents[0][0]
 				}
 				note = new Note (noteObj);
-				changes.entities[note.getId] = noteObj;
-			}			
+				changes.entities[note.getId()] = note;
+			}
 		}
 	}
-	if(isItem) next();
-	else counter.then(next);
-	
+	counter.then(next);
 }, "modifier");

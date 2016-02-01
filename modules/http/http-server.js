@@ -14,6 +14,7 @@ app.listen(7528);
 
 if (process.env.NODE_ENV !== "production") {
 	const compiler = webpack(webpackConfig);
+
 	app.use(mount("/test", serve("../../test/public")));
 	// Enable Webpack Dev Server
 	app.use(webpackDevMiddleware(compiler, {

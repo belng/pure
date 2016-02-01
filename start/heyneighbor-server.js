@@ -33,5 +33,7 @@ require("./../modules/count/count");
 require("./../modules/note/note");
 require("./../modules/upload/upload");
 
+require("./../modules/postgres/postgres");
+
 // require("./../modules/ui/ui-server");
 require("./../modules/http/http"); // if fired before socket server then the http/init listener might not be listening..

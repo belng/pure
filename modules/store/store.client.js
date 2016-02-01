@@ -28,11 +28,11 @@ cache.createThread = (thread) => {
 };
 
 cache.sendAuth = (auth) => {
-	
+
 };
 
 cache.sendPresence = (presence) => {
-	
+
 };
 
 module.exports = cache;

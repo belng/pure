@@ -1,5 +1,6 @@
-let fs = require("fs"),
-	filters = {};
+import fs from "fs";
+
+const filters = {};
 
 fs.readdirSync(__dirname + "/badwords").forEach(filename => {
 	if(filename.length === 2) {
@@ -10,7 +11,7 @@ fs.readdirSync(__dirname + "/badwords").forEach(filename => {
 })
 
 function check (text, re) {
-	return text.toLower()
+	return text.toLowerCase()
 		.replace(/[4@]/g, "a")
 		.replace(/* other substitutions */)
 		.replace(/* runs of non-alpha with spaces */)
@@ -29,9 +30,9 @@ module.exports = (core) => {
 				].join(" "),
 				appliedFilters = [],
 				matches;
-			
+
 			/* TODO: populate appliedFilters using entity.parents[*].params.profanity */
-			
+
 			matches = appliedFilters.map(re => check(text, re)).filter(a => !!a);
 			if (matches.length) return next(Error("ERR_PROFANITY"));
 			next();

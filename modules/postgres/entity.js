@@ -1,14 +1,14 @@
-const pg = require("../../lib/pg"),
-	constants = require("../../lib/constants"),
-	{ TABLES, COLUMNS } = require("../../lib/schema"),
-	  jsonop = require("jsonop");
-
-let defaultOps = require("../../lib/defaultOps");
+import pg from '../../lib/pg';
+import Constants from '../../lib/Constants';
+import { TABLES, COLUMNS } from '../../lib/schema';
+import jsonop from 'jsonop';
+import defaultOps from './../../lib/defaultOps';
 
 module.exports = function (entity) {
 	const names = Object.keys(entity).filter(
 		name => COLUMNS[entity.type].indexOf(name) >= 0
 	);
+
 	const ops = jsonop(defaultOps, entity.__op__ || {});
 	if (entity.type === constants.TYPE_ROOM) {
 		names.push("terms");

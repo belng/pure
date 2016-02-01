@@ -1,14 +1,12 @@
+/* @flow */
+
 "use strict";
 
+import jwt from 'jsonwebtoken';
+import { bus, config } from '../../core.js';
+
 // sign with default (HMAC SHA256)
-var jwt = require("jsonwebtoken"),
-	tokenValidity = 604800, // seven days
-	core = require("../../core.js"),
-	bus = core.bus,
-	config = core.config,
-	iss = config.host,
-	aud = config.host,
-	key = config.session.privateKey;
+var tokenValidity = 604800, iss = config.host, aud = config.host, key = config.session.privateKey;
 
 function getEmailFromSession(session) {
 	return new Promise(function(resolve, reject) {

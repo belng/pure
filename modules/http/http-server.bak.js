@@ -8,8 +8,8 @@ module.exports = (core) => {
 			res.end(err.message);
 		});
 	});
-	
+
 	core.emit("http/init", server);
-	
+
 	server.listen(7528);
 };

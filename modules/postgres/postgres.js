@@ -1,13 +1,14 @@
-const jsonop = require("jsonop"),
-	Counter = require("../../lib/counter"),
-	pg = require("../../lib/pg"),
-	log = console,
-	queryHandler = require("./query"),
-	entityHandler = require("./entity");
+import jsonop from 'jsonop';
+import Counter from '../../lib/counter';
+import pg from '../../lib/pg';
+import queryHandler from './query';
+import entityHandler from './entity';
+const log = console;
 
-const { bus, cache, config} = require("../../core");
-const types = require("./../../models/models");
+import { bus, cache, config } from '../../core';
+
 const channel = "heyneighbor";
+const types = require("./../../models/models");
 
 function broadcast (entity) {
 	pg.notify(config.connStr, channel, entity);

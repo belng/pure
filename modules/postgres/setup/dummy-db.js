@@ -1,11 +1,13 @@
+
+
 "use strict";
 
-let pg = require("../../../lib/pg"),
-	casual = require("casual"),
-	uid = require('node-uuid'),
-	constants = require("../../../lib/constants.json"),
-	connstr = "pg://hn:hn@localhost/hn", users = [], rooms = [], threads = [], texts = [],
-	numUsers = 50, numRooms = 5, numThreads = 200, numTexts = 5000;
+import pg from '../../../lib/pg';
+import casual from 'casual';
+import uid from 'node-uuid';
+import Constants from '../../../lib/constants.json';
+
+let connstr = "pg://hn:hn@localhost/hn", users = [], rooms = [], threads = [], texts = [], numUsers = 15, numRooms = 10, numThreads = 20, numTexts = 200;
 
 function getId() {
 	let u = casual.username.toLowerCase().replace(/\_|\./g, "-");
@@ -13,10 +15,12 @@ function getId() {
 	else return u
 }
 
-
 function insertUser(done) {
-	let id = getId();
+	let id = getId(),ident, tag, tags = [Constants.TAG_USER_EMAIL, Constants.TAG_USER_GUEST, Constants.TAG_USER_FACEBOOK, Constants.TAG_USER_GOOGLE];
+	tag = tags[Math.floor(Math.random() * tags.length)];
+	
 	users.push(id);
+	
 	pg.write(connstr, [{
 		$: `INSERT INTO users (
 			id, tags, name, identities, timezone, locale, createtime, updatetime 
@@ -26,9 +30,9 @@ function insertUser(done) {
 			extract(epoch from now())*1000
 		)`,
 		id: id,
-		tags: constants.TAG_USER_EMAIL,
+		tags: tag,
 		name: casual.name,
-		ident: casual.email.toLowerCase()
+		ident: tag === Constants.TAG_USER_GUEST ? "guest" : "mailto:" + casual.email.toLowerCase()
 	}], done);	
 }
 
@@ -63,7 +67,7 @@ function insertThread(done) {
 			&{name}, &{body}, ARRAY[&{parents}]::uuid[], &{creator}, &{updater}
 		)`,
 		id: id,
-		tags: Math.random() < 0.2 ? constants.TAG_POST_HIDDEN : constants.TAG_POST_STICKY,
+		tags: Math.random() < 0.2 ? Constants.TAG_POST_HIDDEN : Constants.TAG_POST_STICKY,
 		name: casual.sentence,
 		body: casual.description,
 		parents: rooms[Math.floor(Math.random() * rooms.length)],
@@ -86,7 +90,7 @@ function insertText(done) {
 			&{body}, ARRAY[&{parents}]::uuid[], &{creator}, &{updater}
 		)`,
 		id: id,
-		tags: Math.random() < 0.3 ? constants.TAG_POST_HIDDEN : constants.TAG_POST_STICKY,
+		tags: Math.random() < 0.3 ? Constants.TAG_POST_HIDDEN : Constants.TAG_POST_STICKY,
 		body: casual.description,
 		parents: threads[Math.floor(Math.random() * threads.length)],
 		creator: users[Math.floor(Math.random() * users.length)],
@@ -96,45 +100,45 @@ function insertText(done) {
 
 function insertRoomrel(usr, room, cb) {
 	pg.write(connstr, [{
-		$: `INSERT INTO roomrelations (
-			"user", item, role, roletime, interest
+		$: `INSERT INTO roomrels (
+			"user", item, roles, roletime, interest
 		) VALUES (
-			&{user}, &{item}, &{role},
+			&{user}, &{item}, ARRAY[&{role}]::smallint[],
 			extract(epoch from now())*1000, &{interest}
 		)`,
 		user: usr,
 		item: room,
-		role: constants.ROLE_FOLLOWER,
+		role: Constants.ROLE_FOLLOWER,
 		interest: Math.floor(Math.random() * 50)
 	}], cb);	
 }
 
 function insertThreadrel(usr, thread, cb) {
 	pg.write(connstr, [{
-		$: `INSERT INTO threadrelations (
-			"user", item, role, roletime, interest
+		$: `INSERT INTO threadrels (
+			"user", item, roles, roletime, interest
 		) VALUES (
-			&{user}, &{item}, &{role},
+			&{user}, &{item}, ARRAY[&{role}]::smallint[],
 			extract(epoch from now())*1000, &{interest}
 		)`,
 		user: usr,
 		item: thread,
-		role: constants.ROLE_FOLLOWER,
+		role: Constants.ROLE_FOLLOWER,
 		interest: Math.floor(Math.random() * 30)
 	}], cb);
 }
 
 function insertTextrel(usr, text, cb) {
 	pg.write(connstr, [{
-		$: `INSERT INTO textrelations (
-			"user", item, role, roletime, interest
+		$: `INSERT INTO textrels (
+			"user", item, roles, roletime, interest
 		) VALUES (
-			&{user}, &{item}, &{role},
+			&{user}, &{item}, ARRAY[&{role}]::smallint[],
 			extract(epoch from now())*1000, &{interest}
 		)`,
 		user: usr,
 		item: text,
-		role: Math.random() < 0.5 ? constants.ROLE_FOLLOWER : constants.ROLE_MENTIONED,
+		role: Math.random() < 0.5 ? Constants.ROLE_FOLLOWER : Constants.ROLE_MENTIONED,
 		interest: Math.floor(Math.random() * 30)
 	}], cb);
 }
@@ -207,6 +211,7 @@ repeat(insertUser, numUsers)
 	return repeat(insertTextrel, texts);
 }).then(function () {
 	console.log("All done...");
+	process.exit()
 })
 .catch(function (e) {
 	console.log(e)

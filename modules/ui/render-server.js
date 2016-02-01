@@ -1,4 +1,3 @@
-/* @flow */
 /* Handles server-side rendering of the ReactDOM app */
 
 import React from "react";

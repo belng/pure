@@ -1,5 +1,6 @@
-"use strict";
-module.exports = class User {
+export default class User {
+	identities: Array<string>;
+
 	constructor(data) {
 		if (data.type !== "user") throw (new Error("invalid_type"));
 		for (const name of COLUMNS["user"]) {
@@ -7,20 +8,21 @@ module.exports = class User {
 		}
 	}
 
-	packArguments() {
+	packArguments(): Object {
 		const data = {};
 
 		for (const name of COLUMNS["user"]) {
 			data[name] = this[name];
 		}
+
 		return data;
 	}
-	
-	hasIdentity(identity) {
-		return (this.identities || []).indexOf(identity) >= 0;
+
+	hasIdentity(identity: string) {
+		return this.identities ? this.identities.indexOf(identity) > -1 : false;
 	}
 
-	addIdentity(identity) {
-		if (!this.hadIdentity(identity)) this.identities.push();
+	addIdentity(identity: string) {
+		if (!this.hasIdentity(identity)) this.identities.push();
 	}
-};
+}
