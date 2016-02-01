@@ -1,4 +1,4 @@
-let http = require("http");
+import http from 'http';
 
 module.exports = (core) => {
 	let server = http.createServer((req, res) => {

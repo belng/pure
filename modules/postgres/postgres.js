@@ -3,12 +3,9 @@ import Counter from '../../lib/counter';
 import pg from '../../lib/pg';
 import queryHandler from './query';
 import entityHandler from './entity';
-const log = console;
-
 import { bus, cache, config } from '../../core';
-
+import types from './../../models/models';
 const channel = "heyneighbor";
-const types = require("./../../models/models");
 
 function broadcast (entity) {
 	pg.notify(config.connStr, channel, entity);

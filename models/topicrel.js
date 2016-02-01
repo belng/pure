@@ -1,5 +1,6 @@
 "use strict";
-var Relation = require("./Relation.js");
+import Relation from './Relation';
+
 module.exports = class TopicRel extends Relation {
 	constructor() {}
 };

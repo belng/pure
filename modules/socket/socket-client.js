@@ -4,13 +4,12 @@
 
 import eio from 'engine.io-client/engine.io';
 import { bus, config } from '../../core.js';
-/* eslint-env browser */
+import models from '../../models/models.js';
+import stringPack from 'stringPack';
 
 var	backOff = 1, client,
 	protocol = config.server.protocol,
 	host = config.server.apiHost,
-	models = require("../../models/models.js"),
-	stringPack = require("stringPack"),
 	packerArg;
 
 packerArg = Object.keys(models).sort().map(key =>models[key]);

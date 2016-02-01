@@ -3,11 +3,12 @@ sources:
 https://developers.google.com/identity/protocols/OAuth2UserAgent#validatetoken
 */
 
-import fs from "fs";
-import request from "request";
-import handlebars from "handlebars";
-import route from "koa-route";
-import { bus, config } from "./../../core";
+import fs from 'fs';
+import request from 'request';
+import handlebars from 'handlebars';
+import route from 'koa-route';
+import queryString from 'querystring';
+import { bus, config } from './../../core';
 
 let loginTemplate, returnTemplate;
 
@@ -19,7 +20,7 @@ function getTokenFromCode(code) {
 			headers: {
 				"content-type": "application/x-www-form-urlencoded"
 			},
-			body: require("querystring").stringify({
+			body: queryString.stringify({
 				code: code,
 				redirect_uri: "https://" + config.host + "/r/google/return",
 				client_id: config.google.client_id,
