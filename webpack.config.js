@@ -17,7 +17,7 @@ module.exports = {
 	entry: __DEV__ ? [ ...entry, "webpack-hot-middleware/client" ] : [ ...entry ],
 	output: {
 		path: path.resolve(__dirname, "static/dist/scripts"),
-		publicPath: "/s/dist/scripts",
+		publicPath: "/dist/scripts",
 		filename: "bundle.min.js",
 		sourceMapFilename: "bundle.min.js.map"
 	},
@@ -26,7 +26,7 @@ module.exports = {
 		preLoaders: [
 			{
 				test: /\.js$/,
-				loaders: [ "eslint-loader" ],
+				loaders: [ "eslint" ],
 				exclude: /node_modules/
 			}
 		],
