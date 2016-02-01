@@ -1,36 +1,39 @@
 "use strict";
 /*
 require("source-map-support").install();*/
-import "babel-register";
-import "babel-polyfill";
+require("babel-register");
+require("babel-polyfill");
 
-import core from "../core";
-import jsonop from 'jsonop';
+const core = require("../core"),
+	jsonop = require("jsonop"),
+	defaults = {};
 
 let config;
+
 try {
-	import config from "../config/server";
+	config = require("../config/server");
 } catch (e) {
 	config = {};
+	console.log(e);
 }
-
+console.log(config);
 core.config = jsonop(defaults, config);
 
-import "./../modules/socket/socket-server";
+require("./../modules/socket/socket-server");
 
 // Auth modules
-import "./../modules/facebook/facebook";
-import "./../modules/google/google";
-import "./../modules/session/session";
-import "./../modules/signin/signin";
-import "./../modules/signup/signup";
+require("./../modules/facebook/facebook");
+require("./../modules/google/google");
+require("./../modules/session/session");
+require("./../modules/signin/signin");
+require("./../modules/signup/signup");
 
 /*###########*/
-import "./../modules/count/count";
-import "./../modules/note/note";
-import "./../modules/upload/upload";
+require("./../modules/count/count");
+require("./../modules/note/note");
+require("./../modules/upload/upload");
 
-import "./../modules/postgres/postgres";
+require("./../modules/postgres/postgres");
 
-// import "./../modules/ui/ui-server");
-import "./../modules/http/http"; // if fired before socket server then the http/init listener might not be listening..
+// require("./../modules/ui/ui-server");
+require("./../modules/http/http"); // if fired before socket server then the http/init listener might not be listening..
