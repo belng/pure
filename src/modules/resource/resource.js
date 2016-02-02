@@ -16,7 +16,7 @@ bus.on("presence/online", presence => {
 function resourceHandler(changes, next) {
 	let signin = {};
 	if (changes.auth && changes.auth.resource && !changes.app.user) {
-		if(resourceMap[changes.auth.resource]) {
+		if (resourceMap[changes.auth.resource]) {
 			changes.app.user = resourceMap[changes.auth.resource];
 			next();
 		} else {

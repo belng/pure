@@ -3,13 +3,13 @@ sources:
 https://developers.google.com/identity/protocols/OAuth2UserAgent#validatetoken
 */
 
-import fs from 'fs';
+import fs from "fs";
 import path from "path";
-import request from 'request';
-import handlebars from 'handlebars';
-import route from 'koa-route';
-import queryString from 'querystring';
-import { bus, config } from './../../core';
+import request from "request";
+import handlebars from "handlebars";
+import route from "koa-route";
+import queryString from "querystring";
+import { bus, config } from "./../../core";
 
 const SCRIPT_REDIRECT = `
 location.href = 'https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/userinfo.email '

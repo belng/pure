@@ -2,11 +2,11 @@
 
 import route from "koa-route";
 
-import { bus, config } from '../../core.js';
-import request from 'request';
-import fs from 'fs';
-import path from 'path';
-import handlebars from 'handlebars';
+import { bus, config } from "../../core.js";
+import request from "request";
+import fs from "fs";
+import path from "path";
+import handlebars from "handlebars";
 
 const SCRIPT_REDIRECT = `location.href='https://www.facebook.com/dialog/oauth?'+'client_id=${config.facebook.client_id}'+'&redirect_uri='+encodeURIComponent("https://${config.host}/r/facebook/return")+'&response_type=code&scope=email';`;
 const SCRIPT_MESSAGE = `

@@ -1,4 +1,4 @@
-import {cache} from '../../app';
+import { cache } from "../../app";
 
 cache.getThreadById = function(threadId, callback) {
 	return this.getEntity(threadId, callback);

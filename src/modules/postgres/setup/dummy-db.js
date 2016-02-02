@@ -2,26 +2,26 @@
 
 "use strict";
 
-import pg from '../../../lib/pg';
-import casual from 'casual';
-import uid from 'node-uuid';
-import Constants from '../../../../constants/Constants.json';
+import pg from "../../../lib/pg";
+import casual from "casual";
+import uid from "node-uuid";
+import Constants from "../../../../constants/Constants.json";
 
 let connstr = "pg://hn:hn@localhost/hn", users = [], rooms = [], threads = [], texts = [], numUsers = 15, numRooms = 10, numThreads = 20, numTexts = 200;
 
 function getId() {
 	let u = casual.username.toLowerCase().replace(/\_|\./g, "-");
-	if (users.indexOf(u) > -1) return u + "-" + users.length
-	else return u
+	if (users.indexOf(u) > -1) return u + "-" + users.length;
+	else return u;
 }
 
 function insertUser(done) {
-	let id = getId(),ident, tag, tags = [Constants.TAG_USER_EMAIL, Constants.TAG_USER_GUEST, Constants.TAG_USER_FACEBOOK, Constants.TAG_USER_GOOGLE];
+	let id = getId(), ident, tag, tags = [ Constants.TAG_USER_EMAIL, Constants.TAG_USER_GUEST, Constants.TAG_USER_FACEBOOK, Constants.TAG_USER_GOOGLE ];
 	tag = tags[Math.floor(Math.random() * tags.length)];
 
 	users.push(id);
 
-	pg.write(connstr, [{
+	pg.write(connstr, [ {
 		$: `INSERT INTO users (
 			id, tags, name, identities, timezone, locale, createtime, updatetime
 		) VALUES (
@@ -33,13 +33,13 @@ function insertUser(done) {
 		tags: tag,
 		name: casual.name,
 		ident: tag === Constants.TAG_USER_GUEST ? "guest" : "mailto:" + casual.email.toLowerCase()
-	}], done);
+	} ], done);
 }
 
 function insertRoom(done) {
 	let id = uid.v4(), room = casual.state;
 	rooms.push(id);
-	pg.write(connstr, [{
+	pg.write(connstr, [ {
 		$: `INSERT INTO rooms (
 			id, createtime, updatetime, name, body
 		) VALUES (
@@ -50,13 +50,13 @@ function insertRoom(done) {
 		id: id,
 		room: room,
 		body: casual.description
-	}], done);
+	} ], done);
 }
 
 function insertThread(done) {
 	let id = uid.v4();
 	threads.push(id);
-	pg.write(connstr, [{
+	pg.write(connstr, [ {
 		$: `INSERT INTO threads (
 			id, tags, createtime, updatetime,
 			name, body, parents, creator, updater
@@ -73,13 +73,13 @@ function insertThread(done) {
 		parents: rooms[Math.floor(Math.random() * rooms.length)],
 		creator: users[Math.floor(Math.random() * users.length)],
 		updater: users[Math.floor(Math.random() * users.length)]
-	}], done);
+	} ], done);
 }
 
 function insertText(done) {
 	let id = uid.v4();
 	texts.push(id);
-	pg.write(connstr, [{
+	pg.write(connstr, [ {
 		$: `INSERT INTO texts (
 			id, tags, createtime, updatetime,
 			body, parents, creator, updater
@@ -95,11 +95,11 @@ function insertText(done) {
 		parents: threads[Math.floor(Math.random() * threads.length)],
 		creator: users[Math.floor(Math.random() * users.length)],
 		updater: users[Math.floor(Math.random() * users.length)]
-	}], done);
+	} ], done);
 }
 
 function insertRoomrel(usr, room, cb) {
-	pg.write(connstr, [{
+	pg.write(connstr, [ {
 		$: `INSERT INTO roomrels (
 			"user", item, roles, roletime, interest
 		) VALUES (
@@ -110,11 +110,11 @@ function insertRoomrel(usr, room, cb) {
 		item: room,
 		role: Constants.ROLE_FOLLOWER,
 		interest: Math.floor(Math.random() * 50)
-	}], cb);
+	} ], cb);
 }
 
 function insertThreadrel(usr, thread, cb) {
-	pg.write(connstr, [{
+	pg.write(connstr, [ {
 		$: `INSERT INTO threadrels (
 			"user", item, roles, roletime, interest
 		) VALUES (
@@ -125,11 +125,11 @@ function insertThreadrel(usr, thread, cb) {
 		item: thread,
 		role: Constants.ROLE_FOLLOWER,
 		interest: Math.floor(Math.random() * 30)
-	}], cb);
+	} ], cb);
 }
 
 function insertTextrel(usr, text, cb) {
-	pg.write(connstr, [{
+	pg.write(connstr, [ {
 		$: `INSERT INTO textrels (
 			"user", item, roles, roletime, interest
 		) VALUES (
@@ -140,7 +140,7 @@ function insertTextrel(usr, text, cb) {
 		item: text,
 		role: Math.random() < 0.5 ? Constants.ROLE_FOLLOWER : Constants.ROLE_MENTIONED,
 		interest: Math.floor(Math.random() * 30)
-	}], cb);
+	} ], cb);
 }
 
 function repeat(fn, repeatEl) {
@@ -160,24 +160,24 @@ function repeat(fn, repeatEl) {
 			});
 		}
 
-		if(typeof repeatEl === 'number') {
+		if (typeof repeatEl === "number") {
 			next();
 		} else {
 			Promise.all(users.map(usr => {
 				const promises = [];
 
-				for (let i=0; i<Math.floor(Math.random() * repeatEl.length); i++) {
+				for (let i = 0; i < Math.floor(Math.random() * repeatEl.length); i++) {
 					promises.push(
 						new Promise((resolve, reject) => {
 							fn(usr, repeatEl[i], function(err, result) {
 								if (err) {
-									reject(err)
+									reject(err);
 								} else {
 									resolve(result);
 								}
 							});
 						})
-					)
+					);
 				}
 
 				return Promise.all(promises);
@@ -202,7 +202,7 @@ repeat(insertUser, numUsers)
 	return repeat(insertText, numTexts);
 }).then(function () {
 	console.log("Done. Inserting room relations...");
-	return repeat(insertRoomrel, rooms)
+	return repeat(insertRoomrel, rooms);
 }).then(function () {
 	console.log("Done. Inserting thread relations...");
 	return repeat(insertThreadrel, threads);
@@ -211,8 +211,8 @@ repeat(insertUser, numUsers)
 	return repeat(insertTextrel, texts);
 }).then(function () {
 	console.log("All done...");
-	process.exit()
+	process.exit();
 })
 .catch(function (e) {
-	console.log(e)
+	console.log(e);
 });

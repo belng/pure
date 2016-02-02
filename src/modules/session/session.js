@@ -2,15 +2,15 @@
 
 "use strict";
 
-import jwt from 'jsonwebtoken';
-import { bus, config } from '../../core.js';
+import jwt from "jsonwebtoken";
+import { bus, config } from "../../core.js";
 
 // sign with default (HMAC SHA256)
 var tokenValidity = 604800, iss = config.host, aud = config.host, key = config.session.privateKey;
 
 function getEmailFromSession(session) {
 	return new Promise(function(resolve, reject) {
-		jwt.verify(session, key, { aud: aud}, function(err, decoded) {
+		jwt.verify(session, key, { aud: aud }, function(err, decoded) {
 			if (err) return reject(err);
 			else resolve(decoded.sub);
 		});

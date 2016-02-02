@@ -2,11 +2,11 @@
 
 "use strict";
 
-import Constants from './../../../../constants/Constants.json';
-import uid from './../../../lib/uid-server';
-import pg from '../pg.js';
-import casual from 'casual';
-import logger from 'winston';
+import Constants from "./../../../../constants/Constants.json";
+import uid from "./../../../lib/uid-server";
+import pg from "../pg.js";
+import casual from "casual";
+import logger from "winston";
 
 let connStr = "pg://localhost/aravind", scale = 100, numUsers = Math.max(5, 10 * scale), numRooms = Math.max(5, scale), numTopics = Math.max(5, scale), numThreads = Math.max(5, 10 * scale), numTexts = Math.max(5, 100 * scale), numMembers = Math.max(5, 10 * scale), numWatchers = Math.max(5, 10 * scale), numPresence = Math.max(5, 10 * scale);
 
@@ -45,7 +45,7 @@ function r(n) { return Math.floor(Math.random() * n); }
 
 function insertUser(i, done) {
 	let id = userId(i);
-	pg.write(connStr, [{
+	pg.write(connStr, [ {
 		$: `INSERT INTO users (
 			id, type, tags, createTime, updateTime,
 			identities, timezone, locale
@@ -57,13 +57,13 @@ function insertUser(i, done) {
 			$\{ident}, 330, 91
 		)`,
 		id: id,
-		ident: ["email:" + casual.email.toLowerCase()]
-	}], done);
+		ident: [ "email:" + casual.email.toLowerCase() ]
+	} ], done);
 }
 
 function insertRoom(i, done) {
 	let id = roomId(i);
-	pg.write(connStr, [{
+	pg.write(connStr, [ {
 		$: `INSERT INTO roots (
 			id, type, createTime, updateTime,
 			name, body, creator, updater
@@ -76,12 +76,12 @@ function insertRoom(i, done) {
 		id: id,
 		body: casual.description,
 		uid: userId(r(numUsers))
-	}], done);
+	} ], done);
 }
 
 function insertTopic(i, done) {
 	let id = roomId(numRooms * 2 + i);
-	pg.write(connStr, [{
+	pg.write(connStr, [ {
 		$: `INSERT INTO roots (
 			id, type, createTime, updateTime,
 			name, body, creator, updater
@@ -94,7 +94,7 @@ function insertTopic(i, done) {
 		id: id,
 		body: casual.description,
 		uid: userId(r(numUsers))
-	}], done);
+	} ], done);
 }
 
 function insertThread(i, done) {
@@ -102,7 +102,7 @@ function insertThread(i, done) {
 	if (Math.random() < 0.03) tags.push(Constants.TAG_POST_HIDDEN);
 	else if (Math.random() < 0.01) tags.push(Constants.TAG_POST_STICKY);
 
-	pg.write(connStr, [{
+	pg.write(connStr, [ {
 		$: `INSERT INTO posts (
 			id, type, tags, createTime, updateTime,
 			name, body, parent, room, topics, creator, updater
@@ -117,17 +117,17 @@ function insertThread(i, done) {
 		id: threadId(i), tags: tags,
 		name: casual.sentence,
 		body: casual.description,
-		rid: roomId(Math.floor(i/10)),
-		topics: [roomId(2 * numRooms + r(numTopics))],
+		rid: roomId(Math.floor(i / 10)),
+		topics: [ roomId(2 * numRooms + r(numTopics)) ],
 		uid: userId(r(numUsers))
-	}], done);
+	} ], done);
 }
 
 function insertText(i, done) {
 	let tags = [];
 	if (Math.random() < 0.02) tags.push(Constants.TAG_POST_HIDDEN);
 
-	pg.write(connStr, [{
+	pg.write(connStr, [ {
 		$: `INSERT INTO posts (
 			id, type, tags, createTime, updateTime,
 			body, parent, room, creator, updater
@@ -141,10 +141,10 @@ function insertText(i, done) {
 		id: uid(),
 		tags: tags,
 		body: casual.description,
-		tid: threadId(Math.floor(i/10)),
-		rid: roomId(Math.floor(i/100)),
+		tid: threadId(Math.floor(i / 10)),
+		rid: roomId(Math.floor(i / 100)),
 		uid: userId(r(numUsers))
-	}], done);
+	} ], done);
 }
 
 function insertMember(i, done) {
@@ -153,7 +153,7 @@ function insertMember(i, done) {
 	if (Math.random() < 0.01) tags.push(Constants.TAG_REL_LIKE);
 	if (Math.random() < 0.001) tags.push(Constants.TAG_REL_FLAG);
 
-	pg.write(connStr, [{
+	pg.write(connStr, [ {
 		$: `INSERT INTO members (
 			"user", item, tags, role
 		) VALUES (
@@ -163,7 +163,7 @@ function insertMember(i, done) {
 		rid: roomId(r(numRooms)),
 		uid: userId(r(numUsers)),
 		tags: tags
-	}], done);
+	} ], done);
 }
 
 function insertWatcher(i, done) {
@@ -172,7 +172,7 @@ function insertWatcher(i, done) {
 	if (Math.random() < 0.01) tags.push(Constants.TAG_REL_LIKE);
 	if (Math.random() < 0.001) tags.push(Constants.TAG_REL_FLAG);
 
-	pg.write(connStr, [{
+	pg.write(connStr, [ {
 		$: `INSERT INTO watchers (
 			"user", item, tags, role
 		) VALUES (
@@ -182,11 +182,11 @@ function insertWatcher(i, done) {
 		rid: threadId(r(numThreads)),
 		uid: userId(r(numUsers)),
 		tags: tags
-	}], done);
+	} ], done);
 }
 
 function insertPresence(i, done) {
-	pg.write(connStr, [{
+	pg.write(connStr, [ {
 		$: `INSERT INTO presence (
 			"user", item, resource, status
 		) VALUES (
@@ -198,7 +198,7 @@ function insertPresence(i, done) {
 		status: Math.random() < 0.05 ?
 			Constants.STATUS_ONLINE :
 			Constants.STATUS_OFFLINE
-	}], done);
+	} ], done);
 }
 
 function repeat(fn, times) {

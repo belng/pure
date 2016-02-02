@@ -2,7 +2,7 @@
 
 "use strict";
 
-import { bus, cache } from '../../core.js';
+import { bus, cache } from "../../core.js";
 
 // sign with default (HMAC SHA256)
 

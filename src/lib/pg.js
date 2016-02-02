@@ -79,7 +79,7 @@ function values (record) {
 		clause[column] = record[column];
 	}
 
-	clause.$ =  cols.join(", ");
+	clause.$ = cols.join(", ");
 	return clause;
 }
 
@@ -92,7 +92,7 @@ function update (tableName, object) {
 
 function insert (tableName, objects) {
 	if (!objects) throw Error("CANT_INSERT_NOTHING");
-	if (!Array.isArray(objects)) objects = [objects];
+	if (!Array.isArray(objects)) objects = [ objects ];
 
 	const parts = [
 		"INSERT INTO \"" + tableName + "\" (",
@@ -121,7 +121,7 @@ function upsert (tableName, insertObject, keyColumns) {
 
 	return [
 		lock(keyColumns.sort().map(function (column) { return whereObject[column]; }).join(":")),
-		cat([update(tableName, updateObject), "WHERE", nameValues(whereObject, " AND ")]),
+		cat([ update(tableName, updateObject), "WHERE", nameValues(whereObject, " AND ") ]),
 		cat([
 			"INSERT INTO \"" + tableName + "\" (",
 			columns(insertObject),
@@ -143,9 +143,9 @@ exports.upsert = upsert;
 // --------------------------------------------------------------------
 
 function paramize (query) {
-	var ixs = {}, sql, vals=[];
+	var ixs = {}, sql, vals = [];
 	function getIndex(p, v) {
-		if(!(p in ixs)) {
+		if (!(p in ixs)) {
 			vals.push(v);
 			ixs[p] = vals.length - 1;
 		}
@@ -153,21 +153,21 @@ function paramize (query) {
 	}
 
 	function paren(p, v, wrap) {
-		if(typeof v === 'undefined') {
+		if (typeof v === "undefined") {
 			throw Error("Parameter " + p + " is undefined");
 		}
 
-		if(Array.isArray(v)) {
-			var r = (wrap? "(": "") +
+		if (Array.isArray(v)) {
+			var r = (wrap ? "(": "") +
 				v.map(function (iv, ix) { return paren(p + "-" + ix, iv, true); }).join(", ") +
-				(wrap? ")": "");
+				(wrap ? ")": "");
 			return r;
 		} else {
 			return "$" + (getIndex(p, v) + 1);
 		}
 	}
 
-	if(!query.$) {
+	if (!query.$) {
 		logger.error("Invalid query, no $");
 		throw Error("INVALID_QUERY");
 	}
@@ -197,7 +197,7 @@ exports.read = function (connStr, query, cb) {
 		logger.log("Querying", qv);
 		client.query(qv.q, qv.v, function(queryErr, result) {
 			done();
-			if(queryErr) {
+			if (queryErr) {
 				logger.error("Query error", queryErr, qv);
 				return cb(queryErr);
 			}
@@ -215,21 +215,21 @@ exports.readStream = function (connStr, query) {
 		if (error) {
 			logger.error("Unable to connect to " + connStr, error, query);
 			done();
-			return rstream.emit('error', error);
+			return rstream.emit("error", error);
 		}
 
 		var qv = paramize(query);
 		logger.log("Querying", qv);
 		stream = client.query(qv.q, qv.v);
 
-		stream.on('row', function (row, result) {
-			rstream.emit('row', row, result);
+		stream.on("row", function (row, result) {
+			rstream.emit("row", row, result);
 		});
-		stream.on('end', function (result) {
-			done(); rstream.emit('end', result);
+		stream.on("end", function (result) {
+			done(); rstream.emit("end", result);
 		});
-		stream.on('error', function (err) {
-			done(); rstream.emit('error', err);
+		stream.on("error", function (err) {
+			done(); rstream.emit("error", err);
 		});
 	});
 
@@ -237,7 +237,7 @@ exports.readStream = function (connStr, query) {
 };
 
 function rollback(error, client, done) {
-	client.query('ROLLBACK', function(err) {
+	client.query("ROLLBACK", function(err) {
 		logger.error("Rollback", error, err);
 		return done(error);
 	});
@@ -327,8 +327,8 @@ function notify (connStr, channel, data) {
 			done();
 			return cb(error);
 		}
-		logger.log("PgNotify '" + JSON.stringify(data).replace(/([\\'])/g, '\\$1') + "'");
-		client.query("NOTIFY " + channel + ", '" + JSON.stringify(data).replace(/([\\'])/g, '\\$1') + "'");
+		logger.log("PgNotify '" + JSON.stringify(data).replace(/([\\'])/g, "\\$1") + "'");
+		client.query("NOTIFY " + channel + ", '" + JSON.stringify(data).replace(/([\\'])/g, "\\$1") + "'");
 	});
 }
 
@@ -359,5 +359,5 @@ function onShutDownSignal() {
 	done();
 }
 
-process.on('SIGINT', onShutDownSignal);
-process.on('SIGTERM', onShutDownSignal);
+process.on("SIGINT", onShutDownSignal);
+process.on("SIGTERM", onShutDownSignal);

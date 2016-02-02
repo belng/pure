@@ -1,10 +1,10 @@
-import jsonop from 'jsonop';
-import Counter from '../../lib/counter';
-import pg from '../../lib/pg';
-import queryHandler from './query';
-import entityHandler from './entity';
-import { bus, cache, config } from '../../core';
-import types from './../../models/models';
+import jsonop from "jsonop";
+import Counter from "../../lib/counter";
+import pg from "../../lib/pg";
+import queryHandler from "./query";
+import entityHandler from "./entity";
+import { bus, cache, config } from "../../core";
+import types from "./../../models/models";
 const channel = "heyneighbor";
 
 function broadcast (entity) {
@@ -49,9 +49,9 @@ bus.on("setstate", (changes, next) => {
 		counter.inc();
 		pg.write(config.connStr, sql, (err, results) => {
 			if (err) { return counter.err(err); }
-			
+
 			results.map((row) => {
-				for(const col in row) {
+				for (const col in row) {
 					row[col] = new Types[col](row[col]);
 				}
 			});

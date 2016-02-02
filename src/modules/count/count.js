@@ -3,10 +3,10 @@
 "use strict";
 
 import { TABLES, COLUMNS, TYPES, ROLES } from "../../lib/schema";
-import {Constants, bus, cache } from "../../core";
+import { Constants, bus, cache } from "../../core";
 
 bus.on("setstate", (changes, next) => {
-	if(!changes.entities) return next();
+	if (!changes.entities) return next();
 
 	for (let id in changes.entities) {
 		let entity = changes.entities[id];
@@ -61,7 +61,7 @@ bus.on("setstate", (changes, next) => {
 				let rem = entity.__op__.roles[0].slice(1);
 				rem.forEach((role) => {
 					if (ROLES[role]) {
-						item.counts[ROLES[role]] = -1
+						item.counts[ROLES[role]] = -1;
 					}
 				});
 			}
@@ -70,26 +70,26 @@ bus.on("setstate", (changes, next) => {
 				if (ROLES[role]) {
 					item.counts[ROLES[role]] = 1;
 				}
-			})
+			});
 
 			item.id = entity.item;
 
-			switch(entity.type) {
-				case Constants.TYPE_TEXTREL:
-					item.type = Constants.TYPE_TEXT;
-					break;
-				case Constants.TYPE_THREADREL:
-					item.type = Constants.TYPE_THREAD;
-					break;
-				case Constants.TYPE_ROOMREL:
-					item.type = Constants.TYPE_ROOM;
-					break;
-				case Constants.TYPE_PRIVREL:
-					item.type = Constants.TYPE_PRIV;
-					break;
-				case Constants.TYPE_TOPICREL:
-					item.type = Constants.TYPE_TOPIC;
-					break;
+			switch (entity.type) {
+			case Constants.TYPE_TEXTREL:
+				item.type = Constants.TYPE_TEXT;
+				break;
+			case Constants.TYPE_THREADREL:
+				item.type = Constants.TYPE_THREAD;
+				break;
+			case Constants.TYPE_ROOMREL:
+				item.type = Constants.TYPE_ROOM;
+				break;
+			case Constants.TYPE_PRIVREL:
+				item.type = Constants.TYPE_PRIV;
+				break;
+			case Constants.TYPE_TOPICREL:
+				item.type = Constants.TYPE_TOPIC;
+				break;
 			}
 			changes.entities[entity.item] = item;
 		}

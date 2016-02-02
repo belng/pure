@@ -2,23 +2,23 @@
 
 "use strict";
 
-import {Constants, bus, cache } from '../../core';
-import Counter from '../../lib/counter';
-import Relation from '../../models/Relation';
+import { Constants, bus, cache } from "../../core";
+import Counter from "../../lib/counter";
+import Relation from "../../models/Relation";
 
 bus.on("setstate", (changes, next) => {
-	if(!changes.entities) return next();
+	if (!changes.entities) return next();
 	let counter = new Counter();
 	for (let id in changes.entities) {
 		let entity = changes.entities[id],
 			text, threadRel, role, user;
 
-		if( entity.type === Constants.TYPE_TEXTREL && entity.roles.indexOf(Constants.ROLE_MENTIONED) > -1 ) {
+		if ( entity.type === Constants.TYPE_TEXTREL && entity.roles.indexOf(Constants.ROLE_MENTIONED) > -1 ) {
 			text = changes.entities[entity.item];
-			role = [Constants.ROLE_MENTIONED];
+			role = [ Constants.ROLE_MENTIONED ];
 			user = entity.user;
-			if(!text) {
-				counter.inc()
+			if (!text) {
+				counter.inc();
 				cache.getEntity(entity.item, (err, item) => {
 					text = item;
 					counter.dec();
@@ -26,10 +26,10 @@ bus.on("setstate", (changes, next) => {
 			}
 		}
 
-		if(entity.type === Constants.TYPE_TEXT) {
+		if (entity.type === Constants.TYPE_TEXT) {
 			text = entity;
-			role = [Constants.ROLE_FOLLOWER];
-			user = entity.creator
+			role = [ Constants.ROLE_FOLLOWER ];
+			user = entity.creator;
 		}
 
 		counter.then(() => {
@@ -38,11 +38,11 @@ bus.on("setstate", (changes, next) => {
 				user: user,
 				type: Constants.TYPE_THREADREL,
 				roles: role
-			}
-			let relation = new Relation(threadRel)
+			};
+			let relation = new Relation(threadRel);
 			changes.entities[relation.getId()] = relation;
 		});
 	}
 	next();
 //	counter.then(next)
-})
+});

@@ -2,17 +2,17 @@
 
 /* eslint-env browser */
 
-import eio from 'engine.io-client/engine.io';
-import { bus, config } from '../../core.js';
-import models from '../../models/models.js';
-import stringPack from 'stringPack';
+import eio from "engine.io-client/engine.io";
+import { bus, config } from "../../core.js";
+import models from "../../models/models.js";
+import stringPack from "stringPack";
 
 var	backOff = 1, client,
 	protocol = config.server.protocol,
 	host = config.server.apiHost,
 	packerArg;
 
-packerArg = Object.keys(models).sort().map(key =>models[key]);
+packerArg = Object.keys(models).sort().map(key => models[key]);
 packer = stringPack(packerArg);
 
 function disconnected() {
@@ -24,7 +24,7 @@ function disconnected() {
 	else backOff = 256;
 
 	bus.emit("setstate", {
-		app: { connectionStatus, backOff}
+		app: { connectionStatus, backOff }
 	});
 	setTimeout(connect, backOff * 1000);
 }
@@ -45,7 +45,7 @@ function connect() {
 		var connectionStatus = "online";
 		backOff = 1;
 		bus.emit("setstate", {
-			app: { connectionStatus, backOff}
+			app: { connectionStatus, backOff }
 		});
 	});
 
@@ -53,5 +53,5 @@ function connect() {
 }
 
 bus.emit("setstate", (state, next) => {
-	client.send(packer.encode(state))
+	client.send(packer.encode(state));
 }, 1);

@@ -1,7 +1,7 @@
 
 
-import pg from '../../lib/pg';
-import { TABLES, TYPES } from '../../lib/schema';
+import pg from "../../lib/pg";
+import { TABLES, TYPES } from "../../lib/schema";
 
 const MAX_LIMIT = 1024;
 
@@ -14,8 +14,8 @@ function propOp (prop, op) {
 }
 
 function fromPart (slice) {
-	const fields = [], joins = [];	
-	
+	const fields = [], joins = [];
+
 	fields.push('row_to_json("' + TABLES[TYPES[slice.type]] + '.*") as "' + slice.type + '"');
 	joins.push('"' + TABLES[TYPES[slice.type]] + '"');
 
@@ -37,12 +37,12 @@ function fromPart (slice) {
 				TABLES[TYPES[slice.type]] + '"."' + slice.join[type] + '" = "' +
 				TABLES[TYPES[type]] + '"."id"'
 			);
-			
+
 			fields.push('row_to_json("' + TABLES[TYPES[type]] + '.*") as "' + type + '"');
 		}
 	}
 
-	return pg.cat(['SELECT ', pg.cat(fields, ","), "FROM" ,pg.cat(joins, " ")], " ");
+	return pg.cat(["SELECT ", pg.cat(fields, ","), "FROM", pg.cat(joins, " ") ], " ");
 }
 
 function wherePart (filter) {
@@ -116,12 +116,12 @@ function beforeQuery (slice, start, before, exclude) {
 	return pg.cat([
 		"SELECT * FROM (",
 		query,
-		{ 
+		{
 			$: `) r ORDER BY "&{type}"->'&{order}' ASC`,
 			type: slice.type,
 			order: slice.order
 		}
-		
+
 	], " ");
 }
 

@@ -4,8 +4,8 @@
 	Also sets up winston transports such as CloudWatch and SNS.
 */
 
-import winston from 'winston';
-import bus from '../../bus';
+import winston from "winston";
+import bus from "../../bus";
 
 winston.add(/* ... */);
 

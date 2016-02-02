@@ -1,12 +1,12 @@
 "use strict";
 
 import { bus, cache, config } from "../../core";
-import crypto from 'crypto';
+import crypto from "crypto";
 
 function getDate(long) {
 	let date = new Date();
 
-	if(long) {
+	if (long) {
 		return date.toISOString().replace(/[\-\:]/g, "").replace(/\.\d+/g, "");
 	} else {
 		return date.getUTCFullYear().toString() +
@@ -15,22 +15,22 @@ function getDate(long) {
 	}
 }
 
-function getExpiration(){
+function getExpiration() {
 	let validity = 30 * 60 * 1000; // five minutes
 	return (new Date(Date.now() + validity)).toISOString();
 }
 
-function sign(key, data){
+function sign(key, data) {
 	return crypto.createHmac("sha256", key).update(data).digest();
 }
 
 function getKeyPrefix(userId, uploadType, textId) {
 	switch (uploadType) {
-		case "avatar":
-		case "banner":
-			return "uploaded/" + uploadType + "/" + userId + "/";
-		case "content":
-			return "uploaded/" + uploadType + "/" + userId + "/" + textId + "/";
+	case "avatar":
+	case "banner":
+		return "uploaded/" + uploadType + "/" + userId + "/";
+	case "content":
+		return "uploaded/" + uploadType + "/" + userId + "/" + textId + "/";
 	}
 }
 
@@ -43,15 +43,15 @@ function getPolicy(keyPrefix, config) {
 	return new Buffer(JSON.stringify({
 		expiration: getExpiration(),
 		conditions: [
-			{"bucket": config.bucket},
-			{"acl": config.acl},
-			["starts-with", "$key", keyPrefix],
-			{"success_action_status": "201"},
-			{"x-amz-credential": getCredential(config)},
-			{"x-amz-algorithm": config.algorithm},
-			{"x-amz-date": getDate(true)}
+			{ "bucket": config.bucket },
+			{ "acl": config.acl },
+			[ "starts-with", "$key", keyPrefix ],
+			{ "success_action_status": "201" },
+			{ "x-amz-credential": getCredential(config) },
+			{ "x-amz-algorithm": config.algorithm },
+			{ "x-amz-date": getDate(true) }
 		]
-	})).toString('base64');
+	})).toString("base64");
 }
 
 function getSignature(policy, config) {
@@ -63,7 +63,7 @@ function getSignature(policy, config) {
 	return signature;
 }
 
-bus.on('upload/getPolicy', function(policyReq, next){
+bus.on("upload/getPolicy", function(policyReq, next) {
 	let keyPrefix = getKeyPrefix(policyReq.user.id, policyReq.uploadType, policyReq.textId),
 		policy = getPolicy(keyPrefix, config),
 		signature = getSignature(policy, config);

@@ -66,14 +66,14 @@ module.exports = {
 
 		// process query params
 		if (params.e || params.o || params.i) { state.context = state.context || {}; }
-		if (params.e) { state.context.embed  = params.e; state.context.env = "embed"; }
+		if (params.e) { state.context.embed = params.e; state.context.env = "embed"; }
 		if (params.o) { state.context.origin = params.o; }
-		if (params.i) { state.context.init   = params.i; }
+		if (params.i) { state.context.init = params.i; }
 
 		if (params.d || params.v || params.g) { state.nav = state.nav || {}; }
-		if (params.d)  { state.nav.dialog      = params.d; }
-		if (params.g)  { state.nav.dialogState = params.g; }
-		if (params.v)  { state.nav.view        = params.v; }
+		if (params.d) { state.nav.dialog = params.d; }
+		if (params.g) { state.nav.dialogState = params.g; }
+		if (params.v) { state.nav.view = params.v; }
 
 		return state;
 	},
@@ -112,9 +112,9 @@ module.exports = {
 		}
 
 		if (state.context && state.context.env !== "web") {
-			if (state.context.embed)  params.e = state.context.embed;
+			if (state.context.embed) params.e = state.context.embed;
 			if (state.context.origin) params.o = state.context.origin;
-			if (state.context.init)   params.i = state.context.init;
+			if (state.context.init) params.i = state.context.init;
 		}
 
 		if (state.nav) {

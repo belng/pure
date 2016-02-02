@@ -3,7 +3,7 @@
 jest.autoMockOff();
 
 let core = require("../../../core"),
-	assert = require('assert'),
+	assert = require("assert"),
 	Constants = require("../../../../constants/Constants.json"),
 	bus = core.bus,
 	cache = core.cache;
@@ -17,9 +17,9 @@ describe("incriment count", () => {
 				"sd23d-d23dasd-ad23-dawe": {
 					id: "sd23d-d23dasd-ad23-dawe",
 					type: Constants.TYPE_TEXT,
-					parents: [["sdf87sd-sdf6-xv6-xcvx7843d", "sjfk34-sf9s-sdf43-amv-sdjfh34"]],
+					parents: [ [ "sdf87sd-sdf6-xv6-xcvx7843d", "sjfk34-sf9s-sdf43-amv-sdjfh34" ] ],
 					body: "this is a text message 1",
-					tags: [Constants.TAG_POST_STICKY],
+					tags: [ Constants.TAG_POST_STICKY ],
 					createtime: Date.now(),
 					creator: "testinguser"
 				}
@@ -28,11 +28,11 @@ describe("incriment count", () => {
 			console.log("changes", changes.entities["testinguser"]);
 			assert.deepEqual(changes.entities["sdf87sd-sdf6-xv6-xcvx7843d"], {
 				 counts: { children: 1 },
-				 id: 'sdf87sd-sdf6-xv6-xcvx7843d',
+				 id: "sdf87sd-sdf6-xv6-xcvx7843d",
 				 type: Constants.TYPE_THREAD
 			});
-			assert.deepEqual(changes.entities["testinguser"], { counts: { texts: 1 }, id: 'testinguser' })
-		})
+			assert.deepEqual(changes.entities["testinguser"], { counts: { texts: 1 }, id: "testinguser" });
+		});
 	});
 
 	it("should add count+ to parents and user on new thread", () => {
@@ -41,23 +41,23 @@ describe("incriment count", () => {
 				"sdf87sd-sdf6-xv6-xcvx7843d": {
 					id: "sdf87sd-sdf6-xv6-xcvx7843d",
 					type: Constants.TYPE_THREAD,
-					parents: [["sjfk34-sf9s-sdf43-amv-sdjfh34"]],
+					parents: [ [ "sjfk34-sf9s-sdf43-amv-sdjfh34" ] ],
 					body: "this is a text message",
 					name: "this is a thread title",
-					tags: [Constants.TAG_POST_STICKY],
+					tags: [ Constants.TAG_POST_STICKY ],
 					createtime: Date.now(),
 					creator: "testinguser",
 				}
 			}
 		}, (err, changes) => {
-			console.log(changes.entities)
+			console.log(changes.entities);
 			assert.deepEqual(changes.entities["sjfk34-sf9s-sdf43-amv-sdjfh34"], {
 				counts: { children: 1 },
-			 	id: 'sjfk34-sf9s-sdf43-amv-sdjfh34',
-			 	type: 1
+			 		id: "sjfk34-sf9s-sdf43-amv-sdjfh34",
+			 		type: 1
 			});
-			assert.deepEqual(changes.entities["testinguser"], {counts: { threads: 1 }, id: 'testinguser'});
-		})
+			assert.deepEqual(changes.entities["testinguser"], { counts: { threads: 1 }, id: 'testinguser' });
+		});
 
 	});
 
@@ -67,9 +67,9 @@ describe("incriment count", () => {
 				"sd23d-d23dasd-ad23-dawe": {
 					id: "sd23d-d23dasd-ad23-dawe",
 					type: Constants.TYPE_TEXT,
-					parents: [["sdf87sd-sdf6-xv6-xcvx7843d", "sjfk34-sf9s-sdf43-amv-sdjfh34"]],
+					parents: [ [ "sdf87sd-sdf6-xv6-xcvx7843d", "sjfk34-sf9s-sdf43-amv-sdjfh34" ] ],
 					body: "this is a text message 1",
-					tags: [Constants.TAG_POST_STICKY],
+					tags: [ Constants.TAG_POST_STICKY ],
 					deletetime: Date.now(),
 					creator: "testinguser"
 				}
@@ -78,11 +78,11 @@ describe("incriment count", () => {
 			console.log(changes.entities["testinguser"]);
 			assert.deepEqual(changes.entities["sdf87sd-sdf6-xv6-xcvx7843d"], {
 				 counts: { children: -1 },
-				 id: 'sdf87sd-sdf6-xv6-xcvx7843d',
+				 id: "sdf87sd-sdf6-xv6-xcvx7843d",
 				 type: Constants.TYPE_THREAD
 			});
-			assert.deepEqual(changes.entities["testinguser"], { counts: { texts: -1 }, id: 'testinguser' })
-		})
+			assert.deepEqual(changes.entities["testinguser"], { counts: { texts: -1 }, id: "testinguser" });
+		});
 	});
 
 	it("should add count- to parents and user on delete thread", () => {
@@ -91,23 +91,23 @@ describe("incriment count", () => {
 				"sdf87sd-sdf6-xv6-xcvx7843d": {
 					id: "sdf87sd-sdf6-xv6-xcvx7843d",
 					type: Constants.TYPE_THREAD,
-					parents: [["sjfk34-sf9s-sdf43-amv-sdjfh34"]],
+					parents: [ [ "sjfk34-sf9s-sdf43-amv-sdjfh34" ] ],
 					body: "this is a text message",
 					name: "this is a thread title",
-					tags: [Constants.TAG_POST_STICKY],
+					tags: [ Constants.TAG_POST_STICKY ],
 					deletetime: Date.now(),
 					creator: "testinguser",
 				}
 			}
 		}, (err, changes) => {
-			console.log(changes.entities)
+			console.log(changes.entities);
 			assert.deepEqual(changes.entities["sjfk34-sf9s-sdf43-amv-sdjfh34"], {
 				counts: { children: -1 },
-			 	id: 'sjfk34-sf9s-sdf43-amv-sdjfh34',
-			 	type: 1
+			 		id: "sjfk34-sf9s-sdf43-amv-sdjfh34",
+			 		type: 1
 			});
-			assert.deepEqual(changes.entities["testinguser"], {counts: { threads: -1 }, id: 'testinguser'});
-		})
+			assert.deepEqual(changes.entities["testinguser"], { counts: { threads: -1 }, id: 'testinguser' });
+		});
 	});
 
 	it("should add follower count to related item", () => {
@@ -121,13 +121,13 @@ describe("incriment count", () => {
 				}
 			}
 		}, (err, changes) => {
-			console.log(changes.entities)
+			console.log(changes.entities);
 			assert.deepEqual(changes.entities["sjfk34-sf9s-sdf43-amv-sdjfh34"], {
 				id: "sjfk34-sf9s-sdf43-amv-sdjfh34",
 				type: Constants.TYPE_ROOM,
-				counts: {follower: 1}
+				counts: { follower: 1 }
 			});
-		})
+		});
 	});
 
 	it("should remove 1 follower count of related item", () => {
@@ -153,13 +153,13 @@ describe("incriment count", () => {
 				}
 			}
 		}, (err, changes) => {
-			console.log(changes.entities)
+			console.log(changes.entities);
 			assert.deepEqual(changes.entities["sjfk34-sf9s-sdf43-amv-sdjfh34"], {
 				id: "sjfk34-sf9s-sdf43-amv-sdjfh34",
 				type: Constants.TYPE_ROOM,
-				counts: {follower: -1}
+				counts: { follower: -1 }
 			});
-		})
+		});
 	});
 
 	it("should remove 1 follower count and add banned to related item", () => {
@@ -185,13 +185,13 @@ describe("incriment count", () => {
 				}
 			}
 		}, (err, changes) => {
-			console.log(changes.entities)
+			console.log(changes.entities);
 			assert.deepEqual(changes.entities["sjfk34-sf9s-sdf43-amv-sdjfh34"], {
 				id: "sjfk34-sf9s-sdf43-amv-sdjfh34",
 				type: Constants.TYPE_ROOM,
-				counts: {follower: -1, banned: 1}
+				counts: { follower: -1, banned: 1 }
 			});
-		})
+		});
 	});
 
 	it("should remove 1 banned count and add follower to related item", () => {
@@ -217,13 +217,13 @@ describe("incriment count", () => {
 				}
 			}
 		}, (err, changes) => {
-			console.log(changes.entities)
+			console.log(changes.entities);
 			assert.deepEqual(changes.entities["sjfk34-sf9s-sdf43-amv-sdjfh34"], {
 				id: "sjfk34-sf9s-sdf43-amv-sdjfh34",
 				type: Constants.TYPE_ROOM,
-				counts: {follower: 1, banned: -1}
+				counts: { follower: 1, banned: -1 }
 			});
-		})
-	})
+		});
+	});
 
 });

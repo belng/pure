@@ -10,7 +10,7 @@ var writeEntity = require("./actions/entity"),
 	readEntity = require("./queries/entity"),
 	readContent = require("./queries/content"),
 	readNote = require("./queries/note"),
-	log = require('./../lib/logger.js'),
+	log = require("./../lib/logger.js"),
 	pg = require("../lib/pg"),
 	connString;
 
@@ -94,7 +94,7 @@ module.exports = function(core, config) {
 	connString = "pg://" + config.pg.username + ":" +
 		config.pg.password + "@" + config.pg.server + "/" + config.pg.db;
 
-	require('./timestamp.js')(core, config);
+	require("./timestamp.js")(core, config);
 	// timestamp.js ensures that timestamps of texts and threads are unique in
 	// a room (by incrementing by one or two milliseconds where they don't)
 	// Assumes that no room has hundreds of messages a second.

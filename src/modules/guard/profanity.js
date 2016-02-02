@@ -3,12 +3,12 @@ import fs from "fs";
 const filters = {};
 
 fs.readdirSync(__dirname + "/badwords").forEach(filename => {
-	if(filename.length === 2) {
+	if (filename.length === 2) {
 		filters[filename] = new RegExp("\\b(" + fs.readFileSync(
 			__dirname + "/badwords/" + filename
 		).replace(/\n/g, "|") + ")\\b");
 	}
-})
+});
 
 function check (text, re) {
 	return text.toLowerCase()
@@ -36,6 +36,6 @@ module.exports = (core) => {
 			matches = appliedFilters.map(re => check(text, re)).filter(a => !!a);
 			if (matches.length) return next(Error("ERR_PROFANITY"));
 			next();
-		}}
+		} }
 	});
 };

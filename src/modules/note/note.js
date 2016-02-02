@@ -1,15 +1,15 @@
 "use strict";
 
-import { TABLES, COLUMNS, TYPES, ROLES } from '../../lib/schema';
-import Counter from '../../lib/counter';
-import Note from '../../models/Note';
-import {Constants, bus, cache } from '../../core';
+import { TABLES, COLUMNS, TYPES, ROLES } from "../../lib/schema";
+import Counter from "../../lib/counter";
+import Note from "../../models/Note";
+import { Constants, bus, cache } from "../../core";
 
 bus.on("setstate", (changes, next) => {
-	if(!changes.entities) return next();
+	if (!changes.entities) return next();
 	let counter = new Counter(), note;
 
-	for(let id in changes.entities) {
+	for (let id in changes.entities) {
 		let entity = changes.entities[id];
 
 		if (
@@ -26,8 +26,8 @@ bus.on("setstate", (changes, next) => {
 					score: 50,
 					type: Constants.TYPE_NOTE
 				};
-			if(!item) {
-				counter.inc()
+			if (!item) {
+				counter.inc();
 				cache.getEntity(entity.item, (err, text) => {
 					noteObj.group = text.parents[0][0];
 					noteObj.data = {
@@ -37,8 +37,8 @@ bus.on("setstate", (changes, next) => {
 						thread: text.name,
 						createTime: text.createTime,
 						room: entity.type === Constants.TYPE_TEXTREL ? text.parents[0][1] : text.parents[0][0]
-					}
-					note = new Note (noteObj);
+					};
+					note = new Note(noteObj);
 					changes.entities[note.getId()] = note;
 					counter.dec();
 				});
@@ -51,8 +51,8 @@ bus.on("setstate", (changes, next) => {
 					thread: item.name,
 					createTime: item.createTime,
 					room: entity.type === Constants.TYPE_TEXTREL ? item.parents[0][1] : item.parents[0][0]
-				}
-				note = new Note (noteObj);
+				};
+				note = new Note(noteObj);
 				changes.entities[note.getId()] = note;
 			}
 		}

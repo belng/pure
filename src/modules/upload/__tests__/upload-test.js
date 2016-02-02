@@ -13,10 +13,10 @@ describe("Generate policies", function() {
 			uploadType: "avatar",
 			textId: ""
 		}, function(err, payload) {
-			expect(payload.response).toEqual({})
-		})
+			expect(payload.response).toEqual({});
+		});
 	});
-	
+
 	it("generate policies for 'banner' type upload", function() {
 		core.emit("upload/getPolicy", {
 			user: {
@@ -25,10 +25,10 @@ describe("Generate policies", function() {
 			uploadType: "banner",
 			textId: ""
 		}, function(err, payload) {
-			expect(payload.response).toEqual({})
-		})
+			expect(payload.response).toEqual({});
+		});
 	});
-	
+
 	it("generate policies for 'content' type upload", function() {
 		core.emit("upload/getPolicy", {
 			user: {
@@ -37,8 +37,8 @@ describe("Generate policies", function() {
 			uploadType: "content",
 			textId: "df37y32-h87er-efewrywe-we"
 		}, function(err, payload) {
-			
-			expect(payload.response).toEqual({})
+
+			expect(payload.response).toEqual({});
 		});
-	})
+	});
 })

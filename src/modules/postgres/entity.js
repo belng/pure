@@ -1,8 +1,8 @@
-import pg from '../../lib/pg';
-import Constants from '../../lib/Constants';
-import { TABLES, COLUMNS } from '../../lib/schema';
-import jsonop from 'jsonop';
-import defaultOps from './../../lib/defaultOps';
+import pg from "../../lib/pg";
+import Constants from "../../lib/Constants";
+import { TABLES, COLUMNS } from "../../lib/schema";
+import jsonop from "jsonop";
+import defaultOps from "./../../lib/defaultOps";
 
 module.exports = function (entity) {
 	const names = Object.keys(entity).filter(

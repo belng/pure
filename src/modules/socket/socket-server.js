@@ -11,7 +11,7 @@ let engine = require("engine.io"),
 	stringPack = require("stringPack"),
 	packerArg;
 
-packerArg = Object.keys(models).sort().map(key =>models[key]);
+packerArg = Object.keys(models).sort().map(key => models[key]);
 packer = stringPack(packerArg);
 
 

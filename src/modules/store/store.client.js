@@ -1,5 +1,5 @@
-import app from '../../core';
-import generate from '../lib/generate.browser.js';
+import app from "../../core";
+import generate from "../lib/generate.browser.js";
 let cache = app.cache, core = app.core;
 
 /* adds functions which only client will use.*/

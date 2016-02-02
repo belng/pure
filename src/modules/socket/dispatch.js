@@ -1,6 +1,6 @@
 "use strict";
-import pg from './pg.js';
-import {EventEmitter} from 'events';
+import pg from "./pg.js";
+import { EventEmitter } from "events";
 
 function dispatch(changes, core, options) {
 	let groups = {},

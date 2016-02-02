@@ -1,11 +1,11 @@
-import jsonop from 'jsonop';
-import Cache from 'sbcache';
-import Counter from '../../lib/counter.js';
-import './querykeyrange';
-import pg from '../../lib/pg.js';
-import log from '../../lib/log.js';
-import queryHandlers from './postgres/queries';
-import actionHandlers from './postgres/updates';
+import jsonop from "jsonop";
+import Cache from "sbcache";
+import Counter from "../../lib/counter.js";
+import "./querykeyrange";
+import pg from "../../lib/pg.js";
+import log from "../../lib/log.js";
+import queryHandlers from "./postgres/queries";
+import actionHandlers from "./postgres/updates";
 let core, cache, config;
 
 function broadcast (entity) {
@@ -45,7 +45,7 @@ module.exports = (c) => {
 				runQuery(
 					queryHandlers[query.type], query, null, 0,
 					() => cache.setState(query.results)
-				)
+				);
 			}
 		}
 	});
@@ -69,7 +69,7 @@ module.exports = (c) => {
 
 		if (changes.queries) {
 			let response = changes.response = {};
-			for(let key in changes.queries) {
+			for (let key in changes.queries) {
 				counter.inc();
 				cache.query(key, changes.queries[key], (err, results) => {
 					jsonop(response, { entities: results });
