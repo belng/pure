@@ -1,5 +1,3 @@
-
-
 "use strict";
 
 import pg from '../../../lib/pg';
@@ -7,7 +5,7 @@ import casual from 'casual';
 import uid from 'node-uuid';
 import Constants from '../../../lib/constants.json';
 
-let connstr = "pg://hn:hn@localhost/hn", users = [], rooms = [], threads = [], texts = [], numUsers = 15, numRooms = 10, numThreads = 20, numTexts = 200;
+let connstr = "pg://hn:hn@localhost/hn", users = [], rooms = [], threads = [], texts = [], numUsers = 5, numRooms = 5, numThreads = 10, numTexts = 50;
 
 function getId() {
 	let u = casual.username.toLowerCase().replace(/\_|\./g, "-");
@@ -20,19 +18,19 @@ function insertUser(done) {
 	tag = tags[Math.floor(Math.random() * tags.length)];
 	
 	users.push(id);
-	
 	pg.write(connstr, [{
 		$: `INSERT INTO users (
-			id, tags, name, identities, timezone, locale, createtime, updatetime 
+			id, tags, name, identities, timezone, locale, createtime, updatetime, presence 
 		) VALUES (
 			&{id}, ARRAY[&{tags}]::smallint[], &{name}, ARRAY[&{ident}]::text[], 330, 91,
 			extract(epoch from now())*1000,
-			extract(epoch from now())*1000
+			extract(epoch from now())*1000, &{presence}
 		)`,
 		id: id,
 		tags: tag,
 		name: casual.name,
-		ident: tag === Constants.TAG_USER_GUEST ? "guest" : "mailto:" + casual.email.toLowerCase()
+		ident: tag === Constants.TAG_USER_GUEST ? "guest" : "mailto:" + casual.email.toLowerCase(),
+		presence: Math.random() <= 0.5 ? Constants.PRESENCE_FOREGROUND : Constants.PRESENCE_NONE
 	}], done);	
 }
 
@@ -87,12 +85,13 @@ function insertText(done) {
 			&{id}, ARRAY[&{tags}]::smallint[],
 			extract(epoch from now())*1000,
 			extract(epoch from now())*1000,
-			&{body}, ARRAY[&{parents}]::uuid[], &{creator}, &{updater}
+			&{body}, ARRAY[&{thread}, &{room}]::uuid[], &{creator}, &{updater}
 		)`,
 		id: id,
 		tags: Math.random() < 0.3 ? Constants.TAG_POST_HIDDEN : Constants.TAG_POST_STICKY,
 		body: casual.description,
-		parents: threads[Math.floor(Math.random() * threads.length)],
+		thread: threads[Math.floor(Math.random() * threads.length)],
+		room: rooms[Math.floor(Math.random() * rooms.length)],
 		creator: users[Math.floor(Math.random() * users.length)],
 		updater: users[Math.floor(Math.random() * users.length)]
 	}], done);
@@ -114,17 +113,19 @@ function insertRoomrel(usr, room, cb) {
 }
 
 function insertThreadrel(usr, thread, cb) {
+	let ptime = Math.random() < 0.4 ? Date.now() - 3 * 60 * 1000 : Date.now() + 60 * 1000;
 	pg.write(connstr, [{
 		$: `INSERT INTO threadrels (
-			"user", item, roles, roletime, interest
+			"user", item, roles, roletime, interest, presencetime
 		) VALUES (
 			&{user}, &{item}, ARRAY[&{role}]::smallint[],
-			extract(epoch from now())*1000, &{interest}
+			extract(epoch from now())*1000, &{interest}, &{ptime}
 		)`,
 		user: usr,
 		item: thread,
 		role: Constants.ROLE_FOLLOWER,
-		interest: Math.floor(Math.random() * 30)
+		interest: Math.floor(Math.random() * 30),
+		ptime: ptime
 	}], cb);
 }
 
@@ -139,7 +140,7 @@ function insertTextrel(usr, text, cb) {
 		user: usr,
 		item: text,
 		role: Math.random() < 0.5 ? Constants.ROLE_FOLLOWER : Constants.ROLE_MENTIONED,
-		interest: Math.floor(Math.random() * 30)
+		interest: Math.floor(Math.random() * 30),
 	}], cb);
 }
 
@@ -215,4 +216,5 @@ repeat(insertUser, numUsers)
 })
 .catch(function (e) {
 	console.log(e)
+	process.exit(1)
 });

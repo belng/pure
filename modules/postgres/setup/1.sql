@@ -5,7 +5,7 @@
 -- bytes. In JSON they are represented by :<20-char base64>.
 
 DROP TABLE IF EXISTS notes;
-DROP TABLE IF EXISTS relations CASCADE;
+DROP TABLE IF EXISTS rels CASCADE;
 DROP TABLE IF EXISTS items CASCADE;
 DROP TABLE IF EXISTS users;
 
@@ -19,10 +19,12 @@ CREATE TABLE users (
 	params jsonb, -- user-private information
 	resources jsonb, -- { resourceId: foreground/background }
 	presence smallint, -- foreground/background/none
+	processid smallint,
+	presencetime bigint,
 	counts jsonb,
-	createTime bigint,
-	updateTime bigint,
-	deleteTime bigint
+	createtime bigint,
+	updatetime bigint,
+	deletetime bigint
 );
 
 CREATE TABLE items (
@@ -32,14 +34,14 @@ CREATE TABLE items (
 	type smallint,
 	tags smallint[], -- e.g. image, hidden, sticky, city, area, spot
 	meta jsonb, -- guides, image dimensions, counts
-	parents uuid[][], -- room or thread
+	parents uuid[], -- room or thread
 	creator text,
 	updater text,
 	terms tsvector,
 	counts jsonb,
-	createTime bigint,
-	updateTime bigint,
-	deleteTime bigint
+	createtime bigint,
+	updatetime bigint,
+	deletetime bigint
 );
 
 CREATE TABLE rooms (
@@ -60,18 +62,19 @@ CREATE TABLE rels (
 	item uuid,
 	type smallint,
 	roles smallint[], -- mute, upvote, home, work
-	roleTime bigint,
+	roletime bigint,
 	interest float(24),
 
 	resources jsonb, -- { resource: writing/reading }
 	presence smallint, -- writing/reading/none
-	presenceTime bigint,
+	presencetime bigint,
+	processid smallint,
 
 	message text,
 	admin text,
-	transitRole smallint,
-	transitType smallint,
-	expireTime bigint
+	transitrole smallint,
+	transittype smallint,
+	expiretime bigint
 );
 
 CREATE TABLE roomrels   () INHERITS (rels);
@@ -83,7 +86,7 @@ CREATE TABLE privrels   () INHERITS (rels);
 CREATE TABLE notes (
 	"user" text,
 	event smallint, -- e.g. mention, invite, request
-	eventTime bigint,
+	eventtime bigint,
 	"group" text, -- e.g. thread in which mentioned, room to which invited
 	count integer, -- this event in this group id
 	score float(24),
