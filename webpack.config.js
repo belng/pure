@@ -6,11 +6,10 @@ const fs = require("fs");
 
 const plugins = [
 	new webpack.EnvironmentPlugin("NODE_ENV"),
-	new webpack.optimize.OccurenceOrderPlugin()
 ];
 
 const entry = [
-	"./ui/Client"
+	"./src/ui/Client",
 ];
 
 const babelrc = JSON.parse(fs.readFileSync(path.join(__dirname, ".babelrc"), "utf-8").toString());
