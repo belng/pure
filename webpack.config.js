@@ -2,22 +2,24 @@ const __DEV__ = process.env.NODE_ENV !== "production";
 
 const webpack = require("webpack");
 const path = require("path");
+const fs = require("fs");
 
 const plugins = [
 	new webpack.EnvironmentPlugin("NODE_ENV"),
-	new webpack.optimize.OccurenceOrderPlugin()
 ];
 
 const entry = [
-	"./ui/Client"
+	"./src/ui/Client",
 ];
+
+const babelrc = JSON.parse(fs.readFileSync(path.join(__dirname, ".babelrc"), "utf-8").toString());
 
 module.exports = {
 	devtool: "source-map",
 	entry: __DEV__ ? [ ...entry, "webpack-hot-middleware/client" ] : [ ...entry ],
 	output: {
 		path: path.resolve(__dirname, "static/dist/scripts"),
-		publicPath: "/s/dist/scripts",
+		publicPath: "/dist/scripts",
 		filename: "bundle.min.js",
 		sourceMapFilename: "bundle.min.js.map"
 	},
@@ -26,15 +28,22 @@ module.exports = {
 		preLoaders: [
 			{
 				test: /\.js$/,
-				loaders: [ "eslint-loader" ],
+				loader: "eslint",
 				exclude: /node_modules/
 			}
 		],
 		loaders: [
 			{
 				test: /\.js$/,
-				loaders: __DEV__ ? [ "react-hot", "babel" ] : [ "babel" ],
-				exclude: /node_modules/
+				loader: "babel",
+				exclude: /node_modules/,
+				query: Object.assign({}, babelrc, {
+					env: {
+						developement: {
+							presets: [ "react-hmre" ],
+						},
+					}
+				})
 			},
 			{
 				test: /\.json$/,
