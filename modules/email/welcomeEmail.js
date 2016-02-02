@@ -13,41 +13,52 @@ let template = handlebars.compile(fs.readFileSync(__dirname + "/views/welcomeEma
 	lastEmailSent, config, connStr ;
 
 function initMailSending(cUserRel) {
-	let user = userRel.currentUser,
-		rels = userRel.currentRels,
-		emailAdd = currentUser.identities.filter((ident) => ident.indexOf("mailto:") === 0),
+	if(!cUserRel.user) return
+	let user = cUserRel.user,
+		rels = cUserRel.rels,
+		emailAdd = user.identities[0],
 		emailHtml = template({
-			user: currentUser,
-			rels: currentRels,
+			user: user.id,
+			rels: rels,
 			domain: config.domain,
-			token: jwt.sign({ email: emailAdd }, config.secret, {expiresIn: "2 days"})
+			token: jwt.sign({ email: emailAdd.substring(8, emailAdd.length) }, config.secret, {expiresIn: "2 days"})
 		});
 	send(config.from, emailAdd, "Welcome to " + config.appName, emailHtml);
 }
 
 function sendWelcomeEmail () {
-	let getMailObj = require("./prepareMailObj");
-	let end = Date.now() - WELCOME_DELAY;
+	let getMailObj = require("./buildMailObj");
+	let end = Date.now() - 10000/*WELCOME_DELAY*/;
+//	let newUser = false;
 	pg.readStream(connStr, {
-		$: `SELECT * FROM users LEFT OUTER JOIN members
-			ON members.user = users.id WHERE identities @> '{email}'
-			AND createTime > &{start} AND createTime <= &{end} ORDER BY users.id`,
+		$: `SELECT * FROM users WHERE NOT(tags @> '{10}') AND createtime >&{start} AND createtime <= &{end} `,
+		guest: Constants.TAG_USER_GUEST,
 		start: lastEmailSent,
 		end: end
-	}).on("row", function (userRel) {
-		winston.info("sendng welocome email")
-		let emailObj = getMailObj(userRel) || {};
-		
-		if (Object.keys(emailObj).length !==0) initMailSending(emailObj);
-	}).on("end", function() {
-		let c = getMailObj({}); // empty obj to get email obj for last row data
-		initMailSending(c);
-		pg.write(connString, {
+	}).on("row", (user) => {
+		winston.info("Got a new user: ", user.id)
+		newUser = true
+		let userRel = {} , rels = [];
+		userRel.user = user
+		pg.readStream(connStr, {
+			$: `SELECT * FROM roomrels JOIN rooms ON item=id where \"user\" = &{user}`,
+			user: user.id
+		}).on("row", (rel) => {
+			rels.push(rel)
+		}).on("end", () => {
+			userRel.rels = rels;
+			winston.info("sending email to user: ", userRel.user.id)
+			initMailSending(userRel)
+		})
+	}).on("end", () => {
+		pg.write(connStr, [{
 			$: "UPDATE jobs SET lastrun=&{end} WHERE jobid=&{jid}",
 			end: end,
 			jid: Constants.JOB_EMAIL_WELCOME
-		}, function (err, results) {
-			if(!err) log.i("successfully updated jobs");
+		}], function (err, results) {
+			lastEmailSent = end;
+			if(!err) winston.info("successfully updated job for welcome email ");
+//			if (!newUser) winston.info("no new users created")
 		});
 	});
 }
@@ -55,9 +66,7 @@ function sendWelcomeEmail () {
 module.exports = (row, conf) => {
 	config = conf;
 	connStr = "pg://" + config.pg.username + ":" + config.pg.password + "@" + config.pg.server + "/" + config.pg.db;
-	if(config.debug) {
-		sendWelcomeEmail()
-	}
 	lastEmailSent = row.lastrun;
-	setInterval(sendWelcomeEmail, WELCOME_INTERVAL);
+	sendWelcomeEmail();
+	setInterval(sendWelcomeEmail, 10000/*WELCOME_INTERVAL*/);
 }

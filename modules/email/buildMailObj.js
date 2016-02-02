@@ -32,7 +32,7 @@ function relFromUserRel(rel) {
 	}
 }
 
-function sendEmailToUser(userRel) {
+function buildMailObj(userRel) {
 	let rel = relFromUserRel(userRel),
 		user = userFromUserRel(userRel),
 		cUserRel = false;
@@ -79,7 +79,7 @@ function sendEmailToUser(userRel) {
 }
 
 module.exports = function (userRel) {
-//	console.log(userRel)
+	console.log(userRel)
 	if (Object.keys(userRel).length === 0) {
 		let cu = currentU, cr = currentR;
 		currentU = false, currentR = false;
@@ -88,7 +88,7 @@ module.exports = function (userRel) {
 			currentRels: cr
 		};
 	}
-	let emailObj = sendEmailToUser(userRel);
+	let emailObj = buildMailObj(userRel);
 	return emailObj;
 }
 

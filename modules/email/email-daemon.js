@@ -15,7 +15,7 @@ if(!conf.auth) {
 } else {
 	pg.read(connString, {
 		$: "SELECT * FROM jobs WHERE jobid in (&(jids))",
-		jids: [Constants.JOB_EMAIL_WELCOME/*, Constants.JOB_EMAIL_MENTION, Constants.JOB_EMAIL_DIGEST*/]
+		jids: [/*Constants.JOB_EMAIL_WELCOME, */Constants.JOB_EMAIL_MENTION/*, Constants.JOB_EMAIL_DIGEST*/]
 	}, function (err, results) {
 		winston.info(results)
 		results.forEach((row) => {

@@ -3,26 +3,21 @@ const MENTION_INTERVAL = 10 * 60 * 1000,
 	  MENTION_DELAY = 10 * 60 * 1000;
 
 let pg = require("../../lib/pg"),
-	config = require("../../core").config.email, 
-	constants = require("../../lib/constants"),
-	connStr = "pg://" + config.pg.username + ":" + config.pg.password + "@" + config.pg.server + "/" + config.pg.db,
-	lastEmailSent;
+	constants = require("../../lib/constants"), connStr,lastEmailSent;
 
 function sendMentionEmail() {
-	let getMailObj = require("./prepareMailObj"),
+	let getMailObj = require("./buildMailObj"),
 		initMailSending = require("./digestEmail").initMailSending,
 		start = lastEmailSent,
-		end = Date().now - MENTION_DELAY;
-	pg.readStream(connstr, {
+		end = Date.now() - MENTION_DELAY;
+	pg.readStream(connStr, {
 		$: `with
-				r as (SELECT * FROM textrelations, users WHERE "user" = id AND role = &{mention})
+				r as (SELECT * FROM textrels, users WHERE "user" = id AND roles @> '{3}')
 			select * from r, texts WHERE r.item=texts.id order by r.user`,
 		start: start,
 		end: end,
-		mention: constants.ROLE_MENTIONED
 	}).on("row", (userRel) => {
-		let emailObj = sendEmailToUser(userRel) || {};
-		
+		let emailObj = getMailObj(userRel) || {};
 		if (Object.keys(emailObj).length !== 0) initMailSending(emailObj);
 	}).on("end", function() {
 		let c = getMailObj({});
@@ -37,7 +32,10 @@ function sendMentionEmail() {
 	});
 }
 
-module.exports = (row) => {
+module.exports = (row, conf) => {
+	connStr = "pg://" + conf.pg.username + ":" + conf.pg.password + "@" + conf.pg.server + "/" + conf.pg.db;
 	lastEmailSent = row.lastrun;
+	console.log(lastEmailSent)
+	sendMentionEmail()
 	setInterval(sendMentionEmail, MENTION_INTERVAL);
 }
