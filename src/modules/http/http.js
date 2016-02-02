@@ -23,7 +23,9 @@ if (process.env.NODE_ENV !== "production") {
 
 	// Enable Hot reloading
 	app.use(webpackHotMiddleware(compiler));
-	app.use(mount("/test", serve("test/static")));
+
+	// Serve files under static/tests for any requests to /tests/
+	app.use(mount("/tests", serve("static/tests"), { defer: true }));
 }
 
 app.httpServer = httpServer;
