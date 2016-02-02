@@ -32,4 +32,8 @@ jsconfig.json
 *.min.js
 *.min.css
 *.map
+
+static/dist/
+build/
+
 config/server.json
