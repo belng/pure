@@ -1,4 +1,4 @@
-import { Constants } from "../../core";
+import { Constants } from "../core";
 
 const types = {};
 

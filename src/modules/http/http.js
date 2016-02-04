@@ -6,7 +6,7 @@ import serve from "koa-static";
 import webpack from "webpack";
 import webpackDevMiddleware from "koa-webpack-dev-middleware";
 import webpackHotMiddleware from "koa-webpack-hot-middleware";
-import webpackConfig from "../../webpack.config";
+import webpackConfig from "../../../webpack.config";
 import { home, room, thread } from "./routes";
 import { bus } from "../../core";
 

@@ -1,5 +1,5 @@
 "use strict";
-import pg from "./pg.js";
+import pg from "../postgres/postgres";
 import { EventEmitter } from "events";
 
 function dispatch(changes, core, options) {

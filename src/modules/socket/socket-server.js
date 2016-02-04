@@ -9,7 +9,7 @@ let engine = require("engine.io"),
 	sockets = {},
 	models = require("../../models/models.js"),
 	stringPack = require("stringPack"),
-	packerArg;
+	packerArg, packer;
 
 packerArg = Object.keys(models).sort().map(key => models[key]);
 packer = stringPack(packerArg);
