@@ -1,3 +1,5 @@
+/* eslint-env jest */
+
 jest.dontMock("../components/views/Hello");
 
 import React from "react";
