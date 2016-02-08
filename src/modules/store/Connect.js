@@ -2,17 +2,17 @@
 
 import React, { Component, PropTypes } from "react";
 
-export default function(mapSubscriptionsToProps: Object, mapDispatchToProps: Object): Function {
+export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Object): Function {
 	if (process.env.NODE_ENV !== "production") {
-		if (mapSubscriptionsToProps && mapDispatchToProps) {
-			for (const key in mapSubscriptionsToProps) {
+		if (mapSubscriptionToProps && mapDispatchToProps) {
+			for (const key in mapSubscriptionToProps) {
 				if (mapDispatchToProps[key]) {
 					throw new Error(`Prop ${key} found both in subscriptions and dispatch. Props must be unique.`);
 				}
 			}
 
 			for (const key in mapDispatchToProps) {
-				if (mapSubscriptionsToProps[key]) {
+				if (mapSubscriptionToProps[key]) {
 					throw new Error(`Prop ${key} found both in subscriptions and dispatch. Props must be unique.`);
 				}
 			}
@@ -20,9 +20,11 @@ export default function(mapSubscriptionsToProps: Object, mapDispatchToProps: Obj
 	}
 
 	return function(Target: ReactClass): ReactClass {
-		return class StoreConnect extends Component {
+		return class Connect extends Component {
 			static contextTypes = {
-				store: PropTypes.object.isRequired
+				store: PropTypes.shape({
+					watch: PropTypes.func
+				}).isRequired
 			};
 
 			state = {};
@@ -33,15 +35,15 @@ export default function(mapSubscriptionsToProps: Object, mapDispatchToProps: Obj
 				const { store } = this.context;
 
 				if (typeof store !== "object") {
-					throw new Error("No store was found in the context. Have you wrapped the root component is <StoreProvider /> ?");
+					throw new Error("No store was found in the context. Have you wrapped the root component in <StoreProvider /> ?");
 				}
 
-				if (mapSubscriptionsToProps) {
+				if (mapSubscriptionToProps) {
 					this._watches = [];
 
-					for (const sub in mapSubscriptionsToProps) {
+					for (const sub in mapSubscriptionToProps) {
 						this._watches.push(
-							store.watch(mapSubscriptionsToProps[sub], this._updateListener(sub))
+							store.watch(mapSubscriptionToProps[sub], this._updateListener(sub))
 						);
 					}
 				}

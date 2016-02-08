@@ -1,23 +1,23 @@
 /* eslint-env jest */
 
-jest.dontMock("../StoreConnect");
-jest.dontMock("../StoreProvider");
+jest.dontMock("../Connect");
+jest.dontMock("../Provider");
 
 import React from "react";
 import ReactDOM from "react-dom";
 import TestUtils from "react-addons-test-utils";
 
-const StoreConnect = require("../StoreConnect").default;
-const StoreProvider = require("../StoreProvider").default;
+const Connect = require("../Connect").default;
+const Provider = require("../Provider").default;
 
-describe("StoreConnect", () => {
+describe("Connect", () => {
 	it("should render connected component with no data", () => {
-		const ConnectedComponent = StoreConnect()(() => <span>Hey!</span>); // eslint-disable-line
+		const ConnectedComponent = Connect()(() => <span>Hey!</span>); // eslint-disable-line
 
 		const app = TestUtils.renderIntoDocument(
-			<StoreProvider store={{}}>
+			<Provider store={{}}>
 				<ConnectedComponent />
-			</StoreProvider>
+			</Provider>
 		);
 
 		const appNode = ReactDOM.findDOMNode(app);
@@ -26,7 +26,7 @@ describe("StoreConnect", () => {
 	});
 
 	it("should update connected component with data", () => {
-		const ConnectedComponent = StoreConnect({
+		const ConnectedComponent = Connect({
 			firstName: "first",
 			lastName: "last",
 		})(
@@ -51,9 +51,9 @@ describe("StoreConnect", () => {
 
 		// Render a the app in the document
 		const app = TestUtils.renderIntoDocument(
-			<StoreProvider store={store}>
+			<Provider store={store}>
 				<ConnectedComponent />
-			</StoreProvider>
+			</Provider>
 		);
 
 		const appNode = ReactDOM.findDOMNode(app);
@@ -70,16 +70,16 @@ describe("StoreConnect", () => {
 	it("should remove listener on unmount", () => {
 		const container = document.createElement("div");
 		const clear = jest.genMockFunction();
-		const ConnectedComponent = StoreConnect({ textContent: "text" })(({ textContent }) => <span>{textContent}</span>); // eslint-disable-line
+		const ConnectedComponent = Connect({ textContent: "text" })(({ textContent }) => <span>{textContent}</span>); // eslint-disable-line
 
 		const store = {
 			watch: name => name === "text" && { clear },
 		};
 
 		ReactDOM.render(
-			<StoreProvider store={store}>
+			<Provider store={store}>
 				<ConnectedComponent />
-			</StoreProvider>,
+			</Provider>,
 			container
 		);
 
