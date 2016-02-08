@@ -13,9 +13,12 @@ const Provider = require("../Provider").default;
 describe("Connect", () => {
 	it("should render connected component with no data", () => {
 		const ConnectedComponent = Connect()(() => <span>Hey!</span>); // eslint-disable-line
-
+		const store = {
+			watch: () => null,
+			dispatch: () => null,
+		};
 		const app = TestUtils.renderIntoDocument(
-			<Provider store={{}}>
+			<Provider store={store}>
 				<ConnectedComponent />
 			</Provider>
 		);
@@ -47,6 +50,8 @@ describe("Connect", () => {
 					break;
 				}
 			},
+
+			dispatch: () => null,
 		};
 
 		// Render a the app in the document
@@ -71,9 +76,9 @@ describe("Connect", () => {
 		const container = document.createElement("div");
 		const clear = jest.genMockFunction();
 		const ConnectedComponent = Connect({ textContent: "text" })(({ textContent }) => <span>{textContent}</span>); // eslint-disable-line
-
 		const store = {
 			watch: name => name === "text" && { clear },
+			dispatch: () => null,
 		};
 
 		ReactDOM.render(

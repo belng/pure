@@ -11,7 +11,10 @@ import { Component, Children, PropTypes } from "react";
 export default class Provider extends Component {
 	static propTypes = {
 		children: PropTypes.element.isRequired,
-		store: PropTypes.object.isRequired
+		store: PropTypes.shape({
+			watch: PropTypes.func.isRequired,
+			dispatch: PropTypes.func.isRequired
+		}).isRequired
 	};
 
 	static childContextTypes = {

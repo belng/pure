@@ -23,7 +23,8 @@ export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Obje
 		return class Connect extends Component {
 			static contextTypes = {
 				store: PropTypes.shape({
-					watch: PropTypes.func
+					watch: PropTypes.func.isRequired,
+					dispatch: PropTypes.func.isRequired
 				}).isRequired
 			};
 
