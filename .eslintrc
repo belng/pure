@@ -14,9 +14,13 @@
   "plugins": [ "react" ],
 
   "globals": {
-    "__DEV__": true,
-
-    "Bus": false
+    "ReactComponent": false,
+    "ReactClass": false,
+    "ReactElement": false,
+    "ReactPropsCheckType": false,
+    "ReactPropsChainableTypeChecker": false,
+    "ReactPropTypes": false,
+    "SyntheticEvent": false,
   },
 
   "rules": {
