@@ -1,6 +1,7 @@
 /* @flow */
 
-import React, { Component, PropTypes } from "react";
+import React, { Component } from "react";
+import storeShape from "./storeShape";
 
 export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Object): Function {
 	if (process.env.NODE_ENV !== "production") {
@@ -22,10 +23,7 @@ export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Obje
 	return function(Target: ReactClass): ReactClass {
 		return class Connect extends Component {
 			static contextTypes = {
-				store: PropTypes.shape({
-					watch: PropTypes.func.isRequired,
-					dispatch: PropTypes.func.isRequired
-				}).isRequired
+				store: storeShape.isRequired
 			};
 
 			state = {};

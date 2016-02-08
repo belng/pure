@@ -2,6 +2,7 @@
 
 jest.dontMock("../Connect");
 jest.dontMock("../Provider");
+jest.dontMock("../storeShape");
 
 import React from "react";
 import ReactDOM from "react-dom";
