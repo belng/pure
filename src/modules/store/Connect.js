@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Component } from "react";
+import shallowEqual from "shallowequal";
 import storeShape from "./storeShape";
 
 export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Object): Function {
@@ -56,6 +57,10 @@ export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Obje
 
 					delete this._watches;
 				}
+			}
+
+			shouldComponentUpdate(nextProps, nextState) {
+				return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 			}
 
 			_updateListener = name => {
