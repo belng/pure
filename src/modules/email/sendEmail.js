@@ -9,21 +9,21 @@ let nodemailer = require('nodemailer'),
 function send(from, to, sub, html) {
 
 	let email = {
-			from: from,
-			to: to,
-			subject: sub,
-			html: html,
-			bcc: config && config.bcc || ''
-		};
+		from: from,
+		to: to,
+		subject: sub,
+		html: html,
+		bcc: config && config.bcc || ''
+	};
 	console.log(email);
 	transport.sendMail(email, (e) => {
-			if (e) {
+		if (e) {
 				log.log('error in sending email: ', e, 'retrying...');
 				setTimeout(() => {
 					send(email.from, email.to, email.subject, email.html);
 				}, 300000);
 			} else log.info('Email sent successfully to ', email.to);
-		});
+	});
 }
 
 module.exports = () => {

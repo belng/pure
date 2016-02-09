@@ -178,9 +178,9 @@ function paramize (query) {
 		}
 
 		if (Array.isArray(v)) {
-			var r = (wrap ? "(" : '') +
+			var r = (wrap ? '(' : '') +
 				v.map(function (iv, ix) { return paren(p + '-' + ix, iv, true); }).join(', ') +
-				(wrap ? ")" : '');
+				(wrap ? ')' : '');
 			return r;
 		} else {
 			return '$' + (getIndex(p, v) + 1);

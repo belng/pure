@@ -42,7 +42,7 @@ function fromPart (slice) {
 		}
 	}
 
-	return pg.cat(['SELECT ', pg.cat(fields, ','), 'FROM', pg.cat(joins, ' ') ], ' ');
+	return pg.cat([ 'SELECT ', pg.cat(fields, ','), 'FROM', pg.cat(joins, ' ') ], ' ');
 }
 
 function wherePart (filter) {

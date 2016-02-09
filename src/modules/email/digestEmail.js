@@ -3,7 +3,7 @@ const DIGEST_INTERVAL = 60 * 60 * 1000, DIGEST_DELAY = 24 * 60 * 60 * 1000;
 
 import { Constants, config } from '../../core';
 import log from 'winston';
-import fs from  'fs';
+import fs from 'fs';
 import handlebars from 'handlebars';
 import pg from '../../lib/pg';
 import jwt from 'jsonwebtoken';
@@ -16,7 +16,7 @@ let conf = config.email, lastEmailSent,
 
 function getSubject(rels) {
 	var counts = rels.length - 1, heading = '';
-	heading = '[' + rels[0].room + '] ' + rels[0].threads[0].threadTitle + " +" + counts + ' more';
+	heading = '[' + rels[0].room + '] ' + rels[0].threads[0].threadTitle + ' +' + counts + ' more';
 	return heading;
 }
 
@@ -25,7 +25,7 @@ function initMailSending (userRel) {
 		rels = userRel.currentRels,
 		emailAdd = user.identities.filter((ident) => ident.indexOf('mailto:') === 0),
 		emailHtml = template({
-			token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: "5 days" }),
+			token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: '5 days' }),
 			domain: conf.domain,
 			rooms: rels
 		}),
