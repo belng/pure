@@ -43,7 +43,7 @@ export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Obje
 
 					for (const sub in mapSubscriptionToProps) {
 						this._watches.push(
-							store.watch(mapSubscriptionToProps[sub], this._updateListener(sub))
+							store.watch(mapSubscriptionToProps[sub][0], mapSubscriptionToProps[sub][1], this._updateListener(sub))
 						);
 					}
 				}

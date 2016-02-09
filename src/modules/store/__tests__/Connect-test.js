@@ -31,8 +31,8 @@ describe("Connect", () => {
 
 	it("should update connected component with data", () => {
 		const ConnectedComponent = Connect({
-			firstName: "first",
-			lastName: "last",
+			firstName: [ "first", null ],
+			lastName: [ "last", null ],
 		})(
 			({ firstName, lastName }) => <span>{firstName} {lastName}</span> // eslint-disable-line
 		);
@@ -41,7 +41,7 @@ describe("Connect", () => {
 		let lastNameCallback;
 
 		const store = {
-			watch: (name, cb) => {
+			watch: (name, opts, cb) => {
 				switch (name) {
 				case "first":
 					firstNameCallback = cb;
@@ -76,7 +76,7 @@ describe("Connect", () => {
 	it("should remove listener on unmount", () => {
 		const container = document.createElement("div");
 		const clear = jest.genMockFunction();
-		const ConnectedComponent = Connect({ textContent: "text" })(({ textContent }) => <span>{textContent}</span>); // eslint-disable-line
+		const ConnectedComponent = Connect({ textContent: [ "text", null ] })(({ textContent }) => <span>{textContent}</span>); // eslint-disable-line
 		const store = {
 			watch: name => name === "text" && { clear },
 			dispatch: () => null,
