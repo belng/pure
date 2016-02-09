@@ -16,3 +16,7 @@ import "./../modules/postgres/postgres";
 
 // import "./../modules/ui/ui-server";
 import "./../modules/http/http"; // if fired before socket server then the http/init listener might not be listening..
+
+//Email server
+
+import "../modules/email/email-daemon";
