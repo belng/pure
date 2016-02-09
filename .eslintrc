@@ -209,10 +209,10 @@
     "flow-vars/use-flow-type": 1,
 
     "import/no-unresolved": 2,
-    "import/named": 2,
-    "import/default": 1,
+    "import/named": 0,
+    "import/default": 0,
     "import/namespace": 2,
-    "import/no-named-as-default": 2,
+    "import/no-named-as-default": 0,
     "import/no-commonjs": 1,
     "import/no-amd": 1,
     "import/imports-first": 2,
