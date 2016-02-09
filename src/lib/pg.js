@@ -3,7 +3,8 @@
 const pg = require('pg'),
 	logger = require('winston'),
 	events = require('events'),
-	uid = require('./uid-server');
+	uid = require('./uid-server'),
+	BigInteger = require('big-integer');
 
 	// Variables for tracking and rolling back incomplete queries on shut down
 const runningQueries = {},
@@ -13,10 +14,12 @@ let shuttingDown = false;
 
 function hash(q) {
 	const s = new Buffer(q).toString('hex');
-	var h = new BigInteger(s.substring(0, 15), 16); // 60 bit
-	var index = 15;
+	let h = new BigInteger(s.substring(0, 15), 16); // 60 bit
+	let index = 15;
+
 	while (index < s.length) {
-		var nbi = new BigInteger(s.substring(index, index + 15), 16);
+		const nbi = new BigInteger(s.substring(index, index + 15), 16);
+
 		index += 15;
 		h = h.xor(nbi);
 	}
@@ -140,7 +143,7 @@ function upsert (tableName, insertObject, keyColumns) {
 	}
 
 	return [
-		lock(keyColumns.sort().map(function (column) { return whereObject[column]; }).join(':')),
+		lock(keyColumns.sort().map((column) => { return whereObject[column]; }).join(':')),
 		cat([ update(tableName, updateObject), 'WHERE', nameValues(whereObject, ' AND ') ]),
 		cat([
 			'INSERT INTO "' + tableName + '" (',
@@ -163,7 +166,9 @@ exports.upsert = upsert;
 // --------------------------------------------------------------------
 
 function paramize (query) {
-	var ixs = {}, sql, vals = [];
+	const ixs = {}, vals = [];
+	let sql;
+
 	function getIndex(p, v) {
 		if (!(p in ixs)) {
 			vals.push(v);
@@ -178,9 +183,10 @@ function paramize (query) {
 		}
 
 		if (Array.isArray(v)) {
-			var r = (wrap ? '(' : '') +
-				v.map(function (iv, ix) { return paren(p + '-' + ix, iv, true); }).join(', ') +
+			const r = (wrap ? '(' : '') +
+				v.map((iv, ix) => { return paren(p + '-' + ix, iv, true); }).join(', ') +
 				(wrap ? ')' : '');
+
 			return r;
 		} else {
 			return '$' + (getIndex(p, v) + 1);
@@ -192,9 +198,9 @@ function paramize (query) {
 		throw Error('INVALID_QUERY');
 	}
 
-	sql = query.$.replace(/\&\{(\w+)\}/g, function (m, p) {
+	sql = query.$.replace(/\&\{(\w+)\}/g, (m, p) => {
 		return '$' + (getIndex(p, query[p]) + 1);
-	}).replace(/\&\((\w+)\)/g, function (m, p) {
+	}).replace(/\&\((\w+)\)/g, (m, p) => {
 		return paren(p, query[p]);
 	});
 	logger.log(sql, vals);
@@ -204,18 +210,21 @@ function paramize (query) {
 exports.paramize = paramize;
 
 exports.read = function (connStr, query, cb) {
-	var start = Date.now();
+	const start = Date.now();
+
 	logger.info('PgRead start', query);
-	pg.connect(connStr, function(error, client, done) {
+	pg.connect(connStr, (error, client, done) => {
+		let qv;
+
 		if (error) {
 			logger.error('Unable to connect to ' + connStr, error, query);
 			done();
 			return cb(error);
 		}
 
-		var qv = paramize(query);
+		qv = paramize(query);
 		logger.log('Querying', qv);
-		client.query(qv.q, qv.v, function(queryErr, result) {
+		client.query(qv.q, qv.v, (queryErr, result) => {
 			done();
 			if (queryErr) {
 				logger.error('Query error', queryErr, qv);
@@ -228,27 +237,29 @@ exports.read = function (connStr, query, cb) {
 };
 
 exports.readStream = function (connStr, query) {
-	var rstream = new EventEmitter();
+	const rstream = new EventEmitter();
+
 	logger.info('PgReadStream ', query);
-	pg.connect(connStr, function(error, client, done) {
-		var stream;
+	pg.connect(connStr, (error, client, done) => {
+		let stream, qv;
+
 		if (error) {
 			logger.error('Unable to connect to ' + connStr, error, query);
 			done();
 			return rstream.emit('error', error);
 		}
 
-		var qv = paramize(query);
+		qv = paramize(query);
 		logger.log('Querying', qv);
 		stream = client.query(qv.q, qv.v);
 
-		stream.on('row', function (row, result) {
+		stream.on('row', (row, result) => {
 			rstream.emit('row', row, result);
 		});
-		stream.on('end', function (result) {
+		stream.on('end', (result) => {
 			done(); rstream.emit('end', result);
 		});
-		stream.on('error', function (err) {
+		stream.on('error', (err) => {
 			done(); rstream.emit('error', err);
 		});
 	});
@@ -257,7 +268,7 @@ exports.readStream = function (connStr, query) {
 };
 
 function rollback(error, client, done) {
-	client.query('ROLLBACK', function(err) {
+	client.query('ROLLBACK', (err) => {
 		logger.error('Rollback', error, err);
 		return done(error);
 	});
@@ -326,9 +337,9 @@ exports.write = function (connStr, queries, cb) {
 function listen (connStr, channel, callback) {
 	pg.connect(connStr, (error, client, done) => {
 		if (error) {
-			logger.error('Unable to connect to ' + connStr, error, queries);
+			logger.error('Unable to connect to ' + connStr, error);
 			done();
-			return cb(error);
+			return callback(error);
 		}
 		client.on('notification', (data) => {
 			logger.log('Heard Notification', data);
@@ -340,12 +351,12 @@ function listen (connStr, channel, callback) {
 
 exports.listen = listen;
 
-function notify (connStr, channel, data) {
+function notify (connStr, channel, data, callback) {
 	pg.connect(connStr, (error, client, done) => {
 		if (error) {
-			logger.error('Unable to connect to ' + connStr, error, queries);
+			logger.error('Unable to connect to ' + connStr, error);
 			done();
-			return cb(error);
+			return callback(error);
 		}
 		logger.log("PgNotify '" + JSON.stringify(data).replace(/([\\'])/g, '\\$1') + "'");
 		client.query('NOTIFY ' + channel + ", '" + JSON.stringify(data).replace(/([\\'])/g, '\\$1') + "'");

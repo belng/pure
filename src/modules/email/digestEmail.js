@@ -11,8 +11,8 @@ import send from './sendEmail';
 import Counter from '../../lib/counter';
 
 let conf = config.email, lastEmailSent,
-	connStr = 'pg://' + conf.pg.username + ':' + conf.pg.password + '@' + conf.pg.server + '/' + conf.pg.db,
-	template = handlebars.compile(fs.readFileSync(__dirname + '/views/' + conf.appName + '.digest.hbs', 'utf-8'));
+	connStr = 'pg://' + config.pg.username + ':' + config.pg.password + '@' + config.pg.server + '/' + config.pg.db,
+	template = handlebars.compile(fs.readFileSync(__dirname + '/views/' + config.appName + '.digest.hbs', 'utf-8'));
 
 function getSubject(rels) {
 	var counts = rels.length - 1, heading = '';
