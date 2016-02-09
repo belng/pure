@@ -52,20 +52,20 @@ describe('Entity insert/update', () => {
 			creator: '',
 			updater: ''
 		})).toEqual({
-		 		$: 'UPDATE "rooms" SET "name" = &{name}, "body" = &{body}, "type" = &{type}, "tags" = &{tags}, "meta" = jsonop("meta", &{meta}, &{meta_op}), "params" = jsonop("params", &{params}, &{params_op}), "parents" = &{parents}, "creator" = &{creator}, "updater" = &{updater}, "terms" = to_tsvector(&{locale}, &{name} || \' \' || "body") WHERE "id" = &{id} RETURNING *',
-		 		body: '',
-		 		creator: '',
-		 		id: '43b2bbd2-d041-4771-9907-7b77dd1fb187',
-		 		locale: 'english',
-		 		meta: {},
-		 		meta_op: {},
-		 		name: 'bangalore',
-		 		params: {},
-		 		params_op: {},
-		 		parents: {},
-		 		tags: { 0: 21 },
-		 		type: 1,
-		 		updater: ''
+		 			$: 'UPDATE "rooms" SET "name" = &{name}, "body" = &{body}, "type" = &{type}, "tags" = &{tags}, "meta" = jsonop("meta", &{meta}, &{meta_op}), "params" = jsonop("params", &{params}, &{params_op}), "parents" = &{parents}, "creator" = &{creator}, "updater" = &{updater}, "terms" = to_tsvector(&{locale}, &{name} || \' \' || "body") WHERE "id" = &{id} RETURNING *',
+		 			body: '',
+		 			creator: '',
+		 			id: '43b2bbd2-d041-4771-9907-7b77dd1fb187',
+		 			locale: 'english',
+		 			meta: {},
+		 			meta_op: {},
+		 			name: 'bangalore',
+		 			params: {},
+		 			params_op: {},
+		 			parents: {},
+		 			tags: { 0: 21 },
+		 			type: 1,
+		 			updater: ''
 		});
 	});
 });

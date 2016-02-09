@@ -3,7 +3,7 @@ const DIGEST_INTERVAL = 60 * 60 * 1000, DIGEST_DELAY = 24 * 60 * 60 * 1000;
 
 import { Constants, config } from '../../core';
 import log from 'winston';
-import fs from  'fs';
+import fs from 'fs';
 import handlebars from 'handlebars';
 import pg from '../../lib/pg';
 import jwt from 'jsonwebtoken';
@@ -11,12 +11,12 @@ import send from './sendEmail';
 import Counter from '../../lib/counter';
 
 let conf = config.email, lastEmailSent,
-	connStr = 'pg://' + conf.pg.username + ':' + conf.pg.password + '@' + conf.pg.server + '/' + conf.pg.db,
-	template = handlebars.compile(fs.readFileSync(__dirname + '/views/' + conf.appName + '.digest.hbs', 'utf-8'));
+	connStr = 'pg://' + config.pg.username + ':' + config.pg.password + '@' + config.pg.server + '/' + config.pg.db,
+	template = handlebars.compile(fs.readFileSync(__dirname + '/views/' + config.appName + '.digest.hbs', 'utf-8'));
 
 function getSubject(rels) {
 	var counts = rels.length - 1, heading = '';
-	heading = '[' + rels[0].room + '] ' + rels[0].threads[0].threadTitle + " +" + counts + ' more';
+	heading = '[' + rels[0].room + '] ' + rels[0].threads[0].threadTitle + ' +' + counts + ' more';
 	return heading;
 }
 
@@ -25,7 +25,7 @@ function initMailSending (userRel) {
 		rels = userRel.currentRels,
 		emailAdd = user.identities.filter((ident) => ident.indexOf('mailto:') === 0),
 		emailHtml = template({
-			token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: "5 days" }),
+			token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: '5 days' }),
 			domain: conf.domain,
 			rooms: rels
 		}),

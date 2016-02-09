@@ -5,13 +5,13 @@ let options, xmppClient, backOff = 1;
 
 
 options = {
-  		type: 'client',
-  		jid: config.gcm.appid + '@gcm.googleapis.com',
-  		password: config.gcm.password,
-  		port: 5235,
-  		host: 'gcm.googleapis.com',
-  		legacySSL: true,
-  		preferredSaslMechanism : 'PLAIN'
+  			type: 'client',
+  			jid: config.gcm.appid + '@gcm.googleapis.com',
+  			password: config.gcm.password,
+  			port: 5235,
+  			host: 'gcm.googleapis.com',
+  			legacySSL: true,
+  			preferredSaslMechanism : 'PLAIN'
 };
 
 function onConnect() {
