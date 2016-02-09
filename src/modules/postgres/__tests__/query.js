@@ -20,7 +20,7 @@ describe('Query', () => {
 			createTimeGte: 764,
 			createTimeLte: 974,
 			firstParent: 'asdf'
-    					});
+    							});
 	});
 
 	it('before/after query', () => {
