@@ -23,7 +23,7 @@ typings/
 # VSCode
 #
 *.vscode
-jsconfig.json
+settings.json
 
 # Built files
 #
