@@ -1,11 +1,11 @@
-"use strict";
+'use strict';
 
-import { TABLES, COLUMNS, TYPES, ROLES } from "../../lib/schema";
-import Counter from "../../lib/counter";
-import Note from "../../models/note";
-import { Constants, bus, cache } from "../../core";
+import { TABLES, COLUMNS, TYPES, ROLES } from '../../lib/schema';
+import Counter from '../../lib/counter';
+import Note from '../../models/note';
+import { Constants, bus, cache } from '../../core';
 
-bus.on("setstate", (changes, next) => {
+bus.on('setstate', (changes, next) => {
 	if (!changes.entities) return next();
 	let counter = new Counter(), note;
 
@@ -58,4 +58,4 @@ bus.on("setstate", (changes, next) => {
 		}
 	}
 	counter.then(next);
-}, "modifier");
+}, 'modifier');

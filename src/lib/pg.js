@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
-const pg = require("pg"),
-	logger = require("winston"),
-	events = require("events"),
-	uid = require("./uid-server");
+const pg = require('pg'),
+	logger = require('winston'),
+	events = require('events'),
+	uid = require('./uid-server');
 
 	// Variables for tracking and rolling back incomplete queries on shut down
 const runningQueries = {},
@@ -12,10 +12,10 @@ const runningQueries = {},
 let shuttingDown = false;
 
 function hash(q) {
-	const s = new Buffer(q).toString("hex");
+	const s = new Buffer(q).toString('hex');
 	var h = new BigInteger(s.substring(0, 15), 16); // 60 bit
 	var index = 15;
-	while(index < s.length) {
+	while (index < s.length) {
 		var nbi = new BigInteger(s.substring(index, index + 15), 16);
 		index += 15;
 		h = h.xor(nbi);
@@ -24,39 +24,39 @@ function hash(q) {
 }
 
 function lock (s) {
-	if (!s) throw new Error("lock variable is not defined");
+	if (!s) throw new Error('lock variable is not defined');
 	return {
-		$: "SELECT pg_advisory_xact_lock(${hash})",
+		$: 'SELECT pg_advisory_xact_lock(${hash})',
 		hash: hash(s)
 	};
 }
 
 function cat (parts, delim) {
-	delim = delim || " "; // eslint-disable-line no-param-reassign
+	delim = delim || ' '; // eslint-disable-line no-param-reassign
 
 	const q = { $: [] };
 
 	parts.forEach((part) => {
 		let paramName, suffix;
 
-		if (typeof part === "string") {
+		if (typeof part === 'string') {
 			q.$.push(part);
 			return;
 		}
 
 		function substitute (match, left, mid, right) {
-			return left + (mid === paramName ? paramName + "_" + suffix : mid) +
+			return left + (mid === paramName ? paramName + '_' + suffix : mid) +
 				right;
 		}
 
 		for (paramName in part) {
-			if (paramName === "$") { continue; }
+			if (paramName === '$') { continue; }
 			if (paramName in q && part[paramName] !== q[paramName]) {
 				suffix = 1;
-				while ((paramName + "_" + suffix) in q) { suffix++; }
+				while ((paramName + '_' + suffix) in q) { suffix++; }
 
 				part.$ = part.$.replace(/(\&\{|\()(\w+)(\}|\))/g, substitute);
-				q[paramName + "_" + suffix] = part[paramName];
+				q[paramName + '_' + suffix] = part[paramName];
 			} else {
 				q[paramName] = part[paramName];
 			}
@@ -76,18 +76,18 @@ function nameValues (record, delim) {
 	let column, part;
 
 	for (column in record) {
-		part = { $: "\"" + column + "\"=&{" + column + "}" };
+		part = { $: '"' + column + '"=&{' + column + '}' };
 		part[column] = record[column];
 		parts.push(part);
 	}
 
-	return cat(parts, delim || ", ");
+	return cat(parts, delim || ', ');
 }
 
 function columns (record) {
 	return Object.keys(record)
-		.map((c) => { return "\"" + c + "\""; })
-		.join(", ");
+		.map((c) => { return '"' + c + '"'; })
+		.join(', ');
 }
 
 function values (record) {
@@ -95,36 +95,36 @@ function values (record) {
 	let column;
 
 	for (column in record) {
-		cols.push("${" + column + "}");
+		cols.push('${' + column + '}');
 		clause[column] = record[column];
 	}
 
-	clause.$ = cols.join(", ");
+	clause.$ = cols.join(', ');
 	return clause;
 }
 
 function update (tableName, object) {
 	return cat([
-		"UPDATE \"" + tableName + "\" SET ",
+		'UPDATE "' + tableName + '" SET ',
 		nameValues(object)
-	], " ");
+	], ' ');
 }
 
 function insert (tableName, objs) {
-	if (!objs) throw Error("CANT_INSERT_NOTHING");
+	if (!objs) throw Error('CANT_INSERT_NOTHING');
 	const objects = (!Array.isArray(objs)) ? [ objs ] : objs;
 
 	const parts = [
-		"INSERT INTO \"" + tableName + "\" (",
+		'INSERT INTO "' + tableName + '" (',
 		columns(objects[0]),
-		") VALUES"
+		') VALUES'
 	];
 
-	parts.push("(", cat(objects.map((object) => {
+	parts.push('(', cat(objects.map((object) => {
 		return values(object);
-	}), "), ("), ")");
+	}), '), ('), ')');
 
-	return cat(parts, " ");
+	return cat(parts, ' ');
 }
 
 function upsert (tableName, insertObject, keyColumns) {
@@ -140,15 +140,15 @@ function upsert (tableName, insertObject, keyColumns) {
 	}
 
 	return [
-		lock(keyColumns.sort().map(function (column) { return whereObject[column]; }).join(":")),
-		cat([ update(tableName, updateObject), "WHERE", nameValues(whereObject, " AND ") ]),
+		lock(keyColumns.sort().map(function (column) { return whereObject[column]; }).join(':')),
+		cat([ update(tableName, updateObject), 'WHERE', nameValues(whereObject, ' AND ') ]),
 		cat([
-			"INSERT INTO \"" + tableName + "\" (",
+			'INSERT INTO "' + tableName + '" (',
 			columns(insertObject),
-			") SELECT ",
+			') SELECT ',
 			values(insertObject),
-			"WHERE NOT EXISTS (SELECT 1 FROM " + tableName,
-			"WHERE", nameValues(whereObject, " AND "), ")"
+			'WHERE NOT EXISTS (SELECT 1 FROM ' + tableName,
+			'WHERE', nameValues(whereObject, ' AND '), ')'
 		])
 	];
 }
@@ -173,27 +173,27 @@ function paramize (query) {
 	}
 
 	function paren(p, v, wrap) {
-		if (typeof v === "undefined") {
-			throw Error("Parameter " + p + " is undefined");
+		if (typeof v === 'undefined') {
+			throw Error('Parameter ' + p + ' is undefined');
 		}
 
 		if (Array.isArray(v)) {
-			var r = (wrap ? "(": "") +
-				v.map(function (iv, ix) { return paren(p + "-" + ix, iv, true); }).join(", ") +
-				(wrap ? ")": "");
+			var r = (wrap ? "(" : '') +
+				v.map(function (iv, ix) { return paren(p + '-' + ix, iv, true); }).join(', ') +
+				(wrap ? ")" : '');
 			return r;
 		} else {
-			return "$" + (getIndex(p, v) + 1);
+			return '$' + (getIndex(p, v) + 1);
 		}
 	}
 
 	if (!query.$) {
-		logger.error("Invalid query, no $");
-		throw Error("INVALID_QUERY");
+		logger.error('Invalid query, no $');
+		throw Error('INVALID_QUERY');
 	}
 
 	sql = query.$.replace(/\&\{(\w+)\}/g, function (m, p) {
-		return "$" + (getIndex(p, query[p]) + 1);
+		return '$' + (getIndex(p, query[p]) + 1);
 	}).replace(/\&\((\w+)\)/g, function (m, p) {
 		return paren(p, query[p]);
 	});
@@ -205,23 +205,23 @@ exports.paramize = paramize;
 
 exports.read = function (connStr, query, cb) {
 	var start = Date.now();
-	logger.info("PgRead start", query);
+	logger.info('PgRead start', query);
 	pg.connect(connStr, function(error, client, done) {
 		if (error) {
-			logger.error("Unable to connect to " + connStr, error, query);
+			logger.error('Unable to connect to ' + connStr, error, query);
 			done();
 			return cb(error);
 		}
 
 		var qv = paramize(query);
-		logger.log("Querying", qv);
+		logger.log('Querying', qv);
 		client.query(qv.q, qv.v, function(queryErr, result) {
 			done();
 			if (queryErr) {
-				logger.error("Query error", queryErr, qv);
+				logger.error('Query error', queryErr, qv);
 				return cb(queryErr);
 			}
-			logger.info("PgRead ", query, "result", result.rows.length, " rows in ", Date.now() - start, "ms");
+			logger.info('PgRead ', query, 'result', result.rows.length, ' rows in ', Date.now() - start, 'ms');
 			cb(null, result.rows);
 		});
 	});
@@ -229,27 +229,27 @@ exports.read = function (connStr, query, cb) {
 
 exports.readStream = function (connStr, query) {
 	var rstream = new EventEmitter();
-	logger.info("PgReadStream ", query);
+	logger.info('PgReadStream ', query);
 	pg.connect(connStr, function(error, client, done) {
 		var stream;
 		if (error) {
-			logger.error("Unable to connect to " + connStr, error, query);
+			logger.error('Unable to connect to ' + connStr, error, query);
 			done();
-			return rstream.emit("error", error);
+			return rstream.emit('error', error);
 		}
 
 		var qv = paramize(query);
-		logger.log("Querying", qv);
+		logger.log('Querying', qv);
 		stream = client.query(qv.q, qv.v);
 
-		stream.on("row", function (row, result) {
-			rstream.emit("row", row, result);
+		stream.on('row', function (row, result) {
+			rstream.emit('row', row, result);
 		});
-		stream.on("end", function (result) {
-			done(); rstream.emit("end", result);
+		stream.on('end', function (result) {
+			done(); rstream.emit('end', result);
 		});
-		stream.on("error", function (err) {
-			done(); rstream.emit("error", err);
+		stream.on('error', function (err) {
+			done(); rstream.emit('error', err);
 		});
 	});
 
@@ -257,8 +257,8 @@ exports.readStream = function (connStr, query) {
 };
 
 function rollback(error, client, done) {
-	client.query("ROLLBACK", function(err) {
-		logger.error("Rollback", error, err);
+	client.query('ROLLBACK', function(err) {
+		logger.error('Rollback', error, err);
 		return done(error);
 	});
 }
@@ -268,16 +268,16 @@ exports.write = function (connStr, queries, cb) {
 
 	const start = Date.now();
 
-	logger.log("PgWrite starting ", queries);
+	logger.log('PgWrite starting ', queries);
 	pg.connect(connStr, (error, client, done) => {
 		if (error) {
-			logger.error("Unable to connect to " + connStr, error, queries);
+			logger.error('Unable to connect to ' + connStr, error, queries);
 			done();
 			return cb(error);
 		}
 
 		if (shuttingDown) {
-			return cb(Error("ERR_SERVER_SHUTDOWN"));
+			return cb(Error('ERR_SERVER_SHUTDOWN'));
 		}
 
 		const id = uid();
@@ -291,29 +291,29 @@ exports.write = function (connStr, queries, cb) {
 			done();
 		}
 
-		client.query("BEGIN", (err) => {
+		client.query('BEGIN', (err) => {
 			const results = [];
 
 			if (err) rollback(err, client, callback);
 
 			function run(i) {
-				if (shuttingDown) { return cb(Error("ERR_SERVER_SHUTDOWN")); }
+				if (shuttingDown) { return cb(Error('ERR_SERVER_SHUTDOWN')); }
 				if (i < queries.length) {
 					const qv = paramize(queries[i]);
 
-					logger.log("Querying", qv);
+					logger.log('Querying', qv);
 					client.query(qv.q, qv.v, (queryErr, result) => {
 						results[i] = result;
 						if (queryErr) {
-							logger.log("Rollback:", qv.q, qv.v);
+							logger.log('Rollback:', qv.q, qv.v);
 							rollback(queryErr, client, callback);
 						} else {
 							run(i + 1);
 						}
 					});
 				} else {
-					client.query("COMMIT", (commitErr) => {
-						logger.info("PgWrite", queries, "completed in ", Date.now() - start, "ms");
+					client.query('COMMIT', (commitErr) => {
+						logger.info('PgWrite', queries, 'completed in ', Date.now() - start, 'ms');
 						callback(commitErr, results);
 					});
 				}
@@ -326,15 +326,15 @@ exports.write = function (connStr, queries, cb) {
 function listen (connStr, channel, callback) {
 	pg.connect(connStr, (error, client, done) => {
 		if (error) {
-			logger.error("Unable to connect to " + connStr, error, queries);
+			logger.error('Unable to connect to ' + connStr, error, queries);
 			done();
 			return cb(error);
 		}
-		client.on("notification", (data) => {
-			logger.log("Heard Notification", data);
+		client.on('notification', (data) => {
+			logger.log('Heard Notification', data);
 			callback(JSON.parse(data.payload));
 		});
-		client.query("LISTEN " + channel);
+		client.query('LISTEN ' + channel);
 	});
 }
 
@@ -343,12 +343,12 @@ exports.listen = listen;
 function notify (connStr, channel, data) {
 	pg.connect(connStr, (error, client, done) => {
 		if (error) {
-			logger.error("Unable to connect to " + connStr, error, queries);
+			logger.error('Unable to connect to ' + connStr, error, queries);
 			done();
 			return cb(error);
 		}
-		logger.log("PgNotify '" + JSON.stringify(data).replace(/([\\'])/g, "\\$1") + "'");
-		client.query("NOTIFY " + channel + ", '" + JSON.stringify(data).replace(/([\\'])/g, "\\$1") + "'");
+		logger.log("PgNotify '" + JSON.stringify(data).replace(/([\\'])/g, '\\$1') + "'");
+		client.query('NOTIFY ' + channel + ", '" + JSON.stringify(data).replace(/([\\'])/g, '\\$1') + "'");
 	});
 }
 
@@ -356,7 +356,7 @@ exports.notify = notify;
 
 function onShutDownSignal() {
 	shuttingDown = true;
-	logger.info("Process killed, rolling back queries");
+	logger.info('Process killed, rolling back queries');
 
 	let ct = 1;
 
@@ -366,18 +366,18 @@ function onShutDownSignal() {
 	function done() {
 		ct--;
 		if (ct === 0) {
-			logger.info("Complete: shutting down now.");
+			logger.info('Complete: shutting down now.');
 			process.exit(0);
 		}
 	}
 	for (const key in runningQueries) {
 		if (runningQueries.hasOwnProperty(key)) {
 			ct++;
-			rollback(new Error("error: SIGINT/SIGTERM"), runningQueries[key], done);
+			rollback(new Error('error: SIGINT/SIGTERM'), runningQueries[key], done);
 		}
 	}
 	done();
 }
 
-process.on("SIGINT", onShutDownSignal);
-process.on("SIGTERM", onShutDownSignal);
+process.on('SIGINT', onShutDownSignal);
+process.on('SIGTERM', onShutDownSignal);

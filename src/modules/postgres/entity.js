@@ -1,7 +1,7 @@
-import pg from "../../lib/pg";
-import { TABLES, COLUMNS } from "../../lib/schema";
-import jsonop from "jsonop";
-import defaultOps from "./../../lib/defaultOps";
+import pg from '../../lib/pg';
+import { TABLES, COLUMNS } from '../../lib/schema';
+import jsonop from 'jsonop';
+import defaultOps from './../../lib/defaultOps';
 
 module.exports = function (entity) {
 	const names = Object.keys(entity).filter(
@@ -10,20 +10,20 @@ module.exports = function (entity) {
 
 	const ops = jsonop(defaultOps, entity.__op__ || {});
 	if (entity.type === constants.TYPE_ROOM) {
-		names.push("terms");
+		names.push('terms');
 	}
 
 	if (entity.createTime) { // INSERT
 		return pg.cat([
 			'INSERT INTO "' + TABLES[entity.type] + '" (',
 			'"' + names.map(name => name.toLowerCase()).join('", "') + '"',
-			") VALUES (",
+			') VALUES (',
 			pg.cat(names.map(name => {
 				switch (name) {
-				case "terms":
+				case 'terms':
 					return {
 						$: "to_tsvector(&{locale}, &{name} || ' ' || &{body})",
-						locale: "english",
+						locale: 'english',
 						name: entity.name,
 						body: entity.body
 					};
@@ -33,37 +33,37 @@ module.exports = function (entity) {
 						[name]: entity[name]
 					};
 				}
-			}), ", "),
-			") RETURNING *"
-		], " ");
+			}), ', '),
+			') RETURNING *'
+		], ' ');
 	} else { // UPDATE
 		return pg.cat([
 			'UPDATE "' + TABLES[entity.type] + '" SET',
 			pg.cat(names.map(name => {
 				switch (name) {
-				case "id":
-				case "createTime":
+				case 'id':
+				case 'createTime':
 					return false; // do not update this column.
-				case "terms":
+				case 'terms':
 					return {
 						$: '"terms" = to_tsvector(&{locale}, ' +
-							(entity.name ? "&{name}" : '"name"') +
+							(entity.name ? '&{name}' : '"name"') +
 							" || ' ' || " +
-							(entity.body ? "&{body}" : '"body"') +
-							")",
-						locale: "english",
+							(entity.body ? '&{body}' : '"body"') +
+							')',
+						locale: 'english',
 						name: entity.name,
 						body: entity.body
 					};
-				case "meta":
-				case "identities":
-				case "params":
-				case "data":
-				case "resources":
+				case 'meta':
+				case 'identities':
+				case 'params':
+				case 'data':
+				case 'resources':
 					return {
 						$: `"${name}" = jsonop("${name}", &{${name}}, &{${name}_op})`,
 						[name]: entity[name],
-						[name + "_op"]: ops[name] || {}
+						[name + '_op']: ops[name] || {}
 					};
 				default:
 					return {
@@ -71,9 +71,9 @@ module.exports = function (entity) {
 						[name]: entity[name]
 					};
 				}
-			}).filter(sql => sql), ", "),
+			}).filter(sql => sql), ', '),
 
-			"WHERE",
+			'WHERE',
 			entity.id ? {
 				$: '"id" = &{id}',
 				id: entity.id
@@ -89,27 +89,27 @@ module.exports = function (entity) {
 				user: entity.user,
 				event: entity.item,
 				group: entity.group
-			} : "FALSE",
-			"RETURNING *"
-		], " ");
+			} : 'FALSE',
+			'RETURNING *'
+		], ' ');
 	}
 
 	return pg.cat([
 		'INSERT INTO "' + TABLES[entity.type] + '" (',
 		'"' + names.join('", "') + '"',
-		") VALUES (",
+		') VALUES (',
 		pg.cat(names.map(name => {
 			switch (name) {
-			case "terms":
+			case 'terms':
 				return {
 					$: "to_tsvector(&{locale}, &{name} || ' ' || &{body})",
-					locale: "english",
+					locale: 'english',
 					name: entity.name,
 					body: entity.body
 				};
 			}
-		}), ", "),
-		") ON CONFLICT DO UPDATE SET",
-		"RETURNING *"
+		}), ', '),
+		') ON CONFLICT DO UPDATE SET',
+		'RETURNING *'
 	]);
 };

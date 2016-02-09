@@ -1,1 +1,1 @@
-require("./modules/ui/render-client");
+require('./modules/ui/render-client');

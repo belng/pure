@@ -1,4 +1,4 @@
-import { COLUMNS } from "../lib/schema";
+import { COLUMNS } from '../lib/schema';
 
 export default class Item {
 	constructor(data) {

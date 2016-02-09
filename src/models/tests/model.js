@@ -1,4 +1,4 @@
 
 
-require("babel-core/register");
-require("./item-test.js")();
+require('babel-core/register');
+require('./item-test.js')();

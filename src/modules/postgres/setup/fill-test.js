@@ -1,14 +1,14 @@
 
 
-"use strict";
+'use strict';
 
-import Constants from "./../../../../Constants/Constants.json";
-import uid from "./../../../lib/uid-server";
-import pg from "../pg.js";
-import casual from "casual";
-import logger from "winston";
+import Constants from './../../../../Constants/Constants.json';
+import uid from './../../../lib/uid-server';
+import pg from '../pg.js';
+import casual from 'casual';
+import logger from 'winston';
 
-let connStr = "pg://localhost/aravind", scale = 100, numUsers = Math.max(5, 10 * scale), numRooms = Math.max(5, scale), numTopics = Math.max(5, scale), numThreads = Math.max(5, 10 * scale), numTexts = Math.max(5, 100 * scale), numMembers = Math.max(5, 10 * scale), numWatchers = Math.max(5, 10 * scale), numPresence = Math.max(5, 10 * scale);
+let connStr = 'pg://localhost/aravind', scale = 100, numUsers = Math.max(5, 10 * scale), numRooms = Math.max(5, scale), numTopics = Math.max(5, scale), numThreads = Math.max(5, 10 * scale), numTexts = Math.max(5, 100 * scale), numMembers = Math.max(5, 10 * scale), numWatchers = Math.max(5, 10 * scale), numPresence = Math.max(5, 10 * scale);
 
 logger.warn(
 	numUsers,
@@ -21,24 +21,24 @@ logger.warn(
 	numPresence
 );
 
-logger.level = "warn";
+logger.level = 'warn';
 
 function roomId(i) {
 	casual.seed(i);
-	let r = casual.word + "-" + i;
+	let r = casual.word + '-' + i;
 	return r;
 }
 
 function userId(i) {
 	casual.seed(i);
-	return casual.username.toLowerCase().replace(/\W+/g, "-") + "-" + i;
+	return casual.username.toLowerCase().replace(/\W+/g, '-') + '-' + i;
 }
 
 function threadId(s) {
 	casual.seed(s);
 	let i, b = new Buffer(15);
 	for (i = 0; i < 15; i++) { b.writeUIntBE(r(255), i, 1);	}
-	return b.toString("base64");
+	return b.toString('base64');
 }
 
 function r(n) { return Math.floor(Math.random() * n); }
@@ -57,7 +57,7 @@ function insertUser(i, done) {
 			$\{ident}, 330, 91
 		)`,
 		id: id,
-		ident: [ "email:" + casual.email.toLowerCase() ]
+		ident: [ 'email:' + casual.email.toLowerCase() ]
 	} ], done);
 }
 
@@ -214,29 +214,29 @@ function repeat(fn, times) {
 	});
 }
 
-logger.warn("Inserting users...");
+logger.warn('Inserting users...');
 repeat(insertUser, numUsers)
 .then(function () {
-	logger.warn("Done. Inserting rooms...");
+	logger.warn('Done. Inserting rooms...');
 	return repeat(insertRoom, numRooms);
 }).then(function () {
-	logger.warn("Done. Inserting topics...");
+	logger.warn('Done. Inserting topics...');
 	return repeat(insertTopic, numTopics);
 }).then(function () {
-	logger.warn("Done. Inserting threads...");
+	logger.warn('Done. Inserting threads...');
 	return repeat(insertThread, numThreads);
 }).then(function () {
-	logger.warn("Done. Inserting texts...");
+	logger.warn('Done. Inserting texts...');
 	return repeat(insertText, numTexts);
 }).then(function () {
-	logger.warn("Done. Inserting members...");
+	logger.warn('Done. Inserting members...');
 	return repeat(insertMember, numMembers);
 }).then(function () {
-	logger.warn("Done. Inserting watchers...");
+	logger.warn('Done. Inserting watchers...');
 	return repeat(insertWatcher, numWatchers);
 }).then(function () {
-	logger.warn("Done. Inserting presence...");
+	logger.warn('Done. Inserting presence...');
 	return repeat(insertPresence, numPresence);
 }).then(function () {
-	logger.warn("All done.");
+	logger.warn('All done.');
 });

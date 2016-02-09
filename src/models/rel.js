@@ -1,4 +1,4 @@
-import { COLUMNS } from "../lib/schema";
+import { COLUMNS } from '../lib/schema';
 
 export default class Relation {
 	constructor(data) {
@@ -17,6 +17,6 @@ export default class Relation {
 	}
 
 	getId() {
-		return this.user + "_" + this.item;
+		return this.user + '_' + this.item;
 	}
 }

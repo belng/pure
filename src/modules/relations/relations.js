@@ -1,12 +1,12 @@
 /* @flow */
 
-"use strict";
+'use strict';
 
-import { Constants, bus, cache } from "../../core";
-import Counter from "../../lib/counter";
-import Relation from "../../models/Relation";
+import { Constants, bus, cache } from '../../core';
+import Counter from '../../lib/counter';
+import Relation from '../../models/Relation';
 
-bus.on("setstate", (changes, next) => {
+bus.on('setstate', (changes, next) => {
 	if (!changes.entities) return next();
 	let counter = new Counter();
 	for (let id in changes.entities) {

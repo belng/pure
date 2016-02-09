@@ -1,13 +1,13 @@
 /* @flow */
 
-import React from "react";
-import Radium from "radium";
+import React from 'react';
+import Radium from 'radium';
 
 const styles = {
 	base: {
-		fontFamily: "sans-serif",
+		fontFamily: 'sans-serif',
 		fontSize: 24,
-		color: "#555"
+		color: '#555'
 	}
 };
 

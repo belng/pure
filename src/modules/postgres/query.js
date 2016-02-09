@@ -1,7 +1,7 @@
 
 
-import pg from "../../lib/pg";
-import { TABLES, TYPES } from "../../lib/schema";
+import pg from '../../lib/pg';
+import { TABLES, TYPES } from '../../lib/schema';
 
 const MAX_LIMIT = 1024;
 
@@ -42,7 +42,7 @@ function fromPart (slice) {
 		}
 	}
 
-	return pg.cat(["SELECT ", pg.cat(fields, ","), "FROM", pg.cat(joins, " ") ], " ");
+	return pg.cat(['SELECT ', pg.cat(fields, ','), 'FROM', pg.cat(joins, ' ') ], ' ');
 }
 
 function wherePart (filter) {
@@ -50,23 +50,23 @@ function wherePart (filter) {
 	let name;
 
 	for (const prop in filter) {
-		if ((name = propOp(prop, "Gt"))) {
+		if ((name = propOp(prop, 'Gt'))) {
 			sql.push(`"${name}" > &{${prop}}`);
-		} else if ((name = propOp(prop, "Lt"))) {
+		} else if ((name = propOp(prop, 'Lt'))) {
 			sql.push(`"${name}" < &{${prop}}`);
-		} else if ((name = propOp(prop, "In"))) {
+		} else if ((name = propOp(prop, 'In'))) {
 			sql.push(`"${name}" IN &{${prop}}`);
-		} else if ((name = propOp(prop, "Neq"))) {
+		} else if ((name = propOp(prop, 'Neq'))) {
 			sql.push(`"${name}" <> &{${prop}}`);
-		} else if ((name = propOp(prop, "Gte"))) {
+		} else if ((name = propOp(prop, 'Gte'))) {
 			sql.push(`"${name}" >= &{${prop}}`);
-		} else if ((name = propOp(prop, "Lte"))) {
+		} else if ((name = propOp(prop, 'Lte'))) {
 			sql.push(`"${name}" <= &{${prop}}`);
-		} else if ((name = propOp(prop, "Cts"))) {
+		} else if ((name = propOp(prop, 'Cts'))) {
 			sql.push(`"${name}" @> &{${prop}}`);
-		} else if ((name = propOp(prop, "Ctd"))) {
+		} else if ((name = propOp(prop, 'Ctd'))) {
 			sql.push(`"${name}" <@ &{${prop}}`);
-		} else if ((name = propOp(prop, "Mts"))) {
+		} else if ((name = propOp(prop, 'Mts'))) {
 			sql.push(`"${name}" @@ &{${prop}}`);
 		} else {
 			sql.push(`"${prop}" = &{${prop}}`);
@@ -74,7 +74,7 @@ function wherePart (filter) {
 	}
 
 	filter = Object.create(filter);
-	filter.$ = "WHERE " + sql.join(" AND ");
+	filter.$ = 'WHERE ' + sql.join(' AND ');
 	return filter;
 }
 
@@ -91,17 +91,17 @@ function simpleQuery(slice, limit) {
 		fromPart(slice),
 		wherePart(slice.filter),
 		orderPart(slice.order, limit)
-	], " ");
+	], ' ');
 }
 
 function boundQuery (slice, start, end) {
 	let query;
 
-	slice.filter[slice.order + "Gte"] = start;
-	slice.filter[slice.order + "Lte"] = end;
+	slice.filter[slice.order + 'Gte'] = start;
+	slice.filter[slice.order + 'Lte'] = end;
 	query = simpleQuery(slice, MAX_LIMIT);
-	delete slice.filter[slice.order + "Gte"];
-	delete slice.filter[slice.order + "Lte"];
+	delete slice.filter[slice.order + 'Gte'];
+	delete slice.filter[slice.order + 'Lte'];
 
 	return query;
 }
@@ -109,12 +109,12 @@ function boundQuery (slice, start, end) {
 function beforeQuery (slice, start, before, exclude) {
 	let query;
 
-	slice.filter[slice.order + (exclude ? "Lt" : "Lte")] = start;
+	slice.filter[slice.order + (exclude ? 'Lt' : 'Lte')] = start;
 	query = simpleQuery(slice, Math.max(-MAX_LIMIT, -before));
-	delete slice.filter[slice.order + (exclude ? "Lt" : "Lte")];
+	delete slice.filter[slice.order + (exclude ? 'Lt' : 'Lte')];
 
 	return pg.cat([
-		"SELECT * FROM (",
+		'SELECT * FROM (',
 		query,
 		{
 			$: `) r ORDER BY "&{type}"->'&{order}' ASC`,
@@ -122,15 +122,15 @@ function beforeQuery (slice, start, before, exclude) {
 			order: slice.order
 		}
 
-	], " ");
+	], ' ');
 }
 
 function afterQuery (slice, start, after, exclude) {
 	let query;
 
-	slice.filter[slice.order + (exclude ? "Gt" : "Gte")] = start;
+	slice.filter[slice.order + (exclude ? 'Gt' : 'Gte')] = start;
 	query = simpleQuery(slice, Math.min(MAX_LIMIT, after));
-	delete slice.filter[slice.order + (exclude ? "Gt" : "Gte")];
+	delete slice.filter[slice.order + (exclude ? 'Gt' : 'Gte')];
 
 	return query;
 }
@@ -143,9 +143,9 @@ module.exports = function (slice, range) {
 			if (range[1] > 0 && range[2] > 0) {
 				return pg.cat([
 					beforeQuery(slice, range[0], range[1], true),
-					"UNION ALL",
+					'UNION ALL',
 					afterQuery(slice, range[0], range[2])
-				], " ");
+				], ' ');
 			} else if (range[1] > 0) {
 				return beforeQuery(slice, range[0], range[1]);
 			} else if (range[2] > 0) {

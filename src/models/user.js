@@ -2,8 +2,8 @@ export default class User {
 	identities: Array<string>;
 
 	constructor(data) {
-		if (data.type !== "user") throw (new Error("invalid_type"));
-		for (const name of COLUMNS["user"]) {
+		if (data.type !== 'user') throw (new Error('invalid_type'));
+		for (const name of COLUMNS['user']) {
 			this[name] = data[name] || data[name.toLowerCase()];
 		}
 	}
@@ -11,7 +11,7 @@ export default class User {
 	packArguments(): Object {
 		const data = {};
 
-		for (const name of COLUMNS["user"]) {
+		for (const name of COLUMNS['user']) {
 			data[name] = this[name];
 		}
 

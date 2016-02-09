@@ -1,11 +1,11 @@
 /* @flow */
 
-import React, { Component } from "react";
-import shallowEqual from "shallowequal";
-import storeShape from "./storeShape";
+import React, { Component } from 'react';
+import shallowEqual from 'shallowequal';
+import storeShape from './storeShape';
 
 export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Object): Function {
-	if (process.env.NODE_ENV !== "production") {
+	if (process.env.NODE_ENV !== 'production') {
 		if (mapSubscriptionToProps && mapDispatchToProps) {
 			for (const key in mapSubscriptionToProps) {
 				if (mapDispatchToProps[key]) {
@@ -34,8 +34,8 @@ export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Obje
 			componentDidMount() {
 				const { store } = this.context;
 
-				if (typeof store !== "object") {
-					throw new Error("No store was found in the context. Have you wrapped the root component in <StoreProvider /> ?");
+				if (typeof store !== 'object') {
+					throw new Error('No store was found in the context. Have you wrapped the root component in <StoreProvider /> ?');
 				}
 
 				if (mapSubscriptionToProps) {

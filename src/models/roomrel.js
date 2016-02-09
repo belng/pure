@@ -1,4 +1,4 @@
-import Relation from "./Relation";
+import Relation from './Relation';
 
 export default class RoomRel extends Relation {
 	constructor() {

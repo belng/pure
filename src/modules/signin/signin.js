@@ -1,8 +1,8 @@
 /* @flow */
 
-"use strict";
+'use strict';
 
-import { bus, cache } from "../../core.js";
+import { bus, cache } from '../../core.js';
 
 // sign with default (HMAC SHA256)
 
@@ -11,7 +11,7 @@ function signinhandler(changes, next) {
 		if (changes.auth.signin.id) {
 			cache.getEntity(changes.auth.signin.id, function(err, entity) {
 				if (err) return next(err);
-				if (!entity) return next(new Error("INVALID_USERID"));
+				if (!entity) return next(new Error('INVALID_USERID'));
 				changes.app = (changes.app || {}).user = entity.id;
 				((changes.response = (changes.response || {})).app || {}).user = entity.id;
 				(changes.response.entities = changes.response.entities || {})[entity.id] = entity;
@@ -37,5 +37,5 @@ function signinhandler(changes, next) {
 	}
 }
 
-bus.on("setstate", signinhandler, "authentication");
-console.log("signin module ready...");
+bus.on('setstate', signinhandler, 'authentication');
+console.log('signin module ready...');

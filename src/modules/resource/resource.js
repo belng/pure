@@ -1,15 +1,15 @@
-"use strict";
+'use strict';
 
-let core = require("../../core.js"),
+let core = require('../../core.js'),
 	bus = core.bus,
 	config = core.config,
 	resourceMap = {};
 
-bus.on("presence/offline", resourceID => {
+bus.on('presence/offline', resourceID => {
 	delete resourceMap[resourceID];
 });
 
-bus.on("presence/online", presence => {
+bus.on('presence/online', presence => {
 	resourceMap[presence.resourceId] = presence.user;
 });
 
@@ -20,9 +20,9 @@ function resourceHandler(changes, next) {
 			changes.app.user = resourceMap[changes.auth.resource];
 			next();
 		} else {
-			next(new Error("INVALID_RESOURCE"));
+			next(new Error('INVALID_RESOURCE'));
 		}
 	}
 }
 
-bus.on("setstate", resourceHandler, "authentication");
+bus.on('setstate', resourceHandler, 'authentication');

@@ -1,6 +1,6 @@
-"use strict";
-import pg from "../postgres/postgres";
-import { EventEmitter } from "events";
+'use strict';
+import pg from '../postgres/postgres';
+import { EventEmitter } from 'events';
 
 function dispatch(changes, core, options) {
 	let groups = {},
@@ -16,10 +16,10 @@ function dispatch(changes, core, options) {
 	for (let parent in groups) {
 		let change = { entities: groups[parent] };
 		pg.readStream(pg.cat({
-			$: "select * from relations where itemid =&{parent} ?",
+			$: 'select * from relations where itemid =&{parent} ?',
 			parent: parent
-		})).on("row", function (rel) {
-			stream.emit("data", change, rel);
+		})).on('row', function (rel) {
+			stream.emit('data', change, rel);
 		});
 	}
 

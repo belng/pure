@@ -1,11 +1,11 @@
 /* @flow */
 
-"use strict";
+'use strict';
 
-import { TABLES, COLUMNS, TYPES, ROLES } from "../../lib/schema";
-import { Constants, bus, cache } from "../../core";
+import { TABLES, COLUMNS, TYPES, ROLES } from '../../lib/schema';
+import { Constants, bus, cache } from '../../core';
 
-bus.on("setstate", (changes, next) => {
+bus.on('setstate', (changes, next) => {
 	if (!changes.entities) return next();
 
 	for (let id in changes.entities) {
@@ -57,7 +57,7 @@ bus.on("setstate", (changes, next) => {
 
 			item.counts = item.counts || {};
 
-			if (entity.__op__ && entity.__op__.role && entity.__op__.roles[0] === "union") {
+			if (entity.__op__ && entity.__op__.role && entity.__op__.roles[0] === 'union') {
 				let rem = entity.__op__.roles[0].slice(1);
 				rem.forEach((role) => {
 					if (ROLES[role]) {
@@ -95,4 +95,4 @@ bus.on("setstate", (changes, next) => {
 		}
 	}
 	next();
-}, "modifier");
+}, 'modifier');

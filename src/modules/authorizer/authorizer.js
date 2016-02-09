@@ -1,10 +1,10 @@
 /* @flow */
 
-import core from "./../../core";
+import core from './../../core';
 
 const rules = [];
 
-rules.push(require("./rules/isBanned").default);
+rules.push(require('./rules/isBanned').default);
 
 function authorizeEntity(entity, resource) {
 	const promise = new Promise((reject, resolve) => {
@@ -24,7 +24,7 @@ function authorizeEntity(entity, resource) {
 	return promise;
 }
 
-core.bus.on("setstate", (changes, next) => {
+core.bus.on('setstate', (changes, next) => {
 	const promises = [];
 
 	if (!changes.entities) return next();
@@ -40,4 +40,4 @@ core.bus.on("setstate", (changes, next) => {
 	});
 }, 900);
 
-console.log("authorizer module ready...");
+console.log('authorizer module ready...');

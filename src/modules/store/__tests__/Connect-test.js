@@ -1,18 +1,18 @@
 /* eslint-env jest */
 
-jest.dontMock("../Connect");
-jest.dontMock("../Provider");
-jest.dontMock("../storeShape");
+jest.dontMock('../Connect');
+jest.dontMock('../Provider');
+jest.dontMock('../storeShape');
 
-import React from "react";
-import ReactDOM from "react-dom";
-import TestUtils from "react-addons-test-utils";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import TestUtils from 'react-addons-test-utils';
 
-const Connect = require("../Connect").default;
-const Provider = require("../Provider").default;
+const Connect = require('../Connect').default;
+const Provider = require('../Provider').default;
 
-describe("Connect", () => {
-	it("should render connected component with no data", () => {
+describe('Connect', () => {
+	it('should render connected component with no data', () => {
 		const ConnectedComponent = Connect()(() => <span>Hey!</span>); // eslint-disable-line
 		const store = {
 			watch: () => null,
@@ -26,13 +26,13 @@ describe("Connect", () => {
 
 		const appNode = ReactDOM.findDOMNode(app);
 
-		expect(appNode.textContent).toEqual("Hey!");
+		expect(appNode.textContent).toEqual('Hey!');
 	});
 
-	it("should update connected component with data", () => {
+	it('should update connected component with data', () => {
 		const ConnectedComponent = Connect({
-			firstName: [ "first", null ],
-			lastName: [ "last", null ],
+			firstName: [ 'first', null ],
+			lastName: [ 'last', null ],
 		})(
 			({ firstName, lastName }) => <span>{firstName} {lastName}</span> // eslint-disable-line
 		);
@@ -43,10 +43,10 @@ describe("Connect", () => {
 		const store = {
 			watch: (name, opts, cb) => {
 				switch (name) {
-				case "first":
+				case 'first':
 					firstNameCallback = cb;
 					break;
-				case "last":
+				case 'last':
 					lastNameCallback = cb;
 					break;
 				}
@@ -64,21 +64,21 @@ describe("Connect", () => {
 
 		const appNode = ReactDOM.findDOMNode(app);
 
-		expect(appNode.textContent).toEqual(" ");
-		firstNameCallback("hello");
-		expect(appNode.textContent).toEqual("hello ");
-		lastNameCallback("world");
-		expect(appNode.textContent).toEqual("hello world");
-		firstNameCallback("hey");
-		expect(appNode.textContent).toEqual("hey world");
+		expect(appNode.textContent).toEqual(' ');
+		firstNameCallback('hello');
+		expect(appNode.textContent).toEqual('hello ');
+		lastNameCallback('world');
+		expect(appNode.textContent).toEqual('hello world');
+		firstNameCallback('hey');
+		expect(appNode.textContent).toEqual('hey world');
 	});
 
-	it("should remove listener on unmount", () => {
-		const container = document.createElement("div");
+	it('should remove listener on unmount', () => {
+		const container = document.createElement('div');
 		const clear = jest.genMockFunction();
 		const ConnectedComponent = Connect({ textContent: [ "text", null ] })(({ textContent }) => <span>{textContent}</span>); // eslint-disable-line
 		const store = {
-			watch: name => name === "text" && { clear },
+			watch: name => name === 'text' && { clear },
 			dispatch: () => null,
 		};
 

@@ -1,3 +1,3 @@
 export default {
-	counts: { __any__: "inc" }
+	counts: { __any__: 'inc' }
 };

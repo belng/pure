@@ -6,8 +6,8 @@
  * @flow
  */
 
-import { Component, Children, PropTypes } from "react";
-import storeShape from "./storeShape";
+import { Component, Children, PropTypes } from 'react';
+import storeShape from './storeShape';
 
 export default class Provider extends Component {
 	static propTypes = {

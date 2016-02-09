@@ -1,9 +1,9 @@
 /* @flow */
 
-"use strict";
+'use strict';
 
-import jwt from "jsonwebtoken";
-import { bus, config } from "../../core.js";
+import jwt from 'jsonwebtoken';
+import { bus, config } from '../../core.js';
 
 // sign with default (HMAC SHA256)
 var tokenValidity = 604800, iss = config.host, aud = config.host, key = config.session.privateKey;
@@ -24,8 +24,8 @@ function generateSession(sub) { // not sure if this should strictly be mailto id
 			iat: Math.floor((new Date()).getTime() / 1000),
 			exp: Math.floor((new Date()).getTime() / 1000) + tokenValidity // seven days
 		}, key, {
-			algorithm: "HS256",
-			type: "JWS"
+			algorithm: 'HS256',
+			type: 'JWS'
 		}, function(session) {
 			resolve(session);
 		});
@@ -53,14 +53,14 @@ function sessionHandler(changes, next) {
 	}*/
 }
 
-bus.on("setstate", sessionHandler, "authentication");
-bus.on("setstate", function(changes, next) {
+bus.on('setstate', sessionHandler, 'authentication');
+bus.on('setstate', function(changes, next) {
 	if (changes.response && changes.response.app && changes.response.app.user) {
 		generateSession(changes.response.app.user).then(function(session) {
 			changes.response.app.session =	session;
 			next();
 		});
 	}
-}, "modifier");
+}, 'modifier');
 
-console.log("session module ready...");
+console.log('session module ready...');

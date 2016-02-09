@@ -1,16 +1,16 @@
-import jsonop from "jsonop";
-import Cache from "sbcache";
-import Counter from "../../lib/counter.js";
-import "./querykeyrange";
-import pg from "../../lib/pg.js";
-import log from "../../lib/log.js";
-import queryHandlers from "./postgres/queries";
-import actionHandlers from "./postgres/updates";
+import jsonop from 'jsonop';
+import Cache from 'sbcache';
+import Counter from '../../lib/counter.js';
+import './querykeyrange';
+import pg from '../../lib/pg.js';
+import log from '../../lib/log.js';
+import queryHandlers from './postgres/queries';
+import actionHandlers from './postgres/updates';
 let core, cache, config;
 
 function broadcast (entity) {
 	let channel, payload = JSON.stringify(entity);
-	channel = "HeyNeighbor";
+	channel = 'HeyNeighbor';
 	pg.notify(channel, payload);
 }
 
@@ -51,10 +51,10 @@ module.exports = (c) => {
 	});
 
 	pg.onNotification((payload) => {
-		core.emit("stateChange", JSON.parse(payload));
+		core.emit('stateChange', JSON.parse(payload));
 	});
 
-	core.on("state", (changes, next) => {
+	core.on('state', (changes, next) => {
 		let counter = new Counter();
 
 		if (changes.entities) {

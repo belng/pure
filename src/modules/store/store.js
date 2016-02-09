@@ -1,4 +1,4 @@
-import { cache } from "../../app";
+import { cache } from '../../app';
 
 cache.getThreadById = function(threadId, callback) {
 	return this.getEntity(threadId, callback);
@@ -9,7 +9,7 @@ cache.getTextById = function(textId, callback) {
 };
 
 cache.getRelation = function(roomId, userId, callback) {
-	return this.getEntity(userId + "_" + roomId, callback);
+	return this.getEntity(userId + '_' + roomId, callback);
 };
 
 cache.getRoom = function(id, callback) {
@@ -20,7 +20,7 @@ cache.getTexts = function(roomId, threadId, time, r, callback) {
 	const q = {}, range = [];
 	let key;
 
-	q.type = "text";
+	q.type = 'text';
 	q.filter = {
 		to: roomId, thread: threadId
 	};
@@ -32,7 +32,7 @@ cache.getTexts = function(roomId, threadId, time, r, callback) {
 		range.push(0);
 		range.push(r);
 	}
-	q.order = "time";
+	q.order = 'time';
 	key = this.cache.sliceToKey(q);
 	return this.cache.query(key, range, callback);
 };
@@ -41,7 +41,7 @@ cache.getThreads = function(roomId, time, r, callback) {
 	const q = {}, range = [];
 	let key;
 
-	q.type = "text";
+	q.type = 'text';
 	q.filter = {
 		to: roomId
 	};
@@ -53,20 +53,20 @@ cache.getThreads = function(roomId, time, r, callback) {
 		range.push(0);
 		range.push(r);
 	}
-	q.order = "startTime";
+	q.order = 'startTime';
 	key = this.cache.sliceToKey(q);
 	return this.cache.query(key, range, callback);
 };
 
 cache.getNearByRooms = function() {
-	return this.get("app", "nearByRooms");
+	return this.get('app', 'nearByRooms');
 };
 
 cache.getUser = function(id) {
-	const userObj = this.getEntity(id || this.get("app", "user"), callback);
+	const userObj = this.getEntity(id || this.get('app', 'user'), callback);
 
-	if (typeof userObj === "object") {
-		if (userObj.type === "user") {
+	if (typeof userObj === 'object') {
+		if (userObj.type === 'user') {
 			return userObj;
 		}
 	} else {
@@ -78,20 +78,20 @@ cache.getRelatedEntity = function(type, id, f) {
 	const q = {}, range = [ 0, 0, 60 ], results = [];
 	let entityId, key, items, filter = f;
 
-	if (typeof id === "string") {
+	if (typeof id === 'string') {
 		entityId = id;
-	} else if (typeof id === "object") {
-		entityId = this.get("app", "nav", type === "user" ? "room" : "user");
+	} else if (typeof id === 'object') {
+		entityId = this.get('app', 'nav', type === 'user' ? 'room' : 'user');
 		filter = id;
 	} else {
-		entityId = this.get("app", "nav", type === "user" ? "room" : "user");
+		entityId = this.get('app', 'nav', type === 'user' ? 'room' : 'user');
 	}
 
-	q.type = "relation";
+	q.type = 'relation';
 	q.filter = filter;
 	filter.room = entityId;
 
-	q.order = "roleTime";
+	q.order = 'roleTime';
 	key = this.cache.sliceToKey(q);
 	items = this.cache.query(key, range);
 
@@ -109,7 +109,7 @@ cache.getRelatedEntity = function(type, id, f) {
 				}
 			}
 
-			entity = this["get" + (type === "user" ? "Room" : "User")](relation[type]);
+			entity = this['get' + (type === 'user' ? 'Room' : 'User')](relation[type]);
 
 			results.push(objUtils.merge(objUtils.clone(relation), entity));
 		});

@@ -1,15 +1,15 @@
-"use strict";
+'use strict';
 
-import pg from "../../../lib/pg";
-import casual from "casual";
-import uid from "node-uuid";
-import Constants from "../../../../Constants/Constants.json";
+import pg from '../../../lib/pg';
+import casual from 'casual';
+import uid from 'node-uuid';
+import Constants from '../../../../Constants/Constants.json';
 
-let connstr = "pg://hn:hn@localhost/hn", users = [], rooms = [], threads = [], texts = [], numUsers = 5, numRooms = 5, numThreads = 10, numTexts = 50;
+let connstr = 'pg://hn:hn@localhost/hn', users = [], rooms = [], threads = [], texts = [], numUsers = 5, numRooms = 5, numThreads = 10, numTexts = 50;
 
 function getId() {
-	let u = casual.username.toLowerCase().replace(/\_|\./g, "-");
-	if (users.indexOf(u) > -1) return u + "-" + users.length;
+	let u = casual.username.toLowerCase().replace(/\_|\./g, '-');
+	if (users.indexOf(u) > -1) return u + '-' + users.length;
 	else return u;
 }
 
@@ -18,9 +18,9 @@ function insertUser(done) {
 	tag = tags[Math.floor(Math.random() * tags.length)];
 
 	users.push(id);
-	pg.write(connstr, [{
+	pg.write(connstr, [ {
 		$: `INSERT INTO users (
-			id, tags, name, identities, timezone, locale, createtime, updatetime, presence 
+			id, tags, name, identities, timezone, locale, createtime, updatetime, presence
 		) VALUES (
 			&{id}, ARRAY[&{tags}]::smallint[], &{name}, ARRAY[&{ident}]::text[], 330, 91,
 			extract(epoch from now())*1000,
@@ -29,9 +29,9 @@ function insertUser(done) {
 		id: id,
 		tags: tag,
 		name: casual.name,
-		ident: tag === Constants.TAG_USER_GUEST ? "guest" : "mailto:" + casual.email.toLowerCase(),
+		ident: tag === Constants.TAG_USER_GUEST ? 'guest' : 'mailto:' + casual.email.toLowerCase(),
 		presence: Math.random() <= 0.5 ? Constants.PRESENCE_FOREGROUND : Constants.PRESENCE_NONE
-	}], done);	
+	} ], done);
 }
 
 function insertRoom(done) {
@@ -114,7 +114,7 @@ function insertRoomrel(usr, room, cb) {
 
 function insertThreadrel(usr, thread, cb) {
 	let ptime = Math.random() < 0.4 ? Date.now() - 3 * 60 * 1000 : Date.now() + 60 * 1000;
-	pg.write(connstr, [{
+	pg.write(connstr, [ {
 		$: `INSERT INTO threadrels (
 			"user", item, roles, roletime, interest, presencetime
 		) VALUES (
@@ -126,7 +126,7 @@ function insertThreadrel(usr, thread, cb) {
 		role: Constants.ROLE_FOLLOWER,
 		interest: Math.floor(Math.random() * 30),
 		ptime: ptime
-	}], cb);
+	} ], cb);
 }
 
 function insertTextrel(usr, text, cb) {
@@ -161,7 +161,7 @@ function repeat(fn, repeatEl) {
 			});
 		}
 
-		if (typeof repeatEl === "number") {
+		if (typeof repeatEl === 'number') {
 			next();
 		} else {
 			Promise.all(users.map(usr => {
@@ -190,31 +190,31 @@ function repeat(fn, repeatEl) {
 }
 
 
-console.log("Inserting users...");
+console.log('Inserting users...');
 repeat(insertUser, numUsers)
 .then(function () {
-	console.log("Done. Inserting rooms...");
+	console.log('Done. Inserting rooms...');
 	return repeat(insertRoom, numRooms);
 }).then(function () {
-	console.log("Done. Inserting threads...");
+	console.log('Done. Inserting threads...');
 	return repeat(insertThread, numThreads);
 }).then(function () {
-	console.log("Done. Inserting texts...");
+	console.log('Done. Inserting texts...');
 	return repeat(insertText, numTexts);
 }).then(function () {
-	console.log("Done. Inserting room relations...");
+	console.log('Done. Inserting room relations...');
 	return repeat(insertRoomrel, rooms);
 }).then(function () {
-	console.log("Done. Inserting thread relations...");
+	console.log('Done. Inserting thread relations...');
 	return repeat(insertThreadrel, threads);
 }).then(function () {
-	console.log("Done. Inserting text relations...");
+	console.log('Done. Inserting text relations...');
 	return repeat(insertTextrel, texts);
 }).then(function () {
-	console.log("All done...");
+	console.log('All done...');
 	process.exit();
 })
 .catch(function (e) {
-	console.log(e)
-	process.exit(1)
+	console.log(e);
+	process.exit(1);
 });

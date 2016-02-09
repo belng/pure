@@ -1,17 +1,17 @@
 /* @flow */
 
-"use strict";
+'use strict';
 
-import { bus, cache, config } from "../../core.js";
-import jwt from "jsonwebtoken";
-import objectUtils from "../../lib/object-utils.js";
+import { bus, cache, config } from '../../core.js';
+import jwt from 'jsonwebtoken';
+import objectUtils from '../../lib/object-utils.js';
 
 // sign with default (HMAC SHA256)
 var tokenValidity = 604800,
     // seven days
-    	iss = config.host,
-    	aud = config.host,
-    	key = config.session.privateKey;
+    		iss = config.host,
+    		aud = config.host,
+    		key = config.session.privateKey;
 
 function getIdentitiesFromJWT(token) {
 	return new Promise(function(resolve, reject) {
@@ -29,8 +29,8 @@ function generateSignedIdentities(identities) {
 			iat: Math.floor((new Date()).getTime() / 1000),
 			exp: Math.floor((new Date()).getTime() / 1000) + tokenValidity // seven days
 		}, key, {
-			algorithm: "HS256",
-			type: "JWS"
+			algorithm: 'HS256',
+			type: 'JWS'
 		}, function(session) {
 			resolve(session);
 		});
@@ -46,7 +46,7 @@ function signuphandler(changes, next) {
 			delete changes.auth.signup.signedIdentities;
 			return cache.getEntity(changes.auth.signup.id, function(err, entity) {
 				if (err) return next(err);
-				if (entity) return next(new Error("USER_ALREADY_EXIST"));
+				if (entity) return next(new Error('USER_ALREADY_EXIST'));
 
 				changes.app = (changes.app || {}).user = changes.auth.signup.id;
 				((changes.response = (changes.response || {})).app || {}).user = changes.auth.signup.id;
@@ -66,5 +66,5 @@ function signuphandler(changes, next) {
 	}
 }
 
-bus.on("setstate", signuphandler, "authentication");
-console.log("signup module ready...");
+bus.on('setstate', signuphandler, 'authentication');
+console.log('signup module ready...');

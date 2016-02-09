@@ -1,11 +1,11 @@
-import jsonop from "jsonop";
-import Counter from "../../lib/counter";
-import pg from "../../lib/pg";
-import queryHandler from "./query";
-import entityHandler from "./entity";
-import { bus, cache, config } from "../../core";
-import types from "./../../models/models";
-const channel = "heyneighbor";
+import jsonop from 'jsonop';
+import Counter from '../../lib/counter';
+import pg from '../../lib/pg';
+import queryHandler from './query';
+import entityHandler from './entity';
+import { bus, cache, config } from '../../core';
+import types from './../../models/models';
+const channel = 'heyneighbor';
 
 function broadcast (entity) {
 	pg.notify(config.connStr, channel, entity);
@@ -34,10 +34,10 @@ cache.onChange((changes) => {
 });
 
 pg.listen(config.connStr, channel, (payload) => {
-	bus.emit("statechange", payload);
+	bus.emit('statechange', payload);
 });
 
-bus.on("setstate", (changes, next) => {
+bus.on('setstate', (changes, next) => {
 	const counter = new Counter();
 
 	if (changes.entities) {
@@ -55,7 +55,7 @@ bus.on("setstate", (changes, next) => {
 					row[col] = new Types[col](row[col]);
 				}
 			});
-			console.log("PgWrite Results", results[0].rows);
+			console.log('PgWrite Results', results[0].rows);
 			results.forEach((result) => broadcast(result.rows[0]));
 			counter.dec();
 		});
