@@ -79,8 +79,14 @@ export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Obje
 				const props = { ...this.state };
 
 				if (mapDispatchToProps) {
-					for (const dispatch in mapDispatchToProps) {
-						props[dispatch] = mapDispatchToProps[dispatch](this.context.store);
+					for (const item in mapDispatchToProps) {
+						const dispatch = mapDispatchToProps[item](this.context.store);
+
+						if (typeof dispatch !== 'function') {
+							throw new Error(`Invalid dispatch function in ${item}. Action creators must return a curried dispatch function.`);
+						}
+
+						props[item] = dispatch;
 					}
 				}
 
