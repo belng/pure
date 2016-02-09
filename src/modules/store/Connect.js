@@ -41,9 +41,15 @@ export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Obje
 				if (mapSubscriptionToProps) {
 					this._watches = [];
 
-					for (const sub in mapSubscriptionToProps) {
+					for (const item in mapSubscriptionToProps) {
+						const sub = mapSubscriptionToProps[item];
+
+						if (!Array.isArray(sub)) {
+							throw new Error(`Invalid subscription ${item}. Subscription must be an array with first item being the key to watch, and second item as options.`);
+						}
+
 						this._watches.push(
-							store.watch(mapSubscriptionToProps[sub][0], mapSubscriptionToProps[sub][1], this._updateListener(sub))
+							store.watch(sub[0], sub[1], this._updateListener(item))
 						);
 					}
 				}

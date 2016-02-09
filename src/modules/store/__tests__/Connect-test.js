@@ -1,12 +1,13 @@
 /* eslint-env jest */
-
-jest.dontMock('../Connect');
-jest.dontMock('../Provider');
-jest.dontMock('../storeShape');
+/* eslint-disable import/no-commonjs */
 
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
+
+jest.dontMock('../Connect');
+jest.dontMock('../Provider');
+jest.dontMock('../storeShape');
 
 const Connect = require('../Connect').default;
 const Provider = require('../Provider').default;
@@ -55,7 +56,6 @@ describe('Connect', () => {
 			dispatch: () => null,
 		};
 
-		// Render a the app in the document
 		const app = TestUtils.renderIntoDocument(
 			<Provider store={store}>
 				<ConnectedComponent />
@@ -92,5 +92,72 @@ describe('Connect', () => {
 		ReactDOM.unmountComponentAtNode(container);
 
 		expect(clear).toBeCalled();
+	});
+
+	it('should pass dispatch', () => {
+		const TEST_ACTION = { type: 'TEST' };
+		const ConnectedComponent = Connect(null, {
+			ping: store => () => store.dispatch(TEST_ACTION)
+		})(
+			({ ping }) => <button onClick={ping} /> // eslint-disable-line
+		);
+		const dispatch = jest.genMockFunction();
+		const store = {
+			watch: () => null,
+			dispatch,
+		};
+
+		const app = TestUtils.renderIntoDocument(
+			<Provider store={store}>
+				<ConnectedComponent />
+			</Provider>
+		);
+
+		TestUtils.Simulate.click(
+			TestUtils.findRenderedDOMComponentWithTag(app, 'button')
+		);
+
+		expect(dispatch).toBeCalledWith(TEST_ACTION);
+		expect(dispatch.mock.calls.length).toBe(1);
+	});
+
+	it('should pass dispatch and data', () => {
+		const ConnectedComponent = Connect({
+			label: [ 'label', null ]
+		}, {
+			click: store => () => store.dispatch({
+				type: 'CLICK',
+				payload: {
+					label: 'Clicked'
+				}
+			})
+		})(
+			({ label, click }) => <button onClick={click}>{label}</button> // eslint-disable-line
+		);
+
+		let callback;
+
+		const store = {
+			watch: (name, opts, cb) => callback = name === 'label' ? cb : null,
+			dispatch: action => action.type === 'CLICK' ? callback(action.payload.label) : null,
+		};
+
+		const app = TestUtils.renderIntoDocument(
+			<Provider store={store}>
+				<ConnectedComponent />
+			</Provider>
+		);
+
+		const appNode = ReactDOM.findDOMNode(app);
+
+		expect(appNode.textContent).toEqual('');
+		callback('Click me');
+		expect(appNode.textContent).toEqual('Click me');
+
+		TestUtils.Simulate.click(
+			TestUtils.findRenderedDOMComponentWithTag(app, 'button')
+		);
+
+		expect(appNode.textContent).toEqual('Clicked');
 	});
 });
