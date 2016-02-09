@@ -3,7 +3,7 @@
 require("babel-core/register");
 
 const core = require("../../../core"),
-	Constants = require("../../../../constants/Constants.json");
+	Constants = require("../../../../Constants/Constants.json");
 
 core.config = { connStr: "pg://aravind@localhost/aravind" };
 

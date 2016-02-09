@@ -4,7 +4,7 @@ jest.autoMockOff();
 
 let core = require("../../../core"),
 	assert = require("assert"),
-	Constants = require("../../../../constants/Constants.json"),
+	Constants = require("../../../../Constants/Constants.json"),
 	bus = core.bus,
 	cache = core.cache;
 //let count = require("../count");

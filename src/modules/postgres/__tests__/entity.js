@@ -5,7 +5,7 @@ jest.autoMockOff();
 console.log("Starting");
 
 const entity = require("../entity"),
-	Constants = require("../../../../constants/Constants.json");
+	Constants = require("../../../../Constants/Constants.json");
 
 
 

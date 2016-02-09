@@ -3,7 +3,7 @@
 import jsonop from "jsonop";
 import Ebus from "ebus";
 import SbCache from "sbcache";
-import Constants from "../constants/Constants.json";
+import Constants from "../Constants/Constants.json";
 
 export { Constants };
 

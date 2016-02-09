@@ -11,6 +11,26 @@ const runningQueries = {},
 
 let shuttingDown = false;
 
+function hash(q) {
+	const s = new Buffer(q).toString("hex");
+	var h = new BigInteger(s.substring(0, 15), 16); // 60 bit
+	var index = 15;
+	while(index < s.length) {
+		var nbi = new BigInteger(s.substring(index, index + 15), 16);
+		index += 15;
+		h = h.xor(nbi);
+	}
+	return h.toString();
+}
+
+function lock (s) {
+	if (!s) throw new Error("lock variable is not defined");
+	return {
+		$: "SELECT pg_advisory_xact_lock(${hash})",
+		hash: hash(s)
+	};
+}
+
 function cat (parts, delim) {
 	delim = delim || " "; // eslint-disable-line no-param-reassign
 
@@ -90,9 +110,9 @@ function update (tableName, object) {
 	], " ");
 }
 
-function insert (tableName, objects) {
-	if (!objects) throw Error("CANT_INSERT_NOTHING");
-	if (!Array.isArray(objects)) objects = [ objects ];
+function insert (tableName, objs) {
+	if (!objs) throw Error("CANT_INSERT_NOTHING");
+	const objects = (!Array.isArray(objs)) ? [ objs ] : objs;
 
 	const parts = [
 		"INSERT INTO \"" + tableName + "\" (",
@@ -100,7 +120,7 @@ function insert (tableName, objects) {
 		") VALUES"
 	];
 
-	parts.push("(", cat(objects.map(function (object) {
+	parts.push("(", cat(objects.map((object) => {
 		return values(object);
 	}), "), ("), ")");
 

@@ -2,7 +2,7 @@
 
 import { TABLES, COLUMNS, TYPES, ROLES } from "../../lib/schema";
 import Counter from "../../lib/counter";
-import Note from "../../models/Note";
+import Note from "../../models/note";
 import { Constants, bus, cache } from "../../core";
 
 bus.on("setstate", (changes, next) => {

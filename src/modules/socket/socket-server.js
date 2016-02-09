@@ -3,12 +3,12 @@ let engine = require("engine.io"),
 	core = require("../../core"),
 	bus = core.bus,
 	config = core.config,
-	Constants = require("../../../constants/Constants.json"),
+	Constants = require("../../../Constants/Constants.json"),
 	uid = require("../../lib/uid-server"),
 	notify = require("./dispatch"),
 	sockets = {},
 	models = require("../../models/models.js"),
-	stringPack = require("stringPack"),
+	stringPack = require("stringpack"),
 	packerArg, packer;
 
 packerArg = Object.keys(models).sort().map(key => models[key]);

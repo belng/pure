@@ -3,7 +3,7 @@
 import pg from "../../../lib/pg";
 import casual from "casual";
 import uid from "node-uuid";
-import Constants from "../../../../constants/Constants.json";
+import Constants from "../../../../Constants/Constants.json";
 
 let connstr = "pg://hn:hn@localhost/hn", users = [], rooms = [], threads = [], texts = [], numUsers = 5, numRooms = 5, numThreads = 10, numTexts = 50;
 
