@@ -1,15 +1,13 @@
-'use strict';
-let engine = require('engine.io'),
-	core = require('../../core'),
-	bus = core.bus,
-	config = core.config,
-	Constants = require('../../../Constants/Constants.json'),
-	uid = require('../../lib/uid-server'),
-	notify = require('./dispatch'),
-	sockets = {},
-	models = require('../../models/models.js'),
-	stringPack = require('stringpack'),
-	packerArg, packer;
+import engine from 'engine.io';
+import stringPack from 'stringpack';
+import core from '../../core';
+import uid from '../../lib/uid-server';
+import notify from './dispatch';
+import models from '../../models/models';
+
+const sockets = {}, bus = core.bus;
+
+let packerArg, packer;
 
 packerArg = Object.keys(models).sort().map(key => models[key]);
 packer = stringPack(packerArg);
@@ -20,18 +18,17 @@ function sendError(socket, code, reason, event) {
 		type: 'error',
 		code,
 		reason,
-		event: event
+		event
 	}));
 }
 
 bus.on('http/init', app => {
-	let socketServer = engine.attach(app.httpServer);
+	const socketServer = engine.attach(app.httpServer);
 
 	socketServer.on('connection', socket => {
-		let resourceId = uid(16);
-		sockets[resourceId] = socket;
+		const resourceId = uid(16);
 
-		console.log('socket connection created');
+		sockets[resourceId] = socket;
 		socket.on('close', () => {
 			bus.emit('presence/offline', {
 				resourceId
@@ -39,21 +36,24 @@ bus.on('http/init', app => {
 			delete sockets[resourceId];
 		});
 
-		socket.on('message', message => {
+		socket.on('message', m => {
+			let message;
+
 			try {
-				message = packer.decode(message);
+				message = packer.decode(m);
 			} catch (e) {
 				return sendError(socket, 'ERR_EVT_PARSE', e.message);
 			}
 
 			message.id = uid(16);
-			(message.auth = message.auth | {}).resource = resourceId;
-			console.log('emitting setstate', message);
-			bus.emit('setstate', message, err => {
-				console.log(err, message);
-				if (err) return sendError(
-					socket, err.code || 'ERR_UNKNOWN', err.message, message
-				);
+			(message.auth = message.auth || {}).resource = resourceId;
+
+			function handleSetState(err) {
+				if (err) {
+					return sendError(
+						socket, err.code || 'ERR_UNKNOWN', err.message, message
+					);
+				}
 
 				if (message.response) {
 					if (message.auth && message.auth.user) {
@@ -64,14 +64,16 @@ bus.on('http/init', app => {
 					}
 					socket.send(packer.encode(message.response));
 				}
-			});
+			}
+
+			bus.emit('setstate', message, handleSetState);
 		});
 	});
 });
 
 bus.on('statechange', changes => {
 	notify(changes, core, {}).on('data', (change, rel) => {
-		Object.keys(rel.resources).forEach(function (e) {
+		Object.keys(rel.resources).forEach(e => {
 			if (!sockets[e]) return;
 			sockets[e].send(packer.encode(change));
 		});
