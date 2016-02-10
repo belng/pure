@@ -74,7 +74,7 @@ export default function(mapSubscriptionToProps: ?Object, mapActionsToProps: ?Obj
 			};
 
 			render() {
-				const props = { ...this.state };
+				const props = { ...this.props, ...this.state };
 
 				if (mapActionsToProps) {
 					for (const item in mapActionsToProps) {
