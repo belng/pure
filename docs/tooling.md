@@ -4,11 +4,12 @@ We use various tooling to improve the developer workflow. This document lists mo
 
 The following commands are configured in this repository,
 
+1. `npm start` - start the node server (runs with `babel-node` in developement, and transpiles files on production)
 1. `npm test` - run tests with Jest
 2. `npm run flow` - typecheck files with Flow
 3. `npm run lint` - lint changed files with ESLint
 4. `npm run build` - build files with Webpack
-5. `npm run build-server` - start webpack development server to watch for changes and provide hot reloading
+5. `npm run clean` - clean all built files
 
 **NOTE:** You need at least Node v5.0.0 for these to work
 
@@ -29,12 +30,9 @@ Babel allows to use latest JavaScript syntax as well as custom syntaxes like JSX
 Babel is configured to transpile the following features in this repository,
 
 1. [All new features in ES2015](https://babeljs.io/docs/learn-es2015/)
-2. [React's JSX syntax](https://facebook.github.io/jsx/)
-3. Async functions
-4. Class properties
-5. Object rest and spread
-6. [Flow type annotations](flowtype.org/docs/type-annotations.html)
-7. Traling comma in function arguments
+2. [All features which reached stage-1](https://babeljs.io/docs/plugins/preset-stage-1/)
+3. [React's JSX syntax](https://facebook.github.io/jsx/)
+4. [Flow type annotations](flowtype.org/docs/type-annotations.html)
 
 ### Editor plugins
 
@@ -181,7 +179,7 @@ const x: string = 123;
 ### Editor plugins
 
 * **Nuclide** - Inbuilt flow support
-* **Atom** - [`linter-flow`](https://atom.io/packages/linter-flow) (linting), [`nuclide-flow`](https://atom.io/packages/nuclide-flow) (liniting and auto-completion),  [`ide-flow`](https://atom.io/packages/ide-flow) (liniting and auto-completion)
+* **Atom** - [`linter-flow`](https://atom.io/packages/linter-flow) (linting), [`nuclide`](https://atom.io/packages/nuclide) (liniting and auto-completion),  [`flow-ide`](https://atom.io/packages/flow-ide) (liniting and auto-completion)
 * **Sublime Text** -  [`SublimeLinter-flow`](https://packagecontrol.io/packages/SublimeLinter-flow) (linting)
 * **Visual Studio Code** - [`flow-for-vscode`](https://github.com/flowtype/flow-for-vscode) (linting and auto-completion)
 * **Brackets** - [`brackets-flow`](https://github.com/fdecampredon/brackets-flow) (liniting and auto-completion)
