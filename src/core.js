@@ -2,11 +2,10 @@
 
 import Ebus from 'ebus';
 import SbCache from 'sbcache';
-import Constants from '../Constants/Constants.json';
 
-export { Constants };
+export { default as Constants } from '../Constants/Constants.json';
 
-type Bus = {
+export type Bus = {
 	on(event: string, callback: Function, priority?: number|string): void;
 	off(event: string, callback: Function): void;
 	emit(event: string, options: Object, callback?: Function): void;

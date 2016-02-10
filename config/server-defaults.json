@@ -18,5 +18,5 @@
 	"google": {
 
 	},
-	"connStr": "pg://scrollback:@localhost/hn"
+	"connStr": "pg://scrollback:@localhost/pure"
 }
