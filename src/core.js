@@ -1,7 +1,9 @@
 /* @flow */
 
+import jsonop from 'jsonop';
 import Ebus from 'ebus';
 import SbCache from 'sbcache';
+import defaults from '../config/server-defaults.json';
 
 export { default as Constants } from '../Constants/Constants.json';
 
@@ -22,12 +24,10 @@ export const cache = new SbCache({
 	entityOp: { counts: { __all__: 'inc' } }
 });
 
-let config;
+export let config = jsonop({}, defaults);
 
 try {
-	config = require('../config/server.json');
+	config = jsonop(config, require('../config/server.json'));
 } catch (e) {
-	config = require('../config/server-defaults.json');
+	// ignore
 }
-
-export { config };
