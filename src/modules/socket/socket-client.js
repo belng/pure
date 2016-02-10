@@ -5,12 +5,12 @@
 import eio from 'engine.io-client/engine.io';
 import { bus, config } from '../../core.js';
 import models from '../../models/models.js';
-import stringPack from 'stringPack';
+import stringPack from 'stringpack';
 
 var	backOff = 1, client,
 	protocol = config.server.protocol,
 	host = config.server.apiHost,
-	packerArg;
+	packerArg, packer;
 
 packerArg = Object.keys(models).sort().map(key => models[key]);
 packer = stringPack(packerArg);
@@ -52,6 +52,6 @@ function connect() {
 	client.on('message', onMessage);
 }
 
-bus.emit('setstate', (state, next) => {
+bus.on('setstate', (state) => {
 	client.send(packer.encode(state));
 }, 1);

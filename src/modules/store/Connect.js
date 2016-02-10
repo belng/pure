@@ -29,7 +29,7 @@ export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Obje
 
 			state = {};
 
-			_watches: ?Array<Function>;
+			_watches: Array<Function> = [];
 
 			componentDidMount() {
 				const { store } = this.context;
@@ -39,8 +39,6 @@ export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Obje
 				}
 
 				if (mapSubscriptionToProps) {
-					this._watches = [];
-
 					for (const item in mapSubscriptionToProps) {
 						const sub = mapSubscriptionToProps[item];
 
@@ -61,7 +59,7 @@ export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Obje
 						this._watches[i].clear();
 					}
 
-					delete this._watches;
+					this._watches = [];
 				}
 			}
 
