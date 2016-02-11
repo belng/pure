@@ -14,13 +14,13 @@ const Provider = require('../Provider').default;
 
 describe('Connect', () => {
 	it('should render connected component with no data', () => {
-		const ConnectedComponent = Connect()(() => <span>Hey!</span>); // eslint-disable-line
+		const ConnectedComponent = Connect()(({ text }) => <span>{text}</span>); // eslint-disable-line
 		const store = {
 			subscribe: () => null,
 		};
 		const app = TestUtils.renderIntoDocument(
 			<Provider store={store}>
-				<ConnectedComponent />
+				<ConnectedComponent text='Hey!' />
 			</Provider>
 		);
 
@@ -132,9 +132,9 @@ describe('Connect', () => {
 	});
 
 	it('should pass dispatch and data', () => {
-		const ConnectedComponent = Connect({
-			label: 'label'
-		}, {
+		const ConnectedComponent = Connect(props => ({
+			label: props.sub
+		}), {
 			click: store => () => store.dispatch({
 				type: 'CLICK',
 				payload: {
@@ -154,7 +154,7 @@ describe('Connect', () => {
 
 		const app = TestUtils.renderIntoDocument(
 			<Provider store={store}>
-				<ConnectedComponent />
+				<ConnectedComponent sub='label' />
 			</Provider>
 		);
 
