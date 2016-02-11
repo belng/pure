@@ -4,9 +4,13 @@ import React, { Component } from 'react';
 import shallowEqual from 'shallowequal';
 import storeShape from './storeShape';
 
-export default function(mapSubscriptionToProps: ?Object, mapActionsToProps: ?Object): Function {
+export default function(mapSubscriptionToProps: ?Object|Function, mapActionsToProps: ?Object): Function {
 	if (process.env.NODE_ENV !== 'production') {
-		if (mapSubscriptionToProps && mapActionsToProps) {
+		if (
+			typeof mapSubscriptionToProps === 'object' &&
+			typeof mapActionsToProps === 'object' &&
+			mapSubscriptionToProps && mapActionsToProps
+		) {
 			for (const key in mapSubscriptionToProps) {
 				if (mapActionsToProps[key]) {
 					throw new Error(`Prop ${key} found both in subscriptions and actions. Props must be unique.`);
@@ -29,7 +33,7 @@ export default function(mapSubscriptionToProps: ?Object, mapActionsToProps: ?Obj
 
 			state = {};
 
-			_watches: Array<Function> = [];
+			_subscriptions: Array<Function> = [];
 
 			componentDidMount() {
 				const { store } = this.context;
@@ -39,27 +43,46 @@ export default function(mapSubscriptionToProps: ?Object, mapActionsToProps: ?Obj
 				}
 
 				if (mapSubscriptionToProps) {
-					for (const item in mapSubscriptionToProps) {
-						const sub = mapSubscriptionToProps[item];
+					const subscriptions = typeof mapSubscriptionToProps === 'function' ? mapSubscriptionToProps(this.props) : mapSubscriptionToProps;
 
-						if (!Array.isArray(sub)) {
-							throw new Error(`Invalid subscription ${item}. Subscription must be an array with the key to watch, options, and helper function.`);
+					for (const item in subscriptions) {
+						const sub = subscriptions[item];
+
+						let listener;
+
+						switch (typeof sub) {
+						case 'string':
+							listener = store.subscribe(
+								{ type: sub },
+								null,
+								this._updateListener(item)
+							);
+							break;
+						case 'object':
+							listener = store.subscribe(
+								typeof sub.key === 'string' ? { type: sub.key } : sub.key,
+								sub.range,
+								this._updateListener(item, sub.extract)
+							);
+							break;
+						default:
+							throw new Error(`Invalid subscription ${item}. Subscription must be a string or an object.`);
 						}
 
-						this._watches.push(
-							store.watch(sub[0], sub[1], this._updateListener(item, sub[2]))
-						);
+						if (listener) {
+							this._subscriptions.push(listener);
+						}
 					}
 				}
 			}
 
 			componentWillUnmount() {
-				if (this._watches) {
-					for (let i = 0, l = this._watches.length; i < l; i++) {
-						this._watches[i].clear();
+				if (this._subscriptions) {
+					for (let i = 0, l = this._subscriptions.length; i < l; i++) {
+						this._subscriptions[i].remove();
 					}
 
-					this._watches = [];
+					this._subscriptions = [];
 				}
 			}
 
@@ -67,9 +90,9 @@ export default function(mapSubscriptionToProps: ?Object, mapActionsToProps: ?Obj
 				return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 			}
 
-			_updateListener = (name, helper) => {
+			_updateListener = (name, extract) => {
 				return data => this.setState({
-					[name]: helper ? helper(data) : data
+					[name]: extract ? extract(data) : data
 				});
 			};
 
@@ -78,7 +101,7 @@ export default function(mapSubscriptionToProps: ?Object, mapActionsToProps: ?Obj
 
 				if (mapActionsToProps) {
 					for (const item in mapActionsToProps) {
-						const action = mapActionsToProps[item](this.context.store);
+						const action = mapActionsToProps[item](this.context.store, this.props);
 
 						if (typeof action !== 'function') {
 							throw new Error(`Invalid action in ${item}. Action creators must return a curried action function.`);

@@ -16,8 +16,7 @@ describe('Connect', () => {
 	it('should render connected component with no data', () => {
 		const ConnectedComponent = Connect()(() => <span>Hey!</span>); // eslint-disable-line
 		const store = {
-			watch: () => null,
-			dispatch: () => null,
+			subscribe: () => null,
 		};
 		const app = TestUtils.renderIntoDocument(
 			<Provider store={store}>
@@ -32,28 +31,38 @@ describe('Connect', () => {
 
 	it('should update connected component with data', () => {
 		const ConnectedComponent = Connect({
-			firstName: [ 'first', null ],
-			lastName: [ 'last', null ],
+			firstName: 'f',
+			middleName: {
+				key: 'm',
+				extract: name => `'${name}'`
+			},
+			lastName: {
+				key: {
+					type: 'l',
+				}
+			},
 		})(
-			({ firstName, lastName }) => <span>{firstName} {lastName}</span> // eslint-disable-line
+			({ firstName, middleName, lastName }) => <span>{firstName} {middleName} {lastName}</span> // eslint-disable-line
 		);
 
 		let firstNameCallback;
+		let middleNameCallback;
 		let lastNameCallback;
 
 		const store = {
-			watch: (name, opts, cb) => {
-				switch (name) {
-				case 'first':
+			subscribe: (slice, range, cb) => {
+				switch (slice.type) {
+				case 'f':
 					firstNameCallback = cb;
 					break;
-				case 'last':
+				case 'm':
+					middleNameCallback = cb;
+					break;
+				case 'l':
 					lastNameCallback = cb;
 					break;
 				}
 			},
-
-			dispatch: () => null,
 		};
 
 		const app = TestUtils.renderIntoDocument(
@@ -64,22 +73,23 @@ describe('Connect', () => {
 
 		const appNode = ReactDOM.findDOMNode(app);
 
-		expect(appNode.textContent).toEqual(' ');
-		firstNameCallback('hello');
-		expect(appNode.textContent).toEqual('hello ');
-		lastNameCallback('world');
-		expect(appNode.textContent).toEqual('hello world');
-		firstNameCallback('hey');
-		expect(appNode.textContent).toEqual('hey world');
+		expect(appNode.textContent).toEqual('  ');
+		firstNameCallback('first');
+		expect(appNode.textContent).toEqual('first  ');
+		middleNameCallback('middle');
+		expect(appNode.textContent).toEqual('first \'middle\' ');
+		lastNameCallback('last');
+		expect(appNode.textContent).toEqual('first \'middle\' last');
+		middleNameCallback('hey');
+		expect(appNode.textContent).toEqual('first \'hey\' last');
 	});
 
-	it('should remove listener on unmount', () => {
+	it('should remove subscription on unmount', () => {
 		const container = document.createElement('div');
-		const clear = jest.genMockFunction();
-		const ConnectedComponent = Connect({ textContent: [ "text", null ] })(({ textContent }) => <span>{textContent}</span>); // eslint-disable-line
+		const remove = jest.genMockFunction();
+		const ConnectedComponent = Connect({ textContent: "text" })(({ textContent }) => <span>{textContent}</span>); // eslint-disable-line
 		const store = {
-			watch: name => name === 'text' && { clear },
-			dispatch: () => null,
+			subscribe: slice => slice.type === 'text' && { remove },
 		};
 
 		ReactDOM.render(
@@ -91,7 +101,7 @@ describe('Connect', () => {
 
 		ReactDOM.unmountComponentAtNode(container);
 
-		expect(clear).toBeCalled();
+		expect(remove).toBeCalled();
 	});
 
 	it('should pass dispatch', () => {
@@ -103,7 +113,7 @@ describe('Connect', () => {
 		);
 		const dispatch = jest.genMockFunction();
 		const store = {
-			watch: () => null,
+			subscribe: () => null,
 			dispatch,
 		};
 
@@ -123,7 +133,7 @@ describe('Connect', () => {
 
 	it('should pass dispatch and data', () => {
 		const ConnectedComponent = Connect({
-			label: [ 'label', null ]
+			label: 'label'
 		}, {
 			click: store => () => store.dispatch({
 				type: 'CLICK',
@@ -138,7 +148,7 @@ describe('Connect', () => {
 		let callback;
 
 		const store = {
-			watch: (name, opts, cb) => callback = name === 'label' ? cb : null,
+			subscribe: (slice, range, cb) => callback = slice.type === 'label' ? cb : null,
 			dispatch: action => action.type === 'CLICK' ? callback(action.payload.label) : null,
 		};
 
