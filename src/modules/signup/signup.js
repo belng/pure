@@ -9,9 +9,9 @@ import objectUtils from '../../lib/object-utils.js';
 // sign with default (HMAC SHA256)
 var tokenValidity = 604800,
     // seven days
-    		iss = config.host,
-    		aud = config.host,
-    		key = config.session.privateKey;
+    			iss = config.host,
+    			aud = config.host,
+    			key = config.session.privateKey;
 
 function getIdentitiesFromJWT(token) {
 	return new Promise(function(resolve, reject) {

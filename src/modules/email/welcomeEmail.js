@@ -20,7 +20,7 @@ function initMailSending(cUserRel) {
 			user: user.id,
 			rels: rels,
 			domain: config.domain,
-			token: jwt.sign({ email: emailAdd.substring(8, emailAdd.length) }, config.secret, { expiresIn: "2 days" })
+			token: jwt.sign({ email: emailAdd.substring(8, emailAdd.length) }, config.secret, { expiresIn: '2 days' })
 		});
 	send(config.from, emailAdd, 'Welcome to ' + config.appName, emailHtml);
 }

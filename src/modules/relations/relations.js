@@ -1,10 +1,8 @@
 /* @flow */
 
-'use strict';
-
 import { Constants, bus, cache } from '../../core';
 import Counter from '../../lib/counter';
-import Relation from '../../models/Relation';
+import Relation from '../../models/rel';
 
 bus.on('setstate', (changes, next) => {
 	if (!changes.entities) return next();

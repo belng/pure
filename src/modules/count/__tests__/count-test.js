@@ -53,8 +53,8 @@ describe('incriment count', () => {
 			console.log(changes.entities);
 			assert.deepEqual(changes.entities['sjfk34-sf9s-sdf43-amv-sdjfh34'], {
 				counts: { children: 1 },
-			 			id: 'sjfk34-sf9s-sdf43-amv-sdjfh34',
-			 			type: 1
+			 				id: 'sjfk34-sf9s-sdf43-amv-sdjfh34',
+			 				type: 1
 			});
 			assert.deepEqual(changes.entities['testinguser'], { counts: { threads: 1 }, id: 'testinguser' });
 		});
@@ -103,8 +103,8 @@ describe('incriment count', () => {
 			console.log(changes.entities);
 			assert.deepEqual(changes.entities['sjfk34-sf9s-sdf43-amv-sdjfh34'], {
 				counts: { children: -1 },
-			 			id: 'sjfk34-sf9s-sdf43-amv-sdjfh34',
-			 			type: 1
+			 				id: 'sjfk34-sf9s-sdf43-amv-sdjfh34',
+			 				type: 1
 			});
 			assert.deepEqual(changes.entities['testinguser'], { counts: { threads: -1 }, id: 'testinguser' });
 		});

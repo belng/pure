@@ -4,18 +4,18 @@ import React, { Component } from 'react';
 import shallowEqual from 'shallowequal';
 import storeShape from './storeShape';
 
-export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Object): Function {
+export default function(mapSubscriptionToProps: ?Object, mapActionsToProps: ?Object): Function {
 	if (process.env.NODE_ENV !== 'production') {
-		if (mapSubscriptionToProps && mapDispatchToProps) {
+		if (mapSubscriptionToProps && mapActionsToProps) {
 			for (const key in mapSubscriptionToProps) {
-				if (mapDispatchToProps[key]) {
-					throw new Error(`Prop ${key} found both in subscriptions and dispatch. Props must be unique.`);
+				if (mapActionsToProps[key]) {
+					throw new Error(`Prop ${key} found both in subscriptions and actions. Props must be unique.`);
 				}
 			}
 
-			for (const key in mapDispatchToProps) {
+			for (const key in mapActionsToProps) {
 				if (mapSubscriptionToProps[key]) {
-					throw new Error(`Prop ${key} found both in subscriptions and dispatch. Props must be unique.`);
+					throw new Error(`Prop ${key} found both in subscriptions and actions. Props must be unique.`);
 				}
 			}
 		}
@@ -29,7 +29,7 @@ export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Obje
 
 			state = {};
 
-			_watches: ?Array<Function>;
+			_watches: Array<Function> = [];
 
 			componentDidMount() {
 				const { store } = this.context;
@@ -39,11 +39,15 @@ export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Obje
 				}
 
 				if (mapSubscriptionToProps) {
-					this._watches = [];
+					for (const item in mapSubscriptionToProps) {
+						const sub = mapSubscriptionToProps[item];
 
-					for (const sub in mapSubscriptionToProps) {
+						if (!Array.isArray(sub)) {
+							throw new Error(`Invalid subscription ${item}. Subscription must be an array with the key to watch, options, and helper function.`);
+						}
+
 						this._watches.push(
-							store.watch(mapSubscriptionToProps[sub][0], mapSubscriptionToProps[sub][1], this._updateListener(sub))
+							store.watch(sub[0], sub[1], this._updateListener(item, sub[2]))
 						);
 					}
 				}
@@ -55,7 +59,7 @@ export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Obje
 						this._watches[i].clear();
 					}
 
-					delete this._watches;
+					this._watches = [];
 				}
 			}
 
@@ -63,18 +67,24 @@ export default function(mapSubscriptionToProps: Object, mapDispatchToProps: Obje
 				return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 			}
 
-			_updateListener = name => {
+			_updateListener = (name, helper) => {
 				return data => this.setState({
-					[name]: data
+					[name]: helper ? helper(data) : data
 				});
 			};
 
 			render() {
 				const props = { ...this.state };
 
-				if (mapDispatchToProps) {
-					for (const dispatch in mapDispatchToProps) {
-						props[dispatch] = mapDispatchToProps[dispatch](this.context.store);
+				if (mapActionsToProps) {
+					for (const item in mapActionsToProps) {
+						const action = mapActionsToProps[item](this.context.store);
+
+						if (typeof action !== 'function') {
+							throw new Error(`Invalid action in ${item}. Action creators must return a curried action function.`);
+						}
+
+						props[item] = action;
 					}
 				}
 

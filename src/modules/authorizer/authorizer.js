@@ -1,6 +1,6 @@
 /* @flow */
 
-import core from './../../core';
+import { bus } from '../../core';
 
 const rules = [];
 
@@ -24,7 +24,7 @@ function authorizeEntity(entity, resource) {
 	return promise;
 }
 
-core.bus.on('setstate', (changes, next) => {
+bus.on('setstate', (changes, next) => {
 	const promises = [];
 
 	if (!changes.entities) return next();

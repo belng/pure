@@ -7,10 +7,10 @@ import sendWelcomeEmail from './welcomeEmail';
 import sendMentionEmail from './mentionEmail';
 import sendDigestEmail from './digestEmail';
 let conf = config.email;
-let connString = 'pg://' + conf.pg.username + ':' + conf.pg.password + '@' +
-	conf.pg.server + '/' + conf.pg.db;
+let connString = 'pg://' + config.pg.username + ':' + config.pg.password + '@' +
+	config.pg.server + '/' + config.pg.db;
 
-if (!conf.auth) {
+if (!conf || !conf.auth) {
 	winston.info('Email module not enabled');
 } else {
 	pg.read(connString, {

@@ -3,12 +3,12 @@
 import jsonop from 'jsonop';
 import Ebus from 'ebus';
 import SbCache from 'sbcache';
-import Constants from '../Constants/Constants.json';
+import defaults from '../config/server-defaults.json';
 
-export { Constants };
+export { default as Constants } from '../Constants/Constants.json';
 
-type Bus = {
-	on(event: string, callback: Function, priority?: number): void;
+export type Bus = {
+	on(event: string, callback: Function, priority?: number|string): void;
 	off(event: string, callback: Function): void;
 	emit(event: string, options: Object, callback?: Function): void;
 	dump(event: string): void;
@@ -20,14 +20,14 @@ export const bus: Bus = new Ebus();
 bus.setDebug(5);
 
 export const cache = new SbCache({
-	/* TODO: add is, id functions! */
+	// TODO: add is, id functions!
 	entityOp: { counts: { __all__: 'inc' } }
 });
 
-export let config;
+export let config = jsonop({}, defaults);
 
 try {
-	config = jsonop({}, require('../config/server'));
+	config = jsonop(config, require('../config/server.json'));
 } catch (e) {
-	config = {};
+	// ignore
 }
