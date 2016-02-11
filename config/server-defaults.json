@@ -1,5 +1,6 @@
 {
 	"session": {},
+
 	"email": {
 		"pg": {
 			"username": "scrollback",
@@ -12,11 +13,14 @@
 		"debug": true,
 		"auth": true
 	},
+
 	"facebook": {
 
 	},
+
 	"google": {
 
 	},
+
 	"connStr": "pg://scrollback:@localhost/pure"
 }
