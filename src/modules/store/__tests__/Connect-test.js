@@ -107,7 +107,7 @@ describe('Connect', () => {
 	it('should pass dispatch', () => {
 		const TEST_ACTION = { type: 'TEST' };
 		const ConnectedComponent = Connect(null, {
-			ping: store => () => store.dispatch(TEST_ACTION)
+			ping: (props, store) => () => store.dispatch(TEST_ACTION)
 		})(
 			({ ping }) => <button onClick={ping} /> // eslint-disable-line
 		);
@@ -135,7 +135,7 @@ describe('Connect', () => {
 		const ConnectedComponent = Connect(props => ({
 			label: props.sub
 		}), {
-			click: store => () => store.dispatch({
+			click: (props, store) => () => store.dispatch({
 				type: 'CLICK',
 				payload: {
 					label: 'Clicked'

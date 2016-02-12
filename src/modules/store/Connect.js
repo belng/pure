@@ -4,7 +4,33 @@ import React, { Component } from 'react';
 import shallowEqual from 'shallowequal';
 import storeShape from './storeShape';
 
-export default function(mapSubscriptionToProps: ?Object|Function, mapActionsToProps: ?Object): Function {
+type Store = {
+	subscribe(
+		slice: { type: Function },
+		range?: { start?: number, before?: number, after?: number },
+		callback: Function
+	): { remove: Function };
+	[key: string]: Function;
+}
+
+type MapSubscriptionToProps = {
+	[key: string]: string | {
+		slice: string | { type: string };
+		range?: { start?: number, before?: number, after?: number },
+		transform?: Function;
+	}
+};
+
+type MapSubscriptionToPropsCreator = (props: Object) => MapSubscriptionToProps;
+
+type MapActionsToProps = {
+	[key: string]: (props: Object, store: Store) => Function
+};
+
+export default function(
+	mapSubscriptionToProps?: MapSubscriptionToProps|MapSubscriptionToPropsCreator,
+	mapActionsToProps?: MapActionsToProps
+): Function {
 	if (process.env.NODE_ENV !== 'production') {
 		if (
 			typeof mapSubscriptionToProps === 'object' &&
@@ -26,7 +52,7 @@ export default function(mapSubscriptionToProps: ?Object|Function, mapActionsToPr
 	}
 
 	return function(Target: ReactClass): ReactClass {
-		return class Connect extends Component {
+		return class Connect extends Component<{}, {}, { store: Store }> {
 			static contextTypes = {
 				store: storeShape.isRequired
 			};
@@ -43,7 +69,13 @@ export default function(mapSubscriptionToProps: ?Object|Function, mapActionsToPr
 				}
 
 				if (mapSubscriptionToProps) {
-					const subscriptions = typeof mapSubscriptionToProps === 'function' ? mapSubscriptionToProps(this.props) : mapSubscriptionToProps;
+					let subscriptions;
+
+					if (typeof mapSubscriptionToProps === 'function') {
+						subscriptions = mapSubscriptionToProps(this.props);
+					} else if (typeof mapSubscriptionToProps === 'object') {
+						subscriptions = mapSubscriptionToProps;
+					}
 
 					for (const item in subscriptions) {
 						const sub = subscriptions[item];
@@ -101,7 +133,7 @@ export default function(mapSubscriptionToProps: ?Object|Function, mapActionsToPr
 
 				if (mapActionsToProps) {
 					for (const item in mapActionsToProps) {
-						const action = mapActionsToProps[item](this.context.store, this.props);
+						const action = mapActionsToProps[item](this.props, this.context.store);
 
 						if (typeof action !== 'function') {
 							throw new Error(`Invalid action in ${item}. Action creators must return a curried action function.`);
