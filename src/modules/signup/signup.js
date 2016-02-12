@@ -1,10 +1,8 @@
 /* @flow */
 
-'use strict';
-
 import { bus, cache, config } from '../../core.js';
 import jwt from 'jsonwebtoken';
-import objectUtils from '../../lib/object-utils.js';
+import merge from 'deepmerge';
 
 // sign with default (HMAC SHA256)
 var tokenValidity = 604800,
@@ -58,7 +56,7 @@ function signuphandler(changes, next) {
 		.catch(next);
 	} else if (changes.auth && changes.auth.signin) {
 		if (!changes.auth.signin) changes.auth.signin = {};
-		signup = objectUtils.merge(changes.auth.signin, signup);
+		signup = merge(changes.auth.signin, signup);
 		generateSignedIdentities(signup.identities).then(function(session) {
 			signup.signedIdentities = session;
 			next();

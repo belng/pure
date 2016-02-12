@@ -1,11 +1,11 @@
-/* eslint-env browser */
+/* @flow */
 
 'use strict';
 
-module.exports = function (num) {
-	var n, i, l, s, crypto = window.crypto || window.msCrypto;
+export default function(n?: number = 20): string {
+	const crypto = window.crypto || window.msCrypto;
 
-	n = (typeof num !== 'number' || isNaN(num)) ? 20 : num;
+	let i, l, s;
 
 	if (crypto) {
 		s = btoa(String.fromCharCode.apply(
@@ -20,4 +20,4 @@ module.exports = function (num) {
 	}
 
 	return s.substring(0, n);
-};
+}
