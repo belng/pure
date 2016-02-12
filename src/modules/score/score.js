@@ -1,5 +1,3 @@
-'use strict';
-
 import { Constants, bus } from '../../core';
 
 function getScore(params) {
