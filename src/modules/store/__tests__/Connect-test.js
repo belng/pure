@@ -33,11 +33,11 @@ describe('Connect', () => {
 		const ConnectedComponent = Connect({
 			firstName: 'f',
 			middleName: {
-				key: 'm',
-				extract: name => `'${name}'`
+				slice: 'm',
+				transform: name => `'${name}'`
 			},
 			lastName: {
-				key: {
+				slice: {
 					type: 'l',
 				}
 			},

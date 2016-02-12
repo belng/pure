@@ -60,9 +60,9 @@ export default function(mapSubscriptionToProps: ?Object|Function, mapActionsToPr
 							break;
 						case 'object':
 							listener = store.subscribe(
-								typeof sub.key === 'string' ? { type: sub.key } : sub.key,
+								typeof sub.slice === 'string' ? { type: sub.slice } : sub.slice,
 								sub.range,
-								this._updateListener(item, sub.extract)
+								this._updateListener(item, sub.transform)
 							);
 							break;
 						default:
@@ -90,9 +90,9 @@ export default function(mapSubscriptionToProps: ?Object|Function, mapActionsToPr
 				return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 			}
 
-			_updateListener = (name, extract) => {
+			_updateListener = (name, transform) => {
 				return data => this.setState({
-					[name]: extract ? extract(data) : data
+					[name]: transform ? transform(data) : data
 				});
 			};
 
