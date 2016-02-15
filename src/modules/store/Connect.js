@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import shallowEqual from 'shallowequal';
+import mapValues from 'lodash/mapValues';
 import storeShape from './storeShape';
 
 type Store = {
@@ -130,20 +131,17 @@ export default function(
 
 			render() {
 				const props = { ...this.props, ...this.state };
+				const actions = mapActionsToProps ? mapValues(mapActionsToProps, (value, key) => {
+					const action = value(this.props, this.context.store);
 
-				if (mapActionsToProps) {
-					for (const item in mapActionsToProps) {
-						const action = mapActionsToProps[item](this.props, this.context.store);
-
-						if (typeof action !== 'function') {
-							throw new Error(`Invalid action in ${item}. Action creators must return a curried action function.`);
-						}
-
-						props[item] = action;
+					if (typeof action !== 'function') {
+						throw new Error(`Invalid action in ${key}. Action creators must return a curried action function.`);
 					}
-				}
 
-				return <Target {...props} />;
+					return action;
+				}) : null;
+
+				return <Target {...props} {...actions} />;
 			}
 		};
 	};
