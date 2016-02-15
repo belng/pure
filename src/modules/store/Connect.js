@@ -132,7 +132,7 @@ export default function(
 			render() {
 				const props = { ...this.props, ...this.state };
 				const actions = mapActionsToProps ? mapValues(mapActionsToProps, (value, key) => {
-					const action = value(this.props, this.context.store);
+					const action = value(props, this.context.store);
 
 					if (typeof action !== 'function') {
 						throw new Error(`Invalid action in ${key}. Action creators must return a curried action function.`);
