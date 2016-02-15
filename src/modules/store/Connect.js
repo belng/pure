@@ -29,8 +29,8 @@ type MapActionsToProps = {
 };
 
 export default function(
-	mapSubscriptionToProps?: MapSubscriptionToProps|MapSubscriptionToPropsCreator,
-	mapActionsToProps?: MapActionsToProps
+	mapSubscriptionToProps: ?MapSubscriptionToProps|MapSubscriptionToPropsCreator,
+	mapActionsToProps: ?MapActionsToProps
 ): Function {
 	if (process.env.NODE_ENV !== 'production') {
 		if (
@@ -62,7 +62,7 @@ export default function(
 
 			_subscriptions: Array<Function> = [];
 
-			componentDidMount() {
+			_addSubscriptions = () => {
 				const { store } = this.context;
 
 				if (typeof store !== 'object') {
@@ -107,9 +107,9 @@ export default function(
 						}
 					}
 				}
-			}
+			};
 
-			componentWillUnmount() {
+			_removeSubscriptions = () => {
 				if (this._subscriptions) {
 					for (let i = 0, l = this._subscriptions.length; i < l; i++) {
 						this._subscriptions[i].remove();
@@ -117,6 +117,31 @@ export default function(
 
 					this._subscriptions = [];
 				}
+			};
+
+			_renewSubscriptions = () => {
+				this._removeSubscriptions();
+				this._addSubscriptions();
+			};
+
+			componentDidMount() {
+				this._addSubscriptions();
+			}
+
+			componentDidUpdate(prevProps) {
+				if (typeof mapSubscriptionToProps !== 'function') {
+					return;
+				}
+
+				if (shallowEqual(prevProps, this.props)) {
+					return;
+				}
+
+				this._renewSubscriptions();
+			}
+
+			componentWillUnmount() {
+				this._removeSubscriptions();
 			}
 
 			shouldComponentUpdate(nextProps, nextState) {
