@@ -169,11 +169,21 @@ cache.me = (opts, callback) => {
 
 cache.onSubscribe = (fn) => {
 	this._subscriptionWatchs.push(fn);
+	return () => {
+		const index = this._subscriptionWatchs.indexOf(fn);
+
+		if (index > -1) this._subscriptionWatchs.splice(index, 1);
+	};
 };
 
 
 cache.onUnsubscribe = (fn) => {
 	this._unsubscriptionWatchs.push(fn);
+	return () => {
+		const index = this._unsubscriptionWatchs.indexOf(fn);
+
+		if (index > -1) this._unsubscriptionWatchs.splice(index, 1);
+	};
 };
 cache._subscriptionWatchs = [];
 cache._unsubscriptionWatchs = [];
