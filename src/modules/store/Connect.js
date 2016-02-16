@@ -31,7 +31,7 @@ type MapActionsToProps = {
 export default function(
 	mapSubscriptionToProps: ?MapSubscriptionToProps|MapSubscriptionToPropsCreator,
 	mapActionsToProps: ?MapActionsToProps
-): Function {
+): (Target: ReactClass) => ReactClass {
 	if (process.env.NODE_ENV !== 'production') {
 		if (
 			typeof mapSubscriptionToProps === 'object' &&
