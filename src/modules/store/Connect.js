@@ -5,19 +5,41 @@ import shallowEqual from 'shallowequal';
 import mapValues from 'lodash/mapValues';
 import storeShape from './storeShape';
 
+type Subscription = {
+	remove: () => void
+}
+
+type SubscriptionSlice = {
+	type: string;
+	order: string;
+	filter?: Object;
+}
+
+type SubscriptionRange = {
+	start?: number,
+	before?: number,
+	after?: number
+}
+
 type Store = {
 	subscribe(
-		slice: { type: Function },
-		range?: { start?: number, before?: number, after?: number },
+		options: {
+			what?: string;
+			slice?: SubscriptionSlice;
+			range?: SubscriptionRange;
+		},
 		callback: Function
-	): { remove: Function };
+	): Subscription;
 	[key: string]: Function;
 }
 
 type MapSubscriptionToProps = {
 	[key: string]: string | {
-		slice: string | { type: string };
-		range?: { start?: number, before?: number, after?: number },
+		key: string | {
+			type?: string;
+			slice?: SubscriptionSlice;
+			range?: SubscriptionRange;
+		};
 		transform?: Function;
 	}
 };
@@ -86,15 +108,13 @@ export default function(
 						switch (typeof sub) {
 						case 'string':
 							listener = store.subscribe(
-								{ type: sub },
-								null,
+								{ what: sub },
 								this._updateListener(item)
 							);
 							break;
 						case 'object':
 							listener = store.subscribe(
-								typeof sub.slice === 'string' ? { type: sub.slice } : sub.slice,
-								sub.range,
+								typeof sub.key === 'string' ? { what: sub.key } : { ...sub.key, what: sub.key.type, type: null },
 								this._updateListener(item, sub.transform)
 							);
 							break;
