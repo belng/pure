@@ -1,5 +1,5 @@
-/* eslint-disable react/no-danger */
 /* @flow */
+/* eslint-disable react/no-danger */
 
 import React from 'react';
 
