@@ -1,6 +1,5 @@
 import { cache } from '../../core';
-import clone from 'clone';
-import merge from 'merge';
+import cloneDeep from 'lodash/cloneDeep';
 
 cache.getThreadById = function(threadId, callback) {
 	return this.getEntity(threadId, callback);
@@ -113,7 +112,7 @@ cache.getRelatedEntity = function(type, id, f) {
 
 			entity = this['get' + (type === 'user' ? 'Room' : 'User')](relation[type]);
 
-			results.push(merge(clone(relation), entity));
+			results.push(Object.assign((cloneDeep(relation), entity)));
 		});
 	}
 

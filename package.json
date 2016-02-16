@@ -7,8 +7,6 @@
   "dependencies": {
     "big-integer": "^1.6.11",
     "casual": "^1.5.1",
-    "clone": "^1.0.2",
-    "deepmerge": "^0.2.10",
     "ebus": "^0.12.0",
     "engine.io": "^1.6.8",
     "engine.io-client": "^1.6.8",
@@ -23,7 +21,6 @@
     "koa-webpack-dev-middleware": "^1.1.0",
     "koa-webpack-hot-middleware": "^1.0.3",
     "lodash": "^4.4.0",
-    "merge": "^1.2.0",
     "node-uuid": "^1.4.7",
     "nodemailer": "^2.1.0",
     "pg": "^4.4.4",
