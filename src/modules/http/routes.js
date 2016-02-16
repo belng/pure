@@ -5,7 +5,7 @@ import ReactDOMServer from 'react-dom/server';
 import ServerHTML from '../../ui/ServerHTML';
 import Home from '../../ui/components/views/Home.web';
 
-export function *home<T>(): Iterable<T> {
+export function *home(): Generator {
 	this.body = '<!DOCTYPE html>' + ReactDOMServer.renderToStaticMarkup(
 		<ServerHTML
 			locale='en'
