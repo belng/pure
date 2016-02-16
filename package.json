@@ -21,6 +21,7 @@
     "koa-static": "^2.0.0",
     "koa-webpack-dev-middleware": "^1.1.0",
     "koa-webpack-hot-middleware": "^1.0.3",
+    "lodash": "^4.3.0",
     "node-uuid": "^1.4.7",
     "nodemailer": "^2.1.0",
     "pg": "^4.4.4",
@@ -93,7 +94,8 @@
       "<rootDir>/node_modules/inline-style-prefixer",
       "<rootDir>/node_modules/bowser",
       "<rootDir>/node_modules/babel-runtime",
-      "<rootDir>/node_modules/core-js"
+      "<rootDir>/node_modules/core-js",
+      "<rootDir>/node_modules/lodash"
     ]
   }
 }

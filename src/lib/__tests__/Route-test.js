@@ -1,6 +1,7 @@
 /* eslint-env jest */
 
 jest.dontMock('../Route');
+jest.dontMock('../RouteBase');
 
 const { convertURLToRoute, convertRouteToURL } = require('../Route');
 
@@ -29,7 +30,6 @@ describe('convertURLToRoute', () => {
 	it('should parse url with /me', () => {
 		expect({
 			name: 'home',
-			props: {}
 		}).toEqual(convertURLToRoute('/me'));
 	});
 
@@ -131,10 +131,9 @@ describe('convertURLToRoute', () => {
 		}).toEqual(convertURLToRoute('/someroom/abc456def/awesome-thread-is-this?time=1214340045721'));
 	});
 
-	it('should parse url when room in invalid', () => {
+	it('should parse url when room is invalid', () => {
 		const result = {
 			name: 'home',
-			props: {}
 		};
 
 		expect(result).toEqual(convertURLToRoute('/b'));
@@ -191,14 +190,22 @@ describe('convertRouteToURL', () => {
 	});
 
 	it('should build url with home', () => {
-		expect('/me').toEqual(convertRouteToURL({
-			name: 'home',
-			props: {}
+		expect('/:home/').toEqual(convertRouteToURL({
+			name: 'home'
+		}));
+	});
+
+	it('should build url with notes', () => {
+		expect('/:notes?type=unread').toEqual(convertRouteToURL({
+			name: 'notes',
+			props: {
+				type: 'unread'
+			}
 		}));
 	});
 
 	it('should build url with room', () => {
-		expect('/someroom').toEqual(convertRouteToURL({
+		expect('/someroom/').toEqual(convertRouteToURL({
 			name: 'room',
 			props: {
 				room: 'someroom'
@@ -207,7 +214,7 @@ describe('convertRouteToURL', () => {
 	});
 
 	it('should build url with thread', () => {
-		expect('/someroom/abc456def').toEqual(convertRouteToURL({
+		expect('/someroom/abc456def/').toEqual(convertRouteToURL({
 			name: 'chat',
 			props: {
 				room: 'someroom',
@@ -217,7 +224,7 @@ describe('convertRouteToURL', () => {
 	});
 
 	it('should build url when thread is not given', () => {
-		expect('/someroom').toEqual(convertRouteToURL({
+		expect('/someroom/').toEqual(convertRouteToURL({
 			name: 'room',
 			props: {
 				room: 'someroom',
@@ -227,7 +234,7 @@ describe('convertRouteToURL', () => {
 	});
 
 	it('should build url when thread title is given', () => {
-		expect('/someroom/abc456def?title=such-awesome-much-thread-wow').toEqual(convertRouteToURL({
+		expect('/someroom/abc456def/such-awesome-much-thread-wow').toEqual(convertRouteToURL({
 			name: 'chat',
 			props: {
 				room: 'someroom',

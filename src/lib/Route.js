@@ -1,36 +1,14 @@
-/*
- * Routes are in the format
- * string: '{type}?key1=value1&key2=value2'
- * object:
- * 		{
- * 			name: <type>,
- * 			props: <props>
- * 		}
- *
- * @flow
- */
+/* @flow */
 
-export type Route = {
-	name: string;
-	props: {
-		room?: string,
-		thread?: string;
-		title?: string;
-		time?: number;
-	};
-	fullscreen?: boolean
-}
+import type { NavigationState, Route } from './RouteTypes';
+import * as RouteBase from './RouteBase';
 
-export type NavigationState = {
-	routes: Array<Route>;
-	index: number
-}
-
-export function getHomeRoute(): Route {
-	return {
-		name: 'home',
-		props: {}
-	};
+function transformParam(key, value) {
+	if (key === 'time' || key === 'page') {
+		return parseInt(value, 10);
+	} else {
+		return value;
+	}
 }
 
 export function convertRouteToURL(route: Route): string {
@@ -38,26 +16,37 @@ export function convertRouteToURL(route: Route): string {
 		throw new TypeError('Invalid route given');
 	}
 
+	const home = {
+		name: 'home',
+	};
+
 	switch (route.name) {
 	case 'room':
-		return `/${encodeURIComponent(route.props.room || '')}`;
-	case 'chat':
-		let title;
-
-		if (route.props.title) {
-			title = encodeURIComponent(route.props.title.toLowerCase().trim().replace(/['"]/g, '').replace(/\W+/g, '-').replace(/\-$/, ''));
+		if (route.props && route.props.room) {
+			return `/${encodeURIComponent(route.props.room)}/`;
 		}
 
-		return `/${encodeURIComponent(route.props.room || '')}/${encodeURIComponent(route.props.thread || '')}${title ? '?title=' + title : ''}`;
-	case 'notes':
-	case 'account':
-		return `/:${route.name}`;
-	case 'compose':
-		return `/:${route.name}?room=${encodeURIComponent(route.props.room || '')}`;
-	case 'details':
-		return `/:${route.name}?room=${encodeURIComponent(route.props.room || '')}&thread=${encodeURIComponent(route.props.thread || '')}`;
+		return RouteBase.convertRouteToURL(home);
+	case 'chat':
+		if (route.props && route.props.room && route.props.thread) {
+			let title;
+
+			if (route.props.title) {
+				title = encodeURIComponent(route.props.title.toLowerCase().trim().replace(/['"]/g, '').replace(/\W+/g, '-').replace(/\-$/, ''));
+			} else {
+				title = '';
+			}
+
+			const room = encodeURIComponent(route.props.room);
+			// $FlowIssue
+			const thread = encodeURIComponent(route.props.thread);
+
+			return `/${room}/${thread}/${title}`;
+		}
+
+		return RouteBase.convertRouteToURL(home);
 	default:
-		return `/me`;
+		return RouteBase.convertRouteToURL(route);
 	}
 }
 
@@ -66,39 +55,19 @@ export function convertURLToRoute(url: string): Route {
 		throw new TypeError('Invalid URL given');
 	}
 
-	const parts = url
-					.replace(/^([a-z]+\:)?\/\/[^\/]+/, '') // strip host and protocol
-					.replace(/^\/|\/$/g, '') // strip leading and trailing slash
-					.split('?');
+	const processed = RouteBase.processURL(url);
 
-	const params = parts[0].split('/');
-	const query = parts[1] ? parts[1].split('&') : null;
-	const type = params[0] ? decodeURIComponent(params[0]).toLowerCase() : null;
-	const name = params[1] ? decodeURIComponent(params[1]).toLowerCase() : null;
-	const props = {};
-
-	if (query) {
-		for (let i = 0, l = query.length; i < l; i++) {
-			const kv = query[i].split('=');
-			const key = decodeURIComponent(kv[0]).toLowerCase();
-			const value = decodeURIComponent(kv[1]).toLowerCase();
-
-			if (key === 'time') {
-				props[key] = parseInt(value, 10);
-			} else {
-				props[key] = value;
-			}
-		}
+	if (processed.indexOf(':') === 0) {
+		return RouteBase.convertURLToRoute(processed, transformParam);
 	}
 
-	if (type) {
-		if (type.indexOf(':') === 0) {
-			return {
-				name: type.slice(1),
-				props
-			};
-		}
+	const parts = processed.split('?');
+	const paths = parts[0].split('/');
+	const props = parts[1] ? RouteBase.decodeParams(parts[1], transformParam) : {};
+	const type = paths[0] ? decodeURIComponent(paths[0]).toLowerCase() : null;
+	const name = paths[1] ? decodeURIComponent(paths[1]).toLowerCase() : null;
 
+	if (type) {
 		if (name) {
 			if (name === 'all') {
 				return {
@@ -133,67 +102,28 @@ export function convertURLToRoute(url: string): Route {
 		}
 	}
 
-	return getHomeRoute();
+	return {
+		name: 'home',
+	};
 }
 
+const stacks = {
+	home: [ 'home' ],
+	chat: [ 'home', 'room', 'chat' ],
+	compose: [ 'home', 'room', 'compose' ],
+	details: [ 'home', 'room', 'chat', 'details' ],
+};
+
 export function convertRouteToState(route: Route): NavigationState {
-	const state = {
-		routes: [
-			getHomeRoute()
-		],
-		index: 0
-	};
+	const stack = stacks[route.name] || [ 'home', route.name ];
 
-	const room = {
-		name: 'room',
-		props: route.props
+	return {
+		routes: stack.map(name => ({
+			name,
+			props: route.props
+		})),
+		index: stack.length - 1
 	};
-
-	const chat = {
-		name: 'chat',
-		props: route.props
-	};
-
-	switch (route.name) {
-	case 'room':
-	case 'notes':
-	case 'account':
-	case 'places':
-		return {
-			routes: [
-				...state.routes,
-				route
-			],
-			index: state.index + 1
-		};
-	case 'chat':
-	case 'compose':
-		return {
-			routes: [
-				...state.routes,
-				room,
-				route
-			],
-			index: state.index + 2
-		};
-	case 'details':
-		return {
-			routes: [
-				...state.routes,
-				room,
-				chat,
-				route
-			],
-			index: state.index + 3
-		};
-	case 'onboard':
-		return {
-			routes: [ route ],
-			index: 0
-		};
-	default:
-		return state;
-	}
 }
 
 export function convertURLToState(url: string): NavigationState {
