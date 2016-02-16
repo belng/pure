@@ -1,37 +1,19 @@
+/* @flow */
+
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import ServerHTML from '../../ui/ServerHTML';
-import Hello from '../../ui/components/views/Hello';
+import Home from '../../ui/components/views/Home.web';
 
-export function *home() {
+export function *home<T>(): Iterable<T> {
 	this.body = '<!DOCTYPE html>' + ReactDOMServer.renderToStaticMarkup(
 		<ServerHTML
-			locale="en"
-			title="React Bolierplate"
-			description="Simple boilerplate for React"
-			body={ReactDOMServer.renderToString(<Hello radiumConfig={{ userAgent: this.headers['user-agent'] }} />)}
-		/>
-	);
-}
-
-export function *room(roomId) {
-	this.body = '<!DOCTYPE html>' + ReactDOMServer.renderToStaticMarkup(
-		<ServerHTML
-			locale="en"
-			title={roomId}
-			description="Simple boilerplate for React"
-			body={ReactDOMServer.renderToString(<Hello radiumConfig={{ userAgent: this.headers['user-agent'] }} />)}
-		/>
-	);
-}
-
-export function *thread(roomId, threadId) {
-	this.body = '<!DOCTYPE html>' + ReactDOMServer.renderToStaticMarkup(
-		<ServerHTML
-			locale="en"
-			title={threadId + ' - ' + roomId}
-			description="Simple boilerplate for React"
-			body={ReactDOMServer.renderToString(<Hello radiumConfig={{ userAgent: this.headers['user-agent'] }} />)}
+			locale='en'
+			title='React Bolierplate'
+			description='Simple boilerplate for React'
+			body={ReactDOMServer.renderToString(<Home radiumConfig={{ userAgent: this.headers['user-agent'] }} />)}
+			image={`${this.request.origin}/assets/thumbnail.png`}
+			permalink={this.request.href}
 		/>
 	);
 }

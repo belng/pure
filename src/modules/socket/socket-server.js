@@ -1,6 +1,6 @@
 import engine from 'engine.io';
 import stringPack from 'stringpack';
-import core from '../../core';
+import * as core from '../../core';
 import uid from '../../lib/uid-server';
 import notify from './dispatch';
 import models from '../../models/models';

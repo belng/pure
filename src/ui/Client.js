@@ -1,10 +1,10 @@
 import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Hello from './components/views/Hello';
+import Home from './components/views/Home.web';
 
 document.addEventListener('readystatechange', () => {
 	if (document.readyState === 'complete') {
-		ReactDOM.render(<Hello />, document.getElementById('root'));
+		ReactDOM.render(<Home />, document.getElementById('root'));
 	}
 });

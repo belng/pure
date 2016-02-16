@@ -7,10 +7,11 @@ import webpack from 'webpack';
 import webpackDevMiddleware from 'koa-webpack-dev-middleware';
 import webpackHotMiddleware from 'koa-webpack-hot-middleware';
 import webpackConfig from '../../../webpack.config';
-import { home, room, thread } from './routes';
-import { bus } from '../../core';
+import { home } from './routes';
+import { config, bus } from '../../core';
 
-const app = koa(), httpServer = http.createServer(app.callback()).listen(7528);
+const app = koa();
+const httpServer = http.createServer(app.callback()).listen(config.server.port);
 
 if (process.env.NODE_ENV !== 'production') {
 	const compiler = webpack(webpackConfig);
@@ -34,6 +35,3 @@ bus.emit('http/init', app);
 // Serve files under static/dist for any requests to /dist/
 app.use(mount('/dist', serve('static/dist'), { defer: true }));
 app.use(route.get('/', home));
-app.use(route.get('/:room', room));
-app.use(route.get('/:room/:thread', thread));
-app.use(route.get('/:room/:thread/:title', thread));

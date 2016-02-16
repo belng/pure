@@ -1,4 +1,10 @@
 {
+	"server": {
+		"protocol": "http:",
+		"host": "localhost",
+		"port": 7528
+	},
+
 	"session": {},
 
 	"email": {

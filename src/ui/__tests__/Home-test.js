@@ -1,17 +1,18 @@
 /* eslint-env jest */
-
-jest.dontMock('../components/views/Hello');
+/* eslint-disable import/no-commonjs */
 
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
 
-const Hello = require('../components/views/Hello').default;
+jest.dontMock('../components/views/Hello');
 
-describe('Hello', () => {
+const Home = require('../components/views/Home').default;
+
+describe('Home', () => {
 	it("renders 'Hello world' message", () => {
 		// Render a the app in the document
-		const app = TestUtils.renderIntoDocument(<Hello />);
+		const app = TestUtils.renderIntoDocument(<Home />);
 		const appNode = ReactDOM.findDOMNode(app);
 
 		// Verify the message is displayed
