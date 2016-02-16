@@ -1,15 +1,10 @@
 {
-	"session": {},
+	"session":{
+
+	},
 
 	"email": {
-		"pg": {
-			"username": "scrollback",
-			"password": "",
-			"server": "localhost",
-			"db": "pure"
-		},
-		"appName": "scrollback",
-		"secret": "ASD",
+		"secret":"ASD",
 		"debug": true,
 		"auth": true
 	},
@@ -21,6 +16,6 @@
 	"google": {
 
 	},
-
+	"appName": "scrollback",
 	"connStr": "pg://scrollback:@localhost/pure"
 }
