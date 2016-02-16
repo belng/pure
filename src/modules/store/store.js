@@ -120,4 +120,56 @@ cache.getRelatedEntity = function(type, id, f) {
 	return results;
 };
 
+cache.subscribe = (opts, callback) => {
+	const unwatch = (() => {
+		switch (opts.what) {
+		case 'entity':
+			return this.getEntity(opts.id, callback);
+		default:
+			return this[opts.what](opts, callback);
+		}
+	})();
+
+	for (const watch of this._subscriptionWatchs) {
+		watch(opts);
+	}
+
+	return () => {
+		for (const watch of this._unsubscriptionWatchs) {
+			watch(opts);
+		}
+		unwatch();
+	};
+};
+
+cache.me = (opts, callback) => {
+	const user = cache.getApp([ 'user' ]);
+	let unwatchApp, unwatchMe;
+
+	function fire(id) {
+		if (unwatchMe) unwatchMe();
+		unwatchMe = cache.watchEntity(id, (entity) => {
+			callback(entity);
+		});
+	}
+
+	fire(user);
+	unwatchApp = cache.watchApp([ 'user' ], fire);
+
+	return function() {
+		unwatchApp();
+		unwatchMe();
+	};
+};
+
+cache.onSubscribe = (fn) => {
+	this._subscriptionWatchs.push(fn);
+};
+
+
+cache.onUnsubscribe = (fn) => {
+	this._unsubscriptionWatchs.push(fn);
+};
+cache._subscriptionWatchs = [];
+cache._unsubscriptionWatchs = [];
 export default cache;
