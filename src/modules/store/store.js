@@ -1,4 +1,6 @@
-import { cache } from '../../app';
+import { cache } from '../../core';
+import clone from 'clone';
+import merge from 'merge';
 
 cache.getThreadById = function(threadId, callback) {
 	return this.getEntity(threadId, callback);
@@ -63,7 +65,7 @@ cache.getNearByRooms = function() {
 };
 
 cache.getUser = function(id) {
-	const userObj = this.getEntity(id || this.get('app', 'user'), callback);
+	const userObj = this.getEntity(id || this.get('app', 'user'));
 
 	if (typeof userObj === 'object') {
 		if (userObj.type === 'user') {
@@ -111,11 +113,11 @@ cache.getRelatedEntity = function(type, id, f) {
 
 			entity = this['get' + (type === 'user' ? 'Room' : 'User')](relation[type]);
 
-			results.push(objUtils.merge(objUtils.clone(relation), entity));
+			results.push(merge(clone(relation), entity));
 		});
 	}
 
 	return results;
 };
 
-module.exports = cache;
+export default cache;
