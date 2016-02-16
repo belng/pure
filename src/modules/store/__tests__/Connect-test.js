@@ -148,7 +148,12 @@ describe('Connect', () => {
 		let callback;
 
 		const store = {
-			subscribe: (slice, range, cb) => callback = slice.type === 'label' ? cb : null,
+			subscribe: (slice, range, cb) => {
+				callback = slice.type === 'label' ? cb : null;
+				return {
+					remove: () => callback = null
+				};
+			},
 			dispatch: action => action.type === 'CLICK' ? callback(action.payload.label) : null,
 		};
 

@@ -1,4 +1,6 @@
-import { cache } from '../../app';
+import { cache } from '../../core';
+import clone from 'clone';
+import merge from 'merge';
 
 cache.getThreadById = function(threadId, callback) {
 	return this.getEntity(threadId, callback);
@@ -63,7 +65,7 @@ cache.getNearByRooms = function() {
 };
 
 cache.getUser = function(id) {
-	const userObj = this.getEntity(id || this.get('app', 'user'), callback);
+	const userObj = this.getEntity(id || this.get('app', 'user'));
 
 	if (typeof userObj === 'object') {
 		if (userObj.type === 'user') {
@@ -111,11 +113,78 @@ cache.getRelatedEntity = function(type, id, f) {
 
 			entity = this['get' + (type === 'user' ? 'Room' : 'User')](relation[type]);
 
-			results.push(objUtils.merge(objUtils.clone(relation), entity));
+			results.push(merge(clone(relation), entity));
 		});
 	}
 
 	return results;
 };
 
-module.exports = cache;
+cache.subscribe = (opts, callback) => {
+	const unwatch = (() => { // probably too many functions wrapped.
+		switch (opts.what) {
+		case 'entity':
+			return this.watchEntity(opts.id, callback);
+		case 'texts':
+		case 'threads':
+			return this.watch(opts.slice, opts.range, callback);
+		case 'app':
+			return this.watchApp(opts.path, callback);
+		default:
+			return this[opts.what](opts, callback);
+		}
+	})();
+
+	for (const watch of this._subscriptionWatchs) {
+		watch(opts);
+	}
+
+	return () => {
+		for (const watch of this._unsubscriptionWatchs) {
+			watch(opts);
+		}
+		unwatch();
+	};
+};
+
+cache.me = (opts, callback) => {
+	const user = cache.getApp([ 'user' ]);
+	let unwatchApp, unwatchMe;
+
+	function fire(id) {
+		if (unwatchMe) unwatchMe();
+		unwatchMe = cache.watchEntity(id, (entity) => {
+			callback(entity);
+		});
+	}
+
+	fire(user);
+	unwatchApp = cache.watchApp([ 'user' ], fire);
+
+	return function() {
+		unwatchApp();
+		unwatchMe();
+	};
+};
+
+cache.onSubscribe = (fn) => {
+	this._subscriptionWatchs.push(fn);
+	return () => {
+		const index = this._subscriptionWatchs.indexOf(fn);
+
+		if (index > -1) this._subscriptionWatchs.splice(index, 1);
+	};
+};
+
+
+cache.onUnsubscribe = (fn) => {
+	this._unsubscriptionWatchs.push(fn);
+	return () => {
+		const index = this._unsubscriptionWatchs.indexOf(fn);
+
+		if (index > -1) this._unsubscriptionWatchs.splice(index, 1);
+	};
+};
+cache._subscriptionWatchs = [];
+cache._unsubscriptionWatchs = [];
+export default cache;
