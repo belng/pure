@@ -121,10 +121,15 @@ cache.getRelatedEntity = function(type, id, f) {
 };
 
 cache.subscribe = (opts, callback) => {
-	const unwatch = (() => {
+	const unwatch = (() => { // probably too many functions wrapped.
 		switch (opts.what) {
 		case 'entity':
-			return this.getEntity(opts.id, callback);
+			return this.watchEntity(opts.id, callback);
+		case 'texts':
+		case 'threads':
+			return this.watch(opts.slice, opts.range, callback);
+		case 'app':
+			return this.watchApp(opts.path, callback);
 		default:
 			return this[opts.what](opts, callback);
 		}
