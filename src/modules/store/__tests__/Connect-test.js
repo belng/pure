@@ -5,6 +5,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
 
+jest.dontMock('../Container');
 jest.dontMock('../Connect');
 jest.dontMock('../Provider');
 jest.dontMock('../storeShape');
