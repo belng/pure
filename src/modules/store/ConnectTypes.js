@@ -11,9 +11,9 @@ export type SubscriptionSlice = {
 }
 
 export type SubscriptionRange = {
-	start?: number,
-	before?: number,
-	after?: number
+	start: ?number,
+	before: ?number,
+	after: ?number
 }
 
 export type Store = {
