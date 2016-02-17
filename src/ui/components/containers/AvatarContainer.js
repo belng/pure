@@ -3,6 +3,7 @@
 import { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import getAvatarURL from '../../../lib/getAvatarURL';
+import Dummy from '../views/Dummy';
 
 const extractAvatarURL = (user, size = 48) => {
 	if (user.picture) {
@@ -15,15 +16,17 @@ const extractAvatarURL = (user, size = 48) => {
 
 const AvatarContainer = Connect(({ nick, size }) => ({
 	user: {
-		slice: {
-			type: 'user',
-			filter: {
-				id: nick
+		key: {
+			slice: {
+				type: 'user',
+				filter: {
+					id: nick
+				}
 			}
 		},
 		transform: user => extractAvatarURL(user && user.id ? user : { id: nick }, size)
 	}
-}))(/* Component */);
+}))(Dummy);
 
 AvatarContainer.defaultProps = {
 	size: 48
