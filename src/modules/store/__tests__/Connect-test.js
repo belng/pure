@@ -133,8 +133,8 @@ describe('Connect', () => {
 	});
 
 	it('should pass dispatch and data', () => {
-		const ConnectedComponent = Connect(props => ({
-			label: props.sub
+		const ConnectedComponent = Connect(({ sub }) => ({
+			label: sub
 		}), {
 			click: (props, store) => () => store.dispatch({
 				type: 'CLICK',

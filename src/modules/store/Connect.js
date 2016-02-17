@@ -1,5 +1,5 @@
 /* @flow */
-/* eslint-disable react/sort-comp */
+/* eslint-disable no-console, react/sort-comp */
 
 import React, { Component } from 'react';
 import shallowEqual from 'shallowequal';
@@ -39,7 +39,7 @@ export default function(
 	}
 
 	return function(Target: ReactClass): ReactClass {
-		class Connect extends Component<{}, {}, { store: Store }> {
+		class Connect extends Component<{ store: Store }, Object> {
 			static propTypes = {
 				store: storeShape.isRequired
 			};
