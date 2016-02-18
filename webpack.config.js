@@ -9,7 +9,7 @@ const plugins = [
 ];
 
 const entry = [
-	'./src/ui/Client',
+	'./src/start/heyneighbor-client',
 ];
 
 const babelrc = JSON.parse(fs.readFileSync(path.join(__dirname, '.babelrc'), 'utf-8').toString());

@@ -1,1 +1,1 @@
-require('./modules/ui/render-client');
+import '../ui/Client';
