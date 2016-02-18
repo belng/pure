@@ -5,7 +5,7 @@ import Ebus from 'ebus';
 import SbCache from 'sbcache';
 import defaults from '../config/server-defaults.json';
 
-export { default as Constants } from '../Constants/Constants.json';
+export { default as Constants } from './lib/Constants';
 
 export type Bus = {
 	on(event: string, callback: Function, priority?: number|string): void;

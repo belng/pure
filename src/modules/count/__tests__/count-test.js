@@ -1,10 +1,10 @@
-'use strict';
+/* eslint-env jest */
 
 jest.autoMockOff();
 
 let core = require('../../../core'),
 	assert = require('assert'),
-	Constants = require('../../../../Constants/Constants.json'),
+	Constants = require('../../../lib/Constants'),
 	bus = core.bus,
 	cache = core.cache;
 //let count = require("../count");
