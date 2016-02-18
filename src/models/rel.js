@@ -5,6 +5,8 @@ export default class Relation {
 		for (const name of COLUMNS[data.type]) {
 			this[name] = data[name] || data[name.toLowerCase()];
 		}
+
+		Object.defineProperty(this, 'id', { get: () => this.user + '_' + this.item });
 	}
 
 	packArguments() {
@@ -14,9 +16,5 @@ export default class Relation {
 			data[name] = this[name];
 		}
 		return data;
-	}
-
-	getId() {
-		return this.user + '_' + this.item;
 	}
 }
