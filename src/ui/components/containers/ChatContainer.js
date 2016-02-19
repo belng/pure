@@ -17,7 +17,7 @@ const ChatContainer = Connect(({ thread }) => ({
 		}
 	}
 }), {
-	sendText: (props, store) => body => store.put(sendText({
+	sendText: (props, store) => body => store.setState(sendText({
 		body,
 		parents: [ props.thread.id ].push(...props.thread.parents),
 		creator: props.user
