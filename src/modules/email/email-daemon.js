@@ -1,6 +1,6 @@
 /* @flow */
 
-import pg from '../../lib/pg';
+import * as pg from '../../lib/pg';
 import winston from 'winston';
 import { config, Constants } from '../../core';
 import sendWelcomeEmail from './welcomeEmail';
@@ -21,13 +21,13 @@ if (!conf || !conf.auth) {
 		results.forEach((row) => {
 			switch (row.jobid) {
 			case Constants.JOB_EMAIL_WELCOME:
-				sendWelcomeEmail(row, conf);
+				sendWelcomeEmail(row);
 				break;
 			case Constants.JOB_EMAIL_MENTION:
-				sendMentionEmail(row, conf);
+				sendMentionEmail(row);
 				break;
 			case Constants.JOB_EMAIL_DIGEST:
-				sendDigestEmail(row, conf);
+				sendDigestEmail(row);
 				break;
 			default:
 				winston.info('wrong job id');

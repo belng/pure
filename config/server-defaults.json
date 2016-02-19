@@ -11,7 +11,7 @@
 
 	"email": {
 		"secret":"ASD",
-		"debug": true,
+		"debug": false,
 		"auth": true
 	},
 
@@ -22,6 +22,6 @@
 	"google": {
 
 	},
-	"appName": "scrollback",
+	"appName": "Heyneighbor",
 	"connStr": "pg://scrollback:@localhost/pure"
 }

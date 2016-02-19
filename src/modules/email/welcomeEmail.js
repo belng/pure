@@ -1,34 +1,50 @@
-'use strict';
-const WELCOME_INTERVAL = 5 * 60 * 1000, WELCOME_DELAY = 5 * 60 * 1000;
-
-import winston from 'winston';
+import log from 'winston';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import handlebars from 'handlebars';
-import pg from '../../lib/pg';
+import * as pg from '../../lib/pg';
 import send from './sendEmail.js';
-import { Constants } from '../../core';
-let template = handlebars.compile(fs.readFileSync(__dirname + '/views/welcomeEmail.hbs', 'utf-8')),
-	lastEmailSent, config, connStr ;
+import Counter from '../../lib/counter';
+import { Constants, config } from '../../core';
+const WELCOME_INTERVAL = 5 * 60 * 1000, WELCOME_DELAY = 5 * 60 * 1000, connStr = config.connStr, conf = config.email, counter = new Counter(),
+	template = handlebars.compile(fs.readFileSync(__dirname + '/views/welcomeEmail.hbs', 'utf-8'));
+
+let lastEmailSent, end;
 
 function initMailSending(cUserRel) {
-	if (!cUserRel.user) return;
-	let user = cUserRel.user,
+	const user = cUserRel.user,
 		rels = cUserRel.rels,
-		emailAdd = user.identities[0],
+		emailAdd = user.identities[0].slice(7),
 		emailHtml = template({
 			user: user.id,
-			rels: rels,
-			domain: config.domain,
-			token: jwt.sign({ email: emailAdd.substring(8, emailAdd.length) }, config.secret, { expiresIn: '2 days' })
+			rels,
+			domain: conf.domain,
+			token: jwt.sign({ email: emailAdd.substring(8, emailAdd.length) }, conf.secret, { expiresIn: '2 days' })
 		});
-	send(config.from, emailAdd, 'Welcome to ' + config.appName, emailHtml);
+
+	send(conf.from, emailAdd, 'Welcome to ' + conf.appName, emailHtml, (e) => {
+		counter.inc();
+		if (!e) {
+			log.info('Welcome email successfully sent');
+			counter.dec();
+			// console.log('counter1.pending: ',counter1.pending)
+			counter.then(() => {
+				pg.write(connStr, [ {
+					$: 'UPDATE jobs SET lastrun=&{end} WHERE jobid=&{jid}',
+					end,
+					jid: Constants.JOB_EMAIL_WELCOME
+				} ], (error) => {
+					if (!error) log.info('successfully updated jobs for welcome email');
+				});
+			});
+		}
+	});
 }
 
 function sendWelcomeEmail () {
-	let getMailObj = require('./buildMailObj');
-	let end = Date.now() - /*10000*/WELCOME_DELAY;
-	if (config.debug) {
+	end = Date.now() - /* 10000 */WELCOME_DELAY;
+
+	if (conf.debug) {
 		lastEmailSent = 0;
 		end = Date.now();
 	}
@@ -36,11 +52,13 @@ function sendWelcomeEmail () {
 		$: `SELECT * FROM users WHERE NOT(tags @> '{10}') AND createtime >&{start} AND createtime <= &{end} `,
 		guest: Constants.TAG_USER_GUEST,
 		start: lastEmailSent,
-		end: end
+		end
 	}).on('row', (user) => {
-		winston.info('Got a new user: ', user.id);
-		let userRel = {}, rels = [];
+		log.info('Got a new user: ', user.id);
+		const userRel = {}, rels = [];
+
 		userRel.user = user;
+
 		pg.readStream(connStr, {
 			$: `SELECT * FROM roomrels JOIN rooms ON item=id where \"user\" = &{user}`,
 			user: user.id
@@ -48,25 +66,16 @@ function sendWelcomeEmail () {
 			rels.push(rel);
 		}).on('end', () => {
 			userRel.rels = rels;
-			winston.info('sending email to user: ', userRel.user.id);
+			log.info('sending email to user: ', userRel.user.id);
 			initMailSending(userRel);
 		});
 	}).on('end', () => {
-		pg.write(connStr, [ {
-			$: 'UPDATE jobs SET lastrun=&{end} WHERE jobid=&{jid}',
-			end: end,
-			jid: Constants.JOB_EMAIL_WELCOME
-		} ], function (err, results) {
-			lastEmailSent = end;
-			if (!err) winston.info('successfully updated job for welcome email ');
-		});
+		log.info('ended');
 	});
 }
 
-module.exports = (row, conf) => {
-	config = conf;
-	connStr = 'pg://' + config.pg.username + ':' + config.pg.password + '@' + config.pg.server + '/' + config.pg.db;
+export default function (row) {
 	lastEmailSent = row.lastrun;
 	sendWelcomeEmail();
-	setInterval(sendWelcomeEmail, /*10000*/WELCOME_INTERVAL);
-};
+	setInterval(sendWelcomeEmail, /* 10000 */WELCOME_INTERVAL);
+}
