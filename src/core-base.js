@@ -15,8 +15,6 @@ export type Bus = {
 
 export const bus: Bus = new Ebus();
 
-bus.setDebug(5);
-
 export const cache = new SbCache({
 	// TODO: add is, id functions!
 	entityOp: { counts: { __all__: 'inc' } }

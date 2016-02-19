@@ -1,10 +1,8 @@
-import defaults from '../config/client-defaults.json';
-import clientConfig from '../config/client.json';
-import { bus, cache, Constants } from './core-base';
+/* @flow */
 
-export const config = Object.assign(Object.assign({}, defaults), clientConfig);
-export {
-	bus,
-	cache,
-	Constants
-};
+import defaults from '../config/client-defaults.json';
+import custom from '../config/client.json';
+
+export { bus, cache, Constants } from './core-base';
+
+export const config = { ...defaults, ...custom };
