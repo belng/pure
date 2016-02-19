@@ -1,4 +1,4 @@
-import { cache } from '../../core-server';
+import { bus, cache } from '../../core-client';
 import cloneDeep from 'lodash/cloneDeep';
 
 cache.getThreadById = function(threadId, callback) {
@@ -184,6 +184,10 @@ cache.onUnsubscribe = (fn) => {
 		if (index > -1) this._unsubscriptionWatchs.splice(index, 1);
 	};
 };
+
 cache._subscriptionWatchs = [];
 cache._unsubscriptionWatchs = [];
+
+cache.setState = (payload: Object): void => bus.emit('setstate', payload);
+
 export default cache;

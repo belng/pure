@@ -59,7 +59,7 @@ export default function(
 					let subscriptions;
 
 					if (typeof mapSubscriptionToProps === 'function') {
-						subscriptions = mapSubscriptionToProps(other, store);
+						subscriptions = mapSubscriptionToProps(other);
 					} else if (typeof mapSubscriptionToProps === 'object') {
 						subscriptions = mapSubscriptionToProps;
 					}
@@ -108,6 +108,12 @@ export default function(
 				this._addSubscriptions();
 			};
 
+			_updateListener = (name, transform) => {
+				return data => this.setState({
+					[name]: transform ? transform(data) : data
+				});
+			};
+
 			componentDidMount() {
 				this._addSubscriptions();
 			}
@@ -131,12 +137,6 @@ export default function(
 			shouldComponentUpdate(nextProps, nextState) {
 				return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 			}
-
-			_updateListener = (name, transform) => {
-				return data => this.setState({
-					[name]: transform ? transform(data) : data
-				});
-			};
 
 			render() {
 				const { store, ...other } = this.props;

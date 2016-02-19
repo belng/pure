@@ -22,10 +22,13 @@ export type Store = {
 			what?: string;
 			slice?: SubscriptionSlice;
 			range?: SubscriptionRange;
+			order?: string;
 		},
 		callback: Function
 	): Subscription;
-	[key: string]: Function;
+	onSubscribe(callback: Function): Subscription;
+	onUnSubscribe(callback: Function): Subscription;
+	setState(payload: Object): void;
 }
 
 export type MapSubscriptionToProps = {
@@ -34,6 +37,7 @@ export type MapSubscriptionToProps = {
 			type?: string;
 			slice?: SubscriptionSlice;
 			range?: SubscriptionRange;
+			order?: string;
 		};
 		transform?: Function;
 	}
