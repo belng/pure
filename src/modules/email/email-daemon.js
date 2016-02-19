@@ -8,7 +8,7 @@ import sendMentionEmail from './mentionEmail';
 import sendDigestEmail from './digestEmail';
 const conf = config.email, connString = config.connStr;
 
-if (!conf || !conf.auth) {
+if (!conf.auth) {
 	winston.info('Email module not enabled');
 } else {
 	winston.info('email module is ready');
