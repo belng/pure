@@ -3,7 +3,7 @@ import stringPack from 'stringpack';
 import * as core from '../../core';
 import uid from '../../lib/uid-server';
 import notify from './dispatch';
-import models from '../../models/models';
+import * as models from '../../models/models';
 
 const sockets = {}, bus = core.bus;
 

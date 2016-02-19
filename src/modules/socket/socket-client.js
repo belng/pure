@@ -2,14 +2,13 @@
 
 /* eslint-env browser */
 
-import eio from 'engine.io-client/engine.io';
+import eio from 'engine.io-client';
 import { bus, config } from '../../core.js';
 import models from '../../models/models.js';
 import stringPack from 'stringpack';
 
-var	backOff = 1, client,
-	protocol = config.server.protocol,
-	host = config.server.apiHost,
+const protocol = config.server.protocol, host = config.server.apiHost;
+let	backOff = 1, client,
 	packerArg, packer;
 
 packerArg = Object.keys(models).sort().map(key => models[key]);
@@ -18,19 +17,19 @@ packer = stringPack(packerArg);
 function disconnected() {
 
 	/* eslint-disable block-scoped-var, no-use-before-define */
-	var connectionStatus = 'offline';
 
 	if (backOff < 256) backOff *= 2;
 	else backOff = 256;
 
 	bus.emit('setstate', {
-		app: { connectionStatus, backOff }
+		app: { connectionStatus: 'offline', backOff }
 	});
 	setTimeout(connect, backOff * 1000);
 }
 
 function onMessage(message) {
-	var stateChange = packer.decode(message);
+	const stateChange = packer.decode(message);
+
 	bus.emit('setstate', stateChange);
 }
 
@@ -41,11 +40,10 @@ function connect() {
 
 	client.on('close', disconnected);
 
-	client.on('open', function() {
-		var connectionStatus = 'online';
+	client.on('open', () => {
 		backOff = 1;
 		bus.emit('setstate', {
-			app: { connectionStatus, backOff }
+			app: { connectionStatus: 'online', backOff }
 		});
 	});
 
