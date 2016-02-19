@@ -1,21 +1,26 @@
-'use strict';
+/* eslint no-loop-func: 0 */
 
-import pg from '../../../lib/pg';
+import * as pg from '../../../lib/pg';
 import casual from 'casual';
 import uid from 'node-uuid';
-import Constants from '../../../lib/Constants';
+import log from 'winston';
+import { Constants, config } from '../../../core';
 
-let connstr = 'pg://hn:hn@localhost/hn', users = [], rooms = [], threads = [], texts = [], numUsers = 5, numRooms = 5, numThreads = 10, numTexts = 50;
+const connstr = config.connStr,
+	users = [], rooms = [], threads = [], texts = [],
+	numUsers = 5, numRooms = 5, numThreads = 10, numTexts = 50;
 
 function getId() {
-	let u = casual.username.toLowerCase().replace(/\_|\./g, '-');
+	const u = casual.username.toLowerCase().replace(/\_|\./g, '-');
+
 	if (users.indexOf(u) > -1) return u + '-' + users.length;
 	else return u;
 }
 
 function insertUser(done) {
-	let id = getId(), ident, tag, tags = [ Constants.TAG_USER_EMAIL, Constants.TAG_USER_GUEST, Constants.TAG_USER_FACEBOOK, Constants.TAG_USER_GOOGLE ];
-	tag = tags[Math.floor(Math.random() * tags.length)];
+	const id = getId(),
+		tags = [ Constants.TAG_USER_EMAIL, Constants.TAG_USER_GUEST, Constants.TAG_USER_FACEBOOK, Constants.TAG_USER_GOOGLE ],
+		tag = tags[Math.floor(Math.random() * tags.length)];
 
 	users.push(id);
 	pg.write(connstr, [ {
@@ -26,7 +31,7 @@ function insertUser(done) {
 			extract(epoch from now())*1000,
 			extract(epoch from now())*1000, &{presence}
 		)`,
-		id: id,
+		id,
 		tags: tag,
 		name: casual.name,
 		ident: tag === Constants.TAG_USER_GUEST ? 'guest' : 'mailto:' + casual.email.toLowerCase(),
@@ -35,7 +40,8 @@ function insertUser(done) {
 }
 
 function insertRoom(done) {
-	let id = uid.v4(), room = casual.state;
+	const id = uid.v4(), room = casual.state;
+
 	rooms.push(id);
 	pg.write(connstr, [ {
 		$: `INSERT INTO rooms (
@@ -45,14 +51,15 @@ function insertRoom(done) {
 			extract(epoch from now())*1000,
 			&{room}, &{body}
 		)`,
-		id: id,
-		room: room,
+		id,
+		room,
 		body: casual.description
 	} ], done);
 }
 
 function insertThread(done) {
-	let id = uid.v4();
+	const id = uid.v4();
+
 	threads.push(id);
 	pg.write(connstr, [ {
 		$: `INSERT INTO threads (
@@ -64,7 +71,7 @@ function insertThread(done) {
 			extract(epoch from now())*1000,
 			&{name}, &{body}, ARRAY[&{parents}]::uuid[], &{creator}, &{updater}
 		)`,
-		id: id,
+		id,
 		tags: Math.random() < 0.2 ? Constants.TAG_POST_HIDDEN : Constants.TAG_POST_STICKY,
 		name: casual.sentence,
 		body: casual.description,
@@ -75,7 +82,8 @@ function insertThread(done) {
 }
 
 function insertText(done) {
-	let id = uid.v4();
+	const id = uid.v4();
+
 	texts.push(id);
 	pg.write(connstr, [ {
 		$: `INSERT INTO texts (
@@ -87,7 +95,7 @@ function insertText(done) {
 			extract(epoch from now())*1000,
 			&{body}, ARRAY[&{thread}, &{room}]::uuid[], &{creator}, &{updater}
 		)`,
-		id: id,
+		id,
 		tags: Math.random() < 0.3 ? Constants.TAG_POST_HIDDEN : Constants.TAG_POST_STICKY,
 		body: casual.description,
 		thread: threads[Math.floor(Math.random() * threads.length)],
@@ -113,7 +121,8 @@ function insertRoomrel(usr, room, cb) {
 }
 
 function insertThreadrel(usr, thread, cb) {
-	let ptime = Math.random() < 0.4 ? Date.now() - 3 * 60 * 1000 : Date.now() + 60 * 1000;
+	const ptime = Math.random() < 0.4 ? Date.now() - 3 * 60 * 1000 : Date.now() + 60 * 1000;
+
 	pg.write(connstr, [ {
 		$: `INSERT INTO threadrels (
 			"user", item, roles, roletime, interest, presencetime
@@ -125,7 +134,7 @@ function insertThreadrel(usr, thread, cb) {
 		item: thread,
 		role: Constants.ROLE_FOLLOWER,
 		interest: Math.floor(Math.random() * 30),
-		ptime: ptime
+		ptime
 	} ], cb);
 }
 
@@ -144,37 +153,58 @@ function insertTextrel(usr, text, cb) {
 	} ], cb);
 }
 
+function insertIntoJobs () {
+	pg.write(connstr, [ {
+		$: `INSERT INTO jobs VALUES (&{id}, &{lastrun})`,
+		id: Constants.JOB_EMAIL_DIGEST,
+		lastrun: 0
+	}, {
+		$: `INSERT INTO jobs VALUES (&{id}, &{lastrun})`,
+		id: Constants.JOB_EMAIL_MENTION,
+		lastrun: 0
+	}, {
+		$: `INSERT INTO jobs VALUES (&{id}, &{lastrun})`,
+		id: Constants.JOB_EMAIL_WELCOME,
+		lastrun: 0
+	} ], () => {
+		log.info('All done...');
+		process.exit();
+	});
+}
+
+
 function repeat(fn, repeatEl) {
-	return new Promise(function (resolve, reject) {
+	let rptl = repeatEl;
+
+	return new Promise((resolve, reject) => {
 		function next() {
-			fn(function (err, result) {
+			fn((err) => {
 				if (err) {
 					return reject(err);
 				}
-				repeatEl--;
-				if (repeatEl > 0) {
+				rptl--;
+				if (rptl > 0) {
 					next();
-				}
-				else {
+				}	else {
 					resolve();
 				}
 			});
 		}
 
-		if (typeof repeatEl === 'number') {
+		if (typeof rptl === 'number') {
 			next();
 		} else {
 			Promise.all(users.map(usr => {
 				const promises = [];
 
-				for (let i = 0; i < Math.floor(Math.random() * repeatEl.length); i++) {
+				for (let i = 0; i < Math.floor(Math.random() * rptl.length); i++) {
 					promises.push(
-						new Promise((resolve, reject) => {
-							fn(usr, repeatEl[i], function(err, result) {
+						new Promise((rslve, rjct) => {
+							fn(usr, rptl[i], (err, result) => {
 								if (err) {
-									reject(err);
+									rjct(err);
 								} else {
-									resolve(result);
+									rslve(result);
 								}
 							});
 						})
@@ -190,31 +220,31 @@ function repeat(fn, repeatEl) {
 }
 
 
-console.log('Inserting users...');
+log.info('Inserting users...');
 repeat(insertUser, numUsers)
-.then(function () {
-	console.log('Done. Inserting rooms...');
+.then(() => {
+	log.info('Done. Inserting rooms...');
 	return repeat(insertRoom, numRooms);
-}).then(function () {
-	console.log('Done. Inserting threads...');
+}).then(() => {
+	log.info('Done. Inserting threads...');
 	return repeat(insertThread, numThreads);
-}).then(function () {
-	console.log('Done. Inserting texts...');
+}).then(() => {
+	log.info('Done. Inserting texts...');
 	return repeat(insertText, numTexts);
-}).then(function () {
-	console.log('Done. Inserting room relations...');
+}).then(() => {
+	log.info('Done. Inserting room relations...');
 	return repeat(insertRoomrel, rooms);
-}).then(function () {
-	console.log('Done. Inserting thread relations...');
+}).then(() => {
+	log.info('Done. Inserting thread relations...');
 	return repeat(insertThreadrel, threads);
-}).then(function () {
-	console.log('Done. Inserting text relations...');
+}).then(() => {
+	log.info('Done. Inserting text relations...');
 	return repeat(insertTextrel, texts);
-}).then(function () {
-	console.log('All done...');
-	process.exit();
+}).then(() => {
+	log.info('Done. Inserting into jobs');
+	insertIntoJobs();
 })
-.catch(function (e) {
-	console.log(e);
+.catch((e) => {
+	log.info(e);
 	process.exit(1);
 });

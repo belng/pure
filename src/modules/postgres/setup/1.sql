@@ -11,39 +11,39 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS jobs;
 
 CREATE TABLE users (
-	counts jsonb,
+	id text PRIMARY KEY,
+	name text, -- user display name
+	identities text[], -- user-private
 	createtime bigint,
 	deletetime bigint,
-	id text PRIMARY KEY,
-	identities text[], -- user-private
+	tags smallint[], -- e.g. admin, manager
 	locale smallint,
-	name text, -- user display name
+	counts jsonb,
 	params jsonb, -- user-private information
 	presence smallint, -- foreground/background/none
 	presencetime bigint,
 	processid smallint,
 	resources jsonb, -- { resourceId: foreground/background }
-	tags smallint[], -- e.g. admin, manager
 	timezone smallint,
 	updatetime bigint
 );
 
 CREATE TABLE items (
+	id uuid PRIMARY KEY,
+	name text, -- room display name, thread title
 	body text, -- room description, thread start message
-	counts jsonb,
+	type smallint,
+	parents uuid[], -- room or thread
+	tags smallint[], -- e.g. image, hidden, sticky, city, area, spot
 	createtime bigint,
 	creator text,
 	deletetime bigint,
-	id uuid PRIMARY KEY,
 	meta jsonb, -- guides, image dimensions, counts
-	name text, -- room display name, thread title
 	params jsonb,
-	parents uuid[], -- room or thread
-	tags smallint[], -- e.g. image, hidden, sticky, city, area, spot
 	terms tsvector,
-	type smallint,
 	updater text,
-	updatetime bigint
+	updatetime bigint,
+	counts jsonb
 );
 
 CREATE TABLE rooms (
@@ -60,21 +60,21 @@ CREATE TABLE topics () INHERITS (items);
 CREATE TABLE privs  () INHERITS (items);
 
 CREATE TABLE rels (
+	item uuid,
+	"user" text,
+	roles smallint[], -- mute, upvote, home, work
+	roletime bigint,
 	admin text,
 	expiretime bigint,
 	interest float(24),
-	item uuid,
 	message text,
 	presence smallint, -- writing/reading/none
 	presencetime bigint,
 	processid smallint,
 	resources jsonb, -- { resource: writing/reading }
-	roles smallint[], -- mute, upvote, home, work
-	roletime bigint,
 	transitrole smallint,
 	transittype smallint,
-	type smallint,
-	"user" text
+	type smallint
 );
 
 CREATE TABLE roomrels   () INHERITS (rels);
@@ -84,16 +84,16 @@ CREATE TABLE topicrels  () INHERITS (rels);
 CREATE TABLE privrels   () INHERITS (rels);
 
 CREATE TABLE notes (
+	"user" text,
+	"group" text, -- e.g. thread in which mentioned, room to which invited
+	score float(24),
 	count integer, -- this event in this group id
 	data jsonb, -- information like
 	event smallint, -- e.g. mention, invite, request
-	eventtime bigint,
-	"group" text, -- e.g. thread in which mentioned, room to which invited
-	score float(24),
-	"user" text
+	eventtime bigint
 );
 
 CREATE TABLE jobs (
 	id smallint,
 	lastrun bigint
-)
+);
