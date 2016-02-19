@@ -1,4 +1,8 @@
 {
+	"session": {
+
+	},
+
 	"server": {
 		"protocol": "http:",
 		"host": "localhost",

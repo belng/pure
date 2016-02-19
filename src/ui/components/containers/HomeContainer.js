@@ -3,10 +3,11 @@
 import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 
-export default Connect({
-	user: 'me',
-	connection: {
+const HomeContainer = Connect({
+	initialURL: {
 		key: 'app',
-		transform: app => app ? app.connectionStatus : null,
+		transform: app => app ? app.initialURL : null,
 	}
 })(Dummy);
+
+export default HomeContainer;

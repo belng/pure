@@ -1,4 +1,4 @@
-import Relation from './Relation';
+import Relation from './rel';
 
 export default class TopicRel extends Relation {
 	constructor() {

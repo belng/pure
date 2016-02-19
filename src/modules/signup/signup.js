@@ -2,7 +2,7 @@
 
 import { bus, cache, config } from '../../core.js';
 import jwt from 'jsonwebtoken';
-import merge from 'deepmerge';
+import merge from 'lodash/merge';
 
 // sign with default (HMAC SHA256)
 var tokenValidity = 604800,

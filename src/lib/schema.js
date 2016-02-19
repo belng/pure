@@ -1,6 +1,6 @@
 /* @flow */
 
-import Constants from '../../Constants/Constants.json';
+import Constants from '../lib/Constants';
 
 export const TABLES = {};
 export const COLUMNS = {};
@@ -47,22 +47,22 @@ TYPES.privrel = Constants.TYPE_PRIVREL;
 TYPES.userrel = Constants.TYPE_USERREL;
 TYPES.note = Constants.TYPE_NOTE;
 
-
 COLUMNS[Constants.TYPE_USER] = [
-	'id',
-	'name',
-	'identities',
-	'tags',
-	'timezone',
-	'locale',
-	'params',
-	'resources',
-	'presence',
-	'presenceTime',
 	'counts',
 	'createTime',
+	'deleteTime',
+	'id',
+	'identities',
+	'locale',
+	'name',
+	'params',
+	'presence',
+	'presenceTime',
+	'resources',
+	'tags',
+	'timezone',
+	'type',
 	'updateTime',
-	'deleteTime'
 ];
 
 COLUMNS[Constants.TYPE_ROOM] =
@@ -70,21 +70,22 @@ COLUMNS[Constants.TYPE_TEXT] =
 COLUMNS[Constants.TYPE_THREAD] =
 COLUMNS[Constants.TYPE_TOPIC] =
 COLUMNS[Constants.TYPE_PRIV] = [
-	'id',
-	'name',
 	'body',
-	'type',
-	'tags',
+	'counts',
+	'createTime',
+	'creator',
+	'deleteTime',
+	'id',
+	'indentities',
 	'meta',
+	'name',
 	'params',
 	'parents',
-	'creator',
-	'updater',
-	'counts',
 	'score',
-	'createTime',
+	'tags',
+	'type',
+	'updater',
 	'updateTime',
-	'deleteTime'
 ];
 
 COLUMNS[Constants.TYPE_REL] =
@@ -93,31 +94,32 @@ COLUMNS[Constants.TYPE_TEXTREL] =
 COLUMNS[Constants.TYPE_THREADREL] =
 COLUMNS[Constants.TYPE_TOPICREL] =
 COLUMNS[Constants.TYPE_PRIVREL] = [
-	'user',
-	'item',
-	'type',
-	'tags',
-	'role',
-	'roleTime',
+	'admin',
+	'expireTime',
 	'interest',
-	'resources',
+	'item',
+	'message',
 	'presence',
 	'presenceTime',
-	'message',
-	'admin',
+	'resources',
+	'role',
+	'roleTime',
+	'tags',
 	'transitRole',
 	'transitType',
-	'expireTime'
+	'type',
+	'user',
 ];
 
 COLUMNS[Constants.TYPE_NOTE] = [
-	'user',
-	'event',
-	'group',
-	'eventTime',
-	'readTime',
-	'dismissTime',
 	'count',
+	'data',
+	'dismissTime',
+	'event',
+	'eventTime',
+	'group',
+	'readTime',
 	'score',
-	'data'
+	'type',
+	'user',
 ];

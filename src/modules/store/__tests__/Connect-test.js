@@ -5,6 +5,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
 
+jest.dontMock('../Container');
 jest.dontMock('../Connect');
 jest.dontMock('../Provider');
 jest.dontMock('../storeShape');
@@ -33,11 +34,11 @@ describe('Connect', () => {
 		const ConnectedComponent = Connect({
 			firstName: 'f',
 			middleName: {
-				slice: 'm',
+				key: 'm',
 				transform: name => `'${name}'`
 			},
 			lastName: {
-				slice: {
+				key: {
 					type: 'l',
 				}
 			},
@@ -50,8 +51,8 @@ describe('Connect', () => {
 		let lastNameCallback;
 
 		const store = {
-			subscribe: (slice, range, cb) => {
-				switch (slice.type) {
+			subscribe: (options, cb) => {
+				switch (options.what) {
 				case 'f':
 					firstNameCallback = cb;
 					break;
@@ -89,7 +90,7 @@ describe('Connect', () => {
 		const remove = jest.genMockFunction();
 		const ConnectedComponent = Connect({ textContent: "text" })(({ textContent }) => <span>{textContent}</span>); // eslint-disable-line
 		const store = {
-			subscribe: slice => slice.type === 'text' && { remove },
+			subscribe: options => options.what === 'text' && { remove },
 		};
 
 		ReactDOM.render(
@@ -132,8 +133,8 @@ describe('Connect', () => {
 	});
 
 	it('should pass dispatch and data', () => {
-		const ConnectedComponent = Connect(props => ({
-			label: props.sub
+		const ConnectedComponent = Connect(({ sub }) => ({
+			label: sub
 		}), {
 			click: (props, store) => () => store.dispatch({
 				type: 'CLICK',
@@ -148,8 +149,8 @@ describe('Connect', () => {
 		let callback;
 
 		const store = {
-			subscribe: (slice, range, cb) => {
-				callback = slice.type === 'label' ? cb : null;
+			subscribe: (options, cb) => {
+				callback = options.what === 'label' ? cb : null;
 				return {
 					remove: () => callback = null
 				};

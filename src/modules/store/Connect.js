@@ -1,32 +1,18 @@
 /* @flow */
+/* eslint-disable no-console, react/sort-comp */
 
 import React, { Component } from 'react';
 import shallowEqual from 'shallowequal';
 import mapValues from 'lodash/mapValues';
+import Container from './Container';
 import storeShape from './storeShape';
 
-type Store = {
-	subscribe(
-		slice: { type: Function },
-		range?: { start?: number, before?: number, after?: number },
-		callback: Function
-	): { remove: Function };
-	[key: string]: Function;
-}
-
-type MapSubscriptionToProps = {
-	[key: string]: string | {
-		slice: string | { type: string };
-		range?: { start?: number, before?: number, after?: number },
-		transform?: Function;
-	}
-};
-
-type MapSubscriptionToPropsCreator = (props: Object) => MapSubscriptionToProps;
-
-type MapActionsToProps = {
-	[key: string]: (props: Object, store: Store) => Function
-};
+import type {
+	Store,
+	MapSubscriptionToProps,
+	MapSubscriptionToPropsCreator,
+	MapActionsToProps
+} from './ConnectTypes';
 
 export default function(
 	mapSubscriptionToProps: ?MapSubscriptionToProps|MapSubscriptionToPropsCreator,
@@ -53,8 +39,8 @@ export default function(
 	}
 
 	return function(Target: ReactClass): ReactClass {
-		return class Connect extends Component<{}, {}, { store: Store }> {
-			static contextTypes = {
+		class Connect extends Component<{ store: Store }, Object> {
+			static propTypes = {
 				store: storeShape.isRequired
 			};
 
@@ -63,17 +49,17 @@ export default function(
 			_subscriptions: Array<Function> = [];
 
 			_addSubscriptions = () => {
-				const { store } = this.context;
+				const { store, ...other } = this.props;
 
 				if (typeof store !== 'object') {
-					throw new Error('No store was found in the context. Have you wrapped the root component in <StoreProvider /> ?');
+					throw new Error('No store was found. Have you wrapped the root component in <StoreProvider /> ?');
 				}
 
 				if (mapSubscriptionToProps) {
 					let subscriptions;
 
 					if (typeof mapSubscriptionToProps === 'function') {
-						subscriptions = mapSubscriptionToProps(this.props);
+						subscriptions = mapSubscriptionToProps(other, store);
 					} else if (typeof mapSubscriptionToProps === 'object') {
 						subscriptions = mapSubscriptionToProps;
 					}
@@ -86,15 +72,13 @@ export default function(
 						switch (typeof sub) {
 						case 'string':
 							listener = store.subscribe(
-								{ type: sub },
-								null,
+								{ what: sub },
 								this._updateListener(item)
 							);
 							break;
 						case 'object':
 							listener = store.subscribe(
-								typeof sub.slice === 'string' ? { type: sub.slice } : sub.slice,
-								sub.range,
+								typeof sub.key === 'string' ? { what: sub.key } : { ...sub.key, what: sub.key.type, type: null },
 								this._updateListener(item, sub.transform)
 							);
 							break;
@@ -155,9 +139,10 @@ export default function(
 			};
 
 			render() {
-				const props = { ...this.props, ...this.state };
+				const { store, ...other } = this.props;
+				const props = { ...other, ...this.state };
 				const actions = mapActionsToProps ? mapValues(mapActionsToProps, (value, key) => {
-					const action = value(props, this.context.store);
+					const action = value(props, store);
 
 					if (typeof action !== 'function') {
 						throw new Error(`Invalid action in ${key}. Action creators must return a curried action function.`);
@@ -168,6 +153,8 @@ export default function(
 
 				return <Target {...props} {...actions} />;
 			}
-		};
+		}
+
+		return Container(Connect);
 	};
 }

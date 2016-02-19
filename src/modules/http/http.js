@@ -3,6 +3,7 @@ import http from 'http';
 import route from 'koa-route';
 import mount from 'koa-mount';
 import serve from 'koa-static';
+import opn from 'opn';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'koa-webpack-dev-middleware';
 import webpackHotMiddleware from 'koa-webpack-hot-middleware';
@@ -27,6 +28,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 	// Serve files under static/tests for any requests to /tests/
 	app.use(mount('/tests', serve('static/tests'), { defer: true }));
+
+	opn(`${config.server.protocol}//${config.server.host}:${config.server.port}`);
 }
 
 app.httpServer = httpServer;

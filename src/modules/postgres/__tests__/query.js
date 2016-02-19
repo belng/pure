@@ -1,18 +1,14 @@
-/* eslint-env: jest */
+/* eslint-env jest */
 
 jest.autoMockOff();
 
-console.log('Starting');
-
-const query = require('../query'),
-	Constants = require('../../../../Constants/Constants.json');
-
+const query = require('../query');
 
 describe('Query', () => {
 	it('bounds query', () => {
 		expect(query({
 			type: 'room',
-			join: { 'rel': 'room' },
+			join: { rel: 'room' },
 			order: 'createTime',
 			filter: { firstParent: 'asdf' }
 		}, [ 764, 974 ])).toEqual({
@@ -20,13 +16,13 @@ describe('Query', () => {
 			createTimeGte: 764,
 			createTimeLte: 974,
 			firstParent: 'asdf'
-    							});
+		});
 	});
 
 	it('before/after query', () => {
 		expect(query({
 			type: 'room',
-			join: { 'rel': 'room' },
+			join: { rel: 'room' },
 			order: 'createTime',
 			filter: { firstParent: 'asdf', roleGt: 'none' }
 		}, [ 764, 25, 25 ])).toEqual({

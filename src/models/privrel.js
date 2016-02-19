@@ -1,4 +1,4 @@
-import Relation from './Relation';
+import Relation from './rel';
 
 export default class PrivRel extends Relation {
 	constructor() {
