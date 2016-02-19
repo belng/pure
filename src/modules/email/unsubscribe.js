@@ -1,7 +1,7 @@
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import log from 'winston';
-import { bus, config } from '../../core';
+import { bus, config } from '../../core-server';
 
 const template = fs.readFileSync(__dirname + '/views/unsub.html', 'utf8');
 

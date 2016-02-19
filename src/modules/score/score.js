@@ -1,4 +1,4 @@
-import { Constants, bus } from '../../core';
+import { Constants, bus } from '../../core-server';
 
 function getScore(params) {
 	return Math.log(params);

@@ -3,7 +3,7 @@ import Counter from '../../lib/counter';
 import * as pg from '../../lib/pg';
 import queryHandler from './query';
 import entityHandler from './entity';
-import { bus, cache, config } from '../../core';
+import { bus, cache, config } from '../../core-server';
 import types from './../../models/models';
 const channel = 'heyneighbor';
 

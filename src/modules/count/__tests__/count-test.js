@@ -2,7 +2,7 @@
 
 jest.autoMockOff();
 
-let core = require('../../../core'),
+let core = require('../../../core-server'),
 	assert = require('assert'),
 	Constants = require('../../../lib/Constants'),
 	bus = core.bus,

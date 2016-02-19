@@ -1,4 +1,4 @@
-import { config } from '../../core';
+import { config } from '../../core-server';
 import nodemailer from 'nodemailer';
 import log from 'winston';
 const transport = nodemailer.createTransport('SMTP', {

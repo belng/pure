@@ -1,4 +1,4 @@
-import { cache } from '../../core';
+import { cache } from '../../core-server';
 import cloneDeep from 'lodash/cloneDeep';
 
 cache.getThreadById = function(threadId, callback) {

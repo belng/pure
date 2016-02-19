@@ -1,6 +1,6 @@
 /* @flow */
 
-import { bus } from '../../core';
+import { bus } from '../../core-server';
 
 const rules = [];
 

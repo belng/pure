@@ -2,7 +2,7 @@
 jest.autoMockOff();
 
 let Counter = require('../../../lib/counter'),
-	{ Constants, bus, cache } = require('../../../core');
+	{ Constants, bus, cache } = require('../../../core-server');
 
 require('../note');
 describe('create note for a text relation(item present in entities)', () => {

@@ -1,5 +1,5 @@
 import xmpp from 'node-xmpp';
-import { bus, config } from '../../core';
+import { bus, config } from '../../core-server';
 
 let options, xmppClient, backOff = 1;
 

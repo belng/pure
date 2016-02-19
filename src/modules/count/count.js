@@ -3,7 +3,7 @@
 'use strict';
 
 import { TABLES, COLUMNS, TYPES, ROLES } from '../../lib/schema';
-import { Constants, bus, cache } from '../../core';
+import { Constants, bus, cache } from '../../core-server';
 
 bus.on('setstate', (changes, next) => {
 	if (!changes.entities) return next();

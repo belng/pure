@@ -2,7 +2,7 @@
 
 import route from 'koa-route';
 
-import { bus, config } from '../../core.js';
+import { bus, config } from '../../core-server';
 import request from 'request';
 import fs from 'fs';
 import path from 'path';

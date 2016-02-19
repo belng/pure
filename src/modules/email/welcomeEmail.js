@@ -5,7 +5,7 @@ import handlebars from 'handlebars';
 import * as pg from '../../lib/pg';
 import send from './sendEmail.js';
 import Counter from '../../lib/counter';
-import { Constants, config } from '../../core';
+import { Constants, config } from '../../core-server';
 const WELCOME_INTERVAL = 5 * 60 * 1000, WELCOME_DELAY = 5 * 60 * 1000, connStr = config.connStr, conf = config.email, counter = new Counter(),
 	template = handlebars.compile(fs.readFileSync(__dirname + '/views/welcomeEmail.hbs', 'utf-8'));
 

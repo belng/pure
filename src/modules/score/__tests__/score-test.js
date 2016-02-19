@@ -2,7 +2,7 @@
 'use strict';
 jest.autoMockOff();
 
-const { Constants, bus } = require('../../../core');
+const { Constants, bus } = require('../../../core-server');
 
 require('../score');
 

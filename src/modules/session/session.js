@@ -3,7 +3,7 @@
 'use strict';
 
 import jwt from 'jsonwebtoken';
-import { bus, config } from '../../core.js';
+import { bus, config } from '../../core-server';
 
 // sign with default (HMAC SHA256)
 var tokenValidity = 604800, iss = config.host, aud = config.host, key = config.session.privateKey;

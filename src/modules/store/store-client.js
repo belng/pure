@@ -1,4 +1,4 @@
-import app from '../../core';
+import app from '../../core-server';
 import generate from '../lib/generate.browser.js';
 let cache = app.cache, core = app.core;
 

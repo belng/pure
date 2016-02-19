@@ -1,6 +1,6 @@
 'use strict';
 
-import { bus, cache, config } from '../../core';
+import { bus, cache, config } from '../../core-server';
 import crypto from 'crypto';
 
 function getDate(long) {

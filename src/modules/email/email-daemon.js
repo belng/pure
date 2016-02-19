@@ -2,7 +2,7 @@
 
 import * as pg from '../../lib/pg';
 import winston from 'winston';
-import { config, Constants } from '../../core';
+import { config, Constants } from '../../core-server';
 import sendWelcomeEmail from './welcomeEmail';
 import sendMentionEmail from './mentionEmail';
 import sendDigestEmail from './digestEmail';

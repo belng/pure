@@ -1,6 +1,6 @@
 /* @flow */
 
-import { bus, cache, config } from '../../core.js';
+import { bus, cache, config } from '../../core-server';
 import jwt from 'jsonwebtoken';
 import merge from 'lodash/merge';
 

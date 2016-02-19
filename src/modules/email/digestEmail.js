@@ -1,6 +1,6 @@
 /* eslint max-nested-callbacks: 0 */
 import getMailObj from './buildMailObj';
-import { Constants, config } from '../../core';
+import { Constants, config } from '../../core-server';
 import log from 'winston';
 import fs from 'fs';
 import handlebars from 'handlebars';

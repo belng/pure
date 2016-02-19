@@ -4,7 +4,7 @@ import * as pg from '../../../lib/pg';
 import casual from 'casual';
 import uid from 'node-uuid';
 import log from 'winston';
-import { Constants, config } from '../../../core';
+import { Constants, config } from '../../../core-server';
 
 const connstr = config.connStr,
 	users = [], rooms = [], threads = [], texts = [],

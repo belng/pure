@@ -1,6 +1,6 @@
 /* @flow */
 
-import { Constants, bus, cache } from '../../core';
+import { Constants, bus, cache } from '../../core-server';
 import Counter from '../../lib/counter';
 import Relation from '../../models/rel';
 

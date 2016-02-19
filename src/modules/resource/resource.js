@@ -1,6 +1,6 @@
 'use strict';
 
-let core = require('../../core.js'),
+let core = require('../../core-server'),
 	bus = core.bus,
 	config = core.config,
 	resourceMap = {};

@@ -9,7 +9,7 @@ import webpackDevMiddleware from 'koa-webpack-dev-middleware';
 import webpackHotMiddleware from 'koa-webpack-hot-middleware';
 import webpackConfig from '../../../webpack.config';
 import { home } from './routes';
-import { config, bus } from '../../core';
+import { config, bus } from '../../core-server';
 
 const app = koa();
 const httpServer = http.createServer(app.callback()).listen(config.server.port);
