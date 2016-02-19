@@ -1,10 +1,8 @@
-'use strict';
-
-const pg = require('pg'),
-	logger = require('winston'),
-	events = require('events'),
-	uid = require('./uid-server'),
-	BigInteger = require('big-integer');
+import pg from 'pg';
+import logger from 'winston';
+import events from 'events';
+import uid from './uid-server';
+import BigInteger from 'big-integer';
 
 	// Variables for tracking and rolling back incomplete queries on shut down
 const runningQueries = {},
@@ -34,7 +32,7 @@ function lock (s) {
 	};
 }
 
-function cat (parts, delim) {
+export function cat (parts, delim) {
 	delim = delim || ' '; // eslint-disable-line no-param-reassign
 
 	const q = { $: [] };
@@ -72,9 +70,7 @@ function cat (parts, delim) {
 	return q;
 }
 
-exports.cat = cat;
-
-function nameValues (record, delim) {
+export function nameValues (record, delim) {
 	const parts = [];
 	let column, part;
 
@@ -87,13 +83,13 @@ function nameValues (record, delim) {
 	return cat(parts, delim || ', ');
 }
 
-function columns (record) {
+export function columns (record) {
 	return Object.keys(record)
 		.map((c) => { return '"' + c + '"'; })
 		.join(', ');
 }
 
-function values (record) {
+export function values (record) {
 	const cols = [], clause = {};
 	let column;
 
@@ -106,14 +102,14 @@ function values (record) {
 	return clause;
 }
 
-function update (tableName, object) {
+export function update (tableName, object) {
 	return cat([
 		'UPDATE "' + tableName + '" SET ',
 		nameValues(object)
 	], ' ');
 }
 
-function insert (tableName, objs) {
+export function insert (tableName, objs) {
 	if (!objs) throw Error('CANT_INSERT_NOTHING');
 	const objects = (!Array.isArray(objs)) ? [ objs ] : objs;
 
@@ -130,7 +126,7 @@ function insert (tableName, objs) {
 	return cat(parts, ' ');
 }
 
-function upsert (tableName, insertObject, keyColumns) {
+export function upsert (tableName, insertObject, keyColumns) {
 	const updateObject = {}, whereObject = {};
 	let col;
 
@@ -156,16 +152,9 @@ function upsert (tableName, insertObject, keyColumns) {
 	];
 }
 
-exports.nameValues = nameValues;
-exports.columns = columns;
-exports.values = values;
-exports.update = update;
-exports.insert = insert;
-exports.upsert = upsert;
-
 // --------------------------------------------------------------------
 
-function paramize (query) {
+export function paramize (query) {
 	const ixs = {}, vals = [];
 	let sql;
 
@@ -207,9 +196,7 @@ function paramize (query) {
 	return { q: sql, v: vals };
 }
 
-exports.paramize = paramize;
-
-exports.read = function (connStr, query, cb) {
+export const read = function (connStr, query, cb) {
 	const start = Date.now();
 
 	logger.info('PgRead start', query);
@@ -236,7 +223,7 @@ exports.read = function (connStr, query, cb) {
 	});
 };
 
-exports.readStream = function (connStr, query) {
+export const readStream = function (connStr, query) {
 	const rstream = new EventEmitter();
 
 	logger.info('PgReadStream ', query);
@@ -274,7 +261,7 @@ function rollback(error, client, done) {
 	});
 }
 
-exports.write = function (connStr, queries, cb) {
+export const write = function (connStr, queries, cb) {
 	if (!queries || !queries.length) { return cb(null, []); }
 
 	const start = Date.now();
@@ -334,7 +321,7 @@ exports.write = function (connStr, queries, cb) {
 	});
 };
 
-function listen (connStr, channel, callback) {
+export function listen (connStr, channel, callback) {
 	pg.connect(connStr, (error, client, done) => {
 		if (error) {
 			logger.error('Unable to connect to ' + connStr, error);
@@ -349,9 +336,7 @@ function listen (connStr, channel, callback) {
 	});
 }
 
-exports.listen = listen;
-
-function notify (connStr, channel, data, callback) {
+export function notify (connStr, channel, data, callback) {
 	pg.connect(connStr, (error, client, done) => {
 		if (error) {
 			logger.error('Unable to connect to ' + connStr, error);
@@ -362,8 +347,6 @@ function notify (connStr, channel, data, callback) {
 		client.query('NOTIFY ' + channel + ", '" + JSON.stringify(data).replace(/([\\'])/g, '\\$1') + "'");
 	});
 }
-
-exports.notify = notify;
 
 function onShutDownSignal() {
 	shuttingDown = true;

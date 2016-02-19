@@ -17,7 +17,7 @@ function relFromUserRel(rel) {
 	return {
 		user: rel.user, // id or identity
 		topics: rel.topics,
-		threadId: rel.threadid, //room display name or thread title
+		threadId: rel.threadid, // room display name or thread title
 		text: rel.teext,
 		parents: rel.textparents || [],
 		item: rel.titem,
@@ -30,9 +30,11 @@ function relFromUserRel(rel) {
 }
 
 function buildMailObj(userRel) {
-	let rel = relFromUserRel(userRel),
-		user = userFromUserRel(userRel),
-		cUserRel = false;
+	const rel = relFromUserRel(userRel),
+		user = userFromUserRel(userRel);
+
+	let cUserRel = false;
+
 	if (user.id !== currentU.id) {
 		if (currentU) {
 			cUserRel = {
@@ -48,14 +50,22 @@ function buildMailObj(userRel) {
 			}
 		];
 	} else {
-//		console.log(currentR)
-		if (rel.room === currentR[currentR.length - 1].room ) {
-			currentR[currentR.length - 1].threads.push(rel);
+		let sameRoom = false;
+
+		for (const item of currentR) {
+			// console.log("item: ", item)
+			if (rel.room === item.room) {
+				item.threads.push(rel);
+				sameRoom = true;
+				break;
+			}
 		}
 
-		else {
+		if (!sameRoom) {
 			currentR.push({ room: rel.room ? rel.room : rel.parent, threads: [ rel ] });
 		}
+
+		// console.log("currentR after: ", currentR)
 	}
 	if (cUserRel) {
 
@@ -65,8 +75,8 @@ function buildMailObj(userRel) {
 			return 0;
 		});
 
-		for (let i in cUserRel.currentRels) {
-			cUserRel.currentRels[i].threads.sort((a, b) => { //sort threads according to interest
+		for (const i in cUserRel.currentRels) {
+			cUserRel.currentRels[i].threads.sort((a, b) => { // sort threads according to interest
 				return b.interest - a.interest;
 			});
 		}
@@ -74,18 +84,20 @@ function buildMailObj(userRel) {
 	return cUserRel;
 }
 
-module.exports = function (userRel) {
+export default function (userRel) {
 //	console.log(userRel)
 
 	if (Object.keys(userRel).length === 0) {
-		let cu = currentU, cr = currentR;
-		currentU = false, currentR = false;
+		const cu = currentU, cr = currentR;
+
+		currentU = false;
+		currentR = false;
 		return {
 			currentUser: cu,
 			currentRels: cr
 		};
 	}
-	let emailObj = buildMailObj(userRel);
-	return emailObj;
-};
+	const emailObj = buildMailObj(userRel);
 
+	return emailObj;
+}

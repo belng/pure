@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS notes;
 DROP TABLE IF EXISTS rels CASCADE;
 DROP TABLE IF EXISTS items CASCADE;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS jobs;
 
 CREATE TABLE users (
 	id text PRIMARY KEY,
@@ -92,3 +93,8 @@ CREATE TABLE notes (
 	score float(24),
 	data jsonb -- information like
 );
+
+CREATE TABLE jobs (
+	id smallint,
+	lastrun bigint
+)

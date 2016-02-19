@@ -1,6 +1,6 @@
 import jsonop from 'jsonop';
 import Counter from '../../lib/counter';
-import pg from '../../lib/pg';
+import * as pg from '../../lib/pg';
 import queryHandler from './query';
 import entityHandler from './entity';
 import { bus, cache, config } from '../../core';
