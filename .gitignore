@@ -37,3 +37,4 @@ static/dist/
 build/
 
 config/server.json
+config/client.json
