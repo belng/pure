@@ -2,8 +2,8 @@
 	"app_name": "Hey, Neighbor!",
 
 	"server": {
-		"protocol": "https:",
-		"host": "heyneighbor.chat"
+		"protocol": "http:",
+		"host": "localhost:7528"
 	},
 
 	"gcm": {
