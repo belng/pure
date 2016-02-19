@@ -1,8 +1,8 @@
 {
   "presets": [
     "es2015",
-    "react",
-    "stage-1"
+    "stage-1",
+    "react"
   ],
   "env": {
     "production": {
