@@ -1,193 +1,89 @@
+/* @flow */
+
+import forEach from 'lodash/forEach';
+import pull from 'lodash/pull';
 import { bus, cache } from '../../core-client';
-import cloneDeep from 'lodash/cloneDeep';
+import type { SubscriptionSlice, SubscriptionRange, Subscription } from './ConnectTypes';
 
-cache.getThreadById = function(threadId, callback) {
-	return this.getEntity(threadId, callback);
-};
+const _subscriptionWatches = [];
+const _unsubscriptionWatches = [];
 
-cache.getTextById = function(textId, callback) {
-	return this.getEntity(textId, callback);
-};
+export const subscribe = (options: {
+	what?: string;
+	slice?: SubscriptionSlice;
+	range?: SubscriptionRange;
+	order?: string;
+	id?: string;
+	path?: string|Array<string>
+}, callback: Function): Subscription => {
+	let watch;
 
-cache.getRelation = function(roomId, userId, callback) {
-	return this.getEntity(userId + '_' + roomId, callback);
-};
+	switch (options.what) {
+	case 'entity':
+		watch = cache.watchEntity(options.id, callback);
+		break;
+	case 'texts':
+	case 'threads':
+		watch = cache.watch(options.slice, options.range, callback);
+		break;
+	case 'app':
+		watch = cache.watchApp(typeof options.path === 'string' ? [ options.path ] : options.path, callback);
+		break;
+	case 'me':
+		let meWatch;
 
-cache.getRoom = function(id, callback) {
-	return this.getEntity(id, callback);
-};
-
-cache.getTexts = function(roomId, threadId, time, r, callback) {
-	const q = {}, range = [];
-	let key;
-
-	q.type = 'text';
-	q.filter = {
-		to: roomId, thread: threadId
-	};
-	range.push(time);
-	if (range < 0) {
-		range.push(-r);
-		range.push(0);
-	} else {
-		range.push(0);
-		range.push(r);
-	}
-	q.order = 'time';
-	key = this.cache.sliceToKey(q);
-	return this.cache.query(key, range, callback);
-};
-
-cache.getThreads = function(roomId, time, r, callback) {
-	const q = {}, range = [];
-	let key;
-
-	q.type = 'text';
-	q.filter = {
-		to: roomId
-	};
-	range.push(time);
-	if (range < 0) {
-		range.push(-r);
-		range.push(0);
-	} else {
-		range.push(0);
-		range.push(r);
-	}
-	q.order = 'startTime';
-	key = this.cache.sliceToKey(q);
-	return this.cache.query(key, range, callback);
-};
-
-cache.getNearByRooms = function() {
-	return this.get('app', 'nearByRooms');
-};
-
-cache.getUser = function(id) {
-	const userObj = this.getEntity(id || this.get('app', 'user'));
-
-	if (typeof userObj === 'object') {
-		if (userObj.type === 'user') {
-			return userObj;
-		}
-	} else {
-		return userObj;
-	}
-};
-
-cache.getRelatedEntity = function(type, id, f) {
-	const q = {}, range = [ 0, 0, 60 ], results = [];
-	let entityId, key, items, filter = f;
-
-	if (typeof id === 'string') {
-		entityId = id;
-	} else if (typeof id === 'object') {
-		entityId = this.get('app', 'nav', type === 'user' ? 'room' : 'user');
-		filter = id;
-	} else {
-		entityId = this.get('app', 'nav', type === 'user' ? 'room' : 'user');
-	}
-
-	q.type = 'relation';
-	q.filter = filter;
-	filter.room = entityId;
-
-	q.order = 'roleTime';
-	key = this.cache.sliceToKey(q);
-	items = this.cache.query(key, range);
-
-	if (Array.isArray(items)) {
-		items.forEach(relation => {
-			let entity, filterKeys, i;
-
-			if (filter) {
-				filterKeys = Object.keys(filter);
-
-				for (i = 0; i < filterKeys.length; i++) {
-					if (filter[filterKeys] !== relation[filterKeys]) {
-						return;
-					}
-				}
+		const userWatch = cache.watchApp([ 'user' ], id => {
+			if (meWatch) {
+				meWatch.remove();
 			}
 
-			entity = this['get' + (type === 'user' ? 'Room' : 'User')](relation[type]);
-
-			results.push(Object.assign((cloneDeep(relation), entity)));
+			meWatch = cache.watchEntity(id, callback);
 		});
+
+		watch = {
+			remove: () => {
+				if (meWatch) {
+					meWatch.remove();
+				}
+
+				userWatch.remove();
+			}
+		};
+
+		break;
+	default:
+		throw new Error('Invalid options passed to subscribe');
 	}
 
-	return results;
-};
+	forEach(_subscriptionWatches, fn => fn(options));
 
-cache.subscribe = (opts, callback) => {
-	const unwatch = (() => { // probably too many functions wrapped.
-		switch (opts.what) {
-		case 'entity':
-			return this.watchEntity(opts.id, callback);
-		case 'texts':
-		case 'threads':
-			return this.watch(opts.slice, opts.range, callback);
-		case 'app':
-			return this.watchApp(opts.path, callback);
-		default:
-			return this[opts.what](opts, callback);
+	return {
+		remove: () => {
+			watch.remove();
+
+			forEach(_unsubscriptionWatches, fn => fn(options));
 		}
-	})();
-
-	for (const watch of this._subscriptionWatchs) {
-		watch(opts);
-	}
-
-	return () => {
-		for (const watch of this._unsubscriptionWatchs) {
-			watch(opts);
-		}
-		unwatch();
 	};
 };
 
-cache.me = (opts, callback) => {
-	const user = cache.getApp([ 'user' ]);
-	let unwatchApp, unwatchMe;
+export const onSubscribe = (callback: Function): Subscription => {
+	const watches = _subscriptionWatches;
 
-	function fire(id) {
-		if (unwatchMe) unwatchMe();
-		unwatchMe = cache.watchEntity(id, (entity) => {
-			callback(entity);
-		});
-	}
+	watches.push(callback);
 
-	fire(user);
-	unwatchApp = cache.watchApp([ 'user' ], fire);
-
-	return function() {
-		unwatchApp();
-		unwatchMe();
+	return {
+		remove: () => { pull(watches, callback); }
 	};
 };
 
-cache.onSubscribe = (fn) => {
-	this._subscriptionWatchs.push(fn);
-	return () => {
-		const index = this._subscriptionWatchs.indexOf(fn);
+export const onUnsubscribe = (callback: Function): Subscription => {
+	const watches = _unsubscriptionWatches;
 
-		if (index > -1) this._subscriptionWatchs.splice(index, 1);
+	watches.push(callback);
+
+	return {
+		remove: () => { pull(watches, callback); }
 	};
 };
 
-
-cache.onUnsubscribe = (fn) => {
-	this._unsubscriptionWatchs.push(fn);
-	return () => {
-		const index = this._unsubscriptionWatchs.indexOf(fn);
-
-		if (index > -1) this._unsubscriptionWatchs.splice(index, 1);
-	};
-};
-
-cache._subscriptionWatchs = [];
-cache._unsubscriptionWatchs = [];
-
-cache.setState = (payload: Object): void => bus.emit('setstate', payload);
-
-export default cache;
+export const setState = (payload: Object): void => bus.emit('setstate', payload);
