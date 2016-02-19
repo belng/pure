@@ -5,6 +5,7 @@ https://developers.google.com/identity/protocols/OAuth2UserAgent#validatetoken
 
 import fs from 'fs';
 import path from 'path';
+import winston from 'winston';
 import request from 'request';
 import handlebars from 'handlebars';
 import route from 'koa-route';
@@ -34,24 +35,24 @@ const SCRIPT_MESSAGE = `
 
 // TODO: most of the code is copy paste from facebook module. see if u can avoid that when u get time.
 function getTokenFromCode(code) {
-	return new Promise(function (resolve, reject) {
+	return new Promise((resolve, reject) => {
 		request.post({
 			uri: 'https://accounts.google.com/o/oauth2/token',
 			headers: {
 				'content-type': 'application/x-www-form-urlencoded'
 			},
 			body: queryString.stringify({
-				code: code,
+				code,
 				redirect_uri: 'https://' + config.host + '/r/google/return',
 				client_id: config.google.client_id,
 				client_secret: config.google.client_secret,
 				grant_type: 'authorization_code'
 			})
-		}, function(err, res, tokenBody) {
+		}, (err, res, t) => {
 			if (err) throw (err);
 			try {
-				tokenBody = JSON.parse(tokenBody);
-				var token = tokenBody.access_token;
+				const tokenBody = JSON.parse(t), token = tokenBody.access_token;
+
 				if (!token) throw new Error('INVALID_ACCESS_TOKEN');
 				resolve(token);
 			} catch (e) {
@@ -62,10 +63,11 @@ function getTokenFromCode(code) {
 }
 
 function verifyToken(token, appId) {
-	return new Promise(function (resolve, reject) {
+	return new Promise((resolve, reject) => {
 		request('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=accessToken' + token,
-		function(err, res, body) {
-			var response;
+		(err, res /* , body */) => {
+			let response;
+
 			if (err || !res) {
 				return reject(err, null, null);
 			}
@@ -79,10 +81,11 @@ function verifyToken(token, appId) {
 }
 
 function getDataFromToken(token) {
-	var signin = {};
-	return new Promise(function(resolve, reject) {
-		request('https://www.googleapis.com/oauth2/v1/userinfo?access_token=' + token, function(err, res, body) {
-			var user;
+	const signin = {};
+
+	return new Promise((resolve, reject) => {
+		request(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`, (err, res, body) => {
+			let user;
 
 			try {
 				if (err) throw (err);
@@ -113,7 +116,8 @@ function getDataFromToken(token) {
 }
 
 function googleAuth(changes, next) {
-	var key, promise;
+	let key, promise;
+
 	if (!changes.auth || !changes.auth.google) return next();
 
 	/* TODO: how do we handle auth from already logged in user?*/
@@ -121,18 +125,15 @@ function googleAuth(changes, next) {
 	if (!key) return next(new Error('GOOGLE_AUTH_FAILED'));
 
 	promise = ((changes.auth.google.code) ? getTokenFromCode(key) : verifyToken(key));
-	promise.then(function(err, token) {
+	promise.then((err, token) => {
+		if (err) return next(err);
 		if (!token) return next(new Error('Invalid_FB_TOKEN'));
-		getDataFromToken(token).then(function(error, response) {
+		getDataFromToken(token).then((error, response) => {
 			if (!response) return next(new Error('trouble construct the signin object'));
 			changes.auth.signin = response;
 			next();
-		}).catch(function(error) {
-			next(error);
-		});
-	}).catch(function (error) {
-		next(error);
-	});
+		}).catch(error => next(error));
+	}).catch(error => next(error));
 }
 
 bus.on('setstate', googleAuth, 900);
@@ -155,4 +156,4 @@ bus.on('http/init', app => {
 	}));
 });
 
-console.log('google module ready...');
+winston.info('google module ready...');

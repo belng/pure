@@ -1,8 +1,8 @@
 /* @flow */
 
 import route from 'koa-route';
-
 import { bus, config } from '../../core-server';
+import winston from 'winston';
 import request from 'request';
 import fs from 'fs';
 import path from 'path';
@@ -20,19 +20,19 @@ const SCRIPT_MESSAGE = `
 `;
 
 function getTokenFromCode(code, secret, clientID, host) {
-	console.log(arguments);
-	return new Promise(function (resolve, reject) {
+	return new Promise((resolve, reject) => {
 		request('https://graph.facebook.com/oauth/access_token?client_id=' + clientID +
 		'&redirect_uri=https://' + host + '/r/facebook/return' +
 		'&client_secret=' + secret +
 		'&code=' + code,
-		function(err, res, body) {
-			var queries = body.split('&'), i, l, token;
+		(err, res, body) => {
+			const queries = body.split('&');
+			let i, l, token;
+
 			if (err) {
-				console.log(err);
+				winston.log(err);
 				return reject(err);
 			}
-			console.log(queries);
 			for (i = 0, l = queries.length; i < l; i++) {
 				if (queries[i].indexOf('access_token') >= 0) {
 					token = queries[i].replace('access_token=', '');
@@ -40,17 +40,17 @@ function getTokenFromCode(code, secret, clientID, host) {
 				}
 			}
 
-			console.log(token);
 			resolve(token);
 		});
 	});
 }
 
 function verifyToken(token, appId) {
-	return new Promise(function (resolve, reject) {
+	return new Promise((resolve, reject) => {
 		request('https://graph.facebook.com/app/?access_token=' + token,
-		function(err, res, body) {
-			var response;
+		(err, res/* , body */) => {
+			let response;
+
 			if (err || !res) {
 				return reject(err);
 			}
@@ -65,10 +65,11 @@ function verifyToken(token, appId) {
 }
 
 function getDataFromToken(token) {
-	var signin = {};
-	return new Promise(function(resolve, reject) {
-		request('https://graph.facebook.com/me?access_token=' + token, function(err, res, body) {
-			var user;
+	const signin = {};
+
+	return new Promise((resolve, reject) => {
+		request('https://graph.facebook.com/me?access_token=' + token, (err, res, body) => {
+			let user;
 
 			try {
 				if (err) throw err;
@@ -94,7 +95,6 @@ function getDataFromToken(token) {
 						picture: 'https://graph.facebook.com/' + user.id + '/picture?type=square'
 					}
 				};
-				console.log(signin);
 				resolve(signin);
 			} catch (e) {
 				reject(e);
@@ -104,7 +104,8 @@ function getDataFromToken(token) {
 }
 
 function fbAuth(changes, next) {
-	var key, promise;
+	let key, promise;
+
 	if (!changes.auth || !changes.auth.facebook) return next();
 
 	/* TODO: how do we handle auth from already logged in user?*/
@@ -113,17 +114,16 @@ function fbAuth(changes, next) {
 
 	promise = ((changes.auth.facebook.code) ? getTokenFromCode(key, config.facebook.client_secret, config.facebook.client_id, config.host) : verifyToken(key, config.facebook.client_id));
 
-	promise.then(function(token) {
-		console.log(arguments);
+	promise.then((token) => {
 		if (!token) return next(new Error('Invalid_FB_TOKEN'));
-		getDataFromToken(token).then(function(response) {
+		getDataFromToken(token).then((response) => {
 			if (!response) return next(new Error('trouble construct the signin object'));
 			changes.auth.signin = response;
 			next();
-		}).catch(function(error) {
+		}).catch((error) => {
 			return next(error);
 		});
-	}).catch(function(err) {
+	}).catch((err) => {
 		return next(err);
 	});
 }
@@ -148,4 +148,4 @@ bus.on('http/init', app => {
 	}));
 });
 
-console.log('facebook module ready...');
+winston.info('facebook module is ready.');

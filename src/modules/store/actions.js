@@ -5,8 +5,12 @@ import type { User } from '../../lib/schemaTypes';
 /*
  * User related actions
  */
-export const signIn = (): Object => ({
-
+export const signIn = (gateway: string, accessToken: string): Object => ({
+	auth: {
+		[gateway]: {
+			token: accessToken
+		}
+	}
 });
 
 export const signOut = (): Object => ({
