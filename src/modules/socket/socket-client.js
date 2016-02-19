@@ -3,8 +3,8 @@
 /* eslint-env browser */
 
 import eio from 'engine.io-client';
-import { bus, config } from '../../core.js';
-import models from '../../models/models.js';
+import { bus, config } from '../../core-client.js';
+import * as models from '../../models/models.js';
 import stringPack from 'stringpack';
 
 const protocol = config.server.protocol, host = config.server.apiHost;

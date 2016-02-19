@@ -1,7 +1,6 @@
-import COLUMNS from '../lib/schema';
-export default class User {
-	identities: Array<string>;
+import { COLUMNS } from '../lib/schema';
 
+export default class User {
 	constructor(data) {
 		if (data.type !== 'user') throw (new Error('invalid_type'));
 		for (const name of COLUMNS.user) {
