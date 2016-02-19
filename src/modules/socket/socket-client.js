@@ -53,3 +53,5 @@ function connect() {
 bus.on('setstate', (state) => {
 	client.send(packer.encode(state));
 }, 1);
+
+connect();
