@@ -1,8 +1,12 @@
 /* @flow */
 
+import { PropTypes } from 'react';
+import { config } from '../../../core-client';
 import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 import { convertRouteToURL } from '../../../lib/Route';
+
+const { host, protocol } = config.server;
 
 const ShareButtonContainer = Connect(({ thread }) => ({
 	url: {
@@ -10,8 +14,7 @@ const ShareButtonContainer = Connect(({ thread }) => ({
 			type: 'entity',
 			id: thread
 		},
-		// TODO: add protocol and host
-		transform: threadObj => threadObj ? convertRouteToURL({
+		transform: threadObj => threadObj ? protocol + '//' + host + '/' + convertRouteToURL({
 			name: 'chat',
 			props: {
 				room: threadObj.parents[0],
@@ -20,5 +23,9 @@ const ShareButtonContainer = Connect(({ thread }) => ({
 		}) : null
 	}
 }))(Dummy);
+
+ShareButtonContainer.propTypes = {
+	thread: PropTypes.string.isRequired,
+};
 
 export default ShareButtonContainer;

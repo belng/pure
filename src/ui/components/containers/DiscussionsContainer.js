@@ -24,19 +24,24 @@ const DiscussionsContainerInner = Connect(({ room, start, before, after }) => ({
 	}
 }))(Dummy);
 
+DiscussionsContainerInner.propTypes = {
+	room: React.PropTypes.string.isRequired,
+	start: React.PropTypes.number,
+	before: React.PropTypes.number,
+	after: React.PropTypes.number,
+};
+
 export default class DiscussionsContainer extends Component {
 	// Keep state flat for shallowEqual
 	state: SubscriptionRange = {
-		start: null,
+		start: -Infinity,
 		before: 20,
-		after: 0
+		after: 0,
 	};
 
 	_loadMore: Function = (count: number) => {
 		this.setState({
-			start: null,
 			before: count + 20,
-			after: 0
 		});
 	};
 

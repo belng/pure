@@ -1,5 +1,6 @@
 /* @flow */
 
+import { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 
@@ -11,5 +12,9 @@ const DiscussionDetailsContainer = Connect(({ thread }) => ({
 		}
 	}
 }))(Dummy);
+
+DiscussionDetailsContainer.propTypes = {
+	thread: PropTypes.string.isRequired
+};
 
 export default DiscussionDetailsContainer;

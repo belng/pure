@@ -1,16 +1,21 @@
 /* @flow */
 
+import { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 
-const ChatTitleContainer = Connect(({ id }) => ({
+const ChatTitleContainer = Connect(({ thread }) => ({
 	title: {
 		key: {
 			type: 'entity',
-			id
+			id: thread
 		},
-		transform: thread => thread ? thread.title : null
+		transform: o => o ? o.title : null
 	}
 }))(Dummy);
+
+ChatTitleContainer.propTypes = {
+	thread: PropTypes.string.isRequired
+};
 
 export default ChatTitleContainer;

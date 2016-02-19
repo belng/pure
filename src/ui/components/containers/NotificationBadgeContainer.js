@@ -1,5 +1,6 @@
 /* @flow */
 
+import { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 
@@ -22,5 +23,9 @@ const NotificationBadgeContainer = Connect(({ user }) => ({
 		transform: notes => notes ? notes.length : 0
 	}
 }))(Dummy);
+
+NotificationBadgeContainer.propTypes = {
+	user: PropTypes.string.isRequired
+};
 
 export default NotificationBadgeContainer;

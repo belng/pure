@@ -1,16 +1,18 @@
 /* @flow */
 
 import { PropTypes } from 'react';
+import { config } from '../../../core-client';
 import Connect from '../../../modules/store/Connect';
 import getAvatarURL from '../../../lib/getAvatarURL';
 import Dummy from '../views/Dummy';
+
+const { host, protocol } = config.server;
 
 const extractAvatarURL = (user, size = 48) => {
 	if (user.picture) {
 		return getAvatarURL(user.picture, size);
 	} else {
-		// TODO: add protocol and host
-		return user.id + '/picture?size=' + size;
+		return protocol + '//' + host + '/' + user.id + '/picture?size=' + size;
 	}
 };
 

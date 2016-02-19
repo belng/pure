@@ -1,9 +1,10 @@
 /* @flow */
 
+import { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 
-const PeopleListContainer = Connect(({ room }) => ({
+const PeopleListContainer = Connect(({ thread }) => ({
 	count: {
 		key: {
 			slice: {
@@ -12,17 +13,21 @@ const PeopleListContainer = Connect(({ room }) => ({
 					user: 'user'
 				},
 				filter: {
-					room
+					thread
 				},
 				order: 'statusTime'
 			},
 			range: {
-				start: null,
+				start: -Infinity,
 				before: 100,
 				after: 0
 			}
 		}
 	}
 }))(Dummy);
+
+PeopleListContainer.propTypes = {
+	thread: PropTypes.string.isRequired
+};
 
 export default PeopleListContainer;

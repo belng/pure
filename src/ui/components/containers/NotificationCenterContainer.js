@@ -1,5 +1,6 @@
 /* @flow */
 
+import { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 
@@ -21,5 +22,9 @@ const NotificationCenterContainer = Connect(({ user }) => ({
 		}
 	}
 }))(Dummy);
+
+NotificationCenterContainer.propTypes = {
+	user: PropTypes.string.isRequired
+};
 
 export default NotificationCenterContainer;
