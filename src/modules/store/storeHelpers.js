@@ -98,5 +98,3 @@ cache.getRelatedEntity = function(type, id, f) {
 
 	return results;
 };
-
-global.cache = cache;

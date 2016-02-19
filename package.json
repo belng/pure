@@ -15,6 +15,8 @@
     "jsonwebtoken": "^5.7.0",
     "juri": "^1.0.2",
     "koa": "^1.1.2",
+    "koa-compose": "^2.3.0",
+    "koa-logger": "^1.3.0",
     "koa-mount": "^1.3.0",
     "koa-route": "^2.4.2",
     "koa-static": "^2.0.0",

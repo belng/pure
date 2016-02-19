@@ -1,40 +1,25 @@
 import koa from 'koa';
 import http from 'http';
-import route from 'koa-route';
+import logger from 'koa-logger';
 import mount from 'koa-mount';
 import serve from 'koa-static';
 import opn from 'opn';
-import webpack from 'webpack';
-import webpackDevMiddleware from 'koa-webpack-dev-middleware';
-import webpackHotMiddleware from 'koa-webpack-hot-middleware';
-import webpackConfig from '../../../webpack.config';
-import { home } from './routes';
+import client from '../client/middleware';
 import { config, bus } from '../../core-server';
 
 const app = koa();
 const httpServer = http.createServer(app.callback()).listen(config.server.port);
 
+app.use(logger());
+app.use(client());
+
 if (process.env.NODE_ENV !== 'production') {
-	const compiler = webpack(webpackConfig);
-
-	// Enable Webpack Dev Server
-	app.use(webpackDevMiddleware(compiler, {
-		publicPath: webpackConfig.output.publicPath,
-		noInfo: true
-	}));
-
-	// Enable Hot reloading
-	app.use(webpackHotMiddleware(compiler));
-
 	// Serve files under static/tests for any requests to /tests/
 	app.use(mount('/tests', serve('static/tests'), { defer: true }));
 
+	// Open the URL in browser
 	opn(`${config.server.protocol}//${config.server.host}:${config.server.port}`);
 }
 
 app.httpServer = httpServer;
 bus.emit('http/init', app);
-
-// Serve files under static/dist for any requests to /dist/
-app.use(mount('/dist', serve('static/dist'), { defer: true }));
-app.use(route.get('/', home));
