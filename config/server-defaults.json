@@ -10,9 +10,11 @@
 	},
 
 	"email": {
-		"secret":"ASD",
+		"secret":"",
 		"debug": false,
-		"auth": true
+		"auth": {
+			
+		}
 	},
 
 	"facebook": {
