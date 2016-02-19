@@ -13,8 +13,8 @@ if (!conf.auth) {
 } else {
 	winston.info('email module is ready');
 	pg.read(connString, {
-		$: 'SELECT * FROM jobs WHERE jobid in (&(jids))',
-		jids: [ Constants.JOB_EMAIL_WELCOME, Constants.JOB_EMAIL_MENTION, Constants.JOB_EMAIL_DIGEST ]
+		$: 'SELECT * FROM jobs WHERE id in (&(ids))',
+		ids: [ Constants.JOB_EMAIL_WELCOME, Constants.JOB_EMAIL_MENTION, Constants.JOB_EMAIL_DIGEST ]
 	}, (err, results) => {
 		if (err) return;
 		winston.info(results);
