@@ -1,3 +1,5 @@
+/* eslint-disable import/no-commonjs */
+
 const __DEV__ = process.env.NODE_ENV !== 'production';
 
 const webpack = require('webpack');
@@ -6,6 +8,10 @@ const fs = require('fs');
 
 const plugins = [
 	new webpack.EnvironmentPlugin('NODE_ENV'),
+	new webpack.LoaderOptionsPlugin({
+		minimize: !__DEV__,
+		debug: __DEV__
+	}),
 ];
 
 const entry = [
@@ -23,7 +29,7 @@ module.exports = {
 		filename: 'bundle.min.js',
 		sourceMapFilename: 'bundle.min.js.map'
 	},
-	plugins: __DEV__ ? [ ...plugins, new webpack.HotModuleReplacementPlugin() ] : [ ...plugins, new webpack.optimize.UglifyJsPlugin() ],
+	plugins: [ ...plugins, __DEV__ ? new webpack.HotModuleReplacementPlugin() : new webpack.optimize.UglifyJsPlugin() ],
 	resolve: {
 		extensions: [ '', '.web.js', '.js' ],
 	},
