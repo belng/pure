@@ -2,8 +2,8 @@
 
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import ServerHTML from '../../ui/ServerHTML';
 import Home from '../../ui/components/views/Home.web';
+import ServerHTML from './ServerHTML';
 import { convertURLToRoute } from '../../lib/Route';
 
 export default function(): Function {
