@@ -14,13 +14,21 @@
   "plugins": [
     "babel",
     "import",
-    "flow-vars",
     "react",
     "react-native",
   ],
 
   "settings": {
     "import/resolver": "webpack",
+  },
+
+  "globals": {
+    "ReactComponent": false,
+    "ReactClass": false,
+    "ReactPropsCheckType": false,
+    "ReactPropsChainableTypeChecker": false,
+    "ReactPropTypes": false,
+    "SyntheticEvent": false
   },
 
   "rules": {
@@ -206,9 +214,6 @@
     "babel/object-shorthand": 1,
     "babel/arrow-parens": 0,
     "babel/no-await-in-loop": 2,
-
-    "flow-vars/define-flow-type": 1,
-    "flow-vars/use-flow-type": 1,
 
     "import/no-unresolved": 2,
     "import/named": 0,
