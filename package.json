@@ -12,6 +12,7 @@
     "engine.io-client": "^1.6.8",
     "handlebars": "^4.0.5",
     "jest": "^0.1.40",
+    "jsonp": "^0.2.0",
     "jsonwebtoken": "^5.7.0",
     "juri": "^1.0.2",
     "koa": "^1.1.2",
