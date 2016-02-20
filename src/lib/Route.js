@@ -38,7 +38,7 @@ export function convertRouteToURL(route: Route): string {
 			}
 
 			const room = encodeURIComponent(route.props.room);
-			// $FlowIssue
+			// $FlowFixMe - Already checking for route.props
 			const thread = encodeURIComponent(route.props.thread);
 
 			return `/${room}/${thread}/${title}`;

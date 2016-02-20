@@ -19,6 +19,10 @@
     "react-native",
   ],
 
+  "settings": {
+    "import/resolver": "webpack",
+  },
+
   "rules": {
     "comma-dangle": 0,
     "no-cond-assign": 2,

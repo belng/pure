@@ -24,9 +24,9 @@ module.exports = {
 		sourceMapFilename: 'bundle.min.js.map'
 	},
 	plugins: __DEV__ ? [ ...plugins, new webpack.HotModuleReplacementPlugin() ] : [ ...plugins, new webpack.optimize.UglifyJsPlugin() ],
-	resolve: [
-		'', '.js', '.web.js'
-	],
+	resolve: {
+		extensions: [ '', '.web.js', '.js' ],
+	},
 	module: {
 		preLoaders: [
 			{

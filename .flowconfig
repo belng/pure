@@ -5,7 +5,6 @@
 .*/node_modules/babylon.*
 .*/node_modules/babel.*
 .*/__tests__/*
-.*/tests/*
 
 [include]
 
@@ -13,8 +12,22 @@
 interfaces/
 
 [options]
-suppress_comment=\\(.\\|\n\\)*\\$FlowIssue
-suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe
+munge_underscores=true
+
+module.name_mapper='[a-zA-Z0-9$_-]+$' -> '\0.web.js'
+module.name_mapper='[a-zA-Z0-9$_-]+$' -> '\0.ios.js'
+module.name_mapper='[a-zA-Z0-9$_-]+$' -> '\0.android.js'
+
+module.name_mapper='^image![a-zA-Z0-9$_-]+$' -> 'GlobalImageStub'
+module.name_mapper='^[./a-zA-Z0-9$_-]+\.png$' -> 'RelativeImageStub'
+
+suppress_type=$FlowIssue
+suppress_type=$FlowFixMe
+suppress_type=$FixMe
+
+suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe\\($\\|[^(]\\|(\\(>=0\\.\\(1[0-9]\\|[0-9]\\).[0-9]\\)? *\\(site=[a-z,_]*react_native[a-z,_]*\\)?)\\)
+suppress_comment=\\(.\\|\n\\)*\\$FlowIssue\\((\\(>=0\\.\\(1[0-9]\\|[0-9]\\).[0-9]\\)? *\\(site=[a-z,_]*react_native[a-z,_]*\\)?)\\)? #[0-9]+
+suppress_comment=\\(.\\|\n\\)*\\$FlowFixedInNextDeploy
 
 esproposal.class_static_fields=enable
 esproposal.class_instance_fields=enable
