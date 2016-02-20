@@ -2,10 +2,9 @@
 
 import React, { Component } from 'react';
 import storeShape from './storeShape';
-import type { Store } from './ConnectTypes';
 
 export default (Target: ReactClass): ReactClass => {
-	return class Container extends Component<{}, {}, { store: Store }> {
+	return class Container extends Component<any, any, void> {
 		static contextTypes = {
 			store: storeShape.isRequired
 		};

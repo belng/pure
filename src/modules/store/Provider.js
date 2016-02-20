@@ -8,8 +8,9 @@
 
 import { Component, Children, PropTypes } from 'react';
 import storeShape from './storeShape';
+import type { Store } from './ConnectTypes';
 
-export default class Provider extends Component {
+export default class Provider extends Component<void, { children: Element, store: Store }, void> {
 	static propTypes = {
 		children: PropTypes.element.isRequired,
 		store: storeShape.isRequired
@@ -25,7 +26,7 @@ export default class Provider extends Component {
 		};
 	}
 
-	render(): ReactElement {
+	render(): any {
 		return Children.only(this.props.children);
 	}
 }

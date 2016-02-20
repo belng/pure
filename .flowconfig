@@ -1,10 +1,23 @@
 [ignore]
-.*/node_modules/.*/node_modules/.*
-.*/node_modules/flow-bin.*
-.*/node_modules/fbjs.*
-.*/node_modules/babylon.*
-.*/node_modules/babel.*
+
+# Ignore test files
 .*/__tests__/*
+.*/tests/*
+.*/test/*
+
+# Ignore fbs and babel stuff
+.*/node_modules/fbjs.*
+.*/node_modules/babel.*
+
+# Ugh
+.*/node_modules/binary-extensions/.*.json
+.*/node_modules/builtin-modules/.*.json
+.*/node_modules/iconv-lite/.*.json
+.*/node_modules/resolve/.*.json
+.*/node_modules/spdx-exceptions/.*.json
+.*/node_modules/spdx-license-ids/.*.json
+.*/node_modules/tr46/.*.json
+.*/node_modules/url-regex/.*.json
 
 [include]
 
@@ -14,9 +27,9 @@ interfaces/
 [options]
 munge_underscores=true
 
-module.name_mapper='[a-zA-Z0-9$_-]+$' -> '\0.web.js'
-module.name_mapper='[a-zA-Z0-9$_-]+$' -> '\0.ios.js'
-module.name_mapper='[a-zA-Z0-9$_-]+$' -> '\0.android.js'
+module.name_mapper='^\..+/[a-zA-Z0-9$_-]+$' -> '\0.web.js'
+module.name_mapper='^\..+/[a-zA-Z0-9$_-]+$' -> '\0.ios.js'
+module.name_mapper='^\..+/[a-zA-Z0-9$_-]+$' -> '\0.android.js'
 
 module.name_mapper='^image![a-zA-Z0-9$_-]+$' -> 'GlobalImageStub'
 module.name_mapper='^[./a-zA-Z0-9$_-]+\.png$' -> 'RelativeImageStub'

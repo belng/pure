@@ -1,6 +1,6 @@
 /* @flow */
 
-import PropTypes from 'react';
+import { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 import { sendText } from '../../../modules/store/actions';

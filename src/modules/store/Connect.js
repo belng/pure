@@ -9,6 +9,7 @@ import storeShape from './storeShape';
 
 import type {
 	Store,
+	Subscription,
 	MapSubscriptionToProps,
 	MapSubscriptionToPropsCreator,
 	MapActionsToProps
@@ -39,17 +40,17 @@ export default function(
 	}
 
 	return function(Target: ReactClass): ReactClass {
-		class Connect extends Component<{ store: Store }, Object> {
+		class Connect extends Component<any, { store: Store }, Object> {
 			static propTypes = {
 				store: storeShape.isRequired
 			};
 
 			state = {};
 
-			_subscriptions: Array<Function> = [];
+			_subscriptions: Array<Subscription> = [];
 
 			_addSubscriptions = () => {
-				const { store, ...other } = this.props;
+				const { store } = this.props;
 
 				if (typeof store !== 'object') {
 					throw new Error('No store was found. Have you wrapped the root component in <StoreProvider /> ?');
@@ -59,7 +60,7 @@ export default function(
 					let subscriptions;
 
 					if (typeof mapSubscriptionToProps === 'function') {
-						subscriptions = mapSubscriptionToProps(other);
+						subscriptions = mapSubscriptionToProps({ ...this.props, store: null });
 					} else if (typeof mapSubscriptionToProps === 'object') {
 						subscriptions = mapSubscriptionToProps;
 					}
@@ -139,8 +140,8 @@ export default function(
 			}
 
 			render() {
-				const { store, ...other } = this.props;
-				const props = { ...other, ...this.state };
+				const { store } = this.props;
+				const props = { ...this.props, ...this.state, store: null };
 				const actions = mapActionsToProps ? mapValues(mapActionsToProps, (value, key) => {
 					const action = value(props, store);
 

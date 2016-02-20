@@ -50,9 +50,9 @@ cache.getUser = function(id) {
 		if (userObj.type === 'user') {
 			return userObj;
 		}
-	} else {
-		return userObj;
 	}
+
+	return userObj;
 };
 
 cache.getRelatedEntity = function(type, id, f) {
