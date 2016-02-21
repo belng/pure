@@ -25,11 +25,9 @@
 interfaces/
 
 [options]
-munge_underscores=true
+module.system=haste
 
-module.name_mapper='^\..+/[a-zA-Z0-9$_-]+$' -> '\0.web.js'
-module.name_mapper='^\..+/[a-zA-Z0-9$_-]+$' -> '\0.ios.js'
-module.name_mapper='^\..+/[a-zA-Z0-9$_-]+$' -> '\0.android.js'
+munge_underscores=true
 
 module.name_mapper='^image![a-zA-Z0-9$_-]+$' -> 'GlobalImageStub'
 module.name_mapper='^[./a-zA-Z0-9$_-]+\.png$' -> 'RelativeImageStub'
