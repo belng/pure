@@ -1,6 +1,6 @@
 /* @flow */
 
-import Constants from '../lib/Constants';
+import * as Constants from './Constants';
 
 export const TABLES = {};
 export const COLUMNS = {};

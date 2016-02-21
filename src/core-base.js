@@ -3,7 +3,7 @@
 import Ebus from 'ebus';
 import SbCache from 'sbcache';
 
-export { default as Constants } from './lib/Constants';
+export * as Constants from './lib/Constants';
 
 export type Bus = {
 	on(event: string, callback: Function, priority?: number|string): void;

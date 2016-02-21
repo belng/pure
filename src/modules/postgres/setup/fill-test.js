@@ -1,4 +1,4 @@
-import Constants from './../../../lib/Constants';
+import * as Constants from './../../../lib/Constants';
 import uid from './../../../lib/uid-server';
 import pg from '../pg.js';
 import casual from 'casual';
