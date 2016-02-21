@@ -3,7 +3,16 @@
 
 import React from 'react';
 
-const ServerHTML = ({ locale, title, description, body, image, permalink }: { [key: string]: string }) => (
+type Props = {
+	locale?: string;
+	title: string;
+	description: string;
+	body: string;
+	image: string;
+	permalink: string;
+};
+
+const ServerHTML = ({ locale, title, description, body, image, permalink }: Props) => (
 	<html lang={locale}>
 		<head>
 			<meta charSet='utf-8' />
