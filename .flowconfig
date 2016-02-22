@@ -30,10 +30,14 @@
 .*/node_modules/react/lib/React.js
 .*/node_modules/react/lib/ReactDOM.js
 
+# Lots of Flow errors from React Native, ignore for now
+.*/node_modules/react-native/.*
+
 # This should not be needed
 .*/node_modules/binary-extensions/.*.json
 .*/node_modules/builtin-modules/.*.json
 .*/node_modules/iconv-lite/.*.json
+.*/node_modules/jsonparse/.*.json
 .*/node_modules/resolve/.*.json
 .*/node_modules/spdx-exceptions/.*.json
 .*/node_modules/spdx-license-ids/.*.json
@@ -43,6 +47,7 @@
 [include]
 
 [libs]
+node_modules/react-native/Libraries/react-native/react-native-interface.js
 interfaces/
 
 [options]
