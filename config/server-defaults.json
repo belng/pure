@@ -13,7 +13,7 @@
 		"secret":"",
 		"debug": false,
 		"auth": {
-			
+
 		}
 	},
 
@@ -25,5 +25,6 @@
 
 	},
 	"appName": "Heyneighbor",
-	"connStr": "pg://scrollback:@localhost/pure"
+	"connStr": "pg://scrollback:@localhost/pure",
+	"open_in_browser": false
 }
