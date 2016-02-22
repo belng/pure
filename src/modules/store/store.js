@@ -3,51 +3,42 @@
 import forEach from 'lodash/forEach';
 import pull from 'lodash/pull';
 import { bus, cache } from '../../core-client';
-import type { SubscriptionSlice, SubscriptionRange, Subscription } from './ConnectTypes';
+import type { SubscriptionOptions, Subscription } from './ConnectTypes';
 
 const _subscriptionWatches = [];
 const _unsubscriptionWatches = [];
 
-export const subscribe = (options: {
-	what?: string;
-	slice?: SubscriptionSlice;
-	range?: SubscriptionRange;
-	order?: string;
-	id?: string;
-	path?: string|Array<string>
-}, callback: Function): Subscription => {
-	let watch;
+export const subscribe = (options: SubscriptionOptions, callback: Function): Subscription => {
+	let unWatch;
 
 	switch (options.what) {
 	case 'entity':
-		watch = cache.watchEntity(options.id, callback);
+		unWatch = cache.watchEntity(options.id, callback);
 		break;
 	case 'texts':
 	case 'threads':
-		watch = cache.watch(options.slice, options.range, callback);
+		unWatch = cache.watch(options.slice, options.range, callback);
 		break;
 	case 'app':
-		watch = cache.watchApp(typeof options.path === 'string' ? [ options.path ] : options.path, callback);
+		unWatch = cache.watchApp(typeof options.path === 'string' ? [ options.path ] : options.path, callback);
 		break;
 	case 'me':
-		let meWatch;
+		let unWatchMe;
 
-		const userWatch = cache.watchApp([ 'user' ], id => {
-			if (meWatch) {
-				meWatch.remove();
+		const unWatchUser = cache.watchApp([ 'user' ], id => {
+			if (unWatchMe) {
+				unWatchMe();
 			}
 
-			meWatch = cache.watchEntity(id, callback);
+			unWatchMe = cache.watchEntity(id, callback);
 		});
 
-		watch = {
-			remove: () => {
-				if (meWatch) {
-					meWatch.remove();
-				}
-
-				userWatch.remove();
+		unWatch = () => {
+			if (unWatchMe) {
+				unWatchMe();
 			}
+
+			unWatchUser();
 		};
 
 		break;
@@ -59,7 +50,7 @@ export const subscribe = (options: {
 
 	return {
 		remove: () => {
-			watch.remove();
+			unWatch();
 
 			forEach(_unsubscriptionWatches, fn => fn(options));
 		}
