@@ -16,12 +16,11 @@ import encodeURITemplate from '../../lib/encodeURITemplate';
 const redirectURL = `https://${config.host}${config.facebook.redirect_path}`;
 
 const SCRIPT_REDIRECT = `\
-location.href = 'https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/userinfo.email \
-https://www.googleapis.com/auth/userinfo.profile\
-&client_id=${config.google.client_id}\
-&redirect_uri=${redirectURL}\
-&response_type=code&access_type=offline\
-`;
+location.href = 'https://accounts.google.com/o/oauth2/auth?\
+scope=https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile&\
+client_id=${config.google.client_id}&\
+redirect_uri=${redirectURL}&\
+response_type=code&access_type=offline`;
 
 const SCRIPT_MESSAGE = `
 	var code = (location.search.substring(1).split("&").filter(function(seg) {
