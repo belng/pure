@@ -30,7 +30,7 @@ ChatSuggestionsContainerInner.propTypes = {
 	user: PropTypes.string.isRequired
 };
 
-export default class ChatSuggestionsContainer extends Component {
+export default class ChatSuggestionsContainer extends Component<void, any, { prefix: string }> {
 	state: { prefix: string } = {
 		prefix: '',
 	};
