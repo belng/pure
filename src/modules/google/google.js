@@ -10,7 +10,7 @@ import request from 'request';
 import handlebars from 'handlebars';
 import route from 'koa-route';
 import queryString from 'querystring';
-import { bus, config } from './../../core-server';
+import { bus, config, Constants } from './../../core-server';
 
 const SCRIPT_REDIRECT = `
 location.href = 'https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/userinfo.email '
@@ -66,14 +66,17 @@ function verifyToken(token, appId) {
 	return new Promise((resolve, reject) => {
 		request('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=accessToken' + token,
 		(err, res /* , body */) => {
-			let response;
-
 			if (err || !res) {
-				return reject(err, null, null);
+				reject(err, null, null);
+				return;
 			}
 
-			response = JSON.parse(res);
-			if (response.error) return reject(new Error(response.error.message));
+			const response = JSON.parse(res);
+
+			if (response.error) {
+				reject(new Error(response.error.message));
+				return;
+			}
 			if (response.audience === appId + '.apps.googleusercontent.com') resolve(token);
 			else resolve(null);
 		});
@@ -85,11 +88,9 @@ function getDataFromToken(token) {
 
 	return new Promise((resolve, reject) => {
 		request(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`, (err, res, body) => {
-			let user;
-
 			try {
 				if (err) throw (err);
-				user = JSON.parse(body);
+				const user = JSON.parse(body);
 
 				if (user.error) {
 					throw (new Error(user.error || 'ERR_GOOGLE_SIGNIN'));
@@ -116,27 +117,45 @@ function getDataFromToken(token) {
 }
 
 function googleAuth(changes, next) {
-	let key, promise;
-
-	if (!changes.auth || !changes.auth.google) return next();
+	if (!changes.auth || !changes.auth.google) {
+		next();
+		return;
+	}
 
 	/* TODO: how do we handle auth from already logged in user?*/
-	key = changes.auth.google.code || changes.auth.google.accessToken;
-	if (!key) return next(new Error('GOOGLE_AUTH_FAILED'));
+	const key = changes.auth.google.code || changes.auth.google.accessToken;
 
-	promise = ((changes.auth.google.code) ? getTokenFromCode(key) : verifyToken(key));
+	if (!key) {
+		next(new Error('GOOGLE_AUTH_FAILED'));
+		return;
+	}
+
+	const promise = ((changes.auth.google.code) ? getTokenFromCode(key) : verifyToken(key));
+
 	promise.then((err, token) => {
-		if (err) return next(err);
-		if (!token) return next(new Error('Invalid_FB_TOKEN'));
+		if (err) {
+			next(err);
+			return;
+		}
+
+		if (!token) {
+			next(new Error('Invalid_FB_TOKEN'));
+			return;
+		}
+
 		getDataFromToken(token).then((error, response) => {
-			if (!response) return next(new Error('trouble construct the signin object'));
+			if (!response) {
+				next(new Error('trouble construct the signin object'));
+				return;
+			}
+
 			changes.auth.signin = response;
 			next();
 		}).catch(error => next(error));
 	}).catch(error => next(error));
 }
 
-bus.on('setstate', googleAuth, 900);
+bus.on('setstate', googleAuth, Constants.APP_PRIORITIES.AUTHENTICATION_GOOGLE);
 
 const scriptTemplate = handlebars.compile(fs.readFileSync(path.join(__dirname, '../../../templates/script.hbs'), 'utf8').toString());
 
