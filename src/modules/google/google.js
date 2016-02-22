@@ -1,6 +1,7 @@
 /*
-sources:
+resources:
 https://developers.google.com/identity/protocols/OAuth2UserAgent#validatetoken
+https://developers.google.com/oauthplayground/
 */
 
 import fs from 'fs';
