@@ -31,7 +31,7 @@ ChatMessagesContainerInner.propTypes = {
 	after: PropTypes.number,
 };
 
-export default class ChatMessagesContainer extends Component {
+export default class ChatMessagesContainer extends Component<void, any, SubscriptionRange> {
 	// Keep state flat for shallowEqual
 	state: SubscriptionRange = {
 		start: -Infinity,

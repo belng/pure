@@ -1,3 +1,63 @@
 /* @flow */
 
-// TODO
+import React, { Component, PropTypes } from 'react';
+import Connect from '../../../modules/store/Connect';
+import Dummy from '../views/Dummy';
+import { startThread } from '../../../modules/store/actions';
+
+const StartDiscussionContainerInner = Connect(({ room, thread }) => ({
+	room: {
+		key: {
+			type: 'entity',
+			id: room
+		}
+	},
+	thread: {
+		key: {
+			type: 'entity',
+			id: thread
+		}
+	}
+}), {
+	startThread: (props, store) => (title, body, meta) => {
+		const changes = startThread({
+			title,
+			body,
+			meta,
+			parents: [ props.room.id ].concat(props.room.parents),
+			creator: props.user
+		});
+
+		store.setState(changes);
+
+		// FIXME: This should be simpler
+		props.setCurrentThread(Object.keys(changes.entities)[0]);
+	}
+})(Dummy);
+
+StartDiscussionContainerInner.propTypes = {
+	room: PropTypes.string.isRequired,
+	user: PropTypes.string.isRequired,
+};
+
+export default class StartDiscussionContainer extends Component<void, any, { thread: ?string }> {
+	state: { thread: ?string } = {
+		thread: null
+	};
+
+	_setCurrentThread = (id: string) => {
+		this.setState({
+			thread: id
+		});
+	};
+
+	render() {
+		return (
+			<StartDiscussionContainerInner
+				{...this.props}
+				{...this.state}
+				setCurrentThread={this._setCurrentThread}
+			/>
+		);
+	}
+}

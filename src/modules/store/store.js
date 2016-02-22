@@ -1,74 +1,80 @@
+/* @flow */
+
+import forEach from 'lodash/forEach';
+import pull from 'lodash/pull';
 import { bus, cache } from '../../core-client';
+import type { SubscriptionOptions, Subscription } from './ConnectTypes';
 
-cache.subscribe = (opts, callback) => {
-	const unwatch = (() => { // probably too many functions wrapped.
-		switch (opts.what) {
-		case 'entity':
-			return this.watchEntity(opts.id, callback);
-		case 'texts':
-		case 'threads':
-			return this.watch(opts.slice, opts.range, callback);
-		case 'app':
-			return this.watchApp(opts.path, callback);
-		default:
-			return this[opts.what](opts, callback);
-		}
-	})();
+const _subscriptionWatches = [];
+const _unsubscriptionWatches = [];
 
-	for (const watch of this._subscriptionWatchs) {
-		watch(opts);
-	}
+export const subscribe = (options: SubscriptionOptions, callback: Function): Subscription => {
+	let unWatch;
 
-	return () => {
-		for (const watch of this._unsubscriptionWatchs) {
-			watch(opts);
-		}
-		unwatch();
-	};
-};
+	switch (options.what) {
+	case 'entity':
+		unWatch = cache.watchEntity(options.id, callback);
+		break;
+	case 'app':
+		unWatch = cache.watchApp(typeof options.path === 'string' ? [ options.path ] : options.path, callback);
+		break;
+	case 'me':
+		let unWatchMe;
 
-cache.me = (opts, callback) => {
-	const user = cache.getApp([ 'user' ]);
-	let unwatchApp, unwatchMe;
+		const unWatchUser = cache.watchApp([ 'user' ], id => {
+			if (unWatchMe) {
+				unWatchMe();
+			}
 
-	function fire(id) {
-		if (unwatchMe) unwatchMe();
-		unwatchMe = cache.watchEntity(id, (entity) => {
-			callback(entity);
+			unWatchMe = cache.watchEntity(id, callback);
 		});
+
+		unWatch = () => {
+			if (unWatchMe) {
+				unWatchMe();
+			}
+
+			unWatchUser();
+		};
+
+		break;
+	default:
+		if (options.slice && options.range) {
+			unWatch = cache.watch(options.slice, options.range, callback);
+		} else {
+			throw new Error('Invalid options passed to subscribe');
+		}
 	}
 
-	fire(user);
-	unwatchApp = cache.watchApp([ 'user' ], fire);
+	forEach(_subscriptionWatches, fn => fn(options));
 
-	return function() {
-		unwatchApp();
-		unwatchMe();
+	return {
+		remove: () => {
+			unWatch();
+
+			forEach(_unsubscriptionWatches, fn => fn(options));
+		}
 	};
 };
 
-cache.onSubscribe = (fn) => {
-	this._subscriptionWatchs.push(fn);
-	return () => {
-		const index = this._subscriptionWatchs.indexOf(fn);
+export const onSubscribe = (callback: Function): Subscription => {
+	const watches = _subscriptionWatches;
 
-		if (index > -1) this._subscriptionWatchs.splice(index, 1);
+	watches.push(callback);
+
+	return {
+		remove: () => { pull(watches, callback); }
 	};
 };
 
+export const onUnsubscribe = (callback: Function): Subscription => {
+	const watches = _unsubscriptionWatches;
 
-cache.onUnsubscribe = (fn) => {
-	this._unsubscriptionWatchs.push(fn);
-	return () => {
-		const index = this._unsubscriptionWatchs.indexOf(fn);
+	watches.push(callback);
 
-		if (index > -1) this._unsubscriptionWatchs.splice(index, 1);
+	return {
+		remove: () => { pull(watches, callback); }
 	};
 };
 
-cache._subscriptionWatchs = [];
-cache._unsubscriptionWatchs = [];
-
-cache.setState = (payload: Object): void => bus.emit('setstate', payload);
-
-export default cache;
+export const setState = (payload: Object): void => bus.emit('setstate', payload);

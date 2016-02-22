@@ -6,10 +6,6 @@ import Dummy from '../views/Dummy';
 import { sendText } from '../../../modules/store/actions';
 
 const ChatContainer = Connect(({ thread }) => ({
-	user: {
-		key: 'me',
-		transform: user => user && user.id
-	},
 	thread: {
 		key: {
 			type: 'entity',
@@ -17,9 +13,10 @@ const ChatContainer = Connect(({ thread }) => ({
 		}
 	}
 }), {
-	sendText: (props, store) => body => store.setState(sendText({
+	sendText: (props, store) => (body, meta) => store.setState(sendText({
 		body,
-		parents: [ props.thread.id ].push(...props.thread.parents),
+		meta,
+		parents: [ props.thread.id ].concat(props.thread.parents),
 		creator: props.user
 	}))
 })(Dummy);

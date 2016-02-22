@@ -3,6 +3,7 @@
 import { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
+import { dismissNote } from '../../../modules/store/actions';
 
 const NotificationCenterContainer = Connect(({ user }) => ({
 	count: {
@@ -21,7 +22,9 @@ const NotificationCenterContainer = Connect(({ user }) => ({
 			}
 		}
 	}
-}))(Dummy);
+}), {
+	dismissNote: (props, store) => id => store.setState(dismissNote(id))
+})(Dummy);
 
 NotificationCenterContainer.propTypes = {
 	user: PropTypes.string.isRequired
