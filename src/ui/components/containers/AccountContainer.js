@@ -5,9 +5,18 @@ import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 import { saveUser, saveParams, signOut } from '../../../modules/store/actions';
 
-const mapSubscriptionsToProps = {
-	user: 'me'
-};
+const mapSubscriptionsToProps = ({ user }) => ({
+	user: {
+		key: {
+			slice: {
+				type: 'entity',
+				filter: {
+					id: user
+				}
+			}
+		}
+	}
+});
 
 const mapActionsToProps = {
 	saveUser: (props, store) => user => store.setState(saveUser(user)),

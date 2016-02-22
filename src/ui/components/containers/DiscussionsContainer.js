@@ -9,7 +9,7 @@ const DiscussionsContainerInner = Connect(({ room, start, before, after }) => ({
 	threads: {
 		key: {
 			slice: {
-				type: 'threads',
+				type: 'thread',
 				filter: {
 					room
 				},
