@@ -15,10 +15,6 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 	case 'entity':
 		unWatch = cache.watchEntity(options.id, callback);
 		break;
-	case 'texts':
-	case 'threads':
-		unWatch = cache.watch(options.slice, options.range, callback);
-		break;
 	case 'app':
 		unWatch = cache.watchApp(typeof options.path === 'string' ? [ options.path ] : options.path, callback);
 		break;
@@ -43,7 +39,11 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 
 		break;
 	default:
-		throw new Error('Invalid options passed to subscribe');
+		if (options.slice && options.range) {
+			unWatch = cache.watch(options.slice, options.range, callback);
+		} else {
+			throw new Error('Invalid options passed to subscribe');
+		}
 	}
 
 	forEach(_subscriptionWatches, fn => fn(options));
