@@ -156,6 +156,20 @@ export default function(
 			}
 		}
 
-		return Container(Connect);
+		const ContainerComponent = Container(Connect);
+
+		ContainerComponent.displayName = `${Target.name}Container`;
+
+		if (process.env.NODE_ENV !== 'production') {
+			if (typeof mapSubscriptionToProps === 'function') {
+				setTimeout(() => {
+					if (typeof ContainerComponent.propTypes !== 'object') {
+						console.warn(`No 'propTypes' was defined on '${ContainerComponent.displayName}', but 'mapSubscriptionToProps' was a function.`);
+					}
+				}, 0);
+			}
+		}
+
+		return ContainerComponent;
 	};
 }
