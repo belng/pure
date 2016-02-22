@@ -67,21 +67,23 @@ function getTokenFromCode(code) {
 
 function verifyToken(token, appId) {
 	return new Promise((resolve, reject) => {
-		request(encodeURITemplate `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=accessToken${token}`,
-		(err, res /* , body */) => {
+		request(encodeURITemplate `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${token}`,
+		(err, res, body) => {
+			winston.error(err, body);
 			if (err || !res) {
-				reject(err, null, null);
+				reject(err);
 				return;
 			}
 
-			const response = JSON.parse(res);
+			const response = JSON.parse(body);
 
 			if (response.error) {
 				reject(new Error(response.error.message));
 				return;
 			}
-			if (response.audience === appId + '.apps.googleusercontent.com') resolve(token);
-			else resolve(null);
+
+			if (response.audience === appId) resolve(token);
+			else reject(new Error('audience-mismatch'));
 		});
 	});
 }
@@ -133,25 +135,22 @@ function googleAuth(changes, next) {
 		return;
 	}
 
-	const promise = ((changes.auth.google.code) ? getTokenFromCode(key) : verifyToken(key));
+	winston.debug('Google Login Request', changes.auth.google);
+	const promise = ((changes.auth.google.code) ? getTokenFromCode(key) : verifyToken(key, config.google.client_id));
 
-	promise.then((err, token) => {
-		if (err) {
-			next(err);
-			return;
-		}
-
+	promise.then((token) => {
+		winston.debug('T->D', token);
 		if (!token) {
-			next(new Error('Invalid_FB_TOKEN'));
+			next(new Error('Invalid_GOOGLE_TOKEN'));
 			return;
 		}
 
-		getDataFromToken(token).then((error, response) => {
+		getDataFromToken(token).then((response) => {
 			if (!response) {
 				next(new Error('trouble construct the signin object'));
 				return;
 			}
-
+			winston.debug(response);
 			changes.auth.signin = response;
 			next();
 		}).catch(error => next(error));
@@ -163,14 +162,14 @@ bus.on('setstate', googleAuth, Constants.APP_PRIORITIES.AUTHENTICATION_GOOGLE);
 const scriptTemplate = handlebars.compile(fs.readFileSync(path.join(__dirname, '../../../templates/script.hbs'), 'utf8').toString());
 
 bus.on('http/init', app => {
-	app.use(route.get('/r/google/login', function *() {
+	app.use(route.get(config.google.login_url, function *() {
 		this.body = scriptTemplate({
 			title: 'Logging in with Google',
 			script: SCRIPT_REDIRECT
 		});
 	}));
 
-	app.use(route.get('/r/google/return', function *() {
+	app.use(route.get(config.google.redirect_path, function *() {
 		this.body = scriptTemplate({
 			title: 'Logging in with Google',
 			script: SCRIPT_MESSAGE

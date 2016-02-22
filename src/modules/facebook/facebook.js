@@ -160,14 +160,14 @@ bus.on('setstate', fbAuth, Constants.APP_PRIORITIES.AUTHENTICATION_FACEBOOK);
 const scriptTemplate = handlebars.compile(fs.readFileSync(path.join(__dirname, '../../../templates/script.hbs'), 'utf8').toString());
 
 bus.on('http/init', app => {
-	app.use(route.get(config.facebook.loginURL, function *() {
+	app.use(route.get(config.facebook.login_url, function *() {
 		this.body = scriptTemplate({
 			title: 'Logging in with Facebook',
 			script: SCRIPT_REDIRECT
 		});
 	}));
 
-	app.use(route.get('/r/facebook/return', function *() {
+	app.use(route.get(config.facebook.redirect_path, function *() {
 		this.body = scriptTemplate({
 			title: 'Logging in with Facebook',
 			script: SCRIPT_MESSAGE
