@@ -11,14 +11,18 @@ import handlebars from 'handlebars';
 import route from 'koa-route';
 import queryString from 'querystring';
 import { bus, config, Constants } from './../../core-server';
+import encodeURITemplate from '../../lib/encodeURITemplate';
 
-const SCRIPT_REDIRECT = `
-location.href = 'https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/userinfo.email '
-	+ 'https://www.googleapis.com/auth/userinfo.profile'
-	+ '&client_id=${config.google.client_id}'
-	+ '&redirect_uri=encodeURIComponent("https://" + ${config.host} + "/r/google/return")'
-	+ '&response_type=code&access_type=offline';
+const redirectURL = encodeURITemplate `https://${config.host}${config.facebook.redirect_path}`;
+
+const SCRIPT_REDIRECT = `\
+location.href = 'https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/userinfo.email \
+https://www.googleapis.com/auth/userinfo.profile\
+&client_id=${config.google.client_id}\
+&redirect_uri=${redirectURL}\
+&response_type=code&access_type=offline\
 `;
+
 const SCRIPT_MESSAGE = `
 	var code = (location.search.substring(1).split("&").filter(function(seg) {
 		return seg.indexOf("code=") === 0;
@@ -43,7 +47,7 @@ function getTokenFromCode(code) {
 			},
 			body: queryString.stringify({
 				code,
-				redirect_uri: 'https://' + config.host + '/r/google/return',
+				redirect_uri: redirectURL,
 				client_id: config.google.client_id,
 				client_secret: config.google.client_secret,
 				grant_type: 'authorization_code'
@@ -64,7 +68,7 @@ function getTokenFromCode(code) {
 
 function verifyToken(token, appId) {
 	return new Promise((resolve, reject) => {
-		request('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=accessToken' + token,
+		request(encodeURITemplate `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=accessToken${token}`,
 		(err, res /* , body */) => {
 			if (err || !res) {
 				reject(err, null, null);
