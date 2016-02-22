@@ -1,16 +1,14 @@
 import engine from 'engine.io';
+import winston from 'winston';
 import stringPack from 'stringpack';
 import * as core from '../../core-server';
 import uid from '../../lib/uid-server';
 import notify from './dispatch';
 import * as models from '../../models/models';
 
-const sockets = {}, bus = core.bus;
-
-let packerArg, packer;
-
-packerArg = Object.keys(models).sort().map(key => models[key]);
-packer = stringPack(packerArg);
+const sockets = {}, bus = core.bus,
+	packerArg = Object.keys(models).sort().map(key => models[key]),
+	packer = stringPack(packerArg);
 
 
 function sendError(socket, code, reason, event) {
@@ -39,22 +37,32 @@ bus.on('http/init', app => {
 		socket.on('message', m => {
 			let message;
 
+			winston.info('new event: ', m);
 			try {
 				message = packer.decode(m);
 			} catch (e) {
-				return sendError(socket, 'ERR_EVT_PARSE', e.message);
+				sendError(socket, 'ERR_EVT_PARSE', e.message);
+				return;
 			}
 
+			if (typeof message !== 'object') {
+				sendError(socket, 'ERR_UNKNOWN', 'invalid');
+				return;
+			}
+
+			winston.debug('message after parsing', message);
 			message.id = uid(16);
 			(message.auth = message.auth || {}).resource = resourceId;
 
 			function handleSetState(err) {
 				if (err) {
-					return sendError(
+					sendError(
 						socket, err.code || 'ERR_UNKNOWN', err.message, message
 					);
+					return;
 				}
 
+				winston.debug('setstate response', message);
 				if (message.response) {
 					if (message.auth && message.auth.user) {
 						bus.emit('presence/online', {

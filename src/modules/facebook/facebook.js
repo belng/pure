@@ -31,7 +31,8 @@ function getTokenFromCode(code, secret, clientID, host) {
 
 			if (err) {
 				winston.log(err);
-				return reject(err);
+				reject(err);
+				return;
 			}
 			for (i = 0, l = queries.length; i < l; i++) {
 				if (queries[i].indexOf('access_token') >= 0) {
@@ -48,15 +49,20 @@ function getTokenFromCode(code, secret, clientID, host) {
 function verifyToken(token, appId) {
 	return new Promise((resolve, reject) => {
 		request('https://graph.facebook.com/app/?access_token=' + token,
-		(err, res/* , body */) => {
-			let response;
-
+		(err, res, body) => {
 			if (err || !res) {
-				return reject(err);
+				reject(err);
+				return;
 			}
 
-			response = JSON.parse(res);
-			if (response.error) return reject(new Error(response.error.message));
+			winston.debug('verify response', body);
+			const response = JSON.parse(body);
+
+			winston.debug('verify appId', response.id, appId);
+			if (response.error) {
+				reject(new Error(response.error.message));
+				return;
+			}
 
 			if (response.id === appId) resolve(token);
 			else reject(new Error('incorrect appid'));
@@ -69,11 +75,10 @@ function getDataFromToken(token) {
 
 	return new Promise((resolve, reject) => {
 		request('https://graph.facebook.com/me?access_token=' + token, (err, res, body) => {
-			let user;
 
 			try {
 				if (err) throw err;
-				user = JSON.parse(body);
+				const user = JSON.parse(body);
 
 				if (user.error) {
 					throw (new Error(user.error || 'ERR_FB_SIGNIN'));
@@ -104,21 +109,34 @@ function getDataFromToken(token) {
 }
 
 function fbAuth(changes, next) {
-	let key, promise;
-
-	if (!changes.auth || !changes.auth.facebook) return next();
+	if (!changes.auth || !changes.auth.facebook) {
+		next();
+		return;
+	}
 
 	/* TODO: how do we handle auth from already logged in user?*/
-	key = changes.auth.facebook.code || changes.auth.facebook.accessToken;
-	if (!key) return next(new Error('FACEBOOK_AUTH_FAILED'));
+	const key = changes.auth.facebook.code || changes.auth.facebook.accessToken;
 
-	promise = ((changes.auth.facebook.code) ? getTokenFromCode(key, config.facebook.client_secret, config.facebook.client_id, config.host) : verifyToken(key, config.facebook.client_id));
+	if (!key) {
+		next(new Error('FACEBOOK_AUTH_FAILED'));
+		return;
+	}
+
+	const promise = ((changes.auth.facebook.code) ? getTokenFromCode(key, config.facebook.client_secret, config.facebook.client_id, config.host) : verifyToken(key, config.facebook.client_id));
 
 	promise.then((token) => {
-		if (!token) return next(new Error('Invalid_FB_TOKEN'));
+		if (!token) {
+			next(new Error('Invalid_FB_TOKEN'));
+			return;
+		}
+
 		getDataFromToken(token).then((response) => {
-			if (!response) return next(new Error('trouble construct the signin object'));
+			if (!response) {
+				next(new Error('trouble construct the signin object'));
+				return;
+			}
 			changes.auth.signin = response;
+			winston.debug('response', changes);
 			next();
 		}).catch((error) => {
 			return next(error);

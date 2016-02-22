@@ -51,6 +51,7 @@ function connect() {
 }
 
 bus.on('setstate', (state) => {
+	console.log(state, new Error('from'));
 	client.send(packer.encode(state));
 }, 1);
 
