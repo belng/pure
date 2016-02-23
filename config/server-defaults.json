@@ -1,4 +1,7 @@
 {
+	"app_name": "Hey, Neighbor!",
+	"app_id": "hey-neighbor",
+
 	"session": {
 	},
 
@@ -30,7 +33,6 @@
 		"client_secret": "XXXXXXXX"
 	},
 
-	"appName": "Heyneighbor",
 	"connStr": "pg://scrollback:@localhost/pure",
 	"open_in_browser": false
 }
