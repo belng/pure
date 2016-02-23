@@ -7,7 +7,7 @@ import winston from 'winston';
 const TOKEN_VALIDITY = 604800; // default seven days.
 const ISSUER = config.host;
 const AUDIENCE = config.host;
-const KEY = config.session.privatekey;
+const KEY = config.session.private_key;
 
 function getIDFromSession(session) {
 	return new Promise((resolve, reject) => {
