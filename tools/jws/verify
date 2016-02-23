@@ -1,0 +1,47 @@
+#! ./node_modules/babel-cli/bin/babel-node.js
+// sign with default (HMAC SHA256)
+
+import jwt from 'jsonwebtoken';
+import winston from 'winston';
+
+let	token, iss = 'localhost:7528', key;
+
+function helpQuit() {
+	winston.error('Usage: verify [-s <issuer>] [-k <key>] <token>');
+	process.exit(1);
+}
+
+process.argv.forEach((segment) => {
+	if (token === '-s') {
+		iss = segment;
+		token = null;
+	} else if (token === '-k') {
+		key = segment;
+		token = null;
+	} else if (segment === 'verify' || segment === 'verify.js') {
+		token = null;
+	} else {
+		token = segment;
+	}
+});
+
+if (!token || token[0] === '-') { helpQuit(); }
+if (!key) {
+	key = require('../../config/server.json').session.private_key;
+	if (!key) {
+		winston.error('No key found for issuer', iss);
+		helpQuit();
+	} else {
+		winston.info('Found key', key);
+	}
+}
+
+key = new Buffer(key, 'base64');
+
+jwt.verify(token, key, (err, decoded) => {
+	if (err) {
+		winston.error('Verification failed with error: ' + err.message);
+		return;
+	}
+	winston.info('Verification succeeded: ' + decoded.sub);
+});
