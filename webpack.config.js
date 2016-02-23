@@ -29,7 +29,12 @@ module.exports = {
 		filename: 'bundle.min.js',
 		sourceMapFilename: 'bundle.min.js.map'
 	},
-	plugins: [ ...plugins, __DEV__ ? new webpack.HotModuleReplacementPlugin() : new webpack.optimize.UglifyJsPlugin() ],
+	plugins: plugins.concat(__DEV__ ? [
+		new webpack.HotModuleReplacementPlugin(),
+	] : [
+		new webpack.optimize.DedupePlugin(),
+		new webpack.optimize.UglifyJsPlugin()
+	]),
 	resolve: {
 		extensions: [ '', '.web.js', '.js' ],
 	},
