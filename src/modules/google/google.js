@@ -2,6 +2,8 @@
 resources:
 https://developers.google.com/identity/protocols/OAuth2UserAgent#validatetoken
 https://developers.google.com/oauthplayground/
+
+TODO: use switch to 2.4.
 */
 
 import fs from 'fs';

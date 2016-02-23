@@ -6,7 +6,7 @@ window.config = config;
 window.cache = cache;
 
 
-function fbLogin(prop, accessToken) {
+window.fbLogin = function (prop, accessToken) {
 	bus.emit('setstate', {
 		auth: {
 			facebook: {
@@ -14,10 +14,9 @@ function fbLogin(prop, accessToken) {
 			}
 		}
 	});
-}
-window.fbLogin = fbLogin;
+};
 
-function googleLogin(prop, accessToken) {
+window.googleLogin = function (prop, accessToken) {
 	bus.emit('setstate', {
 		auth: {
 			google: {
@@ -25,19 +24,14 @@ function googleLogin(prop, accessToken) {
 			}
 		}
 	});
-}
-window.googleLogin = googleLogin;
+};
 
-/*
-
-let connectionStatus = 'offline';
-bus.on('setstate', (state) => {
-	console.log('Got setstate', state);
-	if (connectionStatus !== 'online') {
-		if (state.app && state.app.connectionStatus === 'online') {
-			connectionStatus = state.app.connectionStatus;
+window.jwsLogin = function (prop, accessToken) {
+	bus.emit('setstate', {
+		auth: {
+			jws: {
+				[prop]: accessToken
+			}
 		}
-	}
-}, 1000);
-
-*/
+	});
+};
