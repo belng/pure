@@ -9,7 +9,7 @@ import send from './sendEmail';
 import handlebars from 'handlebars';
 import getMailObj from './buildMailObj';
 const MENTION_INTERVAL = 10 * 60 * 1000, MENTION_DELAY = 10 * 60 * 1000,
-	template = handlebars.compile(fs.readFileSync(__dirname + '/views/' + config.appName + '.digest.hbs', 'utf-8')),
+	template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' + config.app_id + '.digest.hbs', 'utf-8').toString()),
 	connStr = config.connStr, conf = config.email, counter1 = new Counter();
 
 let lastEmailSent, end;
