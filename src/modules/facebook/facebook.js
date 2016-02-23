@@ -1,14 +1,24 @@
 /* @flow */
-
+/*
+	resources:
+	https://developers.facebook.com/tools/explorer/
+ */
 import route from 'koa-route';
-import { bus, config } from '../../core-server';
+import { bus, config, Constants } from '../../core-server';
 import winston from 'winston';
 import request from 'request';
 import fs from 'fs';
 import path from 'path';
 import handlebars from 'handlebars';
+import encodeURITemplate from '../../lib/encodeURITemplate';
 
-const SCRIPT_REDIRECT = `location.href='https://www.facebook.com/dialog/oauth?'+'client_id=${config.facebook.client_id}'+'&redirect_uri='+encodeURIComponent("https://${config.host}/r/facebook/return")+'&response_type=code&scope=email';`;
+const redirectURL = `https://${config.host}${config.facebook.redirect_path}`;
+
+const SCRIPT_REDIRECT = encodeURITemplate `location.href='https://www.facebook.com/dialog/oauth?\
+client_id=${config.facebook.client_id}&\
+redirect_uri=${redirectURL}&\
+response_type=code&scope=email`;
+
 const SCRIPT_MESSAGE = `
 	window.opener.postMessage({
 		type: "auth",
@@ -19,19 +29,23 @@ const SCRIPT_MESSAGE = `
 	window.close();
 `;
 
-function getTokenFromCode(code, secret, clientID, host) {
+function getTokenFromCode(code, secret, clientID) {
 	return new Promise((resolve, reject) => {
-		request('https://graph.facebook.com/oauth/access_token?client_id=' + clientID +
-		'&redirect_uri=https://' + host + '/r/facebook/return' +
-		'&client_secret=' + secret +
-		'&code=' + code,
-		(err, res, body) => {
+		const url = encodeURITemplate `\
+		https://graph.facebook.com/oauth/access_token?client_id=${clientID}\
+		&redirect_uri=${redirectURL}\
+		&client_secret=${secret}\
+		$code=${code}\
+		`;
+
+		request(url, (err, res, body) => {
 			const queries = body.split('&');
 			let i, l, token;
 
 			if (err) {
 				winston.log(err);
-				return reject(err);
+				reject(err);
+				return;
 			}
 			for (i = 0, l = queries.length; i < l; i++) {
 				if (queries[i].indexOf('access_token') >= 0) {
@@ -47,16 +61,21 @@ function getTokenFromCode(code, secret, clientID, host) {
 
 function verifyToken(token, appId) {
 	return new Promise((resolve, reject) => {
-		request('https://graph.facebook.com/app/?access_token=' + token,
-		(err, res/* , body */) => {
-			let response;
-
+		request(encodeURITemplate `https://graph.facebook.com/app/?access_token=${token}`,
+		(err, res, body) => {
 			if (err || !res) {
-				return reject(err);
+				reject(err);
+				return;
 			}
 
-			response = JSON.parse(res);
-			if (response.error) return reject(new Error(response.error.message));
+			winston.debug('verify response', body);
+			const response = JSON.parse(body);
+
+			winston.debug('verify appId', response.id, appId);
+			if (response.error) {
+				reject(new Error(response.error.message));
+				return;
+			}
 
 			if (response.id === appId) resolve(token);
 			else reject(new Error('incorrect appid'));
@@ -68,12 +87,10 @@ function getDataFromToken(token) {
 	const signin = {};
 
 	return new Promise((resolve, reject) => {
-		request('https://graph.facebook.com/me?access_token=' + token, (err, res, body) => {
-			let user;
-
+		request(encodeURITemplate `https://graph.facebook.com/me/?access_token=${token}`, (err, res, body) => {
 			try {
 				if (err) throw err;
-				user = JSON.parse(body);
+				const user = JSON.parse(body);
 
 				if (user.error) {
 					throw (new Error(user.error || 'ERR_FB_SIGNIN'));
@@ -92,7 +109,7 @@ function getDataFromToken(token) {
 						name: user.first_name + user.middle_name + user.last_name,
 						timezone: user.timezone,
 						verified: true,
-						picture: 'https://graph.facebook.com/' + user.id + '/picture?type=square'
+						picture: encodeURITemplate `https://graph.facebook.com/${user.id}/picture?type=square`
 					}
 				};
 				resolve(signin);
@@ -104,21 +121,35 @@ function getDataFromToken(token) {
 }
 
 function fbAuth(changes, next) {
-	let key, promise;
-
-	if (!changes.auth || !changes.auth.facebook) return next();
+	winston.debug('setstate: facebook module');
+	if (!changes.auth || !changes.auth.facebook) {
+		next();
+		return;
+	}
 
 	/* TODO: how do we handle auth from already logged in user?*/
-	key = changes.auth.facebook.code || changes.auth.facebook.accessToken;
-	if (!key) return next(new Error('FACEBOOK_AUTH_FAILED'));
+	const key = changes.auth.facebook.code || changes.auth.facebook.accessToken;
 
-	promise = ((changes.auth.facebook.code) ? getTokenFromCode(key, config.facebook.client_secret, config.facebook.client_id, config.host) : verifyToken(key, config.facebook.client_id));
+	if (!key) {
+		next(new Error('FACEBOOK_AUTH_FAILED'));
+		return;
+	}
+
+	const promise = ((changes.auth.facebook.code) ? getTokenFromCode(key, config.facebook.client_secret, config.facebook.client_id, config.host) : verifyToken(key, config.facebook.client_id));
 
 	promise.then((token) => {
-		if (!token) return next(new Error('Invalid_FB_TOKEN'));
+		if (!token) {
+			next(new Error('Invalid_FB_TOKEN'));
+			return;
+		}
+
 		getDataFromToken(token).then((response) => {
-			if (!response) return next(new Error('trouble construct the signin object'));
+			if (!response) {
+				next(new Error('trouble construct the signin object'));
+				return;
+			}
 			changes.auth.signin = response;
+			winston.debug('response', changes);
 			next();
 		}).catch((error) => {
 			return next(error);
@@ -128,19 +159,19 @@ function fbAuth(changes, next) {
 	});
 }
 
-bus.on('setstate', fbAuth, 900);
+bus.on('setstate', fbAuth, Constants.APP_PRIORITIES.AUTHENTICATION_FACEBOOK);
 
 const scriptTemplate = handlebars.compile(fs.readFileSync(path.join(__dirname, '../../../templates/script.hbs'), 'utf8').toString());
 
 bus.on('http/init', app => {
-	app.use(route.get('/r/facebook/login', function *() {
+	app.use(route.get(config.facebook.login_url, function *() {
 		this.body = scriptTemplate({
 			title: 'Logging in with Facebook',
 			script: SCRIPT_REDIRECT
 		});
 	}));
 
-	app.use(route.get('/r/facebook/return', function *() {
+	app.use(route.get(config.facebook.redirect_path, function *() {
 		this.body = scriptTemplate({
 			title: 'Logging in with Facebook',
 			script: SCRIPT_MESSAGE

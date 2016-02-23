@@ -18,7 +18,7 @@ if (process.env.NODE_ENV !== 'production') {
 	app.use(mount('/tests', serve('static/tests'), { defer: true }));
 
 	// Open the URL in browser
-	opn(`${config.server.protocol}//${config.server.host}:${config.server.port}`);
+	if (config.open_in_browser) opn(`${config.server.protocol}//${config.server.host}:${config.server.port}`);
 }
 
 app.httpServer = httpServer;
