@@ -23,9 +23,9 @@
     "koa-static": "^2.0.0",
     "koa-webpack-dev-middleware": "^1.1.0",
     "koa-webpack-hot-middleware": "^1.0.3",
-    "lodash": "^4.5.0",
+    "lodash": "^4.5.1",
     "node-uuid": "^1.4.7",
-    "nodemailer": "2.2.0",
+    "nodemailer": "2.2.1",
     "opn": "^4.0.0",
     "pg": "^4.4.6",
     "radium": "^0.16.6",
@@ -65,7 +65,7 @@
     "jsonop": "^2.0.5",
     "react-addons-test-utils": "^0.14.7",
     "secure-random": "^1.1.1",
-    "webpack": "^2.0.7-beta"
+    "webpack": "^2.1.0-beta.3"
   },
   "scripts": {
     "start": "if [[ $NODE_ENV == 'production' ]]; then npm run start:prod; else npm run start:dev; fi",
