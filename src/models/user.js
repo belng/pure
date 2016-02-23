@@ -1,9 +1,10 @@
 import { COLUMNS } from '../lib/schema';
+import { Constants } from '../core-server';
 
 export default class User {
 	constructor(data) {
 		if (data.type !== 'user') throw (new Error('invalid_type'));
-		for (const name of COLUMNS.user) {
+		for (const name of COLUMNS[Constants.TYPE_USER]) {
 			this[name] = data[name] || data[name.toLowerCase()];
 		}
 	}
@@ -19,7 +20,7 @@ export default class User {
 	}
 
 	hasIdentity(identity: string) {
-		return this.identities ? this.identities.indexOf(identity) > -1 : false;
+		return this.identities.indexOf(identity) > -1 || false;
 	}
 
 	addIdentity(identity: string) {

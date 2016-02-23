@@ -80,7 +80,7 @@ function sendDigestEmail () {
 	}
 
 	pg.readStream(config.connStr, {
-		$: `with urel as (select rrls.presencetime ptime, * from users join roomrels rrls on users.id=rrls.user where roles @> '{3}' and rrls.presencetime >= &{start} and rrls.presencetime < &{end} and timezone >= &{min} and timezone < &{max}) select * from urel join threads on threads.parents[1]=urel.item where threads.createtime > urel.ptime order by urel.id`, // where threads.createtime > urel.ptime
+		$: 'with urel as (select rrls.presencetime ptime, * from users join roomrels rrls on users.id=rrls.user where roles @> \'{3}\' and rrls.presencetime >= &{start} and rrls.presencetime < &{end} and timezone >= &{min} and timezone < &{max}) select * from urel join threads on threads.parents[1]=urel.item where threads.createtime > urel.ptime order by urel.id', // where threads.createtime > urel.ptime
 		start,
 		end,
 		follower: Constants.ROLE_FOLLOWER,
@@ -90,7 +90,7 @@ function sendDigestEmail () {
 
 		counter.inc();
 		pg.read(config.connStr, {
-			$: `select * from rooms where id=&{id} `, // and presencetime<&{roletime}
+			$: 'select * from rooms where id=&{id} ', // and presencetime<&{roletime}
 			id: urel.parents[0]
 		}, (err, room) => {
 			if (err) throw err;

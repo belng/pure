@@ -39,6 +39,7 @@ function generateSession(sub) {
 function sessionHandler(changes, next) {
 	const signin = {};
 
+	winston.debugq('setstate: session module');
 	if (changes.auth && changes.auth.session) {
 		getIDFromSession(changes.auth.session)
 		.then((sub) => {
@@ -48,6 +49,8 @@ function sessionHandler(changes, next) {
 			next();
 		})
 		.catch(next);
+	} else {
+		next();
 	}
 }
 
