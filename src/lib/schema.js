@@ -65,6 +65,7 @@ COLUMNS[Constants.TYPE_USER] = [
 	'updateTime',
 ];
 
+COLUMNS[Constants.TYPE_ITEM] =
 COLUMNS[Constants.TYPE_ROOM] =
 COLUMNS[Constants.TYPE_TEXT] =
 COLUMNS[Constants.TYPE_THREAD] =

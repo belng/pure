@@ -1,5 +1,5 @@
 import { COLUMNS } from '../lib/schema';
-import { Constants } from '../core-server';
+import { Constants } from '../lib/Constants';
 
 export default class User {
 	constructor(data) {

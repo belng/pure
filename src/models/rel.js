@@ -1,8 +1,9 @@
 import { COLUMNS } from '../lib/schema';
+import { Constants } from '../lib/Constants';
 
 export default class Relation {
 	constructor(data) {
-		for (const name of COLUMNS[data.type]) {
+		for (const name of COLUMNS[Constants.TYPE_REL]) {
 			this[name] = data[name] || data[name.toLowerCase()];
 		}
 
@@ -12,9 +13,9 @@ export default class Relation {
 	packArguments() {
 		const data = {};
 
-		for (const name of COLUMNS[this.type]) {
+		for (const name of COLUMNS[Constants.TYPE_REL]) {
 			data[name] = this[name];
 		}
-		return data;
+		return [ data ];
 	}
 }
