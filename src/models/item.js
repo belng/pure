@@ -1,5 +1,5 @@
 import { COLUMNS } from '../lib/schema';
-import { Constants } from '../lib/Constants';
+import * as Constants from '../lib/Constants';
 
 export default class Item {
 	constructor(data) {

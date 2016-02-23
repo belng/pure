@@ -10,8 +10,6 @@ const sockets = {}, bus = core.bus,
 	packerArg = Object.keys(models).sort().map(key => models[key]),
 	packer = stringPack(packerArg);
 
-console.log(packerArg);
-
 function sendError(socket, code, reason, event) {
 	socket.send(JSON.stringify({
 		type: 'error',

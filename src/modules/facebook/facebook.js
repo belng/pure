@@ -1,5 +1,8 @@
 /* @flow */
-
+/*
+	resources:
+	https://developers.facebook.com/tools/explorer/
+ */
 import route from 'koa-route';
 import { bus, config, Constants } from '../../core-server';
 import winston from 'winston';

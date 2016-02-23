@@ -29,6 +29,7 @@ function disconnected() {
 function onMessage(message) {
 	const stateChange = packer.decode(message);
 
+	stateChange.source = 'server';
 	bus.emit('setstate', stateChange);
 }
 
@@ -50,6 +51,7 @@ function connect() {
 }
 
 bus.on('setstate', (state) => {
+	if (state.source === 'server') return;
 	client.send(packer.encode(state));
 }, 1);
 
