@@ -64,6 +64,7 @@
     "json-loader": "^0.5.4",
     "jsonop": "^2.0.5",
     "react-addons-test-utils": "^0.14.7",
+    "secure-random": "^1.1.1",
     "webpack": "^2.0.7-beta"
   },
   "scripts": {
