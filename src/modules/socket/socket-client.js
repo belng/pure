@@ -8,11 +8,10 @@ import * as models from '../../models/models.js';
 import stringPack from 'stringpack';
 
 const protocol = config.server.protocol, host = config.server.apiHost;
-let	backOff = 1, client,
-	packerArg, packer;
+let	backOff = 1, client;
 
-packerArg = Object.keys(models).sort().map(key => models[key]);
-packer = stringPack(packerArg);
+const packerArg = Object.keys(models).sort().map(key => models[key]);
+const packer = stringPack(packerArg);
 
 function disconnected() {
 
@@ -51,7 +50,6 @@ function connect() {
 }
 
 bus.on('setstate', (state) => {
-	console.log(state, new Error('from'));
 	client.send(packer.encode(state));
 }, 1);
 

@@ -10,6 +10,7 @@ const sockets = {}, bus = core.bus,
 	packerArg = Object.keys(models).sort().map(key => models[key]),
 	packer = stringPack(packerArg);
 
+console.log(packerArg);
 
 function sendError(socket, code, reason, event) {
 	socket.send(JSON.stringify({
@@ -55,6 +56,7 @@ bus.on('http/init', app => {
 			(message.auth = message.auth || {}).resource = resourceId;
 
 			function handleSetState(err) {
+				winston.debug('setstate response', message, err);
 				if (err) {
 					sendError(
 						socket, err.code || 'ERR_UNKNOWN', err.message, message
@@ -62,7 +64,6 @@ bus.on('http/init', app => {
 					return;
 				}
 
-				winston.debug('setstate response', message);
 				if (message.response) {
 					if (message.auth && message.auth.user) {
 						bus.emit('presence/online', {

@@ -39,7 +39,8 @@ function generateSession(sub) {
 function sessionHandler(changes, next) {
 	const signin = {};
 
-	winston.debugq('setstate: session module');
+	winston.info('setstate: session module listener 1');
+
 	if (changes.auth && changes.auth.session) {
 		getIDFromSession(changes.auth.session)
 		.then((sub) => {
@@ -56,12 +57,15 @@ function sessionHandler(changes, next) {
 
 bus.on('setstate', sessionHandler, Constants.APP_PRIORITIES.AUTHENTICATION_SESSION);
 bus.on('setstate', (changes, next) => {
+	winston.debug('setstate: session module listener 2');
 	if (changes.response && changes.response.app && changes.response.app.user) {
+		winston.info('setstate: session module listener 2', changes.response.app.user);
 		generateSession(changes.response.app.user).then((session) => {
+			winston.debug('setstate: session module listener 2', session);
 			changes.response.app.session =	session;
 			next();
 		});
 	}
-}, 'modifier');
+}, Constants.APP_PRIORITIES.AUTHENTICATION_SESSION_2);
 
 winston.info('session module ready...');

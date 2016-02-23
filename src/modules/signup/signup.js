@@ -1,6 +1,6 @@
 /* @flow */
 
-import { bus, cache, config } from '../../core-server';
+import { bus, cache, config, Constants } from '../../core-server';
 import jwt from 'jsonwebtoken';
 import merge from 'lodash/merge';
 import winston from 'winston';
@@ -65,8 +65,10 @@ function signuphandler(changes, next) {
 			signup.signedIdentities = session;
 			next();
 		});
+	} else {
+		next();
 	}
 }
 
-bus.on('setstate', signuphandler, 'authentication');
+bus.on('setstate', signuphandler, Constants.APP_PRIORITIES.AUTHENTICATION_SIGNUP);
 winston.info('signup module ready...');

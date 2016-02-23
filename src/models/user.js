@@ -12,11 +12,11 @@ export default class User {
 	packArguments(): Object {
 		const data = {};
 
-		for (const name of COLUMNS.user) {
+		for (const name of COLUMNS[Constants.TYPE_USER]) {
 			data[name] = this[name];
 		}
 
-		return data;
+		return [ data ];
 	}
 
 	hasIdentity(identity: string) {
