@@ -162,7 +162,7 @@ export default class Account extends React.Component {
 		this.props.signOut();
 	};
 
-	_handlerSelectPhoto = uri => {
+	_handleSelectPhoto = uri => {
 		const user = Object.assign({}, this.props.user);
 
 		user.picture = uri;
@@ -179,7 +179,7 @@ export default class Account extends React.Component {
 			Modal.renderModal(
 				<AccountPhotoChooser
 					photos={photos}
-					onSelect={this._handlerSelectPhoto}
+					onSelect={this._handleSelectPhoto}
 				/>
 			);
 		}
