@@ -55,7 +55,6 @@ module.system=haste
 
 munge_underscores=true
 
-module.name_mapper='^image![a-zA-Z0-9$_-]+$' -> 'GlobalImageStub'
 module.name_mapper='^[./a-zA-Z0-9$_-]+\.png$' -> 'RelativeImageStub'
 
 suppress_type=$FlowIssue
