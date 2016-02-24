@@ -52,12 +52,10 @@ export default class StartDiscussionContainer extends Component<void, any, { thr
 	};
 
 	render() {
+		const props = { ...this.props, ...this.state };
+
 		return (
-			<StartDiscussionContainerInner
-				{...this.props}
-				{...this.state}
-				setCurrentThread={this._setCurrentThread}
-			/>
+			<StartDiscussionContainerInner {...props} setCurrentThread={this._setCurrentThread} />
 		);
 	}
 }

@@ -1,0 +1,35 @@
+import React from 'react-native';
+import TouchFeedback from './TouchFeedback';
+import Colors from '../../Colors';
+
+const {
+	StyleSheet,
+	PixelRatio,
+	View
+} = React;
+
+const styles = StyleSheet.create({
+	container: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		backgroundColor: Colors.white,
+		borderColor: Colors.separator,
+		borderBottomWidth: 1 / PixelRatio.get(),
+		height: 64
+	},
+});
+
+const ListItem = props => (
+	<TouchFeedback {...props}>
+		<View style={[ styles.container, props.containerStyle ]}>
+			{props.children}
+		</View>
+	</TouchFeedback>
+);
+
+ListItem.propTypes = {
+	children: React.PropTypes.node.isRequired,
+	containerStyle: View.propTypes.style
+};
+
+export default ListItem;

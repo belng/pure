@@ -1,0 +1,19 @@
+import React from 'react-native';
+
+const {
+	ProgressBarAndroid
+} = React;
+
+export default class Loading extends React.Component {
+	setNativeProps(nativeProps) {
+		this._root.setNativeProps(nativeProps);
+	}
+
+	render() {
+		return <ProgressBarAndroid ref={c => (this._root = c)} style={this.props.style} />;
+	}
+}
+
+Loading.propTypes = {
+	style: ProgressBarAndroid.propTypes.style
+};
