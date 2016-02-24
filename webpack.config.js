@@ -36,7 +36,7 @@ module.exports = {
 		new webpack.optimize.UglifyJsPlugin()
 	]),
 	resolve: {
-		extensions: [ '', '.web.js', '.js' ],
+		extensions: [ '', '.web.js', '.js', ],
 	},
 	module: {
 		preLoaders: [
