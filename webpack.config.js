@@ -8,6 +8,9 @@ const fs = require('fs');
 
 const plugins = [
 	new webpack.EnvironmentPlugin('NODE_ENV'),
+	new webpack.DefinePlugin({
+		__DEV__: JSON.stringify(__DEV__)
+	}),
 	new webpack.LoaderOptionsPlugin({
 		minimize: !__DEV__,
 		debug: __DEV__
