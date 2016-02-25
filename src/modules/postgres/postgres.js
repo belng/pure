@@ -1,10 +1,12 @@
 import jsonop from 'jsonop';
+import winston from 'winston';
 import Counter from '../../lib/counter';
 import * as pg from '../../lib/pg';
 import queryHandler from './query';
 import entityHandler from './entity';
 import { bus, cache, config } from '../../core-server';
-import types from './../../models/models';
+import * as Types from './../../models/models';
+
 const channel = 'heyneighbor';
 
 function broadcast (entity) {
@@ -13,7 +15,10 @@ function broadcast (entity) {
 
 cache.onChange((changes) => {
 	const cb = (key, range, err, results) => {
-		if (err) { return log.error(err); }
+		if (err) {
+			winston.error(err);
+			return;
+		}
 		cache.setState({
 			knowledge: { [key]: [ range ] },
 			indexes: { [key]: results }
@@ -48,14 +53,17 @@ bus.on('setstate', (changes, next) => {
 		}
 		counter.inc();
 		pg.write(config.connStr, sql, (err, results) => {
-			if (err) { return counter.err(err); }
+			if (err) {
+				counter.err(err);
+				return;
+			}
 
 			results.map((row) => {
 				for (const col in row) {
 					row[col] = new Types[col](row[col]);
 				}
 			});
-			console.log('PgWrite Results', results[0].rows);
+			winston.info('PgWrite Results', results[0].rows);
 			results.forEach((result) => broadcast(result.rows[0]));
 			counter.dec();
 		});
