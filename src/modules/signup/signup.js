@@ -59,7 +59,6 @@ function signuphandler(changes, next) {
 		})
 		.catch(next);
 	} else if (changes.auth && changes.auth.signin) {
-		if (!changes.auth.signin) changes.auth.signin = {};
 		signup = merge(changes.auth.signin, signup);
 		generateSignedIdentities(signup.identities).then((session) => {
 			signup.signedIdentities = session;

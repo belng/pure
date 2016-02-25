@@ -6,7 +6,7 @@ import queryHandler from './query';
 import entityHandler from './entity';
 import { bus, cache, config } from '../../core-server';
 import * as Types from './../../models/models';
-
+import './cache-updater';
 const channel = 'heyneighbor';
 
 function broadcast (entity) {
@@ -14,25 +14,57 @@ function broadcast (entity) {
 }
 
 cache.onChange((changes) => {
+	winston.info(changes);
 	const cb = (key, range, err, results) => {
 		if (err) {
 			winston.error(err);
 			return;
 		}
-		cache.setState({
+		bus.emit('setstate', {
 			knowledge: { [key]: [ range ] },
-			indexes: { [key]: results }
+			indexes: { [key]: results },
+			source: 'postgres'
 		});
 	};
 
 	if (changes.queries) {
 		for (const key in changes.queries) {
-			for (const range of changes.queries[key]) {
-				pg.read(
-					config.connStr,
-					queryHandler(cache.keyToSlice(key), range),
-					cb.bind(null, key, range)
-				);
+
+			/*
+				FIXME: add a way to query for items.
+				TODO: this is temp thing. only entities that are users are serverd right now.h
+			 */
+			if (key === 'entities') {
+				const ids = Object.keys(changes.queries.entities);
+
+				pg.read(config.connStr, {
+					$: 'select *, \'user\' as "type" from users where id in (&(ids))',
+					ids
+				}, (err, r) => {
+					if (err) {
+						winston.error(err.message);
+						return;
+					}
+
+					const state = {
+						entities: {},
+						source: 'postgres'
+					};
+
+					r.map((i) => {
+						state.entities[i.id] = new Types[i.type](i);
+					});
+
+					bus.emit('setstate', state);
+				});
+			} else {
+				for (const range of changes.queries[key]) {
+					pg.read(
+						config.connStr,
+						queryHandler(cache.keyToSlice(key), range),
+						cb.bind(null, key, range)
+					);
+				}
 			}
 		}
 	}
@@ -45,12 +77,20 @@ pg.listen(config.connStr, channel, (payload) => {
 bus.on('setstate', (changes, next) => {
 	const counter = new Counter();
 
+	if (changes.source === 'postgres') {
+		next();
+		return;
+	}
+
 	if (changes.entities) {
 		const sql = [];
 
+		winston.info('Got few entities to update');
 		for (const id in changes.entities) {
 			sql.push(entityHandler(changes.entities[id]));
 		}
+
+		winston.info('sql', sql);
 		counter.inc();
 		pg.write(config.connStr, sql, (err, results) => {
 			if (err) {

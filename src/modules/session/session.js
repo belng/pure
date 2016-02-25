@@ -67,6 +67,8 @@ bus.on('setstate', (changes, next) => {
 			changes.response.app.session =	session;
 			next();
 		});
+	} else {
+		next();
 	}
 }, Constants.APP_PRIORITIES.AUTHENTICATION_SESSION_2);
 

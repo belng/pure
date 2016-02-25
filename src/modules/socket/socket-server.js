@@ -54,7 +54,7 @@ bus.on('http/init', app => {
 			(message.auth = message.auth || {}).resource = resourceId;
 
 			function handleSetState(err) {
-				winston.debug('setstate response', message, err);
+				winston.debug('setstate response', err);
 				if (err) {
 					sendError(
 						socket, err.code || 'ERR_UNKNOWN', err.message, message
