@@ -26,12 +26,10 @@ window.googleLogin = function (prop, accessToken) {
 	});
 };
 
-window.jwsLogin = function (prop, accessToken) {
+window.jwsLogin = function (sessionID) {
 	bus.emit('setstate', {
 		auth: {
-			jws: {
-				[prop]: accessToken
-			}
+			session: sessionID
 		}
 	});
 };

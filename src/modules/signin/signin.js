@@ -19,12 +19,20 @@ function getEntityByIdentity(identities, callback) {
 }
 // sign with default (HMAC SHA256)
 function signinhandler(changes, next) {
-	winston.debug('setstate: sign-in module');
+	winston.debug('setstate: sign-in module', changes.auth.signin);
 	if (changes.auth && changes.auth.signin) {
 		if (changes.auth.signin.id) {
+			winston.debug('setstate: sign-in module: trying to signin using id', changes.auth.signin.id);
 			cache.getEntity(changes.auth.signin.id, (err, entity) => {
-				if (err) return next(err);
-				if (!entity) return next(new Error('INVALID_USERID'));
+				if (err) {
+					winston.error('setstate: sign-in module:', err.message);
+					return next(err);
+				}
+				if (!entity) {
+					winston.error('setstate: sign-in module: INVALID_USERID');
+					return next(new Error('INVALID_USERID'));
+				}
+				winston.info('setstate: sign-in module: found user');
 				changes.app = (changes.app || {}).user = entity.id;
 				((changes.response = (changes.response || {})).app || {}).user = entity.id;
 				(changes.response.entities = changes.response.entities || {})[entity.id] = entity;

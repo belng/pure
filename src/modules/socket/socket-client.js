@@ -1,6 +1,7 @@
 /* @flow */
 
 /* eslint-env browser */
+/* eslint-disable no-console*/
 
 import eio from 'engine.io-client';
 import { bus, config } from '../../core-client.js';
@@ -29,6 +30,7 @@ function disconnected() {
 function onMessage(message) {
 	const stateChange = packer.decode(message);
 
+	console.log(stateChange);
 	stateChange.source = 'server';
 	bus.emit('setstate', stateChange);
 }
@@ -54,5 +56,5 @@ bus.on('setstate', (state) => {
 	if (state.source === 'server') return;
 	client.send(packer.encode(state));
 }, 1);
-
+console.log('connecting...');
 connect();
