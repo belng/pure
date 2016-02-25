@@ -7,6 +7,6 @@ export default Connect({
 	user: 'me',
 	connection: {
 		key: 'app',
-		transform: app => app ? app.connectionStatus : null,
+		path: 'connectionStatus',
 	}
 })(Dummy);
