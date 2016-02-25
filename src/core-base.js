@@ -2,8 +2,7 @@
 
 import Ebus from 'ebus';
 import SbCache from 'sbcache';
-
-export * as Constants from './lib/Constants';
+import * as Constants from './lib/Constants';
 
 export type Bus = {
 	on(event: string, callback: Function, priority?: number|string): void;
@@ -13,8 +12,8 @@ export type Bus = {
 	setDebug(level: number): void;
 }
 
+export { Constants };
 export const bus: Bus = new Ebus();
-
 export const cache = new SbCache({
 	// TODO: add is, id functions!
 	entityOp: { counts: { __all__: 'inc' } }
