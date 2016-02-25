@@ -5,7 +5,6 @@ export type User = {
 	counts: { [key: string]: number };
 	createTime: number;
 	deleteTime: number;
-	description: string;
 	id: string;
 	identities: Array<string>;
 	locale: number;
@@ -13,6 +12,7 @@ export type User = {
 	params: Object;
 	presence: number;
 	presenceTime: number;
+	profile: Object;
 	resources: { [key: string]: number };
 	tags: Array<number>;
 	timezone: number;
