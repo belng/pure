@@ -1,3 +1,5 @@
+/* @flow */
+
 import React from 'react-native';
 import Colors from '../../../Colors';
 import AppText from '../AppText';
@@ -10,6 +12,7 @@ import AccountPhotoChooser from './AccountPhotoChooser';
 import TouchFeedback from '../TouchFeedback';
 import PushNotification from '../../../modules/PushNotification';
 import debounce from '../../../../lib/debounce';
+import type { User } from '../../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
@@ -72,12 +75,23 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default class Account extends React.Component {
-	constructor(props) {
+type Props = {
+	user: User
+}
+
+type State = {
+	pushNotificationEnabled: boolean
+}
+
+const PUSH_NOTIFICATION_ENABLED_KEY = 'enabled';
+
+export default class Account extends React.Component<void, Props, State> {
+	_saveUser: Function;
+
+	constructor(props: Props) {
 		super(props);
 
-		this._saveUserDebounced = debounce(this.props.saveUser, 1000);
-		this._pushNotificationEnabledKey = 'enabled';
+		this._saveUser = debounce(this.props.saveUser, 1000);
 
 		this.state = {
 			pushNotificationEnabled: true,
@@ -88,11 +102,11 @@ export default class Account extends React.Component {
 		this._updatePushNotificationValue();
 	}
 
-	_updatePushNotificationValue = async () => {
+	_updatePushNotificationValue = async (): Promise<void> => {
 		let value = true;
 
 		try {
-			value = await PushNotification.getPreference(this._pushNotificationEnabledKey);
+			value = await PushNotification.getPreference(PUSH_NOTIFICATION_ENABLED_KEY);
 		} catch (e) {
 			// Ignore
 		}
@@ -102,52 +116,48 @@ export default class Account extends React.Component {
 		});
 	};
 
-	_handleStatusChange = description => {
-		this._saveUserDebounced(Object.assign({}, this.props.user, { description }));
+	_handleStatusChange = (description: string) => {
+		this._saveUser({ ...this.props.user, description });
 	};
 
-	_handleNameChange = fullname => {
-		const { user } = this.props;
-
-		this._saveUserDebounced(Object.assign({}, user, Object.assign({}, user.guides, {
-			guides: { fullname }
-		})));
+	_handleNameChange = (name: string) => {
+		this._saveUser({ ...this.props.user, name });
 	};
 
-	_handlePushNotificationChange = value => {
-		PushNotification.setPreference(this._pushNotificationEnabledKey, value ? 'true' : 'false');
+	_handlePushNotificationChange = (value: boolean) => {
+		PushNotification.setPreference(PUSH_NOTIFICATION_ENABLED_KEY, value ? 'true' : 'false');
 
 		this.setState({
 			pushNotificationEnabled: value
 		});
 	};
 
-	_handleEmailNotificationChange = value => {
-		const user = Object.assign({}, this.props.user);
+	_handleEmailNotificationChange = (value: string) => {
+		const {
+			user: {
+				params
+			}
+		} = this.props.user;
 
-		const params = user.params ? Object.assign({}, user.params) : {};
-		const email = params.email ? Object.assign({}, params.email) : {};
+		const email = params.email ? { ...params.email } : {};
 
 		email.notifications = value;
 
-		params.email = email;
-		user.params = params;
-
-		this.props.saveUser(user);
+		this.props.saveParams({ ...params, email });
 	};
 
-	_handleEmailFrequencyChange = value => {
-		const user = Object.assign({}, this.props.user);
+	_handleEmailFrequencyChange = (value: string) => {
+		const {
+			user: {
+				params
+			}
+		} = this.props.user;
 
-		const params = user.params ? Object.assign({}, user.params) : {};
-		const email = params.email ? Object.assign({}, params.email) : {};
+		const email = params.email ? { ...params.email } : {};
 
 		email.frequency = value;
 
-		params.email = email;
-		user.params = params;
-
-		this.props.saveUser(user);
+		this.props.saveParams({ ...params, email });
 	};
 
 	_handleSelectFrequency = () => {
@@ -162,12 +172,8 @@ export default class Account extends React.Component {
 		this.props.signOut();
 	};
 
-	_handleSelectPhoto = uri => {
-		const user = Object.assign({}, this.props.user);
-
-		user.picture = uri;
-
-		this.props.saveUser(user);
+	_handleSelectPhoto = (picture: string) => {
+		this.props.saveParams({ ...this.props.user.params, picture });
 
 		Modal.renderComponent(null);
 	};
@@ -205,7 +211,7 @@ export default class Account extends React.Component {
 							nick={user.id}
 						/>
 						<View style={styles.info}>
-							<AppText style={styles.nick}>{user.guides && user.guides.fullname ? `${user.guides.fullname} (${user.id})` : user.id}</AppText>
+							<AppText style={styles.nick}>{user.name ? `${user.name} (${user.id})` : user.id}</AppText>
 							<AppText style={styles.email}>{user.identities[0].slice(7)}</AppText>
 						</View>
 					</View>
@@ -225,7 +231,7 @@ export default class Account extends React.Component {
 					<AppText style={styles.inputLabelText}>Fullname</AppText>
 					<TextInput
 						style={styles.input}
-						defaultValue={user.guides ? user.guides.fullname : ''}
+						defaultValue={user.name}
 						placeholder='Fullname'
 						autoCapitalize='words'
 						onChangeText={this._handleNameChange}
@@ -278,10 +284,12 @@ Account.propTypes = {
 	user: React.PropTypes.oneOfType([
 		React.PropTypes.oneOf([ 'missing', 'failed' ]),
 		React.PropTypes.shape({
-			id: React.PropTypes.string
+			id: React.PropTypes.string,
+			params: React.PropTypes.object
 		})
 	]).isRequired,
 	saveUser: React.PropTypes.func.isRequired,
+	saveParams: React.PropTypes.func.isRequired,
 	signOut: React.PropTypes.func.isRequired,
 	onNavigation: React.PropTypes.func.isRequired
 };

@@ -1,3 +1,5 @@
+/* @flow */
+
 import React from 'react-native';
 import Colors from '../../../Colors';
 

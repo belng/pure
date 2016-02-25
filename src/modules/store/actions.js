@@ -26,14 +26,6 @@ export const saveUser = (user: User): Object => ({
 	}
 });
 
-export const saveParams = (id: string, params: Object): Object => ({
-	entities: {
-		[id]: {
-			id, params
-		}
-	}
-});
-
 export const banUser = (): Object => ({
 
 });

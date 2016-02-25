@@ -2,8 +2,8 @@
 
 import { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
-import { saveUser, saveParams, signOut } from '../../../modules/store/actions';
+import Account from '../views/Account/Account';
+import { saveUser, signOut } from '../../../modules/store/actions';
 
 const mapSubscriptionsToProps = ({ user }) => ({
 	user: {
@@ -20,11 +20,11 @@ const mapSubscriptionsToProps = ({ user }) => ({
 
 const mapActionsToProps = {
 	saveUser: (props, store) => user => store.setState(saveUser(user)),
-	saveParams: (props, store) => params => store.setState(saveParams(props.user, params)),
+	saveParams: (props, store) => params => store.setState(saveUser({ ...props.user, params })),
 	signOut: (props, store) => () => store.setState(signOut()),
 };
 
-const AccountContainer = Connect(mapSubscriptionsToProps, mapActionsToProps)(Dummy);
+const AccountContainer = Connect(mapSubscriptionsToProps, mapActionsToProps)(Account);
 
 AccountContainer.propTypes = {
 	user: PropTypes.string.isRequired

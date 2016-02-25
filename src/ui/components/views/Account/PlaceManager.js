@@ -1,4 +1,4 @@
-
+/* @flow */
 
 import React from 'react-native';
 import PlaceItem from './PlaceItem';
@@ -68,7 +68,7 @@ export default class PlaceManager extends React.Component {
 		this.props.onChange(this.props.places.filter(it => !(it.place.id === place.id && it.type === type)));
 	};
 
-	_handlePress = type => {
+	_handlePress = (type: string) => {
 		if (type === 'state') {
 			Modal.renderComponent(
 				<StatesFilteredContainer

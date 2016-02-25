@@ -37,9 +37,7 @@ const STATES = [
 
 type State = {
 	id: string;
-	guides: {
-		displayName: string
-	}
+	name: string;
 };
 
 class StatesFilteredContainer extends React.Component {
@@ -48,9 +46,7 @@ class StatesFilteredContainer extends React.Component {
 
 		return data.map(state => ({
 			id: state.toLowerCase().replace(/\s+/g, '-'),
-			guides: {
-				displayName: state
-			}
+			name: state,
 		}));
 	};
 

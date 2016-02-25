@@ -1,3 +1,5 @@
+/* @flow */
+
 import React from 'react-native';
 import AccountPhotoChooserItem from './AccountPhotoChooserItem';
 

@@ -5,6 +5,7 @@ export type User = {
 	counts: { [key: string]: number };
 	createTime: number;
 	deleteTime: number;
+	description: string;
 	id: string;
 	identities: Array<string>;
 	locale: number;

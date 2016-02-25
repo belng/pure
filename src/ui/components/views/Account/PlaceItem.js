@@ -70,9 +70,7 @@ export default class PlaceItem extends React.Component {
 	static propTypes = {
 		place: React.PropTypes.shape({
 			id: React.PropTypes.string.isRequired,
-			guides: React.PropTypes.shape({
-				displayName: React.PropTypes.string
-			})
+			name: React.PropTypes.string
 		}),
 		type: React.PropTypes.string.isRequired,
 		onRemove: React.PropTypes.func.isRequired
@@ -105,7 +103,7 @@ export default class PlaceItem extends React.Component {
 					/>
 				</View>
 				<View style={styles.nameContainer}>
-					<AppText style={styles.name} numberOfLines={1}>{place.guides ? place.guides.displayName : this._capitalizeText(place.id)}</AppText>
+					<AppText style={styles.name} numberOfLines={1}>{place.name || this._capitalizeText(place.id)}</AppText>
 					<AppText style={styles.type} numberOfLines={1}>{this._capitalizeText(type)}</AppText>
 				</View>
 				<TouchableOpacity onPress={this._handleRemove}>
