@@ -12,21 +12,24 @@ export default class App extends React.Component {
 	}
 
 	render() {
-		const { user, connectionStatus } = this.props;
+		const {
+			user,
+			connectionStatus,
+		} = this.props;
 
-		if (user === 'missing') {
-			if (connectionStatus === 'offline') {
-				return <Offline />;
-			} else {
-				return <Splash />;
-			}
+		if (connectionStatus === 'offline') {
+			return <Offline />;
 		}
 
-		return <Onboard />;
+		if (user === 'missing') {
+			return <Splash />;
+		}
+
+		return <Onboard user={user} />;
 	}
 }
 
 App.propTypes = {
-	user: React.PropTypes.string.isRequired,
+	user: React.PropTypes.string,
 	connectionStatus: React.PropTypes.oneOf([ 'connecting', 'online', 'offline' ]).isRequired
 };

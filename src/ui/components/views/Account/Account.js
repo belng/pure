@@ -117,7 +117,13 @@ export default class Account extends React.Component<void, Props, State> {
 	};
 
 	_handleStatusChange = (description: string) => {
-		this._saveUser({ ...this.props.user, description });
+		const { user } = this.props.user;
+
+		const profile = user.profile ? { ...user.profile } : {};
+
+		profile.description = description;
+
+		this._saveUser({ ...this.props.user, profile });
 	};
 
 	_handleNameChange = (name: string) => {

@@ -1,5 +1,10 @@
-import React from 'react-native';
+import React from 'react';
+import ReactNative from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
+const {
+	Text
+} = ReactNative;
 
 export default class Icon extends React.Component {
 	setNativeProps(nativeProps) {
@@ -16,3 +21,7 @@ export default class Icon extends React.Component {
 		);
 	}
 }
+
+Icon.propTypes = {
+	style: Text.propTypes.style
+};

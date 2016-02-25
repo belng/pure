@@ -17,6 +17,11 @@ const RoomsContainer = Connect(({ user }) => ({
 				},
 				order: 'statusTime'
 			},
+			range: {
+				start: -Infinity,
+				before: 100,
+				after: 0,
+			}
 		}
 	}
 }))(Dummy);
