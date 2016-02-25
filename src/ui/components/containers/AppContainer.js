@@ -6,7 +6,9 @@ import Dummy from '../views/Dummy';
 export default Connect({
 	user: 'me',
 	connection: {
-		key: 'app',
-		path: 'connectionStatus',
+		key: {
+			type: 'app',
+			path: 'connectionStatus',
+		}
 	}
 })(Dummy);

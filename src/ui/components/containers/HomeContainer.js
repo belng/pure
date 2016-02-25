@@ -5,8 +5,10 @@ import Dummy from '../views/Dummy';
 
 const HomeContainer = Connect({
 	initialURL: {
-		key: 'app',
-		path: 'initialURL',
+		key: {
+			type: 'app',
+			path: 'initialURL',
+		}
 	}
 })(Dummy);
 

@@ -1,12 +1,28 @@
 /* @flow */
 
 import React from 'react';
-import Radium from 'radium';
+import ReactNative from 'react-native';
 
-class Dummy extends React.Component {
-	render() {
-		return <div>¯\_(ツ)_/¯</div>;
+const {
+	StyleSheet,
+	View,
+	Text
+} = ReactNative;
+
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
 	}
-}
+});
 
-export default Radium(Dummy);
+const Dummy = () => (
+	<View style={styles.container}>
+		<Text>
+			¯\_(ツ)_/¯
+		</Text>
+	</View>
+);
+
+export default Dummy;
