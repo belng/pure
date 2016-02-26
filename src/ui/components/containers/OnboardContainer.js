@@ -6,7 +6,7 @@ import Connect from '../../../modules/store/Connect';
 import Onboard from '../views/Onboard/Onboard';
 import EnhancedError from '../../../lib/EnhancedError';
 import Validator from '../../../lib/Validator';
-import { signUp, saveUser } from '../../../modules/store/actions';
+import { signIn, signUp, saveUser } from '../../../modules/store/actions';
 import type { User } from '../../../lib/schemaTypes';
 
 type Props = {
@@ -14,6 +14,7 @@ type Props = {
 	pendingUser: { signedIdentities: string };
 	saveUser: Function;
 	savePlaces: Function;
+	signIn: Function;
 }
 
 type Fields = {
@@ -184,6 +185,8 @@ class OnboardContainerInner extends Component<void, Props, State> {
 
 	_submitPlaceDetails = (): void => this._submitPage(PAGE_PLACES);
 
+	_submitGetStarted = (): void => this._submitPage(PAGE_GET_STARTED);
+
 	render() {
 		return (
 			<Onboard
@@ -192,6 +195,7 @@ class OnboardContainerInner extends Component<void, Props, State> {
 				canGoForward={this._hasErrors(this.state.fields, this.state.page)}
 				submitUserDetails={this._submitUserDetails}
 				submitPlaceDetails={this._submitPlaceDetails}
+				submitGetStarted={this._submitGetStarted}
 				onChangeField={this._onChangeField}
 			/>
 		);
@@ -206,7 +210,8 @@ OnboardContainerInner.propTypes = {
 		signedIdentities: PropTypes.string
 	}).isRequired,
 	saveUser: PropTypes.func.isRequired,
-	savePlaces: PropTypes.func.isRequired
+	savePlaces: PropTypes.func.isRequired,
+	signIn: PropTypes.func.isRequired,
 };
 
 const OnboardContainer = Connect(({ user }) => ({
@@ -227,9 +232,8 @@ const OnboardContainer = Connect(({ user }) => ({
 		}
 	},
 }), {
-	saveUser: (props, store) => (id: string, name: string) => {
-		store.setState(signUp({ ...props.pendingUser, id, name }));
-	},
+	signIn: (props, store) => (provider: string, token: string) => store.setState(signIn(provider, token)),
+	saveUser: (props, store) => (id: string, name: string) => store.setState(signUp({ ...props.pendingUser, id, name })),
 	savePlaces: (props, store) => places => {
 		store.setState(saveUser({
 			...props.user,
