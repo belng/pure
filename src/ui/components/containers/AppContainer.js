@@ -10,7 +10,7 @@ export default Connect({
 	},
 	connection: {
 		key: {
-			type: 'app',
+			type: 'state',
 			path: 'connectionStatus',
 		}
 	}

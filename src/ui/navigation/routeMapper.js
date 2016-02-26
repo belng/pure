@@ -13,16 +13,16 @@ import NotificationCenterContainer from '../components/containers/NotificationCe
 import NotificationClearIconContainer from '../components/containers/NotificationClearIconContainer';
 import RoomsContainer from '../components/containers/RoomsContainer';
 import AccountContainer from '../components/containers/AccountContainer';
-import SignUpContainer from '../components/containers/SignUpContainer';
+import OnboardContainer from '../components/containers/OnboardContainer';
 import StartDiscussionContainer from '../components/containers/StartDiscussionContainer';
 import MyRoomsContainer from '../components/containers/MyRoomsContainer';
 import { config } from '../../core-client';
 
-type RouteDescription = {
+export type RouteDescription = {
 	title?: string;
-	titleComponent?: Function;
-	leftComponent?: Function;
-	rightComponent?: Function;
+	titleComponent?: ReactClass;
+	leftComponent?: ReactClass;
+	rightComponent?: ReactClass;
 	component: ReactClass;
 }
 
@@ -65,7 +65,7 @@ export default function(route: Route): RouteDescription {
 	case 'onboard':
 		return {
 			title: 'Sign in',
-			component: SignUpContainer,
+			component: OnboardContainer,
 		};
 	case 'compose':
 		return {

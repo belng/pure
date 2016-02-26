@@ -15,13 +15,13 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 	case 'entity':
 		unWatch = cache.watchEntity(options.id, callback);
 		break;
-	case 'app':
-		unWatch = cache.watchApp(typeof options.path === 'string' ? [ options.path ] : options.path, callback);
+	case 'state':
+		unWatch = cache.watchState(typeof options.path === 'string' ? [ options.path ] : options.path, callback);
 		break;
 	case 'me':
 		let unWatchMe;
 
-		const unWatchUser = cache.watchApp([ 'user' ], id => {
+		const unWatchUser = cache.watchState([ 'user' ], id => {
 			if (unWatchMe) {
 				unWatchMe();
 			}
@@ -40,7 +40,7 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 		break;
 	default:
 		if (options.slice) {
-			unWatch = cache.watch(cache.sliceToKey(options.slice), options.range || {}, callback);
+			unWatch = cache.watch(options.slice, options.range || {}, callback);
 		} else {
 			throw new Error('Invalid options passed to subscribe');
 		}
@@ -77,4 +77,4 @@ export const onUnsubscribe = (callback: Function): Subscription => {
 	};
 };
 
-export const setState = (payload: Object): void => bus.emit('setstate', payload);
+export const setState = (payload: Object): void => bus.emit('change', payload);

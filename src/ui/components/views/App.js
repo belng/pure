@@ -1,6 +1,6 @@
 import React from 'react-native';
 import Splash from './Splash';
-import Onboard from './Onboard/Onboard';
+import OnboardContainer from '../containers/OnboardContainer';
 import Offline from './Offline';
 
 export default class App extends React.Component {
@@ -25,7 +25,7 @@ export default class App extends React.Component {
 			return <Splash />;
 		}
 
-		return <Onboard user={user} />;
+		return <OnboardContainer user={user} />;
 	}
 }
 

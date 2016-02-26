@@ -5,17 +5,23 @@ import type { User } from '../../lib/schemaTypes';
 /*
  * User related actions
  */
-export const signIn = (gateway: string, accessToken: string): Object => ({
+export const signIn = (provider: string, token: string): Object => ({
 	auth: {
-		[gateway]: {
-			token: accessToken
+		[provider]: {
+			token
 		}
 	}
 });
 
 export const signUp = (user: User): Object => ({
-	auth: {
+	app: {
 		signup: user
+	}
+});
+
+export const cancelSignUp = (): Object => ({
+	app: {
+		__op__: { signup: 'delete' }
 	}
 });
 
