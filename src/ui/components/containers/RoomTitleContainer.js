@@ -10,7 +10,7 @@ const RoomTitleContainer = Connect(({ room }) => ({
 			type: 'entity',
 			id: room
 		},
-		transform: roomObj => roomObj.guides && room.guides.displayName ? roomObj.guides.displayName : room
+		transform: roomObj => roomObj && roomObj.name ? roomObj.name : room
 	}
 }))(Dummy);
 

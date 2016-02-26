@@ -37,7 +37,7 @@ function onMessage(message) {
 
 function connect() {
 	client = new eio.Socket((protocol === 'https:' ? 'wss:' : 'ws:') + '//' + host, {
-		jsonp: 'createElement' in document // Disable JSONP in non-web environments, e.g.- react-native
+		jsonp: 'document' in window && 'createElement' in window.document // Disable JSONP in non-web environments, e.g.- react-native
 	});
 
 	client.on('close', disconnected);

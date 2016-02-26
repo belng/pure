@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 import send from './sendEmail';
 import Counter from '../../lib/counter';
 const DIGEST_INTERVAL = 60 * 60 * 1000, DIGEST_DELAY = 24 * 60 * 60 * 1000,
-	template = handlebars.compile(fs.readFileSync(__dirname + '/views/' + config.appName + '.digest.hbs', 'utf-8')),
+	template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' + config.app_id + '.digest.hbs', 'utf-8').toString()),
 	connStr = config.connStr, conf = config.email, counter1 = new Counter();
 
 let lastEmailSent, end;

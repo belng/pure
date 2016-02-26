@@ -46,12 +46,10 @@ export default class DiscussionsContainer extends Component<void, any, Subscript
 	};
 
 	render() {
+		const props = { ...this.props, ...this.state };
+
 		return (
-			<DiscussionsContainerInner
-				{...this.props}
-				{...this.state}
-				loadMore={this._loadMore}
-			/>
+			<DiscussionsContainerInner {...props} loadMore={this._loadMore} />
 		);
 	}
 }

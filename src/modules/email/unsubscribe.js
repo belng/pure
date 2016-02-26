@@ -1,9 +1,10 @@
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import log from 'winston';
+import handlebars from 'handlebars';
 import { bus, config } from '../../core-server';
 
-const template = fs.readFileSync(__dirname + '/views/unsub.html', 'utf8');
+const template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/unsubscribe.hbs', 'utf8').toString());
 
 function handleRequest (req, res) {
 	let decoded, emailAddress;
@@ -14,7 +15,9 @@ function handleRequest (req, res) {
 
 	} catch (e) {
 		log.i('Invalid unsubscribe JWT: ' + req.query.email);
-		res.end(template.replace('${message}', 'You were not unsubscribed because the unsubscribe link has expired. Please click the link on a newer email.'));
+		res.end(template({
+			message: 'You were not unsubscribed because the unsubscribe link has expired. Please click the link on a newer email.'
+		}));
 	}
 	emailAddress = decoded.email;
 
@@ -24,11 +27,15 @@ function handleRequest (req, res) {
 		session: 'internal/unsubscribe'
 	}, (err, query) => {
 		if (err) {
-			return res.end(template.replace('${message}', 'Sorry, an internal server error prevented you from being unsubscribed.'));
+			return res.end(template({
+				message: 'Sorry, an internal server error prevented you from being unsubscribed.'
+			}));
 		}
 
 		if (!query.results || !query.results.length) {
-			return res.end(template.replace('${message}', 'User does not exist.'));
+			return res.end(template({
+				message: 'User does not exist.'
+			}));
 		}
 
 		// Received the user from the database! Changing the settings...
@@ -46,11 +53,14 @@ function handleRequest (req, res) {
 			session: 'internal/unsubscribe'
 		}, (e) => {
 			if (e) {
-				res.end(template.replace('${message}', ' Sorry, an internal server error prevented you from being unsubscribed.'));
-				return;
+				return res.end(template({
+					message: 'Sorry, an internal server error prevented you from being unsubscribed.'
+				}));
 			}
 			res.header('Content-Type', 'text/html');
-			res.end(template.replace('${message}', 'You have been unsubscribed'));
+			res.end(template({
+				message: 'You have been unsubscribed.'
+			}));
 		});
 	});
 }

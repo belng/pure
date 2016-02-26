@@ -4,7 +4,8 @@ import React, { Component } from 'react';
 import storeShape from './storeShape';
 
 export default (Target: ReactClass): ReactClass => {
-	return class Container extends Component<any, any, void> {
+	// $FlowFixMe
+	return class Container extends Component<any, any, any> {
 		static contextTypes = {
 			store: storeShape.isRequired
 		};

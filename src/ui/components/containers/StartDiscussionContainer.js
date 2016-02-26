@@ -19,9 +19,9 @@ const StartDiscussionContainerInner = Connect(({ room, thread }) => ({
 		}
 	}
 }), {
-	startThread: (props, store) => (title, body, meta) => {
+	startThread: (props, store) => (name, body, meta) => {
 		const changes = startThread({
-			title,
+			name,
 			body,
 			meta,
 			parents: [ props.room.id ].concat(props.room.parents),
@@ -52,12 +52,10 @@ export default class StartDiscussionContainer extends Component<void, any, { thr
 	};
 
 	render() {
+		const props = { ...this.props, ...this.state };
+
 		return (
-			<StartDiscussionContainerInner
-				{...this.props}
-				{...this.state}
-				setCurrentThread={this._setCurrentThread}
-			/>
+			<StartDiscussionContainerInner {...props} setCurrentThread={this._setCurrentThread} />
 		);
 	}
 }

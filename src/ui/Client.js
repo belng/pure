@@ -1,17 +1,24 @@
 /* @flow */
 
-// $FlowFixMe - Flow cannot find ignored modules
-import 'babel-polyfill';
+import './navigation-rfc/polyfill';
 import '../modules/client/client';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import Home from './components/views/Home.web';
+import React from 'react-native';
+import AppContainer from './components/containers/AppContainer';
 import Provider from '../modules/store/Provider';
 import * as store from '../modules/store/store';
 
-ReactDOM.render(
-	<Provider store={store}>
-		<Home />
-	</Provider>,
-	document.getElementById('root')
-);
+const {
+	AppRegistry
+} = React;
+
+export default class HeyNeighbor extends React.Component {
+	render() {
+		return (
+			<Provider store={store}>
+				<AppContainer />
+			</Provider>
+		);
+	}
+}
+
+AppRegistry.registerComponent('HeyNeighbor', () => HeyNeighbor);

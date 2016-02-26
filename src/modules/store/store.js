@@ -39,8 +39,8 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 
 		break;
 	default:
-		if (options.slice && options.range) {
-			unWatch = cache.watch(options.slice, options.range, callback);
+		if (options.slice) {
+			unWatch = cache.watch(cache.sliceToKey(options.slice), options.range || {}, callback);
 		} else {
 			throw new Error('Invalid options passed to subscribe');
 		}

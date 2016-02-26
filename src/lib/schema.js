@@ -58,6 +58,7 @@ COLUMNS[Constants.TYPE_USER] = [
 	'params',
 	'presence',
 	'presenceTime',
+	'profile',
 	'resources',
 	'tags',
 	'timezone',
