@@ -6,15 +6,16 @@ import Connect from '../../../modules/store/Connect';
 import Onboard from '../views/Onboard/Onboard';
 import EnhancedError from '../../../lib/EnhancedError';
 import Validator from '../../../lib/Validator';
-import { signIn, signUp, saveUser } from '../../../modules/store/actions';
+import { signIn, signUp, cancelSignUp, saveUser } from '../../../modules/store/actions';
 import type { User } from '../../../lib/schemaTypes';
 
 type Props = {
 	user: User;
 	pendingUser: { signedIdentities: string };
-	saveUser: Function;
-	savePlaces: Function;
 	signIn: Function;
+	signUp: Function;
+	cancelSignUp: Function;
+	savePlaces: Function;
 }
 
 type Fields = {
@@ -160,7 +161,7 @@ class OnboardContainerInner extends Component<void, Props, State> {
 
 		switch (page) {
 		case PAGE_USER_DETAILS:
-			this.props.saveUser(fields.nick, fields.name);
+			this.props.signUp(fields.nick, fields.name);
 			break;
 		case PAGE_PLACES:
 			this.props.savePlaces(fields.places);
@@ -209,9 +210,10 @@ OnboardContainerInner.propTypes = {
 	pendingUser: PropTypes.shape({
 		signedIdentities: PropTypes.string
 	}).isRequired,
-	saveUser: PropTypes.func.isRequired,
-	savePlaces: PropTypes.func.isRequired,
 	signIn: PropTypes.func.isRequired,
+	signUp: PropTypes.func.isRequired,
+	cancelSignUp: PropTypes.func.isRequired,
+	savePlaces: PropTypes.func.isRequired,
 };
 
 const OnboardContainer = Connect(({ user }) => ({
@@ -228,12 +230,13 @@ const OnboardContainer = Connect(({ user }) => ({
 	pendingUser: {
 		key: {
 			type: 'app',
-			path: 'signUp',
+			path: 'signup',
 		}
 	},
 }), {
 	signIn: (props, store) => (provider: string, token: string) => store.setState(signIn(provider, token)),
-	saveUser: (props, store) => (id: string, name: string) => store.setState(signUp({ ...props.pendingUser, id, name })),
+	cancelSignUp: (props, store) => () => store.setState(cancelSignUp()),
+	signUp: (props, store) => (id: string, name: string) => store.setState(signUp({ ...props.pendingUser, id, name })),
 	savePlaces: (props, store) => places => {
 		store.setState(saveUser({
 			...props.user,

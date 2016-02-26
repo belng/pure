@@ -1,6 +1,7 @@
+/* @flow */
 
-
-import React from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import NextButton from './NextButton';
 import StatusbarWrapper from '../StatusbarWrapper';
 import AppTextInput from '../AppTextInput';
@@ -11,6 +12,7 @@ import OnboardError from './OnboardError';
 import Icon from '../Icon';
 import VersionCodes from '../../../modules/VersionCodes';
 import Facebook from '../../../modules/Facebook';
+import EnhancedError from '../../../../lib/EnhancedError';
 import Colors from '../../../Colors';
 
 const {
@@ -20,7 +22,7 @@ const {
 	StyleSheet,
 	Platform,
 	TouchableOpacity,
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -60,47 +62,63 @@ const styles = StyleSheet.create({
 		margin: 16,
 		color: Colors.fadedBlack
 	},
+
+	input: {
+		textAlign: 'center'
+	}
 });
 
 type Props = {
-	error: Object;
-	onComplete: Function;
-	onChangeNick: Function;
-	onChangeName: Function;
-	nick: string;
-	name: string;
-	avatar: string;
-	isLoading: boolean;
-	isDisabled: boolean;
+	cancelSignUp: Function;
+	canGoForward: Function;
+	submitUserDetails: Function;
+	onChangeField: Function;
+	fields: {
+		nick: { value: string; error: ?EnhancedError };
+		name: { value: string; error: ?EnhancedError };
+	};
 };
 
-export default class UserDetails extends React.Component {
+export default class UserDetails extends Component<void, Props, void> {
 	static propTypes = {
-		onComplete: React.PropTypes.func.isRequired,
-		onChangeNick: React.PropTypes.func.isRequired,
-		onChangeName: React.PropTypes.func.isRequired,
-		nick: React.PropTypes.string,
-		name: React.PropTypes.string,
-		user: React.PropTypes.shape({
-			picture: React.PropTypes.string
-		}),
-		error: React.PropTypes.object,
-		isLoading: React.PropTypes.bool,
-		isDisabled: React.PropTypes.bool,
+		cancelSignUp: PropTypes.func.isRequired,
+		canGoForward: PropTypes.func.isRequired,
+		submitUserDetails: PropTypes.func.isRequired,
+		onChangeField: PropTypes.func.isRequired,
+		fields: PropTypes.objectOf(PropTypes.shape({
+			nick: PropTypes.shape({
+				value: PropTypes.string.isRequired,
+				error: PropTypes.instanceOf(EnhancedError)
+			}).isRequired,
+			name: PropTypes.shape({
+				value: PropTypes.string.isRequired,
+				error: PropTypes.instanceOf(EnhancedError)
+			}).isRequired
+		})).isRequired,
 	};
-
-	props: Props;
 
 	componentDidMount() {
 		this._fetchFullName();
 	}
 
-	_fetchFullName = async () => {
-		try {
-			const res = await Facebook.sendGraphRequest('GET', '/me', { fields: 'name' }).then(JSON.parse);
+	_handleChangeNick = (nick: string) => {
+		this.props.onChangeField('nick', nick);
+	};
 
-			if (res && res.name && !this.props.name) {
-				this.props.onChangeName(res.name);
+	_handleChangeName = (name: string) => {
+		this.props.onChangeField('name', name);
+	};
+
+	_fetchFullName = async (): Promise<void> => {
+		try {
+			const req = await Facebook.sendGraphRequest('GET', '/me', { fields: 'name' });
+
+			if (req) {
+				const res = JSON.parse(req);
+
+				if (res && res.name && !this.props.fields.name) {
+					this.props.onChangeField('name', res.name);
+				}
 			}
 		} catch (e) {
 			// ignore
@@ -108,8 +126,14 @@ export default class UserDetails extends React.Component {
 	};
 
 	render() {
-		const nick_color = this.props.error && this.props.error.field === 'nick' ? Colors.error : Colors.placeholder;
-		const name_color = this.props.error && this.props.error.field === 'name' ? Colors.error : Colors.placeholder;
+		const { fields } = this.props;
+		const {
+			nick,
+			name
+		} = fields;
+
+		const nickColor = nick.error ? Colors.error : Colors.placeholder;
+		const nameColor = name.error ? Colors.error : Colors.placeholder;
 
 		return (
 			<View style={styles.container}>
@@ -124,42 +148,42 @@ export default class UserDetails extends React.Component {
 					</TouchableOpacity>
 					<OnboardTitle>Create an Account!</OnboardTitle>
 					<View style={styles.avatarContainer}>
-						<Image style={styles.avatar} source={{ uri: this.props.user ? this.props.user.picture : null }} />
+						<Image style={styles.avatar} source={{/* TODO */}} />
 					</View>
 					<OnboardParagraph>What should we call you?</OnboardParagraph>
 
 					<View style={styles.inputContainer}>
 						<AppTextInput
+							style={styles.input}
 							autoCapitalize='none'
 							autoCorrect={false}
 							maxLength={32}
 							placeholder='Username, e.g. barry43'
-							textAlign='center'
-							underlineColorAndroid={nick_color}
-							onChangeText={this.props.onChangeNick}
-							value={this.props.nick}
+							underlineColorAndroid={nickColor}
+							onChangeText={this._handleChangeNick}
+							value={nick.value}
 						/>
 						<AppTextInput
+							style={styles.input}
 							autoCapitalize='words'
 							placeholder='Fullname, e.g. Barry Allen'
-							textAlign='center'
-							underlineColorAndroid={name_color}
-							onChangeText={this.props.onChangeName}
-							value={this.props.name}
+							underlineColorAndroid={nameColor}
+							onChangeText={this._handleChangeName}
+							value={name.value}
 						/>
 					</View>
 
 					<OnboardError
 						hint='People on Hey, Neighbor! will know you by your username.'
-						message={this.props.error ? this.props.error.message : null}
+						message={nick.error ? nick.error.message : name.error ? name.error.message : null}
 					/>
+
 					<KeyboardSpacer />
 				</ScrollView>
 				<NextButton
 					label='Sign up'
-					loading={this.props.isLoading}
-					disabled={this.props.isDisabled}
-					onPress={this.props.onComplete}
+					disabled={this.props.canGoForward}
+					onPress={this.props.submitUserDetails}
 				/>
 				{Platform.Version >= VersionCodes.KITKAT ?
 					<KeyboardSpacer /> :
