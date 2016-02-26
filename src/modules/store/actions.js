@@ -14,8 +14,14 @@ export const signIn = (provider: string, token: string): Object => ({
 });
 
 export const signUp = (user: User): Object => ({
-	auth: {
+	app: {
 		signup: user
+	}
+});
+
+export const cancelSignUp = (): Object => ({
+	app: {
+		__op__: { signup: 'delete' }
 	}
 });
 
