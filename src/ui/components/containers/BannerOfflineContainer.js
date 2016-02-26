@@ -6,7 +6,7 @@ import Dummy from '../views/Dummy';
 const BannerOfflineContainer = Connect({
 	status: {
 		key: {
-			type: 'app',
+			type: 'state',
 			path: 'connectionStatus',
 		}
 	}

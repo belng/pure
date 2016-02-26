@@ -229,7 +229,7 @@ const OnboardContainer = Connect(({ user }) => ({
 	},
 	pendingUser: {
 		key: {
-			type: 'app',
+			type: 'state',
 			path: 'signup',
 		}
 	},

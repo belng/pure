@@ -6,7 +6,7 @@ import Home from '../views/Home';
 const HomeContainer = Connect({
 	initialURL: {
 		key: {
-			type: 'app',
+			type: 'state',
 			path: 'initialURL',
 		}
 	}
