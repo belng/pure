@@ -71,3 +71,6 @@ export const APP_PRIORITIES = {
 	AUTHENTICATION_SIGNUP: 896,
 	AUTHENTICATION_SESSION_2: 895
 };
+
+export const ERRORS = {
+};

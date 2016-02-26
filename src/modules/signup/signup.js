@@ -46,9 +46,12 @@ function signuphandler(changes, next) {
 		.then((identities) => {
 			changes.auth.signup.identities = identities;
 			delete changes.auth.signup.signedIdentities;
+
+			console.log("identities:", identities);
 			return cache.getEntity(changes.auth.signup.id, (err, entity) => {
 				if (err) return next(err);
 				if (entity) return next(new Error('USER_ALREADY_EXIST'));
+				console.log('user', changes);
 
 				changes.app = (changes.app || {}).user = changes.auth.signup.id;
 				((changes.response = (changes.response || {})).app || {}).user = changes.auth.signup.id;
@@ -60,8 +63,8 @@ function signuphandler(changes, next) {
 	} else if (changes.auth && changes.auth.signin) {
 		signup = merge(changes.auth.signin, signup);
 		changes.response = changes.response || {};
-		changes.response.auth = changes.response.auth || {};
-		changes.response.auth.signup = signup;
+		changes.response.app = changes.response.app || {};
+		changes.response.app.signup = signup;
 
 		generateSignedIdentities(signup.identities).then((session) => {
 			signup.signedIdentities = session;

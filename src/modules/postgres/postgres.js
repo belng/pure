@@ -12,7 +12,6 @@ const channel = 'heyneighbor';
 
 const TYPE_SEGMENT = `case \
 when tableoid = 'notes'::regclass then 'note' \
-when tableoid = 'privrels'::regclass then 'privrel' \
 when tableoid = 'privs'::regclass then 'privs' \
 when tableoid = 'roomrels'::regclass then 'roomrels' \
 when tableoid = 'rooms'::regclass then 'room' \
@@ -87,6 +86,11 @@ cache.onChange((changes) => {
 							state.entities[i.id] = new Types[entity.type](entity);
 						});
 
+						const missingIds = r.map(item => item.id).filter(itemID => typeToEntities[i].indexOf(itemID) > -1);
+
+						missingIds.forEach(id => {
+							state.entities[id] = null;
+						});
 						bus.emit('setstate', state);
 					});
 				}
@@ -110,6 +114,7 @@ pg.listen(config.connStr, channel, (payload) => {
 bus.on('setstate', (changes, next) => {
 	const counter = new Counter();
 
+	winston.info(changes);
 	if (changes.source === 'postgres') {
 		next();
 		return;
@@ -131,11 +136,6 @@ bus.on('setstate', (changes, next) => {
 				return;
 			}
 
-			results.map((row) => {
-				for (const col in row) {
-					row[col] = new Types[col](row[col]);
-				}
-			});
 			winston.info('PgWrite Results', results[0].rows);
 			results.forEach((result) => broadcast(result.rows[0]));
 			counter.dec();

@@ -1,4 +1,4 @@
-import pg from '../../lib/pg';
+import * as pg from '../../lib/pg';
 import { TABLES, COLUMNS, TYPES } from '../../lib/schema';
 import * as Constants from '../../lib/Constants';
 import jsonop from 'jsonop';
@@ -11,13 +11,15 @@ export default function (entity) {
 
 	const ops = jsonop(defaultOps, entity.__op__ || {});
 
-	if (entity.type === Constants.TYPE_ROOM) {
+	if (TYPES[entity.type] === Constants.TYPE_ROOM) {
 		names.push('terms');
 	}
 
+	names.splice(names.indexOf('type'), 1);
+
 	if (entity.createTime) { // INSERT
 		return pg.cat([
-			'INSERT INTO "' + TABLES[TYPES[entity.type]] + '" (',
+			`INSERT INTO "${TABLES[TYPES[entity.type]]}" (`,
 			'"' + names.map(name => name.toLowerCase()).join('", "') + '"',
 			') VALUES (',
 			pg.cat(names.map(name => {
@@ -36,11 +38,14 @@ export default function (entity) {
 					};
 				}
 			}), ', '),
-			') RETURNING *'
+			{
+				$: ') RETURNING *, &{type}::text as "type"',
+				type: entity.type
+			}
 		], ' ');
 	} else { // UPDATE
 		return pg.cat([
-			'UPDATE "' + TABLES[entity.type] + '" SET',
+			'UPDATE "' + TABLES[TYPES[entity.type]] + '" SET',
 			pg.cat(names.map(name => {
 				switch (name) {
 				case 'id':
@@ -92,7 +97,10 @@ export default function (entity) {
 				event: entity.item,
 				group: entity.group
 			} : 'FALSE',
-			'RETURNING *'
+			{
+				$: 'RETURNING *, &{type}::text as "type"',
+				type: entity.type
+			}
 		], ' ');
 	}
 }
