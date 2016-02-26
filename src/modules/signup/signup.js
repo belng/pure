@@ -75,5 +75,5 @@ function signuphandler(changes, next) {
 	}
 }
 
-bus.on('setstate', signuphandler, Constants.APP_PRIORITIES.AUTHENTICATION_SIGNUP);
+bus.on('change', signuphandler, Constants.APP_PRIORITIES.AUTHENTICATION_SIGNUP);
 winston.info('signup module ready...');

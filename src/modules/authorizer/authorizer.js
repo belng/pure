@@ -24,7 +24,7 @@ function authorizeEntity(entity, resource) {
 	return promise;
 }
 
-bus.on('setstate', (changes, next) => {
+bus.on('change', (changes, next) => {
 	const promises = [];
 
 	if (!changes.entities) return next();

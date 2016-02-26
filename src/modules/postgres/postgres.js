@@ -36,7 +36,7 @@ cache.onChange((changes) => {
 			winston.error(err);
 			return;
 		}
-		bus.emit('setstate', {
+		bus.emit('change', {
 			knowledge: { [key]: [ range ] },
 			indexes: { [key]: results },
 			source: 'postgres'
@@ -91,7 +91,7 @@ cache.onChange((changes) => {
 						missingIds.forEach(id => {
 							state.entities[id] = null;
 						});
-						bus.emit('setstate', state);
+						bus.emit('change', state);
 					});
 				}
 			} else {
@@ -108,10 +108,10 @@ cache.onChange((changes) => {
 });
 
 pg.listen(config.connStr, channel, (payload) => {
-	bus.emit('statechange', payload);
+	bus.emit('postchange', payload);
 });
 
-bus.on('setstate', (changes, next) => {
+bus.on('change', (changes, next) => {
 	const counter = new Counter();
 
 	winston.info(changes);

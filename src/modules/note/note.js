@@ -5,7 +5,7 @@ import Counter from '../../lib/counter';
 import Note from '../../models/note';
 import { Constants, bus, cache } from '../../core-server';
 
-bus.on('setstate', (changes, next) => {
+bus.on('change', (changes, next) => {
 	if (!changes.entities) return next();
 	let counter = new Counter(), note;
 

@@ -7,7 +7,7 @@ window.cache = cache;
 
 
 window.fbLogin = function (prop, accessToken) {
-	bus.emit('setstate', {
+	bus.emit('change', {
 		auth: {
 			facebook: {
 				[prop]: accessToken
@@ -17,7 +17,7 @@ window.fbLogin = function (prop, accessToken) {
 };
 
 window.googleLogin = function (prop, accessToken) {
-	bus.emit('setstate', {
+	bus.emit('change', {
 		auth: {
 			google: {
 				[prop]: accessToken
@@ -27,7 +27,7 @@ window.googleLogin = function (prop, accessToken) {
 };
 
 window.jwsLogin = function (sessionID) {
-	bus.emit('setstate', {
+	bus.emit('change', {
 		auth: {
 			session: sessionID
 		}

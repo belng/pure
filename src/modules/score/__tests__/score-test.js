@@ -10,7 +10,7 @@ describe('add score to thread', () => {
 	it('should add score on thread update', () => {
 		console.log('Constants');
 
-		bus.emit('setstate', {
+		bus.emit('change', {
 			entities: {
 				'df8s-rbf43-sdfbhj34-dnf3': {
 					id: 'df8s-rbf43-sdfbhj34-dnf3',

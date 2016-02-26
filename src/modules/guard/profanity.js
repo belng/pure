@@ -20,7 +20,7 @@ function check (text, re) {
 }
 
 module.exports = (core) => {
-	core.on('setstate', (changes, next) => {
+	core.on('change', (changes, next) => {
 		if (changes.entities) { for (let entity of changes.entities) {
 			let text = [
 					(entity.id || ''),

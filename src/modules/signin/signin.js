@@ -70,5 +70,5 @@ function signinhandler(changes, next) {
 	return null;
 }
 
-bus.on('setstate', signinhandler, Constants.APP_PRIORITIES.AUTHENTICATION_SIGNIN);
+bus.on('change', signinhandler, Constants.APP_PRIORITIES.AUTHENTICATION_SIGNIN);
 winston.info('signin module ready...');

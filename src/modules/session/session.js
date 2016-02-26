@@ -57,8 +57,8 @@ function sessionHandler(changes, next) {
 	}
 }
 
-bus.on('setstate', sessionHandler, Constants.APP_PRIORITIES.AUTHENTICATION_SESSION);
-bus.on('setstate', (changes, next) => {
+bus.on('change', sessionHandler, Constants.APP_PRIORITIES.AUTHENTICATION_SESSION);
+bus.on('change', (changes, next) => {
 	winston.debug('setstate: session module listener 2');
 	if (changes.response && changes.response.app && changes.response.app.user) {
 		winston.info('setstate: session module listener 2', changes.response.app.user);

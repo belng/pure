@@ -9,7 +9,7 @@ core.config = { connStr: 'pg://aravind@localhost/aravind' };
 
 require('../postgres');
 
-core.bus.emit('setstate', { entities: {
+core.bus.emit('change', { entities: {
 	'a807d644-eb87-43a5-ab2d-3f630c222975': {
 		id: 'a807d644-eb87-43a5-ab2d-3f630c222975',
 		type: Constants.TYPE_ROOM,

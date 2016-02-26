@@ -4,7 +4,7 @@ import { Constants, bus, cache } from '../../core-server';
 import Counter from '../../lib/counter';
 import Relation from '../../models/rel';
 
-bus.on('setstate', (changes, next) => {
+bus.on('change', (changes, next) => {
 	if (!changes.entities) return next();
 	let counter = new Counter();
 	for (let id in changes.entities) {

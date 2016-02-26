@@ -73,12 +73,12 @@ bus.on('http/init', app => {
 				}
 			}
 
-			bus.emit('setstate', message, handleSetState);
+			bus.emit('change', message, handleSetState);
 		});
 	});
 });
 
-bus.on('statechange', changes => {
+bus.on('postchange', changes => {
 	notify(changes, core, {}).on('data', (change, rel) => {
 		Object.keys(rel.resources).forEach(e => {
 			if (!sockets[e]) return;

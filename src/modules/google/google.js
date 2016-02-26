@@ -161,7 +161,7 @@ function googleAuth(changes, next) {
 	}).catch(error => next(error));
 }
 
-bus.on('setstate', googleAuth, Constants.APP_PRIORITIES.AUTHENTICATION_GOOGLE);
+bus.on('change', googleAuth, Constants.APP_PRIORITIES.AUTHENTICATION_GOOGLE);
 
 const scriptTemplate = handlebars.compile(fs.readFileSync(path.join(__dirname, '../../../templates/script.hbs'), 'utf8').toString());
 

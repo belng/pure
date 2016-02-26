@@ -159,7 +159,7 @@ function fbAuth(changes, next) {
 	});
 }
 
-bus.on('setstate', fbAuth, Constants.APP_PRIORITIES.AUTHENTICATION_FACEBOOK);
+bus.on('change', fbAuth, Constants.APP_PRIORITIES.AUTHENTICATION_FACEBOOK);
 
 const scriptTemplate = handlebars.compile(fs.readFileSync(path.join(__dirname, '../../../templates/script.hbs'), 'utf8').toString());
 

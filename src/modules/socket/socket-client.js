@@ -21,7 +21,7 @@ function disconnected() {
 	if (backOff < 256) backOff *= 2;
 	else backOff = 256;
 
-	bus.emit('setstate', {
+	bus.emit('change', {
 		app: { connectionStatus: 'offline', backOff }
 	});
 	setTimeout(connect, backOff * 1000);
@@ -32,7 +32,7 @@ function onMessage(message) {
 
 	console.log(stateChange);
 	stateChange.source = 'server';
-	bus.emit('setstate', stateChange);
+	bus.emit('change', stateChange);
 }
 
 function connect() {
@@ -44,7 +44,7 @@ function connect() {
 
 	client.on('open', () => {
 		backOff = 1;
-		bus.emit('setstate', {
+		bus.emit('change', {
 			app: { connectionStatus: 'online', backOff }
 		});
 	});
@@ -52,7 +52,7 @@ function connect() {
 	client.on('message', onMessage);
 }
 
-bus.on('setstate', (state) => {
+bus.on('change', (state) => {
 	if (state.source === 'server') return;
 	client.send(packer.encode(state));
 }, 1);

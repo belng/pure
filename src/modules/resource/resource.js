@@ -25,4 +25,4 @@ function resourceHandler(changes, next) {
 	}
 }
 
-bus.on('setstate', resourceHandler, 'authentication');
+bus.on('change', resourceHandler, 'authentication');

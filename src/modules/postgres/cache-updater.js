@@ -1,6 +1,6 @@
 
 import { bus, cache } from '../../core-server';
 
-bus.on('setstate', (changes) => {
+bus.on('change', (changes) => {
 	cache.put(changes);
 });
