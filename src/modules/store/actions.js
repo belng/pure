@@ -5,10 +5,10 @@ import type { User } from '../../lib/schemaTypes';
 /*
  * User related actions
  */
-export const signIn = (gateway: string, accessToken: string): Object => ({
+export const signIn = (provider: string, token: string): Object => ({
 	auth: {
-		[gateway]: {
-			token: accessToken
+		[provider]: {
+			token
 		}
 	}
 });

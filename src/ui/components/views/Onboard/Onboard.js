@@ -7,7 +7,7 @@ import LocationDetails from './LocationDetails';
 import GetStarted from './GetStarted';
 import HomeContainer from '../../containers/HomeContainer';
 
-const Onboard = (props: { page: string }) => {
+const Onboard = (props: Object) => {
 	switch (props.page) {
 	case 'PAGE_SIGN_IN':
 		return <SignIn {...props} />;

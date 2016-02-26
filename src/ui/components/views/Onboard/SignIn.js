@@ -1,6 +1,7 @@
+/* @flow */
 
-
-import React from 'react-native';
+import React, { Component } from 'react';
+import ReactNative from 'react-native';
 import AppText from '../AppText';
 import LargeButton from './LargeButton';
 import GoogleLogin from '../../../modules/GoogleLogin';
@@ -11,7 +12,7 @@ const {
 	StyleSheet,
 	View,
 	Image
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -71,23 +72,23 @@ const PROVIDER_FACEBOOK = 'facebook';
 const PERMISSION_PUBLIC_PROFILE = 'public_profile';
 const PERMISSION_EMAIL = 'email';
 
+type Props = {
+	signIn: (provider: string, token: string) => void
+}
+
 type State = {
 	googleLoading: boolean;
 	facebookLoading: boolean;
 }
 
-export default class SignIn extends React.Component {
+export default class SignIn extends Component<void, Props, State> {
 	state: State = {
 		googleLoading: false,
 		facebookLoading: false
 	};
 
-	_onSignInSuccess = async (provider: string, token: string) => {
-		try {
-			await this.props.signIn({ provider, token });
-		} catch (e) {
-			this._onSignInFailure(provider);
-		}
+	_onSignInSuccess = (provider: string, token: string) => {
+		this.props.signIn(provider, token);
 	};
 
 	_onSignInFailure = (provider: string) => {
@@ -107,15 +108,26 @@ export default class SignIn extends React.Component {
 
 	_signInWithFacebook = async (): Promise => {
 		try {
-			const result = await Facebook.logInWithReadPermissions([ PERMISSION_PUBLIC_PROFILE, PERMISSION_EMAIL ]);
+			const result = await Facebook.logInWithReadPermissions([
+				PERMISSION_PUBLIC_PROFILE, PERMISSION_EMAIL
+			]);
 
 			const {
 				permissions_granted,
 				token
 			} = result;
 
-			if (permissions_granted.length && permissions_granted.indexOf(PERMISSION_PUBLIC_PROFILE) > -1 && permissions_granted.indexOf(PERMISSION_EMAIL) > -1) {
-				this._onSignInSuccess(PROVIDER_FACEBOOK, token);
+			if (
+				permissions_granted.length &&
+				permissions_granted.indexOf(PERMISSION_PUBLIC_PROFILE) > -1 &&
+				permissions_granted.indexOf(PERMISSION_EMAIL) > -1
+			) {
+
+				if (token) {
+					this._onSignInSuccess(PROVIDER_FACEBOOK, token);
+				} else {
+					this._onSignInFailure(PROVIDER_FACEBOOK);
+				}
 			} else {
 				this._onSignInFailure(PROVIDER_FACEBOOK);
 			}
@@ -128,27 +140,31 @@ export default class SignIn extends React.Component {
 		try {
 			const result = await GoogleLogin.logIn();
 
-			this._onSignInSuccess(PROVIDER_GOOGLE, result.token);
+			if (result.token) {
+				this._onSignInSuccess(PROVIDER_GOOGLE, result.token);
+			} else {
+				this._onSignInFailure(PROVIDER_GOOGLE);
+			}
 		} catch (e) {
 			this._onSignInFailure(PROVIDER_GOOGLE);
 		}
 	};
 
-	_handleFacebookPress = () => {
+	_handleFacebookPress = (): void => global.requestAnimationFrame(() => {
 		this.setState({
 			facebookLoading: true
 		});
 
-		global.requestAnimationFrame(() => this._signInWithFacebook());
-	};
+		this._signInWithFacebook();
+	});
 
-	_handleGooglePress = () => {
+	_handleGooglePress = (): void => global.requestAnimationFrame(() => {
 		this.setState({
 			googleLoading: true
 		});
 
-		global.requestAnimationFrame(() => this._signInWithGoogle());
-	};
+		this._signInWithGoogle();
+	});
 
 	render() {
 		return (
