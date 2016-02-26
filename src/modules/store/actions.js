@@ -13,6 +13,12 @@ export const signIn = (gateway: string, accessToken: string): Object => ({
 	}
 });
 
+export const signUp = (user: User): Object => ({
+	auth: {
+		signup: user
+	}
+});
+
 export const signOut = (): Object => ({
 
 });
