@@ -86,6 +86,14 @@ function verifyToken(token, appId) {
 function getDataFromToken(token) {
 	const signin = {};
 
+	bus.emit('setstate', {queries: {
+		entities: {
+			harish: true,
+			'aubrey-hilll': true,
+			harish_scrollback_threadid: true,
+			'1e952eeb-e157-40c2-87d9-7e0149d64145': true
+		}
+	}});
 	return new Promise((resolve, reject) => {
 		request(encodeURITemplate `https://graph.facebook.com/me/?access_token=${token}`, (err, res, body) => {
 			try {

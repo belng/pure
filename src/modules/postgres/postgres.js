@@ -9,6 +9,23 @@ import * as Types from './../../models/models';
 import './cache-updater';
 const channel = 'heyneighbor';
 
+
+const TYPE_SEGMENT = `case \
+when tableoid = 'notes'::regclass then 'note' \
+when tableoid = 'privrels'::regclass then 'privrel' \
+when tableoid = 'privs'::regclass then 'privs' \
+when tableoid = 'roomrels'::regclass then 'roomrels' \
+when tableoid = 'rooms'::regclass then 'room' \
+when tableoid = 'textrels'::regclass then 'textrel' \
+when tableoid = 'texts'::regclass then 'text' \
+when tableoid = 'threadrels'::regclass then 'threadrel' \
+when tableoid = 'threads'::regclass then 'thread' \
+when tableoid = 'topicrels'::regclass then 'topicrel' \
+when tableoid = 'topics'::regclass then 'topic' \
+when tableoid = 'userrels'::regclass then 'userrel' \
+when tableoid = 'users'::regclass then 'user' \
+end as type`;
+
 function broadcast (entity) {
 	pg.notify(config.connStr, channel, entity);
 }
@@ -39,12 +56,12 @@ cache.onChange((changes) => {
 					};
 
 				ids.forEach((id) => {
-					const _split = id.split('_'), split = id.split('-');
+					const _split = id.split('_');
 					let type;
 
 					if (_split.length === 2) type = 'note';
 					else if (_split.length === 1) type = 'rel';
-					else if (split.length !== 0) type = 'item';
+					else if (id.length >= 36) type = 'item';
 					else type = 'user';
 
 					typeToEntities[type].push(id);
@@ -54,7 +71,7 @@ cache.onChange((changes) => {
 					if (!typeToEntities[i].length) continue;
 
 					pg.read(config.connStr, {
-						$: 'select *, &{type} as "' + i + '" from "' + i + '" where id in (&(ids))',
+						$: `select *, ${TYPE_SEGMENT} from &{type} where id in (&(ids))`,
 						ids: typeToEntities[i],
 						type: i
 					}, (err, r) => {
