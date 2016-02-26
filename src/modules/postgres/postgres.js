@@ -29,34 +29,52 @@ cache.onChange((changes) => {
 
 	if (changes.queries) {
 		for (const key in changes.queries) {
-
-			/*
-				FIXME: add a way to query for items.
-				TODO: this is temp thing. only entities that are users are serverd right now.h
-			 */
 			if (key === 'entities') {
-				const ids = Object.keys(changes.queries.entities);
-
-				pg.read(config.connStr, {
-					$: 'select *, \'user\' as "type" from users where id in (&(ids))',
-					ids
-				}, (err, r) => {
-					if (err) {
-						winston.error(err.message);
-						return;
-					}
-
-					const state = {
-						entities: {},
-						source: 'postgres'
+				const ids = Object.keys(changes.queries.entities),
+					typeToEntities = {
+						note: [],
+						item: [],
+						rel: [],
+						user: []
 					};
 
-					r.map((i) => {
-						state.entities[i.id] = new Types[i.type](i);
-					});
+				ids.forEach((id) => {
+					const _split = id.split('_'), split = id.split('-');
+					let type;
 
-					bus.emit('setstate', state);
+					if (_split.length === 2) type = 'note';
+					else if (_split.length === 1) type = 'rel';
+					else if (split.length !== 0) type = 'item';
+					else type = 'user';
+
+					typeToEntities[type].push(id);
 				});
+
+				for (const i in typeToEntities) {
+					if (!typeToEntities[i].length) continue;
+
+					pg.read(config.connStr, {
+						$: 'select *, &{type} as "' + i + '" from "' + i + '" where id in (&(ids))',
+						ids: typeToEntities[i],
+						type: i
+					}, (err, r) => {
+						if (err) {
+							winston.error(err.message);
+							return;
+						}
+
+						const state = {
+							entities: {},
+							source: 'postgres'
+						};
+
+						r.map((entity) => {
+							state.entities[i.id] = new Types[entity.type](entity);
+						});
+
+						bus.emit('setstate', state);
+					});
+				}
 			} else {
 				for (const range of changes.queries[key]) {
 					pg.read(

@@ -95,24 +95,4 @@ export default function (entity) {
 			'RETURNING *'
 		], ' ');
 	}
-
-/*
-	return pg.cat([
-		'INSERT INTO "' + TABLES[entity.type] + '" (',
-		'"' + names.join('", "') + '"',
-		') VALUES (',
-		pg.cat(names.map(name => {
-			switch (name) {
-			case 'terms':
-				return {
-					$: "to_tsvector(&{locale}, &{name} || ' ' || &{body})",
-					locale: 'english',
-					name: entity.name,
-					body: entity.body
-				};
-			}
-		}), ', '),
-		') ON CONFLICT DO UPDATE SET',
-		'RETURNING *'
-	]);*/
 }
