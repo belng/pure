@@ -1,10 +1,31 @@
 /* @flow */
 
-import React from 'react-native';
-import SignUpContainer from '../../containers/SignUpContainer';
+import React, { PropTypes } from 'react';
+import SignIn from './SignIn';
+import UserDetails from './UserDetails';
+import LocationDetails from './LocationDetails';
+import GetStarted from './GetStarted';
+import HomeContainer from '../../containers/HomeContainer';
 
-export default class Onboard extends React.Component {
-	render() {
-		return <SignUpContainer {...this.props} />;
+const Onboard = (props: { page: string }) => {
+	switch (props.page) {
+	case 'PAGE_SIGN_IN':
+		return <SignIn {...props} />;
+	case 'PAGE_USER_DETAILS':
+		return <UserDetails {...props} />;
+	case 'PAGE_PLACES':
+		return <LocationDetails {...props} />;
+	case 'PAGE_GET_STARTED':
+		return <GetStarted {...props} />;
+	case 'PAGE_HOME':
+		return <HomeContainer {...props} />;
+	default:
+		return null;
 	}
-}
+};
+
+Onboard.propTypes = {
+	page: PropTypes.string
+};
+
+export default Onboard;

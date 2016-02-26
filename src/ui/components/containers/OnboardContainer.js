@@ -3,7 +3,7 @@
 import React, { PropTypes, Component } from 'react';
 import isEmpty from 'lodash/isEmpty';
 import Connect from '../../../modules/store/Connect';
-import SignUp from '../views/Onboard/SignUp';
+import Onboard from '../views/Onboard/Onboard';
 import EnhancedError from '../../../lib/EnhancedError';
 import Validator from '../../../lib/Validator';
 import { signUp, saveUser } from '../../../modules/store/actions';
@@ -18,29 +18,83 @@ type Props = {
 
 type Fields = {
 	[key: string]: {
-		page: number;
+		page: string;
 		value: any;
 		error: ?EnhancedError
 	};
 }
 
 type State = {
-	fields: Fields
+	fields: Fields;
+	page: string;
+	onboarding: boolean;
 }
 
-const PAGE_USER_DETAILS = 1;
-const PAGE_PLACES = 2;
+const PAGE_LOADING = 'PAGE_LOADING';
+const PAGE_SIGN_IN = 'PAGE_SIGN_IN';
+const PAGE_USER_DETAILS = 'PAGE_USER_DETAILS';
+const PAGE_PLACES = 'PAGE_PLACES';
+const PAGE_GET_STARTED = 'PAGE_GET_STARTED';
+const PAGE_HOME = 'PAGE_HOME';
 
-class SignUpContainerInner extends Component<void, Props, State> {
+class OnboardContainerInner extends Component<void, Props, State> {
 	state: State = {
 		fields: {
 			nick: { page: PAGE_USER_DETAILS, value: '', error: null },
 			name: { page: PAGE_USER_DETAILS, value: '', error: null },
 			places: { page: PAGE_PLACES, value: [], error: null },
+		},
+		page: PAGE_LOADING,
+		onboarding: false,
+	};
+
+	componentWillMount() {
+		this._setCurrentPage(this.props);
+	}
+
+	componentWillReceiveProps(nextProps) {
+		this._setCurrentPage(nextProps);
+	}
+
+	_setCurrentPage = (props: Props) => {
+		const {
+			user,
+			pendingUser
+		} = props;
+
+		if (pendingUser) {
+			// Signing up
+			this.setState({
+				page: PAGE_USER_DETAILS,
+				onboarding: true,
+			});
+		} else {
+			if (user) {
+				if (user.params && user.params.places) {
+					if (this.state.onboarding) {
+						this.setState({
+							page: PAGE_HOME
+						});
+					} else {
+						this.setState({
+							page: PAGE_GET_STARTED
+						});
+					}
+				} else {
+					this.setState({
+						page: PAGE_PLACES,
+						onboarding: true,
+					});
+				}
+			} else {
+				this.setState({
+					page: PAGE_SIGN_IN
+				});
+			}
 		}
 	};
 
-	_hasErrors = (fields: Fields, page: number): boolean => {
+	_hasErrors = (fields: Fields, page: string): boolean => {
 		for (const field in fields) {
 			const item = fields[field];
 
@@ -98,7 +152,7 @@ class SignUpContainerInner extends Component<void, Props, State> {
 		});
 	};
 
-	_saveData = (fields: Fields, page: number) => {
+	_saveData = (fields: Fields, page: string) => {
 		if (this._hasErrors(fields, page)) {
 			return;
 		}
@@ -110,10 +164,15 @@ class SignUpContainerInner extends Component<void, Props, State> {
 		case PAGE_PLACES:
 			this.props.savePlaces(fields.places);
 			break;
+		case PAGE_GET_STARTED:
+			this.setState({
+				onboarding: false
+			});
+			break;
 		}
 	};
 
-	_submitPage = (page: number): void => {
+	_submitPage = (page: string): void => {
 		const fields = this._ensureAllFields(this._validateFields({ ...this.state.fields }));
 
 		this.setState({
@@ -127,9 +186,10 @@ class SignUpContainerInner extends Component<void, Props, State> {
 
 	render() {
 		return (
-			<SignUp
+			<Onboard
 				{...this.props}
 				{...this.state}
+				canGoForward={this._hasErrors(this.state.fields, this.state.page)}
 				submitUserDetails={this._submitUserDetails}
 				submitPlaceDetails={this._submitPlaceDetails}
 				onChangeField={this._onChangeField}
@@ -138,7 +198,7 @@ class SignUpContainerInner extends Component<void, Props, State> {
 	}
 }
 
-SignUpContainerInner.propTypes = {
+OnboardContainerInner.propTypes = {
 	user: PropTypes.shape({
 		id: PropTypes.string
 	}).isRequired,
@@ -149,7 +209,7 @@ SignUpContainerInner.propTypes = {
 	savePlaces: PropTypes.func.isRequired
 };
 
-const SignUpContainer = Connect(({ user }) => ({
+const OnboardContainer = Connect(({ user }) => ({
 	user: {
 		key: {
 			slice: {
@@ -179,10 +239,10 @@ const SignUpContainer = Connect(({ user }) => ({
 			}
 		}));
 	},
-})(SignUpContainerInner);
+})(OnboardContainerInner);
 
-SignUpContainer.propTypes = {
+OnboardContainer.propTypes = {
 	user: PropTypes.string.isRequired
 };
 
-export default SignUpContainer;
+export default OnboardContainer;
