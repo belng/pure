@@ -1,21 +1,23 @@
 import pg from '../../lib/pg';
-import { TABLES, COLUMNS } from '../../lib/schema';
+import { TABLES, COLUMNS, TYPES } from '../../lib/schema';
+import * as Constants from '../../lib/Constants';
 import jsonop from 'jsonop';
 import defaultOps from './../../lib/defaultOps';
 
-module.exports = function (entity) {
+export default function (entity) {
 	const names = Object.keys(entity).filter(
-		name => COLUMNS[entity.type].indexOf(name) >= 0
+		name => COLUMNS[TYPES[entity.type]].indexOf(name) >= 0
 	);
 
 	const ops = jsonop(defaultOps, entity.__op__ || {});
-	if (entity.type === constants.TYPE_ROOM) {
+
+	if (entity.type === Constants.TYPE_ROOM) {
 		names.push('terms');
 	}
 
 	if (entity.createTime) { // INSERT
 		return pg.cat([
-			'INSERT INTO "' + TABLES[entity.type] + '" (',
+			'INSERT INTO "' + TABLES[TYPES[entity.type]] + '" (',
 			'"' + names.map(name => name.toLowerCase()).join('", "') + '"',
 			') VALUES (',
 			pg.cat(names.map(name => {
@@ -93,23 +95,4 @@ module.exports = function (entity) {
 			'RETURNING *'
 		], ' ');
 	}
-
-	return pg.cat([
-		'INSERT INTO "' + TABLES[entity.type] + '" (',
-		'"' + names.join('", "') + '"',
-		') VALUES (',
-		pg.cat(names.map(name => {
-			switch (name) {
-			case 'terms':
-				return {
-					$: "to_tsvector(&{locale}, &{name} || ' ' || &{body})",
-					locale: 'english',
-					name: entity.name,
-					body: entity.body
-				};
-			}
-		}), ', '),
-		') ON CONFLICT DO UPDATE SET',
-		'RETURNING *'
-	]);
-};
+}

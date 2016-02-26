@@ -19,13 +19,22 @@ function getEntityByIdentity(identities, callback) {
 }
 // sign with default (HMAC SHA256)
 function signinhandler(changes, next) {
-	winston.debug('setstate: sign-in module');
+	winston.debug('setstate/signin:', changes);
 	if (changes.auth && changes.auth.signin) {
+		winston.debug('setstate: sign-in module', changes.auth.signin);
 		if (changes.auth.signin.id) {
+			winston.debug('setstate: sign-in module: trying to signin using id', changes.auth.signin.id);
 			cache.getEntity(changes.auth.signin.id, (err, entity) => {
-				if (err) return next(err);
-				if (!entity) return next(new Error('INVALID_USERID'));
-				changes.app = (changes.app || {}).user = entity.id;
+				if (err) {
+					winston.error('setstate: sign-in module:', err.message);
+					return next(err);
+				}
+				if (!entity) {
+					winston.error('setstate: sign-in module: INVALID_USERID');
+					return next(new Error('INVALID_USERID'));
+				}
+				winston.info('setstate: sign-in module: found user');
+				(changes.app = changes.app || {}).user = entity.id;
 				((changes.response = (changes.response || {})).app || {}).user = entity.id;
 				(changes.response.entities = changes.response.entities || {})[entity.id] = entity;
 				delete changes.auth.signin;
@@ -34,8 +43,7 @@ function signinhandler(changes, next) {
 		} else if (changes.auth.signin.identities.length) {
 			getEntityByIdentity(changes.auth.signin.identities, (err, entities) => {
 				if (err) {
-					next(err);
-					return;
+					return next(err);
 				}
 
 				if (entities && entities.length) {
@@ -47,16 +55,19 @@ function signinhandler(changes, next) {
 					(changes.response.entities = changes.response.entities || {})[entity.id] = entity;
 					delete changes.auth.signin;
 				} else {
-					(changes.response.app = (changes.response = (changes.response || {})).app || {}).user = null;
+					changes.response = (changes.response || {});
+					(changes.response.app = (changes.response.app || {})).user = null;
 				}
-				next();
-				return;
+
+				return next();
 			});
 		}
 	} else {
-		next();
-		return;
+		return next();
 	}
+
+
+	return null;
 }
 
 bus.on('setstate', signinhandler, Constants.APP_PRIORITIES.AUTHENTICATION_SIGNIN);

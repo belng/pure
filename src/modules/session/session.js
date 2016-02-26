@@ -44,7 +44,9 @@ function sessionHandler(changes, next) {
 	if (changes.auth && changes.auth.session) {
 		getIDFromSession(changes.auth.session)
 		.then((sub) => {
+			winston.debug('signing in as ', sub);
 			changes.auth.user = sub;
+			changes.auth.signin = signin;
 			signin.id = sub;
 			signin.params = {};
 			next();
@@ -65,6 +67,8 @@ bus.on('setstate', (changes, next) => {
 			changes.response.app.session =	session;
 			next();
 		});
+	} else {
+		next();
 	}
 }, Constants.APP_PRIORITIES.AUTHENTICATION_SESSION_2);
 

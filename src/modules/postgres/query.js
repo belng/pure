@@ -45,9 +45,9 @@ function fromPart (slice) {
 	return pg.cat([ 'SELECT ', pg.cat(fields, ','), 'FROM', pg.cat(joins, ' ') ], ' ');
 }
 
-function wherePart (filter) {
+function wherePart (f) {
 	const sql = [];
-	let name;
+	let filter = f, name;
 
 	for (const prop in filter) {
 		if ((name = propOp(prop, 'Gt'))) {
@@ -95,11 +95,10 @@ function simpleQuery(slice, limit) {
 }
 
 function boundQuery (slice, start, end) {
-	let query;
-
 	slice.filter[slice.order + 'Gte'] = start;
 	slice.filter[slice.order + 'Lte'] = end;
-	query = simpleQuery(slice, MAX_LIMIT);
+	const query = simpleQuery(slice, MAX_LIMIT);
+
 	delete slice.filter[slice.order + 'Gte'];
 	delete slice.filter[slice.order + 'Lte'];
 
@@ -107,17 +106,16 @@ function boundQuery (slice, start, end) {
 }
 
 function beforeQuery (slice, start, before, exclude) {
-	let query;
-
 	slice.filter[slice.order + (exclude ? 'Lt' : 'Lte')] = start;
-	query = simpleQuery(slice, Math.max(-MAX_LIMIT, -before));
+	const query = simpleQuery(slice, Math.max(-MAX_LIMIT, -before));
+
 	delete slice.filter[slice.order + (exclude ? 'Lt' : 'Lte')];
 
 	return pg.cat([
 		'SELECT * FROM (',
 		query,
 		{
-			$: `) r ORDER BY "&{type}"->'&{order}' ASC`,
+			$: ') r ORDER BY "&{type}"->\'&{order}\' ASC',
 			type: slice.type,
 			order: slice.order
 		}
@@ -126,33 +124,36 @@ function beforeQuery (slice, start, before, exclude) {
 }
 
 function afterQuery (slice, start, after, exclude) {
-	let query;
-
 	slice.filter[slice.order + (exclude ? 'Gt' : 'Gte')] = start;
-	query = simpleQuery(slice, Math.min(MAX_LIMIT, after));
+	const query = simpleQuery(slice, Math.min(MAX_LIMIT, after));
+
 	delete slice.filter[slice.order + (exclude ? 'Gt' : 'Gte')];
 
 	return query;
 }
 
-module.exports = function (slice, range) {
+export default function (slice, range) {
+	let query;
+
 	if (slice.order) {
 		if (range.length === 2) {
-			return boundQuery(slice, range[0], range[1]);
+			query = boundQuery(slice, range[0], range[1]);
 		} else {
 			if (range[1] > 0 && range[2] > 0) {
-				return pg.cat([
+				query = pg.cat([
 					beforeQuery(slice, range[0], range[1], true),
 					'UNION ALL',
 					afterQuery(slice, range[0], range[2])
 				], ' ');
 			} else if (range[1] > 0) {
-				return beforeQuery(slice, range[0], range[1]);
+				query = beforeQuery(slice, range[0], range[1]);
 			} else if (range[2] > 0) {
-				return afterQuery(slice, range[0], range[2]);
+				query = afterQuery(slice, range[0], range[2]);
 			}
 		}
 	} else {
-		return simpleQuery(slice, MAX_LIMIT);
+		query = simpleQuery(slice, MAX_LIMIT);
 	}
-};
+
+	return query;
+}

@@ -53,14 +53,16 @@ function signuphandler(changes, next) {
 				changes.app = (changes.app || {}).user = changes.auth.signup.id;
 				((changes.response = (changes.response || {})).app || {}).user = changes.auth.signup.id;
 				(changes.entities = changes.entities || {})[changes.auth.signup.id] = changes.auth.signup;
-				delete changes.auth.signup;
 				return next();
 			});
 		})
 		.catch(next);
 	} else if (changes.auth && changes.auth.signin) {
-		if (!changes.auth.signin) changes.auth.signin = {};
 		signup = merge(changes.auth.signin, signup);
+		changes.response = changes.response || {};
+		changes.response.auth = changes.response.auth || {};
+		changes.response.auth.signup = signup;
+
 		generateSignedIdentities(signup.identities).then((session) => {
 			signup.signedIdentities = session;
 			next();
