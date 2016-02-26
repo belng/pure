@@ -106,10 +106,10 @@ function getDataFromToken(token) {
 					facebook: {
 						facebookID: user.id,
 						accessToken: token,
-						name: user.first_name + user.middle_name + user.last_name,
+						name: `${user.first_name}${user.middle_name ? ' ' + user.middle_name : ''}${' ' + user.last_name || ''}`.trim(),
 						timezone: user.timezone,
 						verified: true,
-						picture: encodeURITemplate `https://graph.facebook.com/${user.id}/picture?type=square`
+						picture: encodeURITemplate `https://graph.facebook.com/${user.id}/picture?type=square&height=192&width=192`
 					}
 				};
 				resolve(signin);

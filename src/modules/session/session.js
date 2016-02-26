@@ -60,11 +60,11 @@ function sessionHandler(changes, next) {
 bus.on('change', sessionHandler, Constants.APP_PRIORITIES.AUTHENTICATION_SESSION);
 bus.on('change', (changes, next) => {
 	winston.debug('setstate: session module listener 2');
-	if (changes.response && changes.response.app && changes.response.app.user) {
-		winston.info('setstate: session module listener 2', changes.response.app.user);
-		generateSession(changes.response.app.user).then((session) => {
+	if (changes.response && changes.response.state && changes.response.state.user) {
+		winston.info('setstate: session module listener 2', changes.response.state.user);
+		generateSession(changes.response.state.user).then((session) => {
 			winston.debug('setstate: session module listener 2', session);
-			changes.response.app.session =	session;
+			changes.response.state.session =	session;
 			next();
 		});
 	} else {

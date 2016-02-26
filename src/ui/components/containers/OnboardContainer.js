@@ -11,7 +11,13 @@ import type { User } from '../../../lib/schemaTypes';
 
 type Props = {
 	user: User;
-	pendingUser: { signedIdentities: string };
+	pendingUser: {
+		signedIdentities: string;
+		params: {
+			picture: ?string;
+			name?: string
+		}
+	};
 	signIn: Function;
 	signUp: Function;
 	cancelSignUp: Function;
@@ -20,7 +26,6 @@ type Props = {
 
 type Fields = {
 	[key: string]: {
-		page: string;
 		value: any;
 		error: ?EnhancedError
 	};
@@ -44,6 +49,7 @@ class OnboardContainerInner extends Component<void, Props, State> {
 		fields: {
 			nick: { page: PAGE_USER_DETAILS, value: '', error: null },
 			name: { page: PAGE_USER_DETAILS, value: '', error: null },
+			picture: { page: PAGE_USER_DETAILS, value: '', error: null },
 			places: { page: PAGE_PLACES, value: [], error: null },
 		},
 		page: PAGE_LOADING,
@@ -55,8 +61,35 @@ class OnboardContainerInner extends Component<void, Props, State> {
 	}
 
 	componentWillReceiveProps(nextProps) {
+		this._setUserDetails(nextProps);
 		this._setCurrentPage(nextProps);
 	}
+
+	_setUserDetails = (props: Props) => {
+		if (!props.pendingUser) {
+			return;
+		}
+
+		const { params } = props.pendingUser;
+
+		for (const provider in params) {
+			const data = params[provider];
+
+			if (data) {
+				const { fields } = this.state;
+
+				this.setState({
+					fields: {
+						...fields,
+						name: { value: fields.name.value || data.name, error: null },
+						picture: { value: fields.picture.value || data.picture, error: null },
+					}
+				});
+
+				break;
+			}
+		}
+	};
 
 	_setCurrentPage = (props: Props) => {
 		const {
@@ -96,11 +129,26 @@ class OnboardContainerInner extends Component<void, Props, State> {
 		}
 	};
 
+	_isFieldRequired = (field: string) => {
+		return [ 'nick', 'name', 'places' ].indexOf(field) > -1;
+	};
+
+	_getPageForField = (field: string) => {
+		switch (field) {
+		case 'nick':
+		case 'name':
+		case 'picture':
+			return PAGE_USER_DETAILS;
+		case 'places':
+			return PAGE_PLACES;
+		default:
+			return PAGE_HOME;
+		}
+	};
+
 	_hasErrors = (fields: Fields, page: string): boolean => {
 		for (const field in fields) {
-			const item = fields[field];
-
-			if (item.page === page && item.error) {
+			if (this._getPageForField(field) === page && fields[field].error) {
 				return true;
 			}
 		}
@@ -112,7 +160,7 @@ class OnboardContainerInner extends Component<void, Props, State> {
 		for (const field in fields) {
 			const item = fields[field];
 
-			if (isEmpty(item.value)) {
+			if (this._isFieldRequired(field) && isEmpty(item.value)) {
 				fields[field] = {
 					...item,
 					error: new EnhancedError('must be specified', 'E_EMPTY'),
@@ -161,7 +209,7 @@ class OnboardContainerInner extends Component<void, Props, State> {
 
 		switch (page) {
 		case PAGE_USER_DETAILS:
-			this.props.signUp(fields.nick, fields.name);
+			this.props.signUp(fields.nick.value, fields.name.value);
 			break;
 		case PAGE_PLACES:
 			this.props.savePlaces(fields.places);
@@ -208,7 +256,11 @@ OnboardContainerInner.propTypes = {
 		id: PropTypes.string
 	}).isRequired,
 	pendingUser: PropTypes.shape({
-		signedIdentities: PropTypes.string
+		signedIdentities: PropTypes.string,
+		params: PropTypes.shape({
+			name: PropTypes.string,
+			picture: PropTypes.string
+		})
 	}).isRequired,
 	signIn: PropTypes.func.isRequired,
 	signUp: PropTypes.func.isRequired,

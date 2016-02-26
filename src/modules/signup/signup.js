@@ -49,12 +49,13 @@ function signuphandler(changes, next) {
 
 			console.log("identities:", identities);
 			return cache.getEntity(changes.auth.signup.id, (err, entity) => {
+				console.log(arguments);
 				if (err) return next(err);
 				if (entity) return next(new Error('USER_ALREADY_EXIST'));
 				console.log('user', changes);
 
-				changes.app = (changes.app || {}).user = changes.auth.signup.id;
-				((changes.response = (changes.response || {})).app || {}).user = changes.auth.signup.id;
+				changes.state = (changes.state || {}).user = changes.auth.signup.id;
+				((changes.response = (changes.response || {})).state || {}).user = changes.auth.signup.id;
 				(changes.entities = changes.entities || {})[changes.auth.signup.id] = changes.auth.signup;
 				return next();
 			});
@@ -63,8 +64,8 @@ function signuphandler(changes, next) {
 	} else if (changes.auth && changes.auth.signin) {
 		signup = merge(changes.auth.signin, signup);
 		changes.response = changes.response || {};
-		changes.response.app = changes.response.app || {};
-		changes.response.app.signup = signup;
+		changes.response.state = changes.response.state || {};
+		changes.response.state.signup = signup;
 
 		generateSignedIdentities(signup.identities).then((session) => {
 			signup.signedIdentities = session;

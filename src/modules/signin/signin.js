@@ -34,8 +34,8 @@ function signinhandler(changes, next) {
 					return next(new Error('INVALID_USERID'));
 				}
 				winston.info('setstate: sign-in module: found user');
-				(changes.app = changes.app || {}).user = entity.id;
-				((changes.response = (changes.response || {})).app || {}).user = entity.id;
+				(changes.state = changes.state || {}).user = entity.id;
+				((changes.response = (changes.response || {})).state || {}).user = entity.id;
 				(changes.response.entities = changes.response.entities || {})[entity.id] = entity;
 				delete changes.auth.signin;
 				return next();
@@ -49,14 +49,14 @@ function signinhandler(changes, next) {
 				if (entities && entities.length) {
 					const entity = entities[0];
 
-					(changes.app = (changes.app || {})).user = entity.id;
+					(changes.state = (changes.state || {})).user = entity.id;
 					changes.response = (changes.response || {});
-					(changes.response.app = changes.response.app || {}).user = entity.id;
+					(changes.response.state = changes.response.state || {}).user = entity.id;
 					(changes.response.entities = changes.response.entities || {})[entity.id] = entity;
 					delete changes.auth.signin;
 				} else {
 					changes.response = (changes.response || {});
-					(changes.response.app = (changes.response.app || {})).user = null;
+					(changes.response.state = (changes.response.state || {})).user = null;
 				}
 
 				return next();

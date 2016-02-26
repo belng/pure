@@ -22,7 +22,7 @@ function disconnected() {
 	else backOff = 256;
 
 	bus.emit('change', {
-		app: { connectionStatus: 'offline', backOff }
+		state: { connectionStatus: 'offline', backOff }
 	});
 	setTimeout(connect, backOff * 1000);
 }
@@ -45,7 +45,7 @@ function connect() {
 	client.on('open', () => {
 		backOff = 1;
 		bus.emit('change', {
-			app: { connectionStatus: 'online', backOff }
+			state: { connectionStatus: 'online', backOff }
 		});
 	});
 

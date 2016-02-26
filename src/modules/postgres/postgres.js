@@ -145,7 +145,7 @@ bus.on('change', (changes, next) => {
 	if (changes.queries) {
 		const response = changes.response = {},
 			cb = (key, err, results) => {
-				if (err) { jsonop(response, { app: { error: err } }); }
+				if (err) { jsonop(response, { state: { error: err } }); }
 				jsonop(response, { indexes: { [key]: results } });
 				counter.dec();
 			};

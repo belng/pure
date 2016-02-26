@@ -11,7 +11,6 @@ import OnboardParagraph from './OnboardParagraph';
 import OnboardError from './OnboardError';
 import Icon from '../Icon';
 import VersionCodes from '../../../modules/VersionCodes';
-import Facebook from '../../../modules/Facebook';
 import EnhancedError from '../../../../lib/EnhancedError';
 import Colors from '../../../Colors';
 
@@ -69,20 +68,21 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
+	canGoForward: boolean;
 	cancelSignUp: Function;
-	canGoForward: Function;
 	submitUserDetails: Function;
 	onChangeField: Function;
 	fields: {
 		nick: { value: string; error: ?EnhancedError };
 		name: { value: string; error: ?EnhancedError };
+		picture: { value: string; error: void };
 	};
 };
 
 export default class UserDetails extends Component<void, Props, void> {
 	static propTypes = {
+		canGoForward: PropTypes.bool.isRequired,
 		cancelSignUp: PropTypes.func.isRequired,
-		canGoForward: PropTypes.func.isRequired,
 		submitUserDetails: PropTypes.func.isRequired,
 		onChangeField: PropTypes.func.isRequired,
 		fields: PropTypes.objectOf(PropTypes.shape({
@@ -97,10 +97,6 @@ export default class UserDetails extends Component<void, Props, void> {
 		})).isRequired,
 	};
 
-	componentDidMount() {
-		this._fetchFullName();
-	}
-
 	_handleChangeNick = (nick: string) => {
 		this.props.onChangeField('nick', nick);
 	};
@@ -109,27 +105,12 @@ export default class UserDetails extends Component<void, Props, void> {
 		this.props.onChangeField('name', name);
 	};
 
-	_fetchFullName = async (): Promise<void> => {
-		try {
-			const req = await Facebook.sendGraphRequest('GET', '/me', { fields: 'name' });
-
-			if (req) {
-				const res = JSON.parse(req);
-
-				if (res && res.name && !this.props.fields.name) {
-					this.props.onChangeField('name', res.name);
-				}
-			}
-		} catch (e) {
-			// ignore
-		}
-	};
-
 	render() {
 		const { fields } = this.props;
 		const {
 			nick,
-			name
+			name,
+			picture
 		} = fields;
 
 		const nickColor = nick.error ? Colors.error : Colors.placeholder;
@@ -148,7 +129,7 @@ export default class UserDetails extends Component<void, Props, void> {
 					</TouchableOpacity>
 					<OnboardTitle>Create an Account!</OnboardTitle>
 					<View style={styles.avatarContainer}>
-						<Image style={styles.avatar} source={{/* TODO */}} />
+						<Image style={styles.avatar} source={{ uri: picture.value }} />
 					</View>
 					<OnboardParagraph>What should we call you?</OnboardParagraph>
 
