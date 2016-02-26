@@ -49,9 +49,7 @@ cache.onChange((changes) => {
 			if (key === 'entities') {
 				const ids = Object.keys(changes.queries.entities),
 					typeToEntities = {
-						note: [],
 						item: [],
-						rel: [],
 						user: []
 					};
 
@@ -59,8 +57,8 @@ cache.onChange((changes) => {
 					const _split = id.split('_');
 					let type;
 
-					if (_split.length === 2) type = 'note';
-					else if (_split.length === 1) type = 'rel';
+					if (_split.length === 2) return;
+					else if (_split.length === 1) return;
 					else if (id.length >= 36) type = 'item';
 					else type = 'user';
 
