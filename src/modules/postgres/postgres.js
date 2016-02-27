@@ -84,18 +84,12 @@ cache.onChange((changes) => {
 							state.entities[entity.id] = new Types[entity.type](entity);
 						});
 
-						console.log("types:", i, typeToEntities[i] );
-						const missingIds = ids.filter(itemID => {
-							console.log(itemID);
-							return !state.entities[itemID];
-						});
-						console.log("missing Id", missingIds);
+						const missingIds = ids.filter(itemID => !state.entities[itemID]);
+
 						missingIds.forEach(id => {
-							console.log("setting id: ", id);
 							state.entities[id] = null;
 						});
 
-						console.log(state);
 						bus.emit('change', state);
 					});
 				}

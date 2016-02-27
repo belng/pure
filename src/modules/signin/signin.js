@@ -35,8 +35,11 @@ function signinhandler(changes, next) {
 				}
 				winston.info('setstate: sign-in module: found user');
 				(changes.state = changes.state || {}).user = entity.id;
-				((changes.response = (changes.response || {})).state || {}).user = entity.id;
-				(changes.response.entities = changes.response.entities || {})[entity.id] = entity;
+				changes.response = changes.response || {};
+				changes.response.state = changes.response.state || {};
+				changes.response.state.user = entity.id;
+				changes.response.entities = changes.response.entities || {};
+				changes.response.entities[entity.id] = entity;
 				delete changes.auth.signin;
 				return next();
 			});
