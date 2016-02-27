@@ -1,12 +1,13 @@
+/* @flow */
 
-
-import React from 'react-native';
+import React, { PropTypes } from 'react';
+import ReactNative from 'react-native';
 import AppText from '../AppText';
 import Colors from '../../../Colors';
 
 const {
 	StyleSheet,
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	paragraph: {
@@ -26,7 +27,7 @@ type Props = {
 const OnboardParagraph = (props: Props) => <AppText style={[ styles.paragraph, props.style ]}>{props.children}</AppText>;
 
 OnboardParagraph.propTypes = {
-	children: React.PropTypes.node.isRequired,
+	children: PropTypes.node.isRequired,
 	style: AppText.propTypes.style,
 };
 

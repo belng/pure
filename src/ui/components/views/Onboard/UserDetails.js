@@ -87,21 +87,21 @@ export default class UserDetails extends Component<void, Props, void> {
 		onChangeField: PropTypes.func.isRequired,
 		fields: PropTypes.objectOf(PropTypes.shape({
 			nick: PropTypes.shape({
-				value: PropTypes.string.isRequired,
+				value: PropTypes.string,
 				error: PropTypes.instanceOf(EnhancedError)
-			}).isRequired,
+			}),
 			name: PropTypes.shape({
-				value: PropTypes.string.isRequired,
+				value: PropTypes.string,
 				error: PropTypes.instanceOf(EnhancedError)
-			}).isRequired
+			})
 		})).isRequired,
 	};
 
-	_handleChangeNick = (nick: string) => {
+	_handleChangeNick = (nick: string): void => {
 		this.props.onChangeField('nick', nick);
 	};
 
-	_handleChangeName = (name: string) => {
+	_handleChangeName = (name: string): void => {
 		this.props.onChangeField('name', name);
 	};
 

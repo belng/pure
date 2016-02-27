@@ -1,6 +1,7 @@
+/* @flow */
 
-
-import React from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import AppText from '../AppText';
 import TouchFeedback from '../TouchFeedback';
 import Loading from '../Loading';
@@ -9,7 +10,7 @@ import Colors from '../../../Colors';
 const {
 	StyleSheet,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -35,16 +36,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class LargeButton extends React.Component {
-	shouldComponentUpdate(nextProps) {
-		return (
-			this.props.label !== nextProps.label ||
-			this.props.onPress !== nextProps.onPress ||
-			this.props.spinner !== nextProps.spinner ||
-			this.props.disabled !== nextProps.disabled
-		);
-	}
-
+export default class LargeButton extends Component {
 	render() {
 		return (
 			<View style={styles.container}>
@@ -61,9 +53,9 @@ export default class LargeButton extends React.Component {
 }
 
 LargeButton.propTypes = {
-	label: React.PropTypes.string.isRequired,
-	onPress: React.PropTypes.func.isRequired,
-	spinner: React.PropTypes.bool,
-	disabled: React.PropTypes.bool,
+	label: PropTypes.string.isRequired,
+	onPress: PropTypes.func.isRequired,
+	spinner: PropTypes.bool,
+	disabled: PropTypes.bool,
 	style: View.propTypes.style
 };

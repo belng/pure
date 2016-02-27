@@ -1,6 +1,7 @@
+/* @flow */
 
-
-import React from 'react-native';
+import React, { PropTypes } from 'react';
+import ReactNative from 'react-native';
 import NextButton from './NextButton';
 import StatusbarWrapper from '../StatusbarWrapper';
 import OnboardTitle from './OnboardTitle';
@@ -11,7 +12,7 @@ const {
 	View,
 	StyleSheet,
 	Image,
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -59,8 +60,8 @@ const UserDetails = (props: { onComplete: Function }) => (
 );
 
 UserDetails.propTypes = {
-	onComplete: React.PropTypes.func.isRequired,
-	isSkipped: React.PropTypes.bool
+	onComplete: PropTypes.func.isRequired,
+	isSkipped: PropTypes.bool
 };
 
 export default UserDetails;
