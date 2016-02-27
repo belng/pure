@@ -11,7 +11,7 @@ const sockets = {}, bus = core.bus,
 	packer = stringPack(packerArg);
 
 function sendError(socket, code, reason, event) {
-	socket.send(JSON.stringify({
+	socket.send(packer.encode({
 		type: 'error',
 		code,
 		reason,
@@ -69,10 +69,10 @@ bus.on('http/init', app => {
 							user: message.auth.user
 						});
 					}
-					socket.send({
+					socket.send(packer.encode({
 						type: 'change',
-						message: packer.encode(message.response)
-					});
+						message: message.response
+					}));
 				}
 			}
 

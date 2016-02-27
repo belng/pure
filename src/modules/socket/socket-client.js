@@ -34,8 +34,8 @@ function disconnected() {
 function onMessage(message) {
 	const changes = packer.decode(message);
 
-	bus.emit(changes.type, changes.message);
 	changes.message.source = 'server';
+	bus.emit(changes.type, changes.message);
 }
 
 function connect() {
