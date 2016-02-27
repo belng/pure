@@ -30,7 +30,6 @@ function broadcast (entity) {
 }
 
 cache.onChange((changes) => {
-	winston.info(changes);
 	const cb = (key, range, err, results) => {
 		if (err) {
 			winston.error(err);
@@ -63,6 +62,7 @@ cache.onChange((changes) => {
 					typeToEntities[type].push(id);
 				});
 
+				// TODO: move to diff file.
 				for (const i in typeToEntities) {
 					if (!typeToEntities[i].length) continue;
 
@@ -75,7 +75,6 @@ cache.onChange((changes) => {
 							return;
 						}
 
-						console.log(r);
 						const state = {
 							entities: {},
 							source: 'postgres'
@@ -85,12 +84,12 @@ cache.onChange((changes) => {
 							state.entities[entity.id] = new Types[entity.type](entity);
 						});
 
-						const missingIds = r.map(item => item.id).filter(itemID => typeToEntities[i].indexOf(itemID) > -1);
+						const missingIds = ids.filter(itemID => !state.entities[itemID]);
 
 						missingIds.forEach(id => {
 							state.entities[id] = null;
 						});
-						winston.info(JSON.stringify(state));
+
 						bus.emit('change', state);
 					});
 				}
@@ -114,7 +113,6 @@ pg.listen(config.connStr, channel, (payload) => {
 bus.on('change', (changes, next) => {
 	const counter = new Counter();
 
-	winston.info(changes);
 	if (changes.source === 'postgres') {
 		next();
 		return;
@@ -123,7 +121,6 @@ bus.on('change', (changes, next) => {
 	if (changes.entities) {
 		const sql = [];
 
-		winston.info('Got few entities to update');
 		for (const id in changes.entities) {
 			sql.push(entityHandler(changes.entities[id]));
 		}
@@ -151,7 +148,6 @@ bus.on('change', (changes, next) => {
 			},
 			entityCallback = (err, result) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
-
 				if (result && result.id) {
 					response.entities = response.entities ? response.entities : {};
 					response.entities[result.id] = result;
@@ -162,8 +158,8 @@ bus.on('change', (changes, next) => {
 
 		for (const key in changes.queries) {
 			if (key === 'entities') {
-				counter.inc();
-				for (const entity in changes.queries[key][entity]) {
+				for (const entity in changes.queries[key]) {
+					counter.inc();
 					cache.getEntity(entity, entityCallback);
 				}
 			} else {

@@ -38,8 +38,15 @@ function generateSignedIdentities(identities) {
 	});
 }
 
-function signuphandler(changes, next) {
-	let signup = {};
+function signuphandler(changes, n) {
+	let signup = {}, hasNextFired = false;
+
+	function next() {
+		if (!hasNextFired) {
+			hasNextFired = true;
+			n();
+		}
+	}
 
 	if (changes.auth && changes.auth.signup) {
 		getIdentitiesFromJWT(changes.auth.signup.signedIdentities)
@@ -47,16 +54,20 @@ function signuphandler(changes, next) {
 			changes.auth.signup.identities = identities;
 			delete changes.auth.signup.signedIdentities;
 
-			console.log("identities:", identities);
-			return cache.getEntity(changes.auth.signup.id, (err, entity) => {
-				console.log(arguments);
-				if (err) return next(err);
-				if (entity) return next(new Error('USER_ALREADY_EXIST'));
-				console.log('user', changes);
-
+			cache.getEntity(changes.auth.signup.id, (err, entity) => {
+				if (hasNextFired) return null;
+				if (err && next) return next(err);
+				if (entity && next) return next(new Error('USER_ALREADY_EXIST'));
 				changes.state = (changes.state || {}).user = changes.auth.signup.id;
-				((changes.response = (changes.response || {})).state || {}).user = changes.auth.signup.id;
+
+				changes.response = changes.response || {};
+				changes.response.state = changes.response.state || {};
+				changes.response.state.user = changes.auth.signup.id;
 				(changes.entities = changes.entities || {})[changes.auth.signup.id] = changes.auth.signup;
+				// REVIEW: check if this is fine or should the changes.entities itself be fired and sent to the client?
+				(changes.response.entities = changes.response.entities || {})[changes.auth.signup.id] = changes.auth.signup;
+
+				winston.info('okay its a sign up.', changes.entities);
 				return next();
 			});
 		})

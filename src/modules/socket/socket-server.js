@@ -40,7 +40,7 @@ bus.on('http/init', app => {
 			try {
 				message = packer.decode(m);
 			} catch (e) {
-				sendError(socket, 'ERR_EVT_PARSE', e.message);
+				sendError(socket, 0, 'ERR_EVT_PARSE', e.message);
 				return;
 			}
 
@@ -54,7 +54,6 @@ bus.on('http/init', app => {
 			(message.auth = message.auth || {}).resource = resourceId;
 
 			function handleSetState(err) {
-				console.log(JSON.stringify(message));
 				winston.debug('setstate response', err);
 				if (err) {
 					sendError(
@@ -70,7 +69,10 @@ bus.on('http/init', app => {
 							user: message.auth.user
 						});
 					}
-					socket.send(packer.encode(message.response));
+					socket.send({
+						type: 'change',
+						message: packer.encode(message.response)
+					});
 				}
 			}
 
