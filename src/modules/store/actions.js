@@ -21,7 +21,7 @@ export const signUp = (user: User): Object => ({
 
 export const cancelSignUp = (): Object => ({
 	state: {
-		__op__: { signup: 'delete' }
+		signup: null
 	}
 });
 

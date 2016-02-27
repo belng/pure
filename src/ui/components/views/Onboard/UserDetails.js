@@ -97,11 +97,11 @@ export default class UserDetails extends Component<void, Props, void> {
 		})).isRequired,
 	};
 
-	_handleChangeNick = (nick: string): void => {
+	_handleChangeNick: Function = (nick: string): void => {
 		this.props.onChangeField('nick', nick);
 	};
 
-	_handleChangeName = (name: string): void => {
+	_handleChangeName: Function = (name: string): void => {
 		this.props.onChangeField('name', name);
 	};
 
@@ -156,14 +156,14 @@ export default class UserDetails extends Component<void, Props, void> {
 
 					<OnboardError
 						hint='People on Hey, Neighbor! will know you by your username.'
-						message={nick.error ? nick.error.message : name.error ? name.error.message : null}
+						message={nick.error ? `Username ${nick.error.message}` : name.error ? `Name ${name.error.message}` : null}
 					/>
 
 					<KeyboardSpacer />
 				</ScrollView>
 				<NextButton
 					label='Sign up'
-					disabled={this.props.canGoForward}
+					disabled={!this.props.canGoForward}
 					onPress={this.props.submitUserDetails}
 				/>
 				{Platform.Version >= VersionCodes.KITKAT ?

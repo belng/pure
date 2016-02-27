@@ -1,38 +1,42 @@
 /* @flow */
 
-/* eslint-env browser */
-/* eslint-disable no-console*/
-
-import eio from 'engine.io-client';
+import eio from 'engine.io-client/engine.io';
 import { bus, config } from '../../core-client.js';
 import * as models from '../../models/models.js';
-import stringPack from 'stringpack';
+import stringpack from 'stringpack';
 
-const protocol = config.server.protocol, host = config.server.apiHost;
+const {
+	protocol,
+	host,
+} = config.server;
+
 let	backOff = 1, client;
 
-const packerArg = Object.keys(models).sort().map(key => models[key]);
-const packer = stringPack(packerArg);
+const packer = stringpack(Object.keys(models).sort().map(key => models[key]));
 
 function disconnected() {
 
-	/* eslint-disable block-scoped-var, no-use-before-define */
+	/* eslint-disable no-use-before-define */
 
-	if (backOff < 256) backOff *= 2;
-	else backOff = 256;
+	if (backOff < 256) {
+		backOff *= 2;
+	} else {
+		backOff = 256;
+	}
 
 	bus.emit('change', {
 		state: { connectionStatus: 'offline', backOff }
 	});
+
 	setTimeout(connect, backOff * 1000);
 }
 
 function onMessage(message) {
-	const stateChange = packer.decode(message);
+	const changes = packer.decode(message);
 
-	console.log(stateChange);
-	stateChange.source = 'server';
-	bus.emit('change', stateChange);
+	changes.source = 'server';
+
+	bus.emit('change', changes);
 }
 
 function connect() {
@@ -52,9 +56,14 @@ function connect() {
 	client.on('message', onMessage);
 }
 
-bus.on('change', (state) => {
-	if (state.source === 'server') return;
-	client.send(packer.encode(state));
+bus.on('change', (changes) => {
+	if (changes.source === 'server') return;
+
+	const { state, ...filtered } = changes;
+
+	if (Object.keys(filtered).length) {
+		client.send(packer.encode(filtered));
+	}
 }, 1);
-console.log('connecting...');
+
 connect();

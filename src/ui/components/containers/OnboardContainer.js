@@ -146,14 +146,16 @@ class OnboardContainerInner extends Component<void, Props, State> {
 		}
 	};
 
-	_hasErrors = (fields: Fields, page: string): boolean => {
+	_canGoForward = (fields: Fields, page: string): boolean => {
 		for (const field in fields) {
-			if (this._getPageForField(field) === page && fields[field].error) {
-				return true;
+			const item = fields[field];
+
+			if (this._getPageForField(field) === page && (item.error || this._isFieldRequired(field) && isEmpty(item.value))) {
+				return false;
 			}
 		}
 
-		return false;
+		return true;
 	};
 
 	_ensureAllFields = (fields: Fields): Fields => {
@@ -203,7 +205,7 @@ class OnboardContainerInner extends Component<void, Props, State> {
 	};
 
 	_saveData = (fields: Fields, page: string) => {
-		if (this._hasErrors(fields, page)) {
+		if (!this._canGoForward(fields, page)) {
 			return;
 		}
 
@@ -241,7 +243,7 @@ class OnboardContainerInner extends Component<void, Props, State> {
 			<Onboard
 				{...this.props}
 				{...this.state}
-				canGoForward={this._hasErrors(this.state.fields, this.state.page)}
+				canGoForward={this._canGoForward(this.state.fields, this.state.page)}
 				submitUserDetails={this._submitUserDetails}
 				submitPlaceDetails={this._submitPlaceDetails}
 				submitGetStarted={this._submitGetStarted}
