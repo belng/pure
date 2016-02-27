@@ -5,7 +5,11 @@ import { bus, config } from '../../core-client.js';
 import * as models from '../../models/models.js';
 import stringpack from 'stringpack';
 
-const protocol = config.server.protocol, host = config.server.apiHost;
+const {
+	protocol,
+	host,
+} = config.server;
+
 let	backOff = 1, client;
 
 const packer = stringpack(Object.keys(models).sort().map(key => models[key]));
