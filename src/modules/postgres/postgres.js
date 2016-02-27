@@ -2,6 +2,7 @@ import jsonop from 'jsonop';
 import winston from 'winston';
 import Counter from '../../lib/counter';
 import * as pg from '../../lib/pg';
+import { TABLES, TYPES } from '../../lib/schema';
 import queryHandler from './query';
 import entityHandler from './entity';
 import { bus, cache, config } from '../../core-server';
@@ -13,15 +14,14 @@ const channel = 'heyneighbor';
 const TYPE_SEGMENT = `case \
 when tableoid = 'notes'::regclass then 'note' \
 when tableoid = 'privs'::regclass then 'privs' \
-when tableoid = 'roomrels'::regclass then 'roomrels' \
+when tableoid = 'roomrelations'::regclass then 'roomrels' \
 when tableoid = 'rooms'::regclass then 'room' \
-when tableoid = 'textrels'::regclass then 'textrel' \
+when tableoid = 'textrelations'::regclass then 'textrel' \
 when tableoid = 'texts'::regclass then 'text' \
-when tableoid = 'threadrels'::regclass then 'threadrel' \
+when tableoid = 'threadrelations'::regclass then 'threadrel' \
 when tableoid = 'threads'::regclass then 'thread' \
-when tableoid = 'topicrels'::regclass then 'topicrel' \
+when tableoid = 'topicrelations'::regclass then 'topicrel' \
 when tableoid = 'topics'::regclass then 'topic' \
-when tableoid = 'userrels'::regclass then 'userrel' \
 when tableoid = 'users'::regclass then 'user' \
 end as type`;
 
@@ -56,11 +56,10 @@ cache.onChange((changes) => {
 					const _split = id.split('_');
 					let type;
 
-					if (_split.length === 2) return;
-					else if (_split.length === 1) return;
+					if (_split.length === 3) return;
+					else if (_split.length === 2) return;
 					else if (id.length >= 36) type = 'item';
 					else type = 'user';
-
 					typeToEntities[type].push(id);
 				});
 
@@ -68,22 +67,22 @@ cache.onChange((changes) => {
 					if (!typeToEntities[i].length) continue;
 
 					pg.read(config.connStr, {
-						$: `select *, ${TYPE_SEGMENT} from &{type} where id in (&(ids))`,
-						ids: typeToEntities[i],
-						type: i
+						$: `select *, ${TYPE_SEGMENT} from "${TABLES[TYPES[i]]}" where id in (&(ids))`,
+						ids: typeToEntities[i]
 					}, (err, r) => {
 						if (err) {
 							winston.error(err.message);
 							return;
 						}
 
+						console.log(r);
 						const state = {
 							entities: {},
 							source: 'postgres'
 						};
 
 						r.map((entity) => {
-							state.entities[i.id] = new Types[entity.type](entity);
+							state.entities[entity.id] = new Types[entity.type](entity);
 						});
 
 						const missingIds = r.map(item => item.id).filter(itemID => typeToEntities[i].indexOf(itemID) > -1);
@@ -91,6 +90,7 @@ cache.onChange((changes) => {
 						missingIds.forEach(id => {
 							state.entities[id] = null;
 						});
+						winston.info(JSON.stringify(state));
 						bus.emit('change', state);
 					});
 				}
@@ -148,12 +148,29 @@ bus.on('change', (changes, next) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
 				jsonop(response, { indexes: { [key]: results } });
 				counter.dec();
+			},
+			entityCallback = (err, result) => {
+				if (err) { jsonop(response, { state: { error: err } }); }
+
+				if (result && result.id) {
+					response.entities = response.entities ? response.entities : {};
+					response.entities[result.id] = result;
+				}
+
+				counter.dec();
 			};
 
 		for (const key in changes.queries) {
-			for (const range of changes.queries[key]) {
+			if (key === 'entities') {
 				counter.inc();
-				cache.query(key, range, cb.bind(null, key));
+				for (const entity in changes.queries[key][entity]) {
+					cache.getEntity(entity, entityCallback);
+				}
+			} else {
+				for (const range of changes.queries[key]) {
+					counter.inc();
+					cache.query(key, range, cb.bind(null, key));
+				}
 			}
 		}
 	}
