@@ -47,16 +47,13 @@ function signuphandler(changes, next) {
 			changes.auth.signup.identities = identities;
 			delete changes.auth.signup.signedIdentities;
 
-			console.log("identities:", identities);
-			return cache.getEntity(changes.auth.signup.id, (err, entity) => {
-				console.log(arguments);
+			cache.getEntity(changes.auth.signup.id, (err, entity) => {
 				if (err) return next(err);
 				if (entity) return next(new Error('USER_ALREADY_EXIST'));
-				console.log('user', changes);
-
 				changes.state = (changes.state || {}).user = changes.auth.signup.id;
 				((changes.response = (changes.response || {})).state || {}).user = changes.auth.signup.id;
 				(changes.entities = changes.entities || {})[changes.auth.signup.id] = changes.auth.signup;
+				winston.info('okay its a sign up.', changes.entities);
 				return next();
 			});
 		})
