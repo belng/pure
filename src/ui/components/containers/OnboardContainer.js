@@ -14,7 +14,7 @@ type Props = {
 	pendingUser: {
 		signedIdentities: string;
 		params: {
-			picture: ?string;
+			picture?: string;
 			name?: string
 		}
 	};
@@ -47,10 +47,10 @@ const PAGE_HOME = 'PAGE_HOME';
 class OnboardContainerInner extends Component<void, Props, State> {
 	state: State = {
 		fields: {
-			nick: { page: PAGE_USER_DETAILS, value: '', error: null },
-			name: { page: PAGE_USER_DETAILS, value: '', error: null },
-			picture: { page: PAGE_USER_DETAILS, value: '', error: null },
-			places: { page: PAGE_PLACES, value: [], error: null },
+			nick: { value: '', error: null },
+			name: { value: '', error: null },
+			picture: { value: '', error: null },
+			places: { value: [], error: null },
 		},
 		page: PAGE_LOADING,
 		onboarding: false,
@@ -254,14 +254,14 @@ class OnboardContainerInner extends Component<void, Props, State> {
 OnboardContainerInner.propTypes = {
 	user: PropTypes.shape({
 		id: PropTypes.string
-	}).isRequired,
+	}),
 	pendingUser: PropTypes.shape({
 		signedIdentities: PropTypes.string,
 		params: PropTypes.shape({
 			name: PropTypes.string,
 			picture: PropTypes.string
 		})
-	}).isRequired,
+	}),
 	signIn: PropTypes.func.isRequired,
 	signUp: PropTypes.func.isRequired,
 	cancelSignUp: PropTypes.func.isRequired,
@@ -301,7 +301,7 @@ const OnboardContainer = Connect(({ user }) => ({
 })(OnboardContainerInner);
 
 OnboardContainer.propTypes = {
-	user: PropTypes.string.isRequired
+	user: PropTypes.string
 };
 
 export default OnboardContainer;
