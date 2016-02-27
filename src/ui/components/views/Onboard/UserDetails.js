@@ -89,11 +89,11 @@ export default class UserDetails extends Component<void, Props, void> {
 			nick: PropTypes.shape({
 				value: PropTypes.string,
 				error: PropTypes.instanceOf(EnhancedError)
-			}).isRequired,
+			}),
 			name: PropTypes.shape({
 				value: PropTypes.string,
 				error: PropTypes.instanceOf(EnhancedError)
-			}).isRequired
+			})
 		})).isRequired,
 	};
 

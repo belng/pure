@@ -1,12 +1,13 @@
+/* @flow */
 
-
-import React from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import AppText from '../AppText';
 import Colors from '../../../Colors';
 
 const {
 	StyleSheet,
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	hint: {
@@ -24,11 +25,11 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	message: string;
-	hint: string;
+	message: ?string;
+	hint: ?string;
 };
 
-export default class OnboardError extends React.Component {
+export default class OnboardError extends Component {
 	props: Props;
 
 	render() {
@@ -43,6 +44,6 @@ export default class OnboardError extends React.Component {
 }
 
 OnboardError.propTypes = {
-	message: React.PropTypes.string,
-	hint: React.PropTypes.string
+	message: PropTypes.string,
+	hint: PropTypes.string
 };
