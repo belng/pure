@@ -1,6 +1,6 @@
 /* @flow */
 
-import eio from 'engine.io-client/engine.io';
+import eio from 'engine.io-client';
 import { bus, config } from '../../core-client.js';
 import * as models from '../../models/models.js';
 import stringpack from 'stringpack';
