@@ -148,12 +148,29 @@ bus.on('change', (changes, next) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
 				jsonop(response, { indexes: { [key]: results } });
 				counter.dec();
+			},
+			entityCallback = (err, result) => {
+				if (err) { jsonop(response, { state: { error: err } }); }
+
+				if (result && result.id) {
+					response.entities = response.entities ? response.entities : {};
+					response.entities[result.id] = result;
+				}
+
+				counter.dec();
 			};
 
 		for (const key in changes.queries) {
-			for (const range of changes.queries[key]) {
+			if (key === 'entities') {
 				counter.inc();
-				cache.query(key, range, cb.bind(null, key));
+				for (const entity in changes.queries[key][entity]) {
+					cache.getEntity(entity, entityCallback);
+				}
+			} else {
+				for (const range of changes.queries[key]) {
+					counter.inc();
+					cache.query(key, range, cb.bind(null, key));
+				}
 			}
 		}
 	}
