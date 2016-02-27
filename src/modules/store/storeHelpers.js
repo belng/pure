@@ -1,8 +1,5 @@
 import cloneDeep from 'lodash/cloneDeep';
-import { bus, cache } from '../../core-client';
-
-bus.on('change', console.log.bind(console));
-bus.on('postchange', console.log.bind(console));
+import { cache } from '../../core-client';
 
 cache.getTexts = function(roomId, threadId, time, r, callback) {
 	const q = {}, range = [];
