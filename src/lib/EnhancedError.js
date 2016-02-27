@@ -2,9 +2,9 @@
 
 export default class EnhancedError extends Error {
 	code: string;
-	data: any;
+	data: ?any;
 
-	constructor(message: string, code: string, data: any) {
+	constructor(message: string, code: string, data?: any) {
 		super(message);
 
 		this.name = this.constructor.name;
