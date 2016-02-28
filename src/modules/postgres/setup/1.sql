@@ -1,3 +1,5 @@
+-- psql -U user -h host -d database < /path/to/file.sql
+
 -- entities ids are variable-length byte arrays.
 -- For rooms and topics they are human-readable strings encoded with UTF-8.
 -- They may contain any unicode character except control whitespace punctuation.
