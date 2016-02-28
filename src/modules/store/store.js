@@ -1,12 +1,7 @@
 /* @flow */
 
-import forEach from 'lodash/forEach';
-import pull from 'lodash/pull';
 import { bus, cache } from '../../core-client';
 import type { SubscriptionOptions, Subscription } from './ConnectTypes';
-
-const _subscriptionWatches = [];
-const _unsubscriptionWatches = [];
 
 export const subscribe = (options: SubscriptionOptions, callback: Function): Subscription => {
 	let unWatch;
@@ -46,34 +41,24 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 		}
 	}
 
-	forEach(_subscriptionWatches, fn => fn(options));
+	bus.emit('store:subscribe', options);
 
 	return {
 		remove: () => {
 			unWatch();
 
-			forEach(_unsubscriptionWatches, fn => fn(options));
+			bus.emit('store:unsubscribe', options);
 		}
 	};
 };
 
-export const onSubscribe = (callback: Function): Subscription => {
-	const watches = _subscriptionWatches;
+export const off = (event: string, callback: Function): void => bus.off(`store:${event}`, callback);
 
-	watches.push(callback);
-
-	return {
-		remove: () => { pull(watches, callback); }
-	};
-};
-
-export const onUnsubscribe = (callback: Function): Subscription => {
-	const watches = _unsubscriptionWatches;
-
-	watches.push(callback);
+export const on = (event: string, callback: Function): Subscription => {
+	bus.on(`store:${event}`, callback);
 
 	return {
-		remove: () => { pull(watches, callback); }
+		remove: () => off(event, callback)
 	};
 };
 

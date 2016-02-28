@@ -30,8 +30,8 @@ export type Store = {
 		options: SubscriptionOptions,
 		callback: Function
 	): Subscription;
-	onSubscribe(callback: Function): Subscription;
-	onUnsubscribe(callback: Function): Subscription;
+	on(event: string, callback: Function): Subscription;
+	off(event: string, callback: Function): void;
 	dispatch(payload: Object): void;
 }
 
