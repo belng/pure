@@ -288,11 +288,11 @@ const OnboardContainer = Connect(({ user }) => ({
 		}
 	},
 }), {
-	signIn: (props, store) => (provider: string, token: string) => store.setState(signIn(provider, token)),
-	cancelSignUp: (props, store) => () => store.setState(cancelSignUp()),
-	signUp: (props, store) => (id: string, name: string) => store.setState(signUp({ ...props.pendingUser, id, name })),
+	signIn: (props, store) => (provider: string, token: string) => store.dispatch(signIn(provider, token)),
+	cancelSignUp: (props, store) => () => store.dispatch(cancelSignUp()),
+	signUp: (props, store) => (id: string, name: string) => store.dispatch(signUp({ ...props.pendingUser, id, name })),
 	savePlaces: (props, store) => places => {
-		store.setState(saveUser({
+		store.dispatch(saveUser({
 			...props.user,
 			params: {
 				...props.user.params,

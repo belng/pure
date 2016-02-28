@@ -13,7 +13,7 @@ const ChatContainer = Connect(({ thread }) => ({
 		}
 	}
 }), {
-	sendText: (props, store) => (body, meta) => store.setState(sendText({
+	sendText: (props, store) => (body, meta) => store.dispatch(sendText({
 		body,
 		meta,
 		parents: [ props.thread.id ].concat(props.thread.parents),

@@ -32,7 +32,7 @@ export type Store = {
 	): Subscription;
 	onSubscribe(callback: Function): Subscription;
 	onUnsubscribe(callback: Function): Subscription;
-	setState(payload: Object): void;
+	dispatch(payload: Object): void;
 }
 
 export type MapSubscriptionToProps = {

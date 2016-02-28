@@ -77,4 +77,4 @@ export const onUnsubscribe = (callback: Function): Subscription => {
 	};
 };
 
-export const setState = (payload: Object): void => bus.emit('change', payload);
+export const dispatch = (payload: Object): void => bus.emit('change', payload);
