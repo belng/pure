@@ -19,9 +19,9 @@ const mapSubscriptionsToProps = ({ user }) => ({
 });
 
 const mapActionsToProps = {
-	saveUser: (props, store) => user => store.setState(saveUser(user)),
-	saveParams: (props, store) => params => store.setState(saveUser({ ...props.user, params })),
-	signOut: (props, store) => () => store.setState(signOut()),
+	saveUser: (props, store) => user => store.dispatch(saveUser(user)),
+	saveParams: (props, store) => params => store.dispatch(saveUser({ ...props.user, params })),
+	signOut: (props, store) => () => store.dispatch(signOut()),
 };
 
 const AccountContainer = Connect(mapSubscriptionsToProps, mapActionsToProps)(Account);

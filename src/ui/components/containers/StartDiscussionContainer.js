@@ -28,7 +28,7 @@ const StartDiscussionContainerInner = Connect(({ room, thread }) => ({
 			creator: props.user
 		});
 
-		store.setState(changes);
+		store.dispatch(changes);
 
 		// FIXME: This should be simpler
 		props.setCurrentThread(Object.keys(changes.entities)[0]);

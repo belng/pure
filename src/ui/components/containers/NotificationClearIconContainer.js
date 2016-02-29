@@ -5,7 +5,7 @@ import Dummy from '../views/Dummy';
 import { dismissAllNotes } from '../../../modules/store/actions';
 
 const NotificationClearIconContainer = Connect(null, {
-	dismissAllNotes: (props, store) => () => store.setState(dismissAllNotes())
+	dismissAllNotes: (props, store) => () => store.dispatch(dismissAllNotes())
 })(Dummy);
 
 export default NotificationClearIconContainer;

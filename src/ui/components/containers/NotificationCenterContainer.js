@@ -23,7 +23,7 @@ const NotificationCenterContainer = Connect(({ user }) => ({
 		}
 	}
 }), {
-	dismissNote: (props, store) => id => store.setState(dismissNote(id))
+	dismissNote: (props, store) => id => store.dispatch(dismissNote(id))
 })(Dummy);
 
 NotificationCenterContainer.propTypes = {
