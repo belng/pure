@@ -21,8 +21,8 @@ function getEntityByIdentity(identities, callback) {
 function signinhandler(changes, n) {
 	function next(e) {
 		if (e) {
-			(changes.response = changes.response || {}).auth = changes.auth;
-			changes.response.auth.signin.error = e;
+			(changes.response = changes.response || {}).state = changes.auth;
+			changes.response.state.signin.error = e;
 			n(changes);
 		} else {
 			n();
