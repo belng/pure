@@ -13,9 +13,11 @@ const sockets = {}, bus = core.bus,
 function sendError(socket, code, reason, event) {
 	socket.send(packer.encode({
 		type: 'error',
-		code,
-		reason,
-		event
+		message: {
+			code,
+			reason,
+			event
+		}
 	}));
 }
 
@@ -54,11 +56,18 @@ bus.on('http/init', app => {
 			(message.auth = message.auth || {}).resource = resourceId;
 
 			function handleSetState(err) {
-				winston.debug('setstate response', err);
+				winston.debug('setstate response', JSON.stringify(err));
 				if (err) {
-					sendError(
-						socket, err.code || 'ERR_UNKNOWN', err.message, message
-					);
+					if(message.response) {
+						socket.send(packer.encode({
+							type: 'error',
+							message: message.response
+						}));
+					} else {
+						sendError(
+							socket, err.code || 'ERR_UNKNOWN', err.message, message
+						);
+					}
 					return;
 				}
 
