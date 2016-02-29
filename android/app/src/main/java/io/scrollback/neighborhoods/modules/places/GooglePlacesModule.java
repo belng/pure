@@ -3,6 +3,8 @@ package io.scrollback.neighborhoods.modules.places;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Arguments;
@@ -11,19 +13,29 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.AutocompletePrediction;
+import com.google.android.gms.location.places.AutocompletePredictionBuffer;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 
 public class GooglePlacesModule extends ReactContextBaseJavaModule implements ActivityEventListener, LifecycleEventListener {
@@ -47,6 +59,21 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
     @Override
     public String getName() {
         return "GooglePlacesModule";
+    }
+
+    @Override
+    public Map<String, Object> getConstants() {
+        final Map<String, Object> constants = new HashMap<>();
+
+        // https://developers.google.com/places/android-api/autocomplete#get_place_predictions_programmatically
+        constants.put("TYPE_FILTER_ADDRESS", AutocompleteFilter.TYPE_FILTER_ADDRESS);
+        constants.put("TYPE_FILTER_CITIES", AutocompleteFilter.TYPE_FILTER_CITIES);
+        constants.put("TYPE_FILTER_ESTABLISHMENT", AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT);
+        constants.put("TYPE_FILTER_GEOCODE", AutocompleteFilter.TYPE_FILTER_GEOCODE);
+        constants.put("TYPE_FILTER_NONE", AutocompleteFilter.TYPE_FILTER_NONE);
+        constants.put("TYPE_FILTER_REGIONS", AutocompleteFilter.TYPE_FILTER_REGIONS);
+
+        return constants;
     }
 
     private void resolvePromise(WritableMap map) {
@@ -97,6 +124,63 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
         }
     }
 
+    @ReactMethod
+    public void getAutoCompletePredictions(
+            final String query, final ReadableArray bounds, @Nullable final ReadableArray filter,
+            final Promise promise
+    ) {
+        LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+
+        for (int i = 0, l = bounds.size(); i < l; i++) {
+            ReadableMap map = bounds.getMap(i);
+
+            boundsBuilder.include(new LatLng(map.getDouble("latitude"), map.getDouble("longitude")));
+        }
+
+        LatLngBounds latLngBounds = boundsBuilder.build();
+
+        AutocompleteFilter autoCompleteFilter = null;
+
+        if (filter != null) {
+            AutocompleteFilter.Builder filterBuilder = new AutocompleteFilter.Builder();
+
+            for (int i = 0, l = filter.size(); i < l; i++) {
+                filterBuilder.setTypeFilter(filter.getInt(i));
+            }
+
+            autoCompleteFilter = filterBuilder.build();
+        }
+
+        PendingResult<AutocompletePredictionBuffer> result =
+                Places.GeoDataApi.getAutocompletePredictions(mGoogleApiClient, query, latLngBounds, autoCompleteFilter);
+
+        result.setResultCallback(new ResultCallback<AutocompletePredictionBuffer>() {
+            @Override
+            public void onResult(@NonNull AutocompletePredictionBuffer autocompletePredictions) {
+                WritableArray predictions = Arguments.createArray();
+
+                for (AutocompletePrediction prediction : autocompletePredictions) {
+                    WritableMap details = Arguments.createMap();
+
+                    details.putString("full_text", prediction.getFullText(null).toString());
+                    details.putString("primary_text", prediction.getPrimaryText(null).toString());
+                    details.putString("secondary_text", prediction.getSecondaryText(null).toString());
+                    details.putString("place_id", prediction.getPlaceId());
+
+                    List<Integer> placeTypes = prediction.getPlaceTypes();
+
+                    details.putArray("place_types",
+                            placeTypes != null ? Arguments.fromArray(prediction.getPlaceTypes()) : Arguments.createArray());
+
+                    predictions.pushMap(details);
+                }
+
+                promise.resolve(predictions);
+                autocompletePredictions.release();
+            }
+        });
+    }
+
     private WritableMap buildPlacesMap(Place place) {
         CharSequence address = place.getAddress();
         CharSequence attributions = place.getAttributions();
@@ -142,15 +226,7 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
         latLngMap.putDouble("longitude", latLng.longitude);
 
         map.putMap("latLng", latLngMap);
-
-        WritableArray placeTypesArray = Arguments.createArray();
-        List<Integer> placeTypes = place.getPlaceTypes();
-
-        for (int item : placeTypes) {
-            placeTypesArray.pushInt(item);
-        }
-
-        map.putArray("placeTypes", placeTypesArray);
+        map.putArray("placeTypes", Arguments.fromArray(place.getPlaceTypes()));
 
         return map;
     }
