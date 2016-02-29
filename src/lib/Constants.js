@@ -73,4 +73,18 @@ export const APP_PRIORITIES = {
 };
 
 export const ERRORS = {
+	AUDIENCE_MISMATCH_FACEBOOK: 'Token was generated for different domain',
+	ERR_FACEBOOK_SIGNIN_FAILED: 'Facebook signin failed for some reason',
+	FACEBOOK_RESPONSE_PARSE_ERROR: 'failed to parse the data from Facebook',
+	INVALID_FACEBOOK_CODE: 'Invalid Facebook taken',
+	INVALID_FACEBOOK_KEY: 'Facebook api is invalid',
+	INVALID_FACEBOOK_TOKEN: 'Facebook auth failed',
+
+	AUDIENCE_MISMATCH_GOOGLE: 'Token was generated for different domain',
+	ERR_GOOGLE_SIGNIN_FAILED: 'Google signin failed for some reason',
+	GOOGLE_RESPONSE_PARSE_ERROR: 'failed to parse the data from Google',
+	INVALID_GOOGLE_CODE: 'Invalid Google taken',
+	INVALID_GOOGLE_KEY: 'Google api is invalid',
+	INVALID_GOOGLE_TOKEN: 'Google auth failed'
+
 };

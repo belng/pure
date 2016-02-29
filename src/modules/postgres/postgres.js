@@ -14,13 +14,13 @@ const channel = 'heyneighbor';
 const TYPE_SEGMENT = `case \
 when tableoid = 'notes'::regclass then 'note' \
 when tableoid = 'privs'::regclass then 'privs' \
-when tableoid = 'roomrelations'::regclass then 'roomrels' \
+when tableoid = 'roomrels'::regclass then 'roomrels' \
 when tableoid = 'rooms'::regclass then 'room' \
-when tableoid = 'textrelations'::regclass then 'textrel' \
+when tableoid = 'textrels'::regclass then 'textrel' \
 when tableoid = 'texts'::regclass then 'text' \
-when tableoid = 'threadrelations'::regclass then 'threadrel' \
+when tableoid = 'threadrels'::regclass then 'threadrel' \
 when tableoid = 'threads'::regclass then 'thread' \
-when tableoid = 'topicrelations'::regclass then 'topicrel' \
+when tableoid = 'topicrels'::regclass then 'topicrel' \
 when tableoid = 'topics'::regclass then 'topic' \
 when tableoid = 'users'::regclass then 'user' \
 end as type`;
