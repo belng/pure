@@ -3,6 +3,7 @@ import * as Constants from '../lib/Constants';
 
 export default class Note {
 	constructor(data) {
+		if (!data) return;
 		for (const name of COLUMNS[Constants.TYPE_NOTE]) {
 			this[name] = data[name] || data[name.toLowerCase()];
 		}
