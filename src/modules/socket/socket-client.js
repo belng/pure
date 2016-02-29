@@ -55,7 +55,7 @@ function connect() {
 	client.on('message', onMessage);
 }
 
-bus.on('change', (changes) => {
+bus.on('change', changes => {
 	if (changes.source === 'server') return;
 
 	const { state, ...filtered } = changes;
@@ -65,4 +65,7 @@ bus.on('change', (changes) => {
 	}
 }, 1);
 
-connect();
+bus.on('state:init', state => {
+	state.connectionStatus = '@@loading';
+	connect();
+});

@@ -13,9 +13,11 @@ const sockets = {}, bus = core.bus,
 function sendError(socket, code, reason, event) {
 	socket.send(packer.encode({
 		type: 'error',
-		code,
-		reason,
-		event
+		message: {
+			code,
+			reason,
+			event
+		}
 	}));
 }
 
