@@ -31,7 +31,13 @@ async function initializeSession() {
 
 bus.on('postchange', changes => {
 	if (changes.state && 'session' in changes.state) {
-		if (changes.state.session) {
+		const { session } = changes.state;
+
+		if (session) {
+			if (session === '@@loading') {
+				return;
+			}
+
 			sessionStorage.setItem('id', changes.state.session);
 		} else {
 			sessionStorage.removeItem('id');
