@@ -139,7 +139,7 @@ function googleAuth(changes, n) {
 	function next(e) {
 		if (e) {
 			(changes.response = changes.response || {}).auth = changes.auth;
-			changes.response.auth.facebook.error = e;
+			changes.response.auth.google.error = e;
 			n(changes);
 		} else {
 			n();

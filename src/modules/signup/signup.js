@@ -1,5 +1,6 @@
 /* @flow */
 
+import EnhancedError from '../../lib/EnhancedError';
 import { bus, cache, config, Constants } from '../../core-server';
 import jwt from 'jsonwebtoken';
 import merge from 'lodash/merge';
@@ -39,11 +40,14 @@ function generateSignedIdentities(identities) {
 }
 
 function signuphandler(changes, n) {
-	let signup = {}, hasNextFired = false;
+	let signup = {};
 
-	function next() {
-		if (!hasNextFired) {
-			hasNextFired = true;
+	function next(e) {
+		if (e) {
+			(changes.response = changes.response || {}).auth = changes.auth;
+			changes.response.auth.signup.error = e;
+			n(changes);
+		} else {
 			n();
 		}
 	}
@@ -55,9 +59,8 @@ function signuphandler(changes, n) {
 			delete changes.auth.signup.signedIdentities;
 
 			cache.getEntity(changes.auth.signup.id, (err, entity) => {
-				if (hasNextFired) return null;
 				if (err && next) return next(err);
-				if (entity && next) return next(new Error('USER_ALREADY_EXIST'));
+				if (entity && next) return next(new EnhancedError('ERR_USER_NAME_TAKEN', Constants.ERRORS.ERR_USER_NAME_TAKEN));
 				changes.state = (changes.state || {}).user = changes.auth.signup.id;
 
 				changes.response = changes.response || {};

@@ -36,9 +36,18 @@ function generateSession(sub) {
 	});
 }
 
-function sessionHandler(changes, next) {
+function sessionHandler(changes, n) {
 	const signin = {};
 
+	function next(e) {
+		if (e) {
+			(changes.response = changes.response || {}).auth = changes.auth;
+			changes.response.auth.error = e;
+			n(changes);
+		} else {
+			n();
+		}
+	}
 	winston.info('setstate: session module listener 1');
 
 	if (changes.auth && changes.auth.session) {

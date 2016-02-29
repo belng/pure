@@ -85,6 +85,7 @@ export const ERRORS = {
 	GOOGLE_RESPONSE_PARSE_ERROR: 'failed to parse the data from Google',
 	INVALID_GOOGLE_CODE: 'Invalid Google taken',
 	INVALID_GOOGLE_KEY: 'Google api is invalid',
-	INVALID_GOOGLE_TOKEN: 'Google auth failed'
+	INVALID_GOOGLE_TOKEN: 'Google auth failed',
 
+	ERR_USER_NAME_TAKEN: 'This username is taken, please try something else'
 };
