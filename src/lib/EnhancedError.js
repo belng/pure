@@ -21,12 +21,16 @@ export default class EnhancedError extends Error {
 		}
 	}
 
-	toJSON(): Object {
+	toJSON: Function = (): Object => {
 		const details = {};
 
-		// $FlowIssue #1323
-		Object.getOwnPropertyNames(this).forEach(key => (details[key] = this[key]));
+		Object.getOwnPropertyNames(this).forEach(key => {
+			if (key !== 'toJSON') {
+				// $FlowIssue #1323
+				details[key] = this[key];
+			}
+		});
 
 		return details;
-	}
+	};
 }
