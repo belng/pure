@@ -79,7 +79,7 @@ export default function(
 							break;
 						case 'object':
 							listener = store.subscribe(
-								typeof sub.key === 'string' ? { what: sub.key } : { ...sub.key, what: sub.key.type, type: null },
+								typeof sub.key === 'string' ? { type: sub.key } : { ...sub.key },
 								this._updateListener(item, sub.transform)
 							);
 							break;
