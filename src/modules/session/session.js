@@ -41,8 +41,12 @@ function sessionHandler(changes, n) {
 
 	function next(e) {
 		if (e) {
-			(changes.response = changes.response || {}).auth = changes.auth;
-			changes.response.auth.error = e;
+			(changes.response = changes.response || {}).state = {
+				signin: {
+					error: e
+				}
+			};
+
 			n(changes);
 		} else {
 			n();
