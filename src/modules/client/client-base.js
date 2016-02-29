@@ -4,6 +4,7 @@
 import 'babel-polyfill';
 import '../session/session-client';
 import '../socket/socket-client';
+import '../location/location-client';
 import '../store/stateManager';
 import '../store/storeHelpers';
 
