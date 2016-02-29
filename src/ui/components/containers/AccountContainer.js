@@ -8,12 +8,8 @@ import { saveUser, signOut } from '../../../modules/store/actions';
 const mapSubscriptionsToProps = ({ user }) => ({
 	user: {
 		key: {
-			slice: {
-				type: 'entity',
-				filter: {
-					id: user
-				}
-			}
+			type: 'entity',
+			id: user,
 		}
 	}
 });

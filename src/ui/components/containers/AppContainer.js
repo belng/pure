@@ -13,5 +13,11 @@ export default Connect({
 			type: 'state',
 			path: 'connectionStatus',
 		}
+	},
+	session: {
+		key: {
+			type: 'state',
+			path: 'session',
+		}
 	}
 })(App);

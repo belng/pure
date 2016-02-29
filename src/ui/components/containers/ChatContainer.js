@@ -7,10 +7,8 @@ import { sendText } from '../../../modules/store/actions';
 
 const ChatContainer = Connect(({ thread }) => ({
 	thread: {
-		key: {
-			type: 'entity',
-			id: thread
-		}
+		type: 'entity',
+		id: thread,
 	}
 }), {
 	sendText: (props, store) => (body, meta) => store.dispatch(sendText({
