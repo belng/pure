@@ -87,21 +87,6 @@
     "clean": "npm run clean:server && npm run clean:client",
     "postinstall": "for file in `ls .git-hooks`; do ln -sf ../../.git-hooks/${file} .git/hooks/${file}; done"
   },
-  "babel": {
-    "presets": [
-      "es2015",
-      "stage-1",
-      "react"
-    ],
-    "env": {
-      "production": {
-        "plugins": [
-          "transform-react-constant-elements",
-          "transform-react-inline-elements"
-        ]
-      }
-    }
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scrollback/pure.git"
