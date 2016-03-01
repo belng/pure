@@ -3,7 +3,9 @@ import * as Constants from '../lib/Constants';
 
 export default class Relation {
 	constructor(data) {
-		if (!data) return;
+		if (!data) throw new Error('CANNOT_INITIALIZE_MODEL');
+		if (!data.user) throw new Error('INVALID_USER_ID');
+
 		for (const name of COLUMNS[Constants.TYPE_REL]) {
 			this[name] = data[name] || data[name.toLowerCase()];
 		}
@@ -17,6 +19,8 @@ export default class Relation {
 		for (const name of COLUMNS[Constants.TYPE_REL]) {
 			data[name] = this[name];
 		}
+
+		data.type = this.type;
 		return [ data ];
 	}
 }
