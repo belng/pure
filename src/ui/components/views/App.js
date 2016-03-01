@@ -6,8 +6,9 @@ import OnboardContainer from '../containers/OnboardContainer';
 import Offline from './Offline';
 
 type Props = {
-	connection: '@@loading' | 'online' | 'offline';
-	session: string
+	connection: 'connecting' | 'online' | 'offline';
+	session: string,
+	user: string
 }
 
 export default class App extends React.Component<void, Props, void> {
@@ -15,11 +16,14 @@ export default class App extends React.Component<void, Props, void> {
 		const {
 			connection,
 			session,
+			user
 		} = this.props;
 
 		switch (connection) {
 		case 'online':
-			if (session === '@@loading') {
+			const loading = session === '@@loading' || session && !user;
+
+			if (loading) {
 				return <Splash />;
 			} else {
 				return <OnboardContainer {...this.props} />;
@@ -33,6 +37,7 @@ export default class App extends React.Component<void, Props, void> {
 }
 
 App.propTypes = {
-	connection: PropTypes.oneOf([ '@@loading', 'online', 'offline' ]),
-	session: PropTypes.string
+	connection: PropTypes.oneOf([ 'connecting', 'online', 'offline' ]),
+	session: PropTypes.string,
+	user: PropTypes.string
 };
