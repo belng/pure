@@ -1,18 +1,8 @@
 /* @flow */
 
-import Cache from 'sbcache';
-import EnhancedError from '../../lib/EnhancedError';
 import eio from 'engine.io-client';
 import { bus, config, cache } from '../../core-client.js';
-import * as models from '../../models/models.js';
-import stringPack from 'stringpack';
-
-const packerArg = Object.keys(models).sort().map(key => models[key]);
-
-packerArg.push(EnhancedError);
-packerArg.push(Cache.RangeArray);
-packerArg.push(Cache.OrderedArray);
-const packer = stringPack(packerArg);
+import packer from './../../lib/packer';
 
 const {
 	protocol,

@@ -1,21 +1,11 @@
 import engine from 'engine.io';
-import Cache from 'sbcache';
-import EnhancedError from '../../lib/EnhancedError';
 import winston from 'winston';
-import stringPack from 'stringpack';
 import * as core from '../../core-server';
 import uid from '../../lib/uid-server';
 import notify from './dispatch';
-import * as models from '../../models/models';
+import packer from './../../lib/packer';
 
-const sockets = {}, bus = core.bus,
-	packerArg = Object.keys(models).sort().map(key => models[key]);
-
-packerArg.push(EnhancedError);
-packerArg.push(Cache.RangeArray);
-packerArg.push(Cache.OrderedArray);
-const packer = stringPack(packerArg);
-
+const sockets = {}, bus = core.bus;
 
 function sendError(socket, code, reason, event) {
 	socket.send(packer.encode({
