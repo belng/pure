@@ -283,6 +283,12 @@ const OnboardContainer = Connect(({ user }) => ({
 			path: 'signup',
 		}
 	},
+	location: {
+		key: {
+			type: 'state',
+			path: 'location'
+		}
+	}
 }), {
 	signIn: (props, store) => (provider: string, token: string) => store.dispatch(signIn(provider, token)),
 	cancelSignUp: (props, store) => () => store.dispatch(cancelSignUp()),
