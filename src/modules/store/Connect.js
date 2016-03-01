@@ -115,6 +115,28 @@ export default function(
 				});
 			};
 
+			_setInitialState = () => {
+				let subscriptions;
+
+				if (typeof mapSubscriptionToProps === 'function') {
+					subscriptions = mapSubscriptionToProps({ ...this.props, store: null });
+				} else if (typeof mapSubscriptionToProps === 'object') {
+					subscriptions = mapSubscriptionToProps;
+				}
+
+				const state = {};
+
+				for (const item in subscriptions) {
+					state[item] = null;
+				}
+
+				this.setState(state);
+			};
+
+			componentWillMount() {
+				this._setInitialState();
+			}
+
 			componentDidMount() {
 				this._addSubscriptions();
 			}
