@@ -104,7 +104,7 @@ class OnboardContainerInner extends Component<void, Props, State> {
 				onboarding: true,
 			});
 		} else {
-			if (user) {
+			if (user && user.type !== 'loading') {
 				if (user.params && user.params.places) {
 					if (this.state.onboarding) {
 						this.setState({
@@ -273,12 +273,8 @@ OnboardContainerInner.propTypes = {
 const OnboardContainer = Connect(({ user }) => ({
 	user: {
 		key: {
-			slice: {
-				type: 'entity',
-				filter: {
-					id: user
-				}
-			}
+			type: 'entity',
+			id: user,
 		},
 	},
 	pendingUser: {

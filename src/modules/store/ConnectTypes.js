@@ -17,7 +17,7 @@ export type SubscriptionRange = {
 }
 
 export type SubscriptionOptions = {
-	what?: string;
+	type?: string;
 	slice?: SubscriptionSlice;
 	range?: SubscriptionRange;
 	order?: string;

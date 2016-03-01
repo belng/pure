@@ -51,7 +51,6 @@ function signuphandler(changes, n) {
 			n();
 		}
 	}
-
 	if (changes.auth && changes.auth.signup) {
 		getIdentitiesFromJWT(changes.auth.signup.signedIdentities)
 		.then((identities) => {
@@ -66,10 +65,12 @@ function signuphandler(changes, n) {
 				changes.response = changes.response || {};
 				changes.response.state = changes.response.state || {};
 				changes.response.state.user = changes.auth.signup.id;
+				changes.response.state.__op__ = { signup: 'delete' };
 				(changes.entities = changes.entities || {})[changes.auth.signup.id] = changes.auth.signup;
+				changes.auth.signup.type = 'user';
+				changes.auth.signup.createTime = Date.now();
 				// REVIEW: check if this is fine or should the changes.entities itself be fired and sent to the client?
 				(changes.response.entities = changes.response.entities || {})[changes.auth.signup.id] = changes.auth.signup;
-
 				winston.info('okay its a sign up.', changes.entities);
 				return next();
 			});

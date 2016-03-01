@@ -1,23 +1,29 @@
 /* @flow */
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Splash from './Splash';
 import OnboardContainer from '../containers/OnboardContainer';
 import Offline from './Offline';
 
 type Props = {
-	connection: 'connecting' | 'online' | 'offline'
+	connection: '@@loading' | 'online' | 'offline';
+	session: string
 }
 
 export default class App extends React.Component<void, Props, void> {
 	render() {
 		const {
 			connection,
+			session,
 		} = this.props;
 
 		switch (connection) {
 		case 'online':
-			return <OnboardContainer {...this.props} />;
+			if (session === '@@loading') {
+				return <Splash />;
+			} else {
+				return <OnboardContainer {...this.props} />;
+			}
 		case 'offline':
 			return <Offline />;
 		default:
@@ -27,5 +33,6 @@ export default class App extends React.Component<void, Props, void> {
 }
 
 App.propTypes = {
-	connection: React.PropTypes.oneOf([ 'connecting', 'online', 'offline' ])
+	connection: PropTypes.oneOf([ '@@loading', 'online', 'offline' ]),
+	session: PropTypes.string
 };
