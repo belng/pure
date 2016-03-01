@@ -7,7 +7,7 @@ let Counter = require('../../../lib/counter'),
 require('../note');
 describe('create note for a text relation(item present in entities)', () => {
 	it('test', () => {
-		bus.emit('setstate', {
+		bus.emit('change', {
 			entities: {
 				'hags732-dsf-sdr32-32eds': {
 				id: 'hags732-dsf-sdr32-32eds',
@@ -56,7 +56,7 @@ describe('create note for a text(item not in entities)', () => {
 		}
 	});
 	it('test', () => {
-		bus.emit('setstate', {
+		bus.emit('change', {
 			entities: {
 				'testinguser_hags732-dsf-sdr32-32eds': {
 					'user': 'testinguser',

@@ -79,7 +79,7 @@ export default function(
 							break;
 						case 'object':
 							listener = store.subscribe(
-								typeof sub.key === 'string' ? { what: sub.key } : { ...sub.key, what: sub.key.type, type: null },
+								typeof sub.key === 'string' ? { type: sub.key } : { ...sub.key },
 								this._updateListener(item, sub.transform)
 							);
 							break;
@@ -156,6 +156,20 @@ export default function(
 			}
 		}
 
-		return Container(Connect);
+		const ContainerComponent = Container(Connect);
+
+		ContainerComponent.displayName = `${Target.name}Container`;
+
+		if (process.env.NODE_ENV !== 'production') {
+			if (typeof mapSubscriptionToProps === 'function') {
+				setTimeout(() => {
+					if (typeof ContainerComponent.propTypes !== 'object') {
+						console.warn(`No 'propTypes' was defined on '${ContainerComponent.displayName}', but 'mapSubscriptionToProps' was a function.`);
+					}
+				}, 0);
+			}
+		}
+
+		return ContainerComponent;
 	};
 }

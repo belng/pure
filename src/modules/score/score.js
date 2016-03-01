@@ -3,7 +3,7 @@ import { Constants, bus } from '../../core-server';
 function getScore(params) {
 	return Math.log(params);
 }
-bus.on('setstate', (changes, next) => {
+bus.on('change', (changes, next) => {
 	if (!changes.entities) return next();
 
 	for (const id in changes.entities) {

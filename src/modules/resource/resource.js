@@ -15,9 +15,9 @@ bus.on('presence/online', presence => {
 
 function resourceHandler(changes, next) {
 	let signin = {};
-	if (changes.auth && changes.auth.resource && !changes.app.user) {
+	if (changes.auth && changes.auth.resource && !changes.state.user) {
 		if (resourceMap[changes.auth.resource]) {
-			changes.app.user = resourceMap[changes.auth.resource];
+			changes.state.user = resourceMap[changes.auth.resource];
 			next();
 		} else {
 			next(new Error('INVALID_RESOURCE'));
@@ -25,4 +25,4 @@ function resourceHandler(changes, next) {
 	}
 }
 
-bus.on('setstate', resourceHandler, 'authentication');
+bus.on('change', resourceHandler, 'authentication');

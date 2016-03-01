@@ -1,13 +1,15 @@
 /* @flow */
 
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
+import Home from '../views/Home';
 
 const HomeContainer = Connect({
 	initialURL: {
-		key: 'app',
-		transform: app => app ? app.initialURL : null,
+		key: {
+			type: 'state',
+			path: 'initialURL',
+		}
 	}
-})(Dummy);
+})(Home);
 
 export default HomeContainer;

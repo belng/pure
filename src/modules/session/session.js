@@ -1,66 +1,88 @@
 /* @flow */
-
-'use strict';
-
 import jwt from 'jsonwebtoken';
-import { bus, config } from '../../core-server';
+import { bus, config, Constants } from '../../core-server';
+import winston from 'winston';
 
 // sign with default (HMAC SHA256)
-var tokenValidity = 604800, iss = config.host, aud = config.host, key = config.session.privateKey;
+const TOKEN_VALIDITY = 604800; // default seven days.
+const ISSUER = config.host;
+const AUDIENCE = config.host;
+const KEY = config.session.private_key;
 
-function getEmailFromSession(session) {
-	return new Promise(function(resolve, reject) {
-		jwt.verify(session, key, { aud: aud }, function(err, decoded) {
-			if (err) return reject(err);
-			else resolve(decoded.sub);
+function getIDFromSession(session) {
+	return new Promise((resolve, reject) => {
+		jwt.verify(session, KEY, { aud: AUDIENCE }, (err, decoded) => {
+			if (err) {
+				reject(err);
+			} else {
+				resolve(decoded.sub);
+			}
 		});
 	});
 }
 
-function generateSession(sub) { // not sure if this should strictly be mailto ident?
-	return new Promise(function(resolve) {
+function generateSession(sub) {
+	return new Promise((resolve) => {
 		jwt.sign({
-			iss: iss, sub: sub, aud: aud,
+			iss: ISSUER, sub, aud: AUDIENCE,
 			iat: Math.floor((new Date()).getTime() / 1000),
-			exp: Math.floor((new Date()).getTime() / 1000) + tokenValidity // seven days
-		}, key, {
+			exp: Math.floor((new Date()).getTime() / 1000) + TOKEN_VALIDITY
+		}, KEY, {
 			algorithm: 'HS256',
 			type: 'JWS'
-		}, function(session) {
+		}, (session) => {
 			resolve(session);
 		});
 	});
 }
 
-function sessionHandler(changes, next) {
-	let signin = {};
+function sessionHandler(changes, n) {
+	const signin = {};
+
+	function next(e) {
+		if (e) {
+			(changes.response = changes.response || {}).state = {
+				signin: {
+					error: e
+				}
+			};
+
+			n(changes);
+		} else {
+			n();
+		}
+	}
+	winston.info('setstate: session module listener 1');
+
 	if (changes.auth && changes.auth.session) {
-		getEmailFromSession(changes.auth.session)
-		.then(function(sub) {
-			changes.auth.user = sub; // sign in
+		getIDFromSession(changes.auth.session)
+		.then((sub) => {
+			winston.debug('signing in as ', sub);
+			changes.auth.user = sub;
+			changes.auth.signin = signin;
 			signin.id = sub;
 			signin.params = {};
 			next();
 		})
 		.catch(next);
-	}/* is needed?
-
-	else if (changes.auth && changes.auth.signin && changes.auth.signin.identities && changes.auth.signin.identities.length) {
-		generateSession(changes.auth.signin.identities[0]).then(function(session) {
-			changes.auth.session =	session;
-			next();
-		});
-	}*/
+	} else {
+		next();
+	}
 }
 
-bus.on('setstate', sessionHandler, 'authentication');
-bus.on('setstate', function(changes, next) {
-	if (changes.response && changes.response.app && changes.response.app.user) {
-		generateSession(changes.response.app.user).then(function(session) {
-			changes.response.app.session =	session;
+bus.on('change', sessionHandler, Constants.APP_PRIORITIES.AUTHENTICATION_SESSION);
+bus.on('change', (changes, next) => {
+	winston.debug('setstate: session module listener 2-1', changes);
+	if (changes.response && changes.response.state && changes.response.state.user) {
+		winston.info('setstate: session module listener 2-2', changes.response.state.user);
+		generateSession(changes.response.state.user).then((session) => {
+			winston.debug('setstate: session module listener 2-3', session);
+			changes.response.state.session =	session;
 			next();
 		});
+	} else {
+		next();
 	}
-}, 'modifier');
+}, Constants.APP_PRIORITIES.AUTHENTICATION_SESSION_2);
 
-console.log('session module ready...');
+winston.info('session module ready...');

@@ -9,7 +9,7 @@ const DiscussionsContainerInner = Connect(({ room, start, before, after }) => ({
 	threads: {
 		key: {
 			slice: {
-				type: 'threads',
+				type: 'thread',
 				filter: {
 					room
 				},
@@ -31,7 +31,7 @@ DiscussionsContainerInner.propTypes = {
 	after: React.PropTypes.number,
 };
 
-export default class DiscussionsContainer extends Component {
+export default class DiscussionsContainer extends Component<void, any, SubscriptionRange> {
 	// Keep state flat for shallowEqual
 	state: SubscriptionRange = {
 		start: -Infinity,
@@ -46,12 +46,10 @@ export default class DiscussionsContainer extends Component {
 	};
 
 	render() {
+		const props = { ...this.props, ...this.state };
+
 		return (
-			<DiscussionsContainerInner
-				{...this.props}
-				{...this.state}
-				loadMore={this._loadMore}
-			/>
+			<DiscussionsContainerInner {...props} loadMore={this._loadMore} />
 		);
 	}
 }

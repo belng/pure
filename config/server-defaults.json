@@ -1,6 +1,8 @@
 {
-	"session": {
+	"app_name": "Hey, Neighbor!",
+	"app_id": "heyneighbor",
 
+	"session": {
 	},
 
 	"server": {
@@ -13,17 +15,24 @@
 		"secret":"",
 		"debug": false,
 		"auth": {
-			
+
 		}
 	},
 
 	"facebook": {
-
+		"login_url": "/r/facebook/login",
+		"redirect_path": "/r/facebook/return",
+		"client_id": "XXXXXXXXX",
+		"client_secret": "XXXXXXXX"
 	},
 
 	"google": {
-
+		"login_url": "/r/google/login",
+		"redirect_path": "/r/google/return",
+		"client_id": "XXXXXXXXX",
+		"client_secret": "XXXXXXXX"
 	},
-	"appName": "Heyneighbor",
-	"connStr": "pg://scrollback:@localhost/pure"
+
+	"connStr": "pg://scrollback:@localhost/pure",
+	"open_in_browser": false
 }

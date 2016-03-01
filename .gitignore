@@ -25,6 +25,42 @@ typings/
 *.vscode
 settings.json
 
+# Android
+#
+
+# Built application files
+*.apk
+*.ap_
+
+# Files for the Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+
+# Gradle files
+.gradle/
+build/
+/*/build/
+
+# Keystore
+*.jks
+*.keystore
+
+# IDE
+.idea
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Fabric
+fabric.properties
+com_crashlytics_export_strings.xml
+
 # Built files
 #
 *.bundle
@@ -38,3 +74,4 @@ build/
 
 config/server.json
 config/client.json
+FewIntegrationTests.txt

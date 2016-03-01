@@ -10,7 +10,7 @@ const ChatTitleContainer = Connect(({ thread }) => ({
 			type: 'entity',
 			id: thread
 		},
-		transform: o => o ? o.title : null
+		transform: o => o ? o.name : null
 	}
 }))(Dummy);
 

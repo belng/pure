@@ -12,7 +12,7 @@ let core = require('../../../core-server'),
 describe('incriment count', () => {
 	let count = require('../count');
 	it('should add count+ to parents and user on new text', () => {
-		bus.emit('setstate', {
+		bus.emit('change', {
 			entities: {
 				'sd23d-d23dasd-ad23-dawe': {
 					id: 'sd23d-d23dasd-ad23-dawe',
@@ -36,7 +36,7 @@ describe('incriment count', () => {
 	});
 
 	it('should add count+ to parents and user on new thread', () => {
-		bus.emit('setstate', {
+		bus.emit('change', {
 			entities: {
 				'sdf87sd-sdf6-xv6-xcvx7843d': {
 					id: 'sdf87sd-sdf6-xv6-xcvx7843d',
@@ -62,7 +62,7 @@ describe('incriment count', () => {
 	});
 
 	it('should add count- to parents and user on delete text', () => {
-		bus.emit('setstate', {
+		bus.emit('change', {
 			entities: {
 				'sd23d-d23dasd-ad23-dawe': {
 					id: 'sd23d-d23dasd-ad23-dawe',
@@ -86,7 +86,7 @@ describe('incriment count', () => {
 	});
 
 	it('should add count- to parents and user on delete thread', () => {
-		bus.emit('setstate', {
+		bus.emit('change', {
 			entities: {
 				'sdf87sd-sdf6-xv6-xcvx7843d': {
 					id: 'sdf87sd-sdf6-xv6-xcvx7843d',
@@ -111,7 +111,7 @@ describe('incriment count', () => {
 	});
 
 	it('should add follower count to related item', () => {
-		bus.emit('setstate', {
+		bus.emit('change', {
 			entities: {
 				'testinguser_scrollback': {
 					user: 'testinguser',
@@ -143,7 +143,7 @@ describe('incriment count', () => {
 			}
 		});
 
-		bus.emit('setstate', {
+		bus.emit('change', {
 			entities: {
 				'testinguser_scrollback': {
 					user: 'testinguser',
@@ -175,7 +175,7 @@ describe('incriment count', () => {
 			}
 		});
 
-		bus.emit('setstate', {
+		bus.emit('change', {
 			entities: {
 				'testinguser_scrollback': {
 					user: 'testinguser',
@@ -207,7 +207,7 @@ describe('incriment count', () => {
 			}
 		});
 
-		bus.emit('setstate', {
+		bus.emit('change', {
 			entities: {
 				'testinguser_scrollback': {
 					user: 'testinguser',

@@ -5,7 +5,7 @@
 import { TABLES, COLUMNS, TYPES, ROLES } from '../../lib/schema';
 import { Constants, bus, cache } from '../../core-server';
 
-bus.on('setstate', (changes, next) => {
+bus.on('change', (changes, next) => {
 	if (!changes.entities) return next();
 
 	for (let id in changes.entities) {

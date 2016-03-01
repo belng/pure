@@ -1,12 +1,23 @@
 /* @flow */
 
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
+import App from '../views/App';
 
 export default Connect({
-	user: 'me',
+	user: {
+		key: 'me',
+		transform: user => user ? user.id : null,
+	},
 	connection: {
-		key: 'app',
-		transform: app => app ? app.connectionStatus : null,
+		key: {
+			type: 'state',
+			path: 'connectionStatus',
+		}
+	},
+	session: {
+		key: {
+			type: 'state',
+			path: 'session',
+		}
 	}
-})(Dummy);
+})(App);

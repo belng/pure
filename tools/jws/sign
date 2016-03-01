@@ -1,0 +1,56 @@
+#! ./node_modules/babel-cli/bin/babel-node.js
+// sign with default (HMAC SHA256)
+
+import jwt from 'jsonwebtoken';
+import winston from 'winston';
+
+let	sub, key, iss = 'localhost:7528',
+	aud = 'localhost:7528';
+
+function helpQuit() {
+	winston.error('Usage: sign [-s <issuer>] [-a <audience>] [-k <key>] <subject>');
+	process.exit(1);
+}
+
+process.argv.forEach((segment) => {
+	if (sub === '-a') {
+		aud = segment;
+		sub = null;
+	} else if (sub === '-is') {
+		iss = segment;
+		sub = null;
+	} else if (sub === '-k') {
+		key = segment;
+		sub = null;
+	} else if (segment === 'sign' || segment === 'sign.js') {
+		sub = null;
+	} else {
+		sub = segment;
+	}
+});
+
+if (!sub || sub[0] === '-') { helpQuit(); }
+if (!key) {
+	key = require('../../config/server.json').session.private_key;
+	if (!key) {
+		winston.error('No key found for issuer', iss);
+		process.exit(2);
+	} else {
+		winston.info('Found Key', key);
+	}
+}
+
+key = Buffer(key, 'base64');
+
+winston.info('key: ' + jwt.sign(
+	{
+		iss, sub, aud,
+		iat: Math.floor((new Date()).getTime() / 1000),
+		exp: Math.floor((new Date()).getTime() / 1000) + 30000
+	},
+	key,
+	{
+		algorithm: 'HS256',
+		type: 'JWS'
+	}
+));

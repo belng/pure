@@ -1,8 +1,12 @@
 /*
-sources:
+resources:
 https://developers.google.com/identity/protocols/OAuth2UserAgent#validatetoken
+https://developers.google.com/oauthplayground/
+
+TODO: use switch to 2.4.
 */
 
+import EnhancedError from '../../lib/EnhancedError';
 import fs from 'fs';
 import path from 'path';
 import winston from 'winston';
@@ -10,15 +14,18 @@ import request from 'request';
 import handlebars from 'handlebars';
 import route from 'koa-route';
 import queryString from 'querystring';
-import { bus, config } from './../../core-server';
+import { bus, config, Constants } from './../../core-server';
+import encodeURITemplate from '../../lib/encodeURITemplate';
 
-const SCRIPT_REDIRECT = `
-location.href = 'https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/userinfo.email '
-	+ 'https://www.googleapis.com/auth/userinfo.profile'
-	+ '&client_id=${config.google.client_id}'
-	+ '&redirect_uri=encodeURIComponent("https://" + ${config.host} + "/r/google/return")'
-	+ '&response_type=code&access_type=offline';
-`;
+const redirectURL = `https://${config.host}${config.facebook.redirect_path}`;
+
+const SCRIPT_REDIRECT = `\
+location.href = 'https://accounts.google.com/o/oauth2/auth?\
+scope=https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile&\
+client_id=${config.google.client_id}&\
+redirect_uri=${redirectURL}&\
+response_type=code&access_type=offline`;
+
 const SCRIPT_MESSAGE = `
 	var code = (location.search.substring(1).split("&").filter(function(seg) {
 		return seg.indexOf("code=") === 0;
@@ -43,17 +50,25 @@ function getTokenFromCode(code) {
 			},
 			body: queryString.stringify({
 				code,
-				redirect_uri: 'https://' + config.host + '/r/google/return',
+				redirect_uri: redirectURL,
 				client_id: config.google.client_id,
 				client_secret: config.google.client_secret,
 				grant_type: 'authorization_code'
 			})
 		}, (err, res, t) => {
-			if (err) throw (err);
+
+			if (err) {
+				const error = new EnhancedError(err.message, err.message);
+
+				winston.error(err);
+				reject(error);
+				return;
+			}
+
 			try {
 				const tokenBody = JSON.parse(t), token = tokenBody.access_token;
 
-				if (!token) throw new Error('INVALID_ACCESS_TOKEN');
+				if (!token) throw new Error('INVALID_GOOGLE_CODE');
 				resolve(token);
 			} catch (e) {
 				reject(e);
@@ -64,18 +79,23 @@ function getTokenFromCode(code) {
 
 function verifyToken(token, appId) {
 	return new Promise((resolve, reject) => {
-		request('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=accessToken' + token,
-		(err, res /* , body */) => {
-			let response;
-
+		request(encodeURITemplate `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${token}`,
+		(err, res, body) => {
+			winston.error(err, body);
 			if (err || !res) {
-				return reject(err, null, null);
+				reject(err);
+				return;
 			}
 
-			response = JSON.parse(res);
-			if (response.error) return reject(new Error(response.error.message));
-			if (response.audience === appId + '.apps.googleusercontent.com') resolve(token);
-			else resolve(null);
+			const response = JSON.parse(body);
+
+			if (response.error) {
+				reject(new Error(response.error.message));
+				return;
+			}
+
+			if (response.audience === appId) resolve(token);
+			else reject(new EnhancedError(Constants.ERRORS.AUDIENCE_MISMATCH_GOOGLE, 'AUDIENCE_MISMATCH_GOOGLE'));
 		});
 	});
 }
@@ -85,16 +105,14 @@ function getDataFromToken(token) {
 
 	return new Promise((resolve, reject) => {
 		request(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`, (err, res, body) => {
-			let user;
-
 			try {
 				if (err) throw (err);
-				user = JSON.parse(body);
+				const user = JSON.parse(body);
 
 				if (user.error) {
-					throw (new Error(user.error || 'ERR_GOOGLE_SIGNIN'));
+					throw (new EnhancedError(user.error || Constants.ERRORS.ERR_FACEBOOK_SIGNIN_FAILED, user.error || 'ERR_FACEBOOK_SIGNIN_FAILED'));
 				} else if (!user.email) {
-					throw (new Error(user.error || 'ERR_GOOGLe_SIGNIN_NO_EMAIL'));
+					throw (new Error(user.error || 'ERR_GOOGLE_SIGNIN_NO_EMAIL'));
 				}
 	//			response.signin.pictures.push('https://gravatar.com/avatar/' + crypto.createHash('md5').update(user.email).digest('hex') + '/?d=retro');
 
@@ -115,40 +133,66 @@ function getDataFromToken(token) {
 	});
 }
 
-function googleAuth(changes, next) {
-	let key, promise;
+function googleAuth(changes, n) {
+	winston.debug('setstate: facebook module');
 
-	if (!changes.auth || !changes.auth.google) return next();
+	function next(e) {
+		if (e) {
+			(changes.response = changes.response || {}).state = changes.auth;
+			changes.response.state.google.error = e;
+			n(changes);
+		} else {
+			n();
+		}
+	}
+
+	if (!changes.auth || !changes.auth.google) {
+		return next();
+	}
 
 	/* TODO: how do we handle auth from already logged in user?*/
-	key = changes.auth.google.code || changes.auth.google.accessToken;
-	if (!key) return next(new Error('GOOGLE_AUTH_FAILED'));
+	const key = changes.auth.google.code || changes.auth.google.accessToken;
 
-	promise = ((changes.auth.google.code) ? getTokenFromCode(key) : verifyToken(key));
-	promise.then((err, token) => {
-		if (err) return next(err);
-		if (!token) return next(new Error('Invalid_FB_TOKEN'));
-		getDataFromToken(token).then((error, response) => {
-			if (!response) return next(new Error('trouble construct the signin object'));
+	if (!key) {
+		return next(new EnhancedError(Constants.ERRORS.INVALID_GOOGLE_KEY, 'INVALID_GOOGLE_KEY'));
+	}
+
+	winston.debug('Google Login Request', changes.auth.google);
+	const promise = ((changes.auth.google.code) ? getTokenFromCode(key) : verifyToken(key, config.google.client_id));
+
+	promise.then((token) => {
+		winston.debug('T->D', token);
+		if (!token) {
+			return next(new EnhancedError(Constants.ERRORS.INVALID_GOOGLE_TOKEN, 'INVALID_GOOGLE_TOKEN'));
+		}
+
+		getDataFromToken(token).then((response) => {
+			if (!response) {
+				return next(new EnhancedError(Constants.ERRORS.GOOGLE_RESPONSE_PARSE_ERROR, 'GOOGLE_RESPONSE_PARSE_ERROR'));
+			}
+			winston.debug('response', changes);
 			changes.auth.signin = response;
-			next();
+			return next();
 		}).catch(error => next(error));
+
+		return null;
 	}).catch(error => next(error));
+	return null;
 }
 
-bus.on('setstate', googleAuth, 900);
+bus.on('change', googleAuth, Constants.APP_PRIORITIES.AUTHENTICATION_GOOGLE);
 
 const scriptTemplate = handlebars.compile(fs.readFileSync(path.join(__dirname, '../../../templates/script.hbs'), 'utf8').toString());
 
 bus.on('http/init', app => {
-	app.use(route.get('/r/google/login', function *() {
+	app.use(route.get(config.google.login_url, function *() {
 		this.body = scriptTemplate({
 			title: 'Logging in with Google',
 			script: SCRIPT_REDIRECT
 		});
 	}));
 
-	app.use(route.get('/r/google/return', function *() {
+	app.use(route.get(config.google.redirect_path, function *() {
 		this.body = scriptTemplate({
 			title: 'Logging in with Google',
 			script: SCRIPT_MESSAGE

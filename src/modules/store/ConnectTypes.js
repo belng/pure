@@ -16,29 +16,28 @@ export type SubscriptionRange = {
 	after: ?number
 }
 
+export type SubscriptionOptions = {
+	type?: string;
+	slice?: SubscriptionSlice;
+	range?: SubscriptionRange;
+	order?: string;
+	id?: string;
+	path?: string|Array<string>
+}
+
 export type Store = {
 	subscribe(
-		options: {
-			what?: string;
-			slice?: SubscriptionSlice;
-			range?: SubscriptionRange;
-			order?: string;
-		},
+		options: SubscriptionOptions,
 		callback: Function
 	): Subscription;
-	onSubscribe(callback: Function): Subscription;
-	onUnSubscribe(callback: Function): Subscription;
-	setState(payload: Object): void;
+	on(event: string, callback: Function): Subscription;
+	off(event: string, callback: Function): void;
+	dispatch(payload: Object): void;
 }
 
 export type MapSubscriptionToProps = {
 	[key: string]: string | {
-		key: string | {
-			type?: string;
-			slice?: SubscriptionSlice;
-			range?: SubscriptionRange;
-			order?: string;
-		};
+		key: string | { type?: string; };
 		transform?: Function;
 	}
 };

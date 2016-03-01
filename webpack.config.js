@@ -8,6 +8,9 @@ const fs = require('fs');
 
 const plugins = [
 	new webpack.EnvironmentPlugin('NODE_ENV'),
+	new webpack.DefinePlugin({
+		__DEV__: JSON.stringify(__DEV__)
+	}),
 	new webpack.LoaderOptionsPlugin({
 		minimize: !__DEV__,
 		debug: __DEV__
@@ -29,9 +32,14 @@ module.exports = {
 		filename: 'bundle.min.js',
 		sourceMapFilename: 'bundle.min.js.map'
 	},
-	plugins: [ ...plugins, __DEV__ ? new webpack.HotModuleReplacementPlugin() : new webpack.optimize.UglifyJsPlugin() ],
+	plugins: plugins.concat(__DEV__ ? [
+		new webpack.HotModuleReplacementPlugin(),
+	] : [
+		new webpack.optimize.DedupePlugin(),
+		new webpack.optimize.UglifyJsPlugin()
+	]),
 	resolve: {
-		extensions: [ '', '.web.js', '.js' ],
+		extensions: [ '', '.web.js', '.js', ],
 	},
 	module: {
 		preLoaders: [

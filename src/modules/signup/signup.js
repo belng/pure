@@ -1,68 +1,95 @@
 /* @flow */
 
-import { bus, cache, config } from '../../core-server';
+import EnhancedError from '../../lib/EnhancedError';
+import { bus, cache, config, Constants } from '../../core-server';
 import jwt from 'jsonwebtoken';
 import merge from 'lodash/merge';
-
+import winston from 'winston';
 // sign with default (HMAC SHA256)
-var tokenValidity = 604800,
-    // seven days
-    			iss = config.host,
-    			aud = config.host,
-    			key = config.session.privateKey;
+
+const TOKEN_VALIDITY = 604800, // seven days
+	ISSUER = config.host,
+	AUDIENCE = config.host,
+	KEY = config.session.private_key;
 
 function getIdentitiesFromJWT(token) {
-	return new Promise(function(resolve, reject) {
-		jwt.verify(token, key, { aud: aud }, function(err, decoded) {
-			if (err) return reject(err);
-			else resolve(decoded.sub);
+	return new Promise((resolve, reject) => {
+		jwt.verify(token, KEY, { aud: AUDIENCE }, (err, decoded) => {
+			if (err) {
+				reject(err);
+			} else {
+				resolve(decoded.sub);
+			}
 		});
 	});
 }
 
 function generateSignedIdentities(identities) {
-	return new Promise(function(resolve) {
+	return new Promise((resolve) => {
 		jwt.sign({
-			iss: iss, sub: identities, aud: aud,
+			iss: ISSUER, sub: identities, aud: AUDIENCE,
 			iat: Math.floor((new Date()).getTime() / 1000),
-			exp: Math.floor((new Date()).getTime() / 1000) + tokenValidity // seven days
-		}, key, {
+			exp: Math.floor((new Date()).getTime() / 1000) + TOKEN_VALIDITY // seven days
+		}, KEY, {
 			algorithm: 'HS256',
 			type: 'JWS'
-		}, function(session) {
+		}, (session) => {
 			resolve(session);
 		});
 	});
 }
 
-function signuphandler(changes, next) {
-	var signup = {};
+function signuphandler(changes, n) {
+	let signup = {};
+
+	function next(e) {
+		if (e) {
+			(changes.response = changes.response || {}).state = changes.auth;
+			changes.response.state.signup.error = e;
+			n(changes);
+		} else {
+			n();
+		}
+	}
 	if (changes.auth && changes.auth.signup) {
 		getIdentitiesFromJWT(changes.auth.signup.signedIdentities)
-		.then(function(identities) {
+		.then((identities) => {
 			changes.auth.signup.identities = identities;
 			delete changes.auth.signup.signedIdentities;
-			return cache.getEntity(changes.auth.signup.id, function(err, entity) {
-				if (err) return next(err);
-				if (entity) return next(new Error('USER_ALREADY_EXIST'));
 
-				changes.app = (changes.app || {}).user = changes.auth.signup.id;
-				((changes.response = (changes.response || {})).app || {}).user = changes.auth.signup.id;
+			cache.getEntity(changes.auth.signup.id, (err, entity) => {
+				if (err && next) return next(err);
+				if (entity && next) return next(new EnhancedError(Constants.ERRORS.ERR_USER_NAME_TAKEN, 'ERR_USER_NAME_TAKEN'));
+				changes.state = (changes.state || {}).user = changes.auth.signup.id;
+
+				changes.response = changes.response || {};
+				changes.response.state = changes.response.state || {};
+				changes.response.state.user = changes.auth.signup.id;
+				changes.response.state.__op__ = { signup: 'delete' };
 				(changes.entities = changes.entities || {})[changes.auth.signup.id] = changes.auth.signup;
-				delete changes.auth.signup;
+				changes.auth.signup.type = 'user';
+				changes.auth.signup.createTime = Date.now();
+				// REVIEW: check if this is fine or should the changes.entities itself be fired and sent to the client?
+				(changes.response.entities = changes.response.entities || {})[changes.auth.signup.id] = changes.auth.signup;
+				winston.info('okay its a sign up.', changes.entities);
 				return next();
 			});
 		})
 		.catch(next);
 	} else if (changes.auth && changes.auth.signin) {
-		if (!changes.auth.signin) changes.auth.signin = {};
 		signup = merge(changes.auth.signin, signup);
-		generateSignedIdentities(signup.identities).then(function(session) {
+		changes.response = changes.response || {};
+		changes.response.state = changes.response.state || {};
+		changes.response.state.signup = signup;
+
+		generateSignedIdentities(signup.identities).then((session) => {
 			signup.signedIdentities = session;
 			next();
 		});
+	} else {
+		next();
 	}
 }
 
-bus.on('setstate', signuphandler, 'authentication');
-console.log('signup module ready...');
+bus.on('change', signuphandler, Constants.APP_PRIORITIES.AUTHENTICATION_SIGNUP);
+winston.info('signup module ready...');

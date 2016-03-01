@@ -12,9 +12,9 @@ import './../modules/signin/signin';
 import './../modules/signup/signup';
 
 /* ########### */
-import './../modules/count/count';
+/*import './../modules/count/count';
 import './../modules/note/note';
-import './../modules/upload/upload';
+import './../modules/upload/upload';*/
 
 import './../modules/postgres/postgres';
 

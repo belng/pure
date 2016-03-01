@@ -44,7 +44,7 @@ cache.getThreads = function(roomId, time, r, callback) {
 };
 
 cache.getUser = function(id) {
-	const userObj = this.getEntity(id || this.get('app', 'user'));
+	const userObj = this.getEntity(id || this.get('state', 'user'));
 
 	if (typeof userObj === 'object') {
 		if (userObj.type === 'user') {
@@ -62,10 +62,10 @@ cache.getRelatedEntity = function(type, id, f) {
 	if (typeof id === 'string') {
 		entityId = id;
 	} else if (typeof id === 'object') {
-		entityId = this.get('app', 'nav', type === 'user' ? 'room' : 'user');
+		entityId = this.get('state', 'nav', type === 'user' ? 'room' : 'user');
 		filter = id;
 	} else {
-		entityId = this.get('app', 'nav', type === 'user' ? 'room' : 'user');
+		entityId = this.get('state', 'nav', type === 'user' ? 'room' : 'user');
 	}
 
 	q.type = 'relation';

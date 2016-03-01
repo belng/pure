@@ -4,6 +4,6 @@
 import { bus, config } from '../../core-server';
 
 
-bus.on('setstate', function(changes) {
+bus.on('change', function(changes) {
 
 }, 1);

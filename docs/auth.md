@@ -12,9 +12,9 @@ During sign-up, the dialogue between client and server is something like:
 
 ```
 1. client: { auth: { facebook: { token: "9b6dba..." } } }
-2. server: { app: { signup: { identities: [ ... ], signedIdentities: "<jws(identities)>", params... } } }
+2. server: { state: { signup: { identities: [ ... ], signedIdentities: "<jws(identities)>", params... } } }
 3. client: { auth: { signup: { id: "abc", identities, signedIdentities, params } } }
-4. server: { app: { session: "<jws()>" } }
+4. server: { state: { session: "<jws()>" } }
 ```
 
 Module order is:
@@ -109,7 +109,7 @@ If a user exists, it adds the user id to `auth.user` and to `response.app.user`,
 		}
 	},
 	response: {
-		app: { user: "harish" },
+		state: { user: "harish" },
 		entities: { harish: { /* full user object */ }
 	},
 	auth: {
@@ -129,7 +129,7 @@ If no `auth.signup` exists, `auth.signin` is copied to `response.app.signup`.
 ```javascript
 {
 	response: {
-		app: { signup: { ... } }
+		state: { signup: { ... } }
 	},
 	auth: {
 		facebook: "<access token>",
@@ -149,7 +149,7 @@ If `auth.signup` exists, it is moved to `entities` as well as `response.entities
 		harish: { /* full user object */ }
 	},
 	response: {
-		app: { user: "harish" },
+		state: { user: "harish" },
 		entities: { harish: { /* full user object */ }
 	},
 	auth: {

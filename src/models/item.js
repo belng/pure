@@ -1,8 +1,10 @@
 import { COLUMNS } from '../lib/schema';
+import * as Constants from '../lib/Constants';
 
 export default class Item {
 	constructor(data) {
-		for (const name of COLUMNS[data.type]) {
+		if (!data) return;
+		for (const name of COLUMNS[Constants.TYPE_ITEM]) {
 			this[name] = data[name] || data[name.toLowerCase()];
 		}
 	}
@@ -10,11 +12,11 @@ export default class Item {
 	packArguments(): Object {
 		const data = {};
 
-		for (const name of COLUMNS[this.type]) {
+		for (const name of COLUMNS[Constants.TYPE_ITEM]) {
 			data[name] = this[name];
 		}
 
-		return data;
+		return [ data ];
 	}
 
 	hasIdentity(identity) {

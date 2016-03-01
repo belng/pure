@@ -16,17 +16,13 @@ const extractAvatarURL = (user, size = 48) => {
 	}
 };
 
-const AvatarContainer = Connect(({ nick, size }) => ({
+const AvatarContainer = Connect(({ user, size }) => ({
 	user: {
 		key: {
-			slice: {
-				type: 'user',
-				filter: {
-					id: nick
-				}
-			}
+			type: 'entity',
+			id: user,
 		},
-		transform: user => extractAvatarURL(user && user.id ? user : { id: nick }, size)
+		transform: userObj => extractAvatarURL(userObj && userObj.id ? user : { id: user }, size)
 	}
 }))(Dummy);
 

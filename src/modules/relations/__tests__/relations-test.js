@@ -6,7 +6,7 @@ let { Constants, bus, cache } = require('../../../core-server');
 
 require('../relations');
 describe('create relation on reply to a thread', () => {
-	bus.emit('setstate', {
+	bus.emit('change', {
 		entities: {
 			'jheg38-sdfh34-sdf7-sdfhg': {
 				id: 'jheg38-sdfh34-sdf7-sdfhg',
@@ -35,7 +35,7 @@ describe('create relation if mention on a text(item not in entities)', () => {
 			}
 		}
 	});
-	bus.emit('setstate', {
+	bus.emit('change', {
 		entities: {
 			'testinguser_jheg38-sdfh34-sdf7-sdfhg': {
 				user: 'testinguser',
@@ -54,7 +54,7 @@ describe('create relation if mention on a text(item not in entities)', () => {
 
 describe('create relation if mention on a text(item in entities)', () => {
 
-	bus.emit('setstate', {
+	bus.emit('change', {
 		entities: {
 			'testinguser_jheg38-sdfh34-sdf7-sdfhg': {
 				user: 'testinguser',

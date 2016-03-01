@@ -10,7 +10,6 @@ bus.on('setstate', (changes, next) => {
 		return;
 	}
 	const counter = new Counter();
-
 	let note;
 
 	for (const id in changes.entities) {

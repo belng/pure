@@ -12,6 +12,7 @@ export type User = {
 	params: Object;
 	presence: number;
 	presenceTime: number;
+	profile: Object;
 	resources: { [key: string]: number };
 	tags: Array<number>;
 	timezone: number;

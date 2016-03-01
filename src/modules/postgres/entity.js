@@ -1,21 +1,25 @@
-import pg from '../../lib/pg';
-import { TABLES, COLUMNS } from '../../lib/schema';
+import * as pg from '../../lib/pg';
+import { TABLES, COLUMNS, TYPES } from '../../lib/schema';
+import * as Constants from '../../lib/Constants';
 import jsonop from 'jsonop';
 import defaultOps from './../../lib/defaultOps';
 
-module.exports = function (entity) {
+export default function (entity) {
 	const names = Object.keys(entity).filter(
-		name => COLUMNS[entity.type].indexOf(name) >= 0
+		name => COLUMNS[TYPES[entity.type]].indexOf(name) >= 0
 	);
 
 	const ops = jsonop(defaultOps, entity.__op__ || {});
-	if (entity.type === constants.TYPE_ROOM) {
+
+	if (TYPES[entity.type] === Constants.TYPE_ROOM) {
 		names.push('terms');
 	}
 
+	names.splice(names.indexOf('type'), 1);
+
 	if (entity.createTime) { // INSERT
 		return pg.cat([
-			'INSERT INTO "' + TABLES[entity.type] + '" (',
+			`INSERT INTO "${TABLES[TYPES[entity.type]]}" (`,
 			'"' + names.map(name => name.toLowerCase()).join('", "') + '"',
 			') VALUES (',
 			pg.cat(names.map(name => {
@@ -34,11 +38,14 @@ module.exports = function (entity) {
 					};
 				}
 			}), ', '),
-			') RETURNING *'
+			{
+				$: ') RETURNING *, &{type}::text as "type"',
+				type: entity.type
+			}
 		], ' ');
 	} else { // UPDATE
 		return pg.cat([
-			'UPDATE "' + TABLES[entity.type] + '" SET',
+			'UPDATE "' + TABLES[TYPES[entity.type]] + '" SET',
 			pg.cat(names.map(name => {
 				switch (name) {
 				case 'id':
@@ -90,26 +97,10 @@ module.exports = function (entity) {
 				event: entity.item,
 				group: entity.group
 			} : 'FALSE',
-			'RETURNING *'
+			{
+				$: 'RETURNING *, &{type}::text as "type"',
+				type: entity.type
+			}
 		], ' ');
 	}
-
-	return pg.cat([
-		'INSERT INTO "' + TABLES[entity.type] + '" (',
-		'"' + names.join('", "') + '"',
-		') VALUES (',
-		pg.cat(names.map(name => {
-			switch (name) {
-			case 'terms':
-				return {
-					$: "to_tsvector(&{locale}, &{name} || ' ' || &{body})",
-					locale: 'english',
-					name: entity.name,
-					body: entity.body
-				};
-			}
-		}), ', '),
-		') ON CONFLICT DO UPDATE SET',
-		'RETURNING *'
-	]);
-};
+}

@@ -5,11 +5,23 @@ import type { User } from '../../lib/schemaTypes';
 /*
  * User related actions
  */
-export const signIn = (gateway: string, accessToken: string): Object => ({
+export const signIn = (provider: string, accessToken: string): Object => ({
 	auth: {
-		[gateway]: {
-			token: accessToken
+		[provider]: {
+			accessToken
 		}
+	}
+});
+
+export const signUp = (user: User): Object => ({
+	auth: {
+		signup: user
+	}
+});
+
+export const cancelSignUp = (): Object => ({
+	state: {
+		signup: null
 	}
 });
 
@@ -22,14 +34,6 @@ export const saveUser = (user: User): Object => ({
 		[user.id]: user,
 		__op__: {
 			[user.id]: 'replace'
-		}
-	}
-});
-
-export const saveParams = (id: string, params: Object): Object => ({
-	entities: {
-		[id]: {
-			id, params
 		}
 	}
 });

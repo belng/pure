@@ -58,6 +58,7 @@ COLUMNS[Constants.TYPE_USER] = [
 	'params',
 	'presence',
 	'presenceTime',
+	'profile',
 	'resources',
 	'tags',
 	'timezone',
@@ -65,6 +66,7 @@ COLUMNS[Constants.TYPE_USER] = [
 	'updateTime',
 ];
 
+COLUMNS[Constants.TYPE_ITEM] =
 COLUMNS[Constants.TYPE_ROOM] =
 COLUMNS[Constants.TYPE_TEXT] =
 COLUMNS[Constants.TYPE_THREAD] =

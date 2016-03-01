@@ -7,7 +7,7 @@ import send from './sendEmail.js';
 import Counter from '../../lib/counter';
 import { Constants, config } from '../../core-server';
 const WELCOME_INTERVAL = 5 * 60 * 1000, WELCOME_DELAY = 5 * 60 * 1000, connStr = config.connStr, conf = config.email, counter = new Counter(),
-	template = handlebars.compile(fs.readFileSync(__dirname + '/views/welcomeEmail.hbs', 'utf-8'));
+	template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' + config.app_id + '.welcome.hbs', 'utf-8').toString());
 
 let lastEmailSent, end;
 
@@ -22,7 +22,7 @@ function initMailSending(cUserRel) {
 			token: jwt.sign({ email: emailAdd.substring(8, emailAdd.length) }, conf.secret, { expiresIn: '2 days' })
 		});
 
-	send(conf.from, emailAdd, 'Welcome to ' + conf.appName, emailHtml, (e) => {
+	send(conf.from, emailAdd, 'Welcome to ' + conf.app_id, emailHtml, (e) => {
 		counter.inc();
 		if (!e) {
 			log.info('Welcome email successfully sent');
