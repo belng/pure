@@ -73,7 +73,7 @@ export default function(
 						switch (typeof sub) {
 						case 'string':
 							listener = store.subscribe(
-								{ what: sub },
+								{ type: sub },
 								this._updateListener(item)
 							);
 							break;
