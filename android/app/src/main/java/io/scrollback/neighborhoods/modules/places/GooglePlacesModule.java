@@ -1,10 +1,13 @@
 package io.scrollback.neighborhoods.modules.places;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Arguments;
@@ -27,11 +30,17 @@ import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.AutocompletePredictionBuffer;
 import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBuffer;
+import com.google.android.gms.location.places.PlaceFilter;
+import com.google.android.gms.location.places.PlaceLikelihood;
+import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -42,10 +51,13 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
 
     private static final String ACTIVITY_DOES_NOT_EXIST_ERROR = "Activity doesn't exist";
     private static final String GOOGLE_API_NOT_INITIALIZED_ERROR = "Google API client not initialized";
+    private static final String PERMISSION_NOT_GRANTED_ERROR = "Location permissions are not granted";
     private static final String PICKER_CANCELLED_ERROR = "Places picker was cancelled";
 
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1090;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1080;
 
+    private Promise mPermissionPromise;
     private Promise mRetrievePromise;
     private GoogleApiClient mGoogleApiClient;
 
@@ -76,25 +88,119 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
         return constants;
     }
 
-    private void resolvePromise(WritableMap map) {
+    private void resolvePermissionPromise(WritableMap map) {
+        if (mPermissionPromise != null) {
+            mPermissionPromise.resolve(map);
+            mPermissionPromise = null;
+        }
+    }
+
+    private void rejectPermissionPromise(String reason) {
+        if (mPermissionPromise != null) {
+            mPermissionPromise.reject(reason);
+            mPermissionPromise = null;
+        }
+    }
+
+    private void resolveRetrivePromise(WritableMap map) {
         if (mRetrievePromise != null) {
             mRetrievePromise.resolve(map);
             mRetrievePromise = null;
         }
     }
 
-    private void rejectPromise(Exception reason) {
+    private void rejectRetrivePromise(Exception reason) {
         if (mRetrievePromise != null) {
             mRetrievePromise.reject(reason);
             mRetrievePromise = null;
         }
     }
 
-    private void rejectPromise(String reason) {
+    private void rejectRetrivePromise(String reason) {
         if (mRetrievePromise != null) {
             mRetrievePromise.reject(reason);
             mRetrievePromise = null;
         }
+    }
+
+    @ReactMethod
+    public void getCurrentPlace(@Nullable final ReadableMap filter, final Promise promise) {
+        if (mGoogleApiClient == null) {
+            promise.reject(GOOGLE_API_NOT_INITIALIZED_ERROR);
+            return;
+        }
+
+        Activity currentActivity = getCurrentActivity();
+
+        if (currentActivity == null) {
+            promise.reject(ACTIVITY_DOES_NOT_EXIST_ERROR);
+            return;
+        }
+
+        int permission = ContextCompat.checkSelfPermission(currentActivity, Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            promise.reject(PERMISSION_NOT_GRANTED_ERROR);
+            return;
+        }
+
+        PlaceFilter placeFilter = null;
+
+        if (filter != null) {;
+            Collection<String> restrictToPlaceIds = null;
+
+            if (filter.hasKey("restrictToPlaceIds")) {
+                restrictToPlaceIds = new ArrayList<>();
+                ReadableArray placeIds = filter.getArray("restrictToPlaceIds");
+
+                for (int i = 0, l = placeIds.size(); i < l; i++) {
+                    restrictToPlaceIds.add(placeIds.getString(i));
+                }
+            }
+
+            boolean requireOpenNow = filter.hasKey("requireOpenNow") && filter.getBoolean("requireOpenNow");
+
+            placeFilter = new PlaceFilter(requireOpenNow, restrictToPlaceIds);
+        }
+
+        PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, placeFilter);
+
+        result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
+            @Override
+            public void onResult(@NonNull PlaceLikelihoodBuffer placeLikelihoods) {
+                WritableArray places = Arguments.createArray();
+
+                for (PlaceLikelihood likelihood : placeLikelihoods) {
+                    WritableMap details = Arguments.createMap();
+
+                    details.putMap("place", buildPlacesMap(likelihood.getPlace()));
+                    details.putDouble("likelihood", likelihood.getLikelihood());
+
+                    places.pushMap(details);
+                }
+
+                promise.resolve(places);
+                placeLikelihoods.release();
+            }
+        });
+    }
+
+    @ReactMethod
+    public void getPlaceById(final String id, final Promise promise) {
+        if (mGoogleApiClient == null) {
+            promise.reject(GOOGLE_API_NOT_INITIALIZED_ERROR);
+            return;
+        }
+
+        PendingResult<PlaceBuffer> result = Places.GeoDataApi.getPlaceById(mGoogleApiClient, id);
+
+        result.setResultCallback(new ResultCallback<PlaceBuffer>() {
+            @Override
+            public void onResult(@NonNull PlaceBuffer places) {
+                promise.resolve(buildPlacesMap(places.get(0)));
+                places.release();
+            }
+        });
     }
 
     @ReactMethod
@@ -120,7 +226,7 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
 
             currentActivity.startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
         } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
-            rejectPromise(e);
+            rejectRetrivePromise(e);
         }
     }
 
@@ -129,6 +235,11 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
             final String query, final ReadableArray bounds, @Nullable final ReadableArray filter,
             final Promise promise
     ) {
+        if (mGoogleApiClient == null) {
+            promise.reject(GOOGLE_API_NOT_INITIALIZED_ERROR);
+            return;
+        }
+
         LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
 
         for (int i = 0, l = bounds.size(); i < l; i++) {
@@ -162,15 +273,21 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
                 for (AutocompletePrediction prediction : autocompletePredictions) {
                     WritableMap details = Arguments.createMap();
 
-                    details.putString("full_text", prediction.getFullText(null).toString());
-                    details.putString("primary_text", prediction.getPrimaryText(null).toString());
-                    details.putString("secondary_text", prediction.getSecondaryText(null).toString());
-                    details.putString("place_id", prediction.getPlaceId());
+                    details.putString("fullText", prediction.getFullText(null).toString());
+                    details.putString("primaryText", prediction.getPrimaryText(null).toString());
+                    details.putString("secondaryText", prediction.getSecondaryText(null).toString());
+                    details.putString("placeId", prediction.getPlaceId());
 
+                    WritableArray placeTypesArray = Arguments.createArray();
                     List<Integer> placeTypes = prediction.getPlaceTypes();
 
-                    details.putArray("place_types",
-                            placeTypes != null ? Arguments.fromArray(prediction.getPlaceTypes()) : Arguments.createArray());
+                    if (placeTypes != null) {
+                        for (int item : placeTypes) {
+                            placeTypesArray.pushInt(item);
+                        }
+                    }
+
+                    details.putArray("placeTypes", placeTypesArray);
 
                     predictions.pushMap(details);
                 }
@@ -226,7 +343,15 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
         latLngMap.putDouble("longitude", latLng.longitude);
 
         map.putMap("latLng", latLngMap);
-        map.putArray("placeTypes", Arguments.fromArray(place.getPlaceTypes()));
+
+        WritableArray placeTypesArray = Arguments.createArray();
+        List<Integer> placeTypes = place.getPlaceTypes();
+
+        for (int item : placeTypes) {
+            placeTypesArray.pushInt(item);
+        }
+
+        map.putArray("placeTypes", placeTypesArray);
 
         return map;
     }
@@ -235,23 +360,40 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_CANCELED) {
-                rejectPromise(PICKER_CANCELLED_ERROR);
+                rejectRetrivePromise(PICKER_CANCELLED_ERROR);
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Activity currentActivity = getCurrentActivity();
 
                 if (currentActivity != null) {
                     Status status = PlaceAutocomplete.getStatus(currentActivity, data);
-                    rejectPromise(status.getStatusMessage());
+                    rejectRetrivePromise(status.getStatusMessage());
                 } else {
-                    rejectPromise(ACTIVITY_DOES_NOT_EXIST_ERROR);
+                    rejectRetrivePromise(ACTIVITY_DOES_NOT_EXIST_ERROR);
                 }
             } else if (resultCode == Activity.RESULT_OK) {
                 Activity currentActivity = getCurrentActivity();
 
                 if (currentActivity != null) {
-                    resolvePromise(buildPlacesMap(PlaceAutocomplete.getPlace(currentActivity, data)));
+                    resolveRetrivePromise(buildPlacesMap(PlaceAutocomplete.getPlace(currentActivity, data)));
                 } else {
-                    rejectPromise(ACTIVITY_DOES_NOT_EXIST_ERROR);
+                    rejectRetrivePromise(ACTIVITY_DOES_NOT_EXIST_ERROR);
+                }
+
+            }
+        }
+
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_CANCELED) {
+                rejectPermissionPromise(PERMISSION_NOT_GRANTED_ERROR);
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                rejectPermissionPromise(PERMISSION_NOT_GRANTED_ERROR);
+            } else if (resultCode == Activity.RESULT_OK) {
+                Activity currentActivity = getCurrentActivity();
+
+                if (currentActivity != null) {
+                    resolveRetrivePromise(buildPlacesMap(PlaceAutocomplete.getPlace(currentActivity, data)));
+                } else {
+                    rejectRetrivePromise(ACTIVITY_DOES_NOT_EXIST_ERROR);
                 }
 
             }
