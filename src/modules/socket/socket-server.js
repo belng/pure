@@ -1,4 +1,5 @@
 import engine from 'engine.io';
+import Cache from 'sbcache';
 import EnhancedError from '../../lib/EnhancedError';
 import winston from 'winston';
 import stringPack from 'stringpack';
@@ -11,6 +12,8 @@ const sockets = {}, bus = core.bus,
 	packerArg = Object.keys(models).sort().map(key => models[key]);
 
 packerArg.push(EnhancedError);
+packerArg.push(Cache.RangeArray);
+packerArg.push(Cache.OrderedArray);
 const packer = stringPack(packerArg);
 
 

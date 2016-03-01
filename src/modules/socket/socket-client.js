@@ -1,14 +1,17 @@
 /* @flow */
 
+import Cache from 'sbcache';
 import EnhancedError from '../../lib/EnhancedError';
 import eio from 'engine.io-client';
-import { bus, config } from '../../core-client.js';
+import { bus, config, cache } from '../../core-client.js';
 import * as models from '../../models/models.js';
 import stringPack from 'stringpack';
 
 const packerArg = Object.keys(models).sort().map(key => models[key]);
 
 packerArg.push(EnhancedError);
+packerArg.push(Cache.RangeArray);
+packerArg.push(Cache.OrderedArray);
 const packer = stringPack(packerArg);
 
 const {
@@ -72,4 +75,12 @@ bus.on('change', changes => {
 bus.on('state:init', state => {
 	state.connectionStatus = '@@loading';
 	connect();
+});
+
+cache.onChange((changes) => {
+	if (changes.queries) {
+		client.send(packer.encode({
+			queries: changes.queries
+		}));
+	}
 });
