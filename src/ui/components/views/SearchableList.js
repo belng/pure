@@ -5,7 +5,8 @@
  *  @flow
  */
 
-import React from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import SearchBar from './Searchbar';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
@@ -16,7 +17,7 @@ const {
 	View,
 	ListView,
 	InteractionManager,
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -24,18 +25,27 @@ const styles = StyleSheet.create({
 	}
 });
 
+type Props = {
+	getResults: (filter: string) => any | Promise<any>;
+	renderRow: (data: any) => Element;
+	renderHeader?: (filter: string, data: any) => ?Element;
+	onCancel?: (data: any) => Element;
+	searchHint: string;
+	style?: any;
+}
+
 type State = {
 	filter: string;
 	data: Array<Object | string>;
 }
 
-export default class SearchableList extends React.Component {
+export default class SearchableList extends Component<void, Props, State> {
 	static propTypes = {
-		getResults: React.PropTypes.func.isRequired,
-		renderRow: React.PropTypes.func.isRequired,
-		renderHeader: React.PropTypes.func,
-		onDismiss: React.PropTypes.func.isRequired,
-		searchHint: React.PropTypes.string.isRequired,
+		getResults: PropTypes.func.isRequired,
+		renderRow: PropTypes.func.isRequired,
+		renderHeader: PropTypes.func,
+		onCancel: PropTypes.func,
+		searchHint: PropTypes.string.isRequired,
 		style: View.propTypes.style,
 	};
 
@@ -48,13 +58,13 @@ export default class SearchableList extends React.Component {
 		InteractionManager.runAfterInteractions(() => this._fetchResults());
 	}
 
-	_dataSource = new ListView.DataSource({
+	_dataSource: ListView.DataSource = new ListView.DataSource({
 		rowHasChanged: (r1, r2) => r1 !== r2
 	});
 
-	_cachedResults = {};
+	_cachedResults: Object = {};
 
-	_fetchResults = debounce(async (filter: string): Promise => {
+	_fetchResults: Function = debounce(async (filter: string): Promise => {
 		try {
 			let data;
 
@@ -75,20 +85,22 @@ export default class SearchableList extends React.Component {
 		}
 	});
 
-	_handleChangeSearch = (filter: string) => {
-		this.setState({
-			filter,
-			data: [ 'missing' ]
-		});
+	_handleChangeSearch: Function = (filter: string) => {
+		if (!this._cachedResults[filter]) {
+			this.setState({
+				filter,
+				data: [ 'missing' ]
+			});
+		}
 
 		this._fetchResults(filter);
 	};
 
-	_getDataSource = (): ListView.DataSource => {
+	_getDataSource: Function = (): ListView.DataSource => {
 		return this._dataSource.cloneWithRows(this.state.data);
 	};
 
-	_renderHeader = (): ?Element => {
+	_renderHeader: Function = (): ?Element => {
 		if (this.props.renderHeader) {
 			return this.props.renderHeader(this.state.filter, this.state.data);
 		}
@@ -123,7 +135,7 @@ export default class SearchableList extends React.Component {
 			<View {...this.props} style={[ styles.container, this.props.style ]}>
 				<SearchBar
 					placeholder={this.props.searchHint}
-					onBack={this.props.onDismiss}
+					onBack={this.props.onCancel}
 					onChangeSearch={this._handleChangeSearch}
 					autoFocus
 				/>
