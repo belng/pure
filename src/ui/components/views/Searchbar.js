@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppTextInput from './AppTextInput';
 import AppbarSecondary from './AppbarSecondary';
@@ -7,7 +10,7 @@ import AppbarIcon from './AppbarIcon';
 
 const {
 	StyleSheet
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	input: {
@@ -22,43 +25,44 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class SearchBar extends React.Component {
-	constructor(props) {
-		super(props);
+type Props = {
+	onBack: Function;
+	onChangeSearch: Function;
+	onFocus?: Function;
+	onBlur?: Function;
+	placeholder?: string;
+	autoFocus?: boolean;
+}
 
-		this.state = {
-			inputText: '',
-			showClear: false
-		};
-	}
+type State = {
+	query: string;
+}
 
-	_handleChange = e => {
-		const text = e.nativeEvent.text;
-
-		if (text) {
-			if (!this.state.showClear) {
-				this.setState({
-					showClear: true
-				});
-			}
-		} else {
-			if (this.state.showClear) {
-				this.setState({
-					showClear: false
-				});
-			}
-		}
-
-		this.props.onChangeSearch(text);
+export default class SearchBar extends Component<void, Props, State> {
+	static propTypes = {
+		onBack: PropTypes.func.isRequired,
+		onChangeSearch: PropTypes.func.isRequired,
+		onFocus: PropTypes.func,
+		onBlur: PropTypes.func,
+		placeholder: PropTypes.string,
+		autoFocus: PropTypes.bool
 	};
 
-	_handleClearInput = () => {
-		if (this._input) {
-			this._input.setNativeProps({ text: '' });
-		}
+	state: State = {
+		query: '',
+	};
 
+	_handleChange: Function = query => {
 		this.setState({
-			showClear: false
+			query
+		});
+
+		this.props.onChangeSearch(query);
+	};
+
+	_handleClearInput: Function = () => {
+		this.setState({
+			query: ''
 		});
 
 		this.props.onChangeSearch('');
@@ -67,14 +71,17 @@ export default class SearchBar extends React.Component {
 	render() {
 		return (
 			<AppbarSecondary {...this.props}>
-				<AppbarTouchable type='secondary' onPress={this.props.onBack}>
-					<AppbarIcon name='arrow-back' style={styles.icon} />
-				</AppbarTouchable>
+				{this.props.onBack ?
+					<AppbarTouchable type='secondary' onPress={this.props.onBack}>
+						<AppbarIcon name='arrow-back' style={styles.icon} />
+					</AppbarTouchable> :
+					<AppbarIcon name='search' style={styles.icon} />
+				}
 
 				<AppTextInput
-					ref={c => (this._input = c)}
+					value={this.state.query}
 					autoFocus={this.props.autoFocus}
-					onChange={this._handleChange}
+					onChangeText={this._handleChange}
 					placeholder={this.props.placeholder}
 					placeholderTextColor='rgba(0, 0, 0, 0.5)'
 					onFocus={this.props.onFocus}
@@ -82,7 +89,7 @@ export default class SearchBar extends React.Component {
 					style={styles.input}
 				/>
 
-				{this.state.showClear ?
+				{this.state.query ?
 					<AppbarTouchable type='secondary' onPress={this._handleClearInput}>
 						<AppbarIcon name='close' style={styles.icon} />
 					</AppbarTouchable> :
@@ -92,12 +99,3 @@ export default class SearchBar extends React.Component {
 		);
 	}
 }
-
-SearchBar.propTypes = {
-	onBack: React.PropTypes.func.isRequired,
-	onChangeSearch: React.PropTypes.func.isRequired,
-	onFocus: React.PropTypes.func,
-	onBlur: React.PropTypes.func,
-	placeholder: React.PropTypes.string,
-	autoFocus: React.PropTypes.bool
-};
