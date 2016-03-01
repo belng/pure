@@ -1,4 +1,5 @@
 import engine from 'engine.io';
+import EnhancedError from '../../lib/EnhancedError';
 import winston from 'winston';
 import stringPack from 'stringpack';
 import * as core from '../../core-server';
@@ -7,8 +8,11 @@ import notify from './dispatch';
 import * as models from '../../models/models';
 
 const sockets = {}, bus = core.bus,
-	packerArg = Object.keys(models).sort().map(key => models[key]),
-	packer = stringPack(packerArg);
+	packerArg = Object.keys(models).sort().map(key => models[key]);
+
+packerArg.push(EnhancedError);
+const packer = stringPack(packerArg);
+
 
 function sendError(socket, code, reason, event) {
 	socket.send(packer.encode({
@@ -56,11 +60,18 @@ bus.on('http/init', app => {
 			(message.auth = message.auth || {}).resource = resourceId;
 
 			function handleSetState(err) {
-				winston.debug('setstate response', err);
+				winston.debug('setstate response', JSON.stringify(err));
 				if (err) {
-					sendError(
-						socket, err.code || 'ERR_UNKNOWN', err.message, message
-					);
+					if (message.response) {
+						socket.send(packer.encode({
+							type: 'error',
+							message: message.response
+						}));
+					} else {
+						sendError(
+							socket, err.code || 'ERR_UNKNOWN', err.message, message
+						);
+					}
 					return;
 				}
 

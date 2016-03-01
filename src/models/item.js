@@ -3,6 +3,7 @@ import * as Constants from '../lib/Constants';
 
 export default class Item {
 	constructor(data) {
+		if (!data) return;
 		for (const name of COLUMNS[Constants.TYPE_ITEM]) {
 			this[name] = data[name] || data[name.toLowerCase()];
 		}

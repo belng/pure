@@ -1,9 +1,15 @@
 /* @flow */
 
+import EnhancedError from '../../lib/EnhancedError';
 import eio from 'engine.io-client';
 import { bus, config } from '../../core-client.js';
 import * as models from '../../models/models.js';
-import stringpack from 'stringpack';
+import stringPack from 'stringpack';
+
+const packerArg = Object.keys(models).sort().map(key => models[key]);
+
+packerArg.push(EnhancedError);
+const packer = stringPack(packerArg);
 
 const {
 	protocol,
@@ -11,8 +17,6 @@ const {
 } = config.server;
 
 let	backOff = 1, client;
-
-const packer = stringpack(Object.keys(models).sort().map(key => models[key]));
 
 function disconnected() {
 
