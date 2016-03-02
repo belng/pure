@@ -32,12 +32,23 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class LocationDetails extends Component {
+type Props = {
+	location: {
+		latitude: number;
+		longitude: number;
+	};
+	onChangeField: (type: string, value: Array<Object>) => void;
+	submitPlaceDetails: () => void;
+}
+
+export default class LocationDetails extends Component<void, Props, void> {
 	static propTypes = {
 		location: PropTypes.shape({
 			latitude: PropTypes.number,
 			longitude: PropTypes.number
 		}),
+		onChangeField: PropTypes.func.isRequired,
+		submitPlaceDetails: PropTypes.func.isRequired
 	};
 
 	_getResults: Function = async (query: string) => GooglePlaces.getAutoCompletePredictions(
