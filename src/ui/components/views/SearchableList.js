@@ -16,7 +16,6 @@ const {
 	StyleSheet,
 	View,
 	ListView,
-	InteractionManager,
 } = ReactNative;
 
 const styles = StyleSheet.create({
@@ -29,6 +28,7 @@ type Props = {
 	getResults: (filter: string) => any | Promise<any>;
 	renderRow: (data: any) => Element;
 	renderHeader?: (filter: string, data: any) => ?Element;
+	renderBlankslate?: () => ?Element;
 	onCancel?: (data: any) => Element;
 	searchHint: string;
 	style?: any;
@@ -36,7 +36,7 @@ type Props = {
 
 type State = {
 	filter: string;
-	data: Array<Object | string>;
+	data: Array<any> | '@@blankslate' | '@@loading' | '@@failed';
 }
 
 export default class SearchableList extends Component<void, Props, State> {
@@ -44,6 +44,7 @@ export default class SearchableList extends Component<void, Props, State> {
 		getResults: PropTypes.func.isRequired,
 		renderRow: PropTypes.func.isRequired,
 		renderHeader: PropTypes.func,
+		renderBlankslate: PropTypes.func,
 		onCancel: PropTypes.func,
 		searchHint: PropTypes.string.isRequired,
 		style: View.propTypes.style,
@@ -51,12 +52,8 @@ export default class SearchableList extends Component<void, Props, State> {
 
 	state: State = {
 		filter: '',
-		data: [ 'missing' ],
+		data: '@@blankslate',
 	};
-
-	componentDidMount() {
-		InteractionManager.runAfterInteractions(() => this._fetchResults());
-	}
 
 	_dataSource: ListView.DataSource = new ListView.DataSource({
 		rowHasChanged: (r1, r2) => r1 !== r2
@@ -66,34 +63,41 @@ export default class SearchableList extends Component<void, Props, State> {
 
 	_fetchResults: Function = debounce(async (filter: string): Promise => {
 		try {
-			let data;
+			const data = await this.props.getResults(filter);
 
-			if (this._cachedResults[filter]) {
-				data = this._cachedResults[filter];
-			} else {
-				data = await this.props.getResults(filter);
-				this._cachedResults[filter] = data;
-			}
+			this._cachedResults[filter] = data;
 
 			this.setState({
-				data: data.length || filter ? data : [ 'blankslate' ]
+				data
 			});
 		} catch (e) {
 			this.setState({
-				data: [ 'failed' ]
+				data: '@@failed'
 			});
 		}
 	});
 
 	_handleChangeSearch: Function = (filter: string) => {
-		if (!this._cachedResults[filter]) {
+		if (filter) {
+			if (this._cachedResults[filter]) {
+				this.setState({
+					filter,
+					data: this._cachedResults[filter]
+				});
+			} else {
+				this.setState({
+					filter,
+					data: '@@loading'
+				});
+
+				this._fetchResults(filter);
+			}
+		} else {
 			this.setState({
 				filter,
-				data: [ 'missing' ]
+				data: '@@blankslate'
 			});
 		}
-
-		this._fetchResults(filter);
 	};
 
 	_getDataSource: Function = (): ListView.DataSource => {
@@ -111,23 +115,32 @@ export default class SearchableList extends Component<void, Props, State> {
 	render() {
 		let placeHolder;
 
-		if (this.state.data) {
-			switch (this.state.data.length) {
-			case 0:
+		switch (this.state.data) {
+		case '@@blankslate':
+			if (this.props.renderBlankslate) {
+				placeHolder = this.props.renderBlankslate();
+			} else {
+				placeHolder = <PageEmpty label='Come on, type something!' image='happy' />;
+			}
+			break;
+		case '@@loading':
+			placeHolder = <PageLoading />;
+			break;
+		case '@@failed':
+			placeHolder = <PageEmpty label='Failed to load results' image='sad' />;
+			break;
+		default:
+			if (this.state.data && this.state.data.length) {
+				placeHolder = (
+					<ListView
+						keyboardShouldPersistTaps
+						dataSource={this._getDataSource()}
+						renderRow={this.props.renderRow}
+						renderHeader={this._renderHeader}
+					/>
+				);
+			} else {
 				placeHolder = <PageEmpty label='No results found' image='sad' />;
-				break;
-			case 1:
-				switch (this.state.data[0]) {
-				case 'blankslate':
-					placeHolder = <PageEmpty label='Come on, type something!' image='happy' />;
-					break;
-				case 'missing':
-					placeHolder = <PageLoading />;
-					break;
-				case 'failed':
-					placeHolder = <PageEmpty label='Failed to load results' image='sad' />;
-					break;
-				}
 			}
 		}
 
@@ -139,15 +152,7 @@ export default class SearchableList extends Component<void, Props, State> {
 					onChangeSearch={this._handleChangeSearch}
 					autoFocus
 				/>
-				{placeHolder ?
-					placeHolder :
-					<ListView
-						keyboardShouldPersistTaps
-						dataSource={this._getDataSource()}
-						renderRow={this.props.renderRow}
-						renderHeader={this._renderHeader}
-					/>
-				}
+				{placeHolder}
 			</View>
 		);
 	}

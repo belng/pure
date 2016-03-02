@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	onBack: Function;
+	onDismiss: Function;
 	onChangeSearch: Function;
 	onFocus?: Function;
 	onBlur?: Function;
@@ -40,10 +40,10 @@ type State = {
 
 export default class SearchBar extends Component<void, Props, State> {
 	static propTypes = {
-		onBack: PropTypes.func.isRequired,
 		onChangeSearch: PropTypes.func.isRequired,
 		onFocus: PropTypes.func,
 		onBlur: PropTypes.func,
+		onDismiss: PropTypes.func,
 		placeholder: PropTypes.string,
 		autoFocus: PropTypes.bool
 	};
@@ -71,8 +71,8 @@ export default class SearchBar extends Component<void, Props, State> {
 	render() {
 		return (
 			<AppbarSecondary {...this.props}>
-				{this.props.onBack ?
-					<AppbarTouchable type='secondary' onPress={this.props.onBack}>
+				{this.props.onDismiss ?
+					<AppbarTouchable type='secondary' onPress={this.props.onDismiss}>
 						<AppbarIcon name='arrow-back' style={styles.icon} />
 					</AppbarTouchable> :
 					<AppbarIcon name='search' style={styles.icon} />
