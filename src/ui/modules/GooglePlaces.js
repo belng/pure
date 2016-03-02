@@ -40,7 +40,7 @@ export default class GooglePlaces {
 	static TYPE_FILTER_NONE: number;
 	static TYPE_FILTER_REGIONS: number;
 
-	static getCurrentPlace: (filter: ?PlaceFilter) => Promise<{ place: Place; likelihood: number }>;
+	static getCurrentPlace: (filter: ?PlaceFilter) => Promise<Array<{ place: Place; likelihood: number }>>;
 	static getPlaceById: (id: string) => Promise<Place>;
 	static findPlace: () => Promise<Place>;
 	static getAutoCompletePredictions: (
