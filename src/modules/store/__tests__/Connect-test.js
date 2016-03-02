@@ -15,13 +15,15 @@ const Provider = require('../Provider').default;
 
 describe('Connect', () => {
 	it('should render connected component with no data', () => {
-		const ConnectedComponent = Connect()(({ text }) => <span>{text}</span>); // eslint-disable-line
+		const TextComponent = ({ text }) => <span>{text}</span>; // eslint-disable-line
 		const store = {
 			subscribe: () => null,
 		};
 		const app = TestUtils.renderIntoDocument(
 			<Provider store={store}>
-				<ConnectedComponent text='Hey!' />
+				<Connect>
+					<TextComponent text='Hey!' />
+				</Connect>
 			</Provider>
 		);
 
@@ -31,20 +33,7 @@ describe('Connect', () => {
 	});
 
 	it('should update connected component with data', () => {
-		const ConnectedComponent = Connect({
-			firstName: 'f',
-			middleName: {
-				key: 'm',
-				transform: name => `'${name}'`
-			},
-			lastName: {
-				key: {
-					type: 'l',
-				}
-			},
-		})(
-			({ firstName, middleName, lastName }) => <span>{firstName} {middleName} {lastName}</span> // eslint-disable-line
-		);
+		const NameComponent = ({ firstName, middleName, lastName }) => <span>{firstName} {middleName} {lastName}</span>; // eslint-disable-line;
 
 		let firstNameCallback;
 		let middleNameCallback;
@@ -52,7 +41,7 @@ describe('Connect', () => {
 
 		const store = {
 			subscribe: (options, cb) => {
-				switch (options.what) {
+				switch (options.type) {
 				case 'f':
 					firstNameCallback = cb;
 					break;
@@ -68,7 +57,22 @@ describe('Connect', () => {
 
 		const app = TestUtils.renderIntoDocument(
 			<Provider store={store}>
-				<ConnectedComponent />
+				<Connect
+					mapSubscriptionToProps={{
+						firstName: 'f',
+						middleName: {
+							key: 'm',
+							transform: name => `'${name}'`
+						},
+						lastName: {
+							key: {
+								type: 'l',
+							}
+						},
+					}}
+				>
+					<NameComponent />
+				</Connect>
 			</Provider>
 		);
 
@@ -88,14 +92,16 @@ describe('Connect', () => {
 	it('should remove subscription on unmount', () => {
 		const container = document.createElement('div');
 		const remove = jest.genMockFunction();
-		const ConnectedComponent = Connect({ textContent: "text" })(({ textContent }) => <span>{textContent}</span>); // eslint-disable-line
+		const TextComponent = ({ textContent }) => <span>{textContent}</span>; // eslint-disable-line
 		const store = {
-			subscribe: options => options.what === 'text' && { remove },
+			subscribe: options => options.type === 'text' && { remove },
 		};
 
 		ReactDOM.render(
 			<Provider store={store}>
-				<ConnectedComponent />
+				<Connect mapSubscriptionToProps={{ textContent: 'text' }}>
+					<TextComponent />
+				</Connect>
 			</Provider>,
 			container
 		);
@@ -107,11 +113,7 @@ describe('Connect', () => {
 
 	it('should pass dispatch', () => {
 		const TEST_ACTION = { type: 'TEST' };
-		const ConnectedComponent = Connect(null, {
-			ping: (props, store) => () => store.dispatch(TEST_ACTION)
-		})(
-			({ ping }) => <button onClick={ping} /> // eslint-disable-line
-		);
+		const ButtonComponent = ({ ping }) => <button onClick={ping} />; // eslint-disable-line;
 		const dispatch = jest.genMockFunction();
 		const store = {
 			subscribe: () => null,
@@ -120,7 +122,13 @@ describe('Connect', () => {
 
 		const app = TestUtils.renderIntoDocument(
 			<Provider store={store}>
-				<ConnectedComponent />
+				<Connect
+					mapActionsToProps={{
+						ping: (props, s) => () => s.dispatch(TEST_ACTION)
+					}}
+				>
+					<ButtonComponent />
+				</Connect>
 			</Provider>
 		);
 
@@ -133,40 +141,50 @@ describe('Connect', () => {
 	});
 
 	it('should pass dispatch and data', () => {
-		const ConnectedComponent = Connect(({ sub }) => ({
-			label: sub
-		}), {
-			click: (props, store) => () => store.dispatch({
-				type: 'CLICK',
-				payload: {
-					label: 'Clicked'
-				}
-			})
-		})(
-			({ label, click }) => <button onClick={click}>{label}</button> // eslint-disable-line
-		);
+		const ButtonComponent = ({ initialLabel, label, click }) => <button onClick={click}>{label || initialLabel}</button>; // eslint-disable-line
 
 		let callback;
 
 		const store = {
 			subscribe: (options, cb) => {
-				callback = options.what === 'label' ? cb : null;
+				console.log(options);
+				callback = options.type === 'label' ? cb : null;
 				return {
-					remove: () => callback = null
+					remove: () => (callback = null)
 				};
 			},
 			dispatch: action => action.type === 'CLICK' ? callback(action.payload.label) : null,
 		};
 
+		const TestComponent = ({ sub }) => (
+			<Connect
+				mapSubscriptionToProps={{
+					label: {
+						key: sub
+					}
+				}}
+				mapActionsToProps={{
+					click: (props, s) => () => s.dispatch({
+						type: 'CLICK',
+						payload: {
+							label: 'Clicked'
+						}
+					})
+				}}
+			>
+				<ButtonComponent initialLabel='Hello' />
+			</Connect>
+		);
+
 		const app = TestUtils.renderIntoDocument(
 			<Provider store={store}>
-				<ConnectedComponent sub='label' />
+				<TestComponent sub='label' />
 			</Provider>
 		);
 
 		const appNode = ReactDOM.findDOMNode(app);
 
-		expect(appNode.textContent).toEqual('');
+		expect(appNode.textContent).toEqual('Hello');
 		callback('Click me');
 		expect(appNode.textContent).toEqual('Click me');
 

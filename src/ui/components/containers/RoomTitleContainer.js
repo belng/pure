@@ -1,18 +1,24 @@
 /* @flow */
 
-import { PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 
-const RoomTitleContainer = Connect(({ room }) => ({
-	room: {
-		key: {
-			type: 'entity',
-			id: room
-		},
-		transform: roomObj => roomObj && roomObj.name ? roomObj.name : room
-	}
-}))(Dummy);
+const RoomTitleContainer = (props: any) => (
+	<Connect
+		mapSubscriptionToProps={{
+			room: {
+				key: {
+					type: 'entity',
+					id: props.room
+				},
+				transform: room => room && room.name ? room.name : props.room
+			}
+		}}
+	>
+		<Dummy />
+	</Connect>
+);
 
 RoomTitleContainer.propTypes = {
 	room: PropTypes.string.isRequired

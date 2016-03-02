@@ -1,28 +1,34 @@
 /* @flow */
 
-import { PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 
-const NotificationBadgeContainer = Connect(({ user }) => ({
-	count: {
-		key: {
-			slice: {
-				type: 'note',
-				filter: {
-					user
+const NotificationBadgeContainer = (props: any) => (
+	<Connect
+		mapSubscriptionToProps={{
+			count: {
+				key: {
+					slice: {
+						type: 'note',
+						filter: {
+							user: props.user
+						},
+						order: 'eventTime'
+					},
+					range: {
+						start: null,
+						before: 100,
+						after: 0
+					}
 				},
-				order: 'eventTime'
-			},
-			range: {
-				start: null,
-				before: 100,
-				after: 0
+				transform: notes => notes ? notes.length : 0
 			}
-		},
-		transform: notes => notes ? notes.length : 0
-	}
-}))(Dummy);
+		}}
+	>
+		<Dummy {...props} />
+	</Connect>
+);
 
 NotificationBadgeContainer.propTypes = {
 	user: PropTypes.string.isRequired

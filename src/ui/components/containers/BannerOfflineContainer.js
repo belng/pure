@@ -1,15 +1,22 @@
 /* @flow */
 
+import React from 'react';
 import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 
-const BannerOfflineContainer = Connect({
+const mapSubscriptionToProps = {
 	status: {
 		key: {
 			type: 'state',
 			path: 'connectionStatus',
 		}
 	}
-})(Dummy);
+};
+
+const BannerOfflineContainer = (props: any) => (
+	<Connect mapSubscriptionToProps={mapSubscriptionToProps}>
+		<Dummy {...props} />
+	</Connect>
+);
 
 export default BannerOfflineContainer;
