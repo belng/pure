@@ -66,11 +66,11 @@ function wherePart (f) {
 		} else if ((name = propOp(prop, 'lte'))) {
 			sql.push(`"${name}" <= &{${prop}}`);
 		} else if ((name = propOp(prop, 'cts'))) {
-			sql.push(`"${name}" @> ARRAY[] || &{${prop}}`);
+			sql.push(`"${name}" @> &{${prop}}`);
 		} else if ((name = propOp(prop, 'ctd'))) {
-			sql.push(`"${name}" <@ ARRAY[] || &{${prop}}`);
+			sql.push(`"${name}" <@ &{${prop}}`);
 		} else if ((name = propOp(prop, 'mts'))) {
-			sql.push(`"${name}" @@ ARRAY[] || &{${prop}}`);
+			sql.push(`"${name}" @@ &{${prop}}`);
 		} else {
 			sql.push(`"${name}" = &{${prop}}`);
 		}

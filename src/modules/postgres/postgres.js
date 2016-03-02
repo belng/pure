@@ -111,8 +111,9 @@ pg.listen(config.connStr, channel, (payload) => {
 });
 
 bus.on('change', (changes, next) => {
-	const counter = new Counter();
+	const counter = new Counter(), response = changes.response = {};
 
+	if (!response.entities) response.entities = {};
 	if (changes.source === 'postgres') {
 		next();
 		return;
@@ -134,14 +135,18 @@ bus.on('change', (changes, next) => {
 			}
 
 			winston.info('PgWrite Results', results[0].rows);
-			results.forEach((result) => broadcast(result.rows[0]));
+			results.forEach((result) => {
+				response.entities[result.rows[0].id] = result.rows[0];
+				broadcast(result.rows[0]);
+			});
+
 			counter.dec();
 		});
 	}
 
+
 	if (changes.queries) {
-		const response = changes.response = {},
-			cb = (key, err, results) => {
+		const cb = (key, err, results) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
 				jsonop(response, { indexes: { [key]: results } });
 				counter.dec();
