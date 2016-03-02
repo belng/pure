@@ -1,6 +1,6 @@
 /* @flow */
 
-import { PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 import {
@@ -10,12 +10,20 @@ import {
 	unbanUser
 } from '../../../modules/store/actions';
 
-const ChatItemContainer = Connect(null, {
-	hideText: (props, store) => () => store.dispatch(hideText(props.text.id)),
-	unhideText: (props, store) => () => store.dispatch(unhideText(props.text.id)),
-	banUser: (props, store) => () => store.dispatch(banUser(props.text.creator)),
-	unbanUser: (props, store) => () => store.dispatch(unbanUser(props.text.creator)),
-})(Dummy);
+const mapActionsToProps = {
+	hideText: (store, result) => () => store.dispatch(hideText(result.text.id)),
+	unhideText: (store, result) => () => store.dispatch(unhideText(result.text.id)),
+	banUser: (store, result) => () => store.dispatch(banUser(result.text.creator)),
+	unbanUser: (store, result) => () => store.dispatch(unbanUser(result.text.creator)),
+};
+
+const ChatItemContainer = (props: any) => (
+	<Connect
+		mapActionsToProps={mapActionsToProps}
+		passProps={props}
+		component={Dummy}
+	/>
+);
 
 ChatItemContainer.propTypes = {
 	text: PropTypes.shape({

@@ -1,23 +1,32 @@
 /* @flow */
 
-import { PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 import { sendText } from '../../../modules/store/actions';
 
-const ChatContainer = Connect(({ thread }) => ({
-	thread: {
-		type: 'entity',
-		id: thread,
-	}
-}), {
-	sendText: (props, store) => (body, meta) => store.dispatch(sendText({
-		body,
-		meta,
-		parents: [ props.thread.id ].concat(props.thread.parents),
-		creator: props.user
-	}))
-})(Dummy);
+const ChatContainer = (props: any) => (
+	<Connect
+		mapActionsToProps={{
+			sendText: (store, result) => (body, meta) => store.dispatch(sendText({
+				body,
+				meta,
+				parents: [ result.thread.id ].concat(result.thread.parents),
+				creator: props.user
+			})),
+		}}
+		mapSubscriptionToProps={{
+			thread: {
+				key: {
+					type: 'entity',
+					id: props.thread,
+				}
+			}
+		}}
+		passProps={props}
+		component={Dummy}
+	/>
+);
 
 ChatContainer.propTypes = {
 	room: PropTypes.string.isRequired,

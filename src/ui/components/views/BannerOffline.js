@@ -4,7 +4,7 @@ import React, { PropTypes } from 'react';
 import Banner from './Banner';
 
 type Props = {
-	connectionStatus: '@@loading' | 'online' | 'offline'
+	connectionStatus: 'connecting' | 'online' | 'offline'
 }
 
 const BannerOffline = ({ connectionStatus }: Props) => {
@@ -30,7 +30,7 @@ const BannerOffline = ({ connectionStatus }: Props) => {
 };
 
 BannerOffline.propTypes = {
-	connectionStatus: PropTypes.oneOf([ '@@loading', 'offline', 'online' ])
+	connectionStatus: PropTypes.oneOf([ 'connecting', 'offline', 'online' ])
 };
 
 export default BannerOffline;

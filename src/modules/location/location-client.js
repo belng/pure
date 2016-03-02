@@ -7,28 +7,26 @@ const { geolocation } = navigator;
 
 let watch, subscriptions = 0;
 
-const success = position => bus.emit('change', { location: position.coords });
-const error = () => {};
-const options = {
-	enableHighAccuracy: true,
-	maximumAge: 0,
-	timeout: Infinity
-};
+const success = position => bus.emit('change', {
+	state: {
+		location: position.coords
+	}
+});
 
-store.on('subscribe', ({ type }) => {
-	if (type === 'location') {
-		geolocation.getCurrentPosition(success, error, options);
+store.on('subscribe', ({ path }) => {
+	if (path === 'location') {
+		geolocation.getCurrentPosition(success);
 
 		if (subscriptions === 0) {
-			watch = geolocation.watchPosition(success, error, options);
+			watch = geolocation.watchPosition(success);
 		}
 
 		subscriptions++;
 	}
 });
 
-store.on('unsubscribe', ({ type }) => {
-	if (type === 'location') {
+store.on('unsubscribe', ({ path }) => {
+	if (path === 'location') {
 		subscriptions--;
 
 		if (subscriptions === 0 && watch) {
@@ -37,5 +35,3 @@ store.on('unsubscribe', ({ type }) => {
 		}
 	}
 });
-
-bus.on('state:init', state => (state.location = '@@loading'));

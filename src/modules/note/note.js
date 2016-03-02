@@ -1,23 +1,26 @@
-'use strict';
-
-import { TABLES, COLUMNS, TYPES, ROLES } from '../../lib/schema';
+/* eslint no-loop-func: 0 */
+import log from 'winston';
 import Counter from '../../lib/counter';
 import Note from '../../models/note';
 import { Constants, bus, cache } from '../../core-server';
 
-bus.on('change', (changes, next) => {
-	if (!changes.entities) return next();
-	let counter = new Counter(), note;
+bus.on('setstate', (changes, next) => {
+	if (!changes.entities) {
+		next();
+		return;
+	}
+	const counter = new Counter();
+	let note;
 
-	for (let id in changes.entities) {
-		let entity = changes.entities[id];
+	for (const id in changes.entities) {
+		const entity = changes.entities[id];
 
 		if (
 			(entity.type === Constants.TYPE_TEXTREL ||
 			entity.type === Constants.TYPE_THREADREL) &&
 			entity.role === Constants.ROLE_MENTIONED
 		) {
-			let item = changes.entities[entity.item],
+			const item = changes.entities[entity.item],
 				noteObj = {
 					user: entity.user,
 					event: Constants.NOTE_MENTION,
@@ -26,9 +29,11 @@ bus.on('change', (changes, next) => {
 					score: 50,
 					type: Constants.TYPE_NOTE
 				};
+
 			if (!item) {
 				counter.inc();
 				cache.getEntity(entity.item, (err, text) => {
+					if (err) log.error(err);
 					noteObj.group = text.parents[0][0];
 					noteObj.data = {
 						textId: text.id,

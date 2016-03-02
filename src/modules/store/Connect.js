@@ -1,175 +1,154 @@
 /* @flow */
-/* eslint-disable no-console, react/sort-comp */
+/* eslint-disable react/sort-comp */
 
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import shallowEqual from 'shallowequal';
 import mapValues from 'lodash/mapValues';
-import Container from './Container';
 import storeShape from './storeShape';
 
 import type {
-	Store,
 	Subscription,
 	MapSubscriptionToProps,
-	MapSubscriptionToPropsCreator,
 	MapActionsToProps
 } from './ConnectTypes';
 
-export default function(
-	mapSubscriptionToProps: ?MapSubscriptionToProps|MapSubscriptionToPropsCreator,
-	mapActionsToProps: ?MapActionsToProps
-): (Target: ReactClass) => ReactClass {
-	if (process.env.NODE_ENV !== 'production') {
-		if (
-			typeof mapSubscriptionToProps === 'object' &&
-			typeof mapActionsToProps === 'object' &&
-			mapSubscriptionToProps && mapActionsToProps
-		) {
-			for (const key in mapSubscriptionToProps) {
-				if (mapActionsToProps[key]) {
-					throw new Error(`Prop ${key} found both in subscriptions and actions. Props must be unique.`);
-				}
-			}
+type Props = {
+	mapSubscriptionToProps?: MapSubscriptionToProps;
+	mapActionsToProps?: MapActionsToProps;
+	passProps?: any;
+	component: ReactClass;
+}
 
-			for (const key in mapActionsToProps) {
-				if (mapSubscriptionToProps[key]) {
-					throw new Error(`Prop ${key} found both in subscriptions and actions. Props must be unique.`);
+export default class Connect extends Component<void, Props, any> {
+	static contextTypes = {
+		store: storeShape.isRequired,
+	};
+
+	static propTypes = {
+		mapSubscriptionToProps: PropTypes.object,
+		mapActionsToProps: PropTypes.object,
+		passProps: PropTypes.any,
+		component: PropTypes.any.isRequired
+	};
+
+	state: any = {};
+
+	_subscriptions: Array<Subscription> = [];
+
+	_addSubscriptions: Function = (props, context) => {
+		const {
+			store
+		} = context;
+
+		const {
+			mapSubscriptionToProps
+		} = props;
+
+		if (typeof store !== 'object') {
+			throw new Error('No store was found. Have you wrapped the root component in <StoreProvider /> ?');
+		}
+
+		if (mapSubscriptionToProps) {
+			for (const item in mapSubscriptionToProps) {
+				const sub = mapSubscriptionToProps[item];
+
+				let listener;
+
+				switch (typeof sub) {
+				case 'string':
+					listener = store.subscribe(
+						{ type: sub },
+						this._updateListener(item)
+					);
+					break;
+				case 'object':
+					listener = store.subscribe(
+						typeof sub.key === 'string' ? { type: sub.key } : { ...sub.key },
+						this._updateListener(item, sub.transform)
+					);
+					break;
+				default:
+					throw new Error(`Invalid subscription ${item}. Subscription must be a string or an object.`);
+				}
+
+				if (listener) {
+					this._subscriptions.push(listener);
 				}
 			}
 		}
+	};
+
+	_removeSubscriptions: Function = () => {
+		if (this._subscriptions) {
+			for (let i = 0, l = this._subscriptions.length; i < l; i++) {
+				this._subscriptions[i].remove();
+			}
+
+			this._subscriptions = [];
+		}
+	};
+
+	_renewSubscriptions: Function = (props, context) => {
+		this._removeSubscriptions();
+		this._addSubscriptions(props, context);
+	};
+
+	_updateListener: Function = (name, transform) => {
+		return data => {
+			this.setState({
+				[name]: transform ? transform(data) : data
+			});
+		};
+	};
+
+	_setInitialState: Function = () => {
+		const {
+			mapSubscriptionToProps
+		} = this.props;
+
+		const state = {};
+
+		for (const item in mapSubscriptionToProps) {
+			state[item] = null;
+		}
+
+		this.setState(state);
+	};
+
+	componentWillMount() {
+		this._setInitialState();
 	}
 
-	return function(Target: ReactClass): ReactClass {
-		class Connect extends Component<any, { store: Store }, Object> {
-			static propTypes = {
-				store: storeShape.isRequired
-			};
+	componentDidMount() {
+		this._addSubscriptions(this.props, this.context);
+	}
 
-			state = {};
+	componentWillReceiveProps(nextProps: Props) {
+		this._renewSubscriptions(nextProps, this.context);
+	}
 
-			_subscriptions: Array<Subscription> = [];
+	componentWillUnmount() {
+		this._removeSubscriptions();
+	}
 
-			_addSubscriptions = () => {
-				const { store } = this.props;
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+	}
 
-				if (typeof store !== 'object') {
-					throw new Error('No store was found. Have you wrapped the root component in <StoreProvider /> ?');
-				}
+	render(): React$Element<any> {
+		const actions = mapValues(this.props.mapActionsToProps, (value, key) => {
+			const action = value(this.context.store, this.state);
 
-				if (mapSubscriptionToProps) {
-					let subscriptions;
-
-					if (typeof mapSubscriptionToProps === 'function') {
-						subscriptions = mapSubscriptionToProps({ ...this.props, store: null });
-					} else if (typeof mapSubscriptionToProps === 'object') {
-						subscriptions = mapSubscriptionToProps;
-					}
-
-					for (const item in subscriptions) {
-						const sub = subscriptions[item];
-
-						let listener;
-
-						switch (typeof sub) {
-						case 'string':
-							listener = store.subscribe(
-								{ what: sub },
-								this._updateListener(item)
-							);
-							break;
-						case 'object':
-							listener = store.subscribe(
-								typeof sub.key === 'string' ? { type: sub.key } : { ...sub.key },
-								this._updateListener(item, sub.transform)
-							);
-							break;
-						default:
-							throw new Error(`Invalid subscription ${item}. Subscription must be a string or an object.`);
-						}
-
-						if (listener) {
-							this._subscriptions.push(listener);
-						}
-					}
-				}
-			};
-
-			_removeSubscriptions = () => {
-				if (this._subscriptions) {
-					for (let i = 0, l = this._subscriptions.length; i < l; i++) {
-						this._subscriptions[i].remove();
-					}
-
-					this._subscriptions = [];
-				}
-			};
-
-			_renewSubscriptions = () => {
-				this._removeSubscriptions();
-				this._addSubscriptions();
-			};
-
-			_updateListener = (name, transform) => {
-				return data => this.setState({
-					[name]: transform ? transform(data) : data
-				});
-			};
-
-			componentDidMount() {
-				this._addSubscriptions();
+			if (typeof action !== 'function') {
+				throw new Error(`Invalid action in ${key}. Action creators must return a curried action function.`);
 			}
 
-			componentDidUpdate(prevProps) {
-				if (typeof mapSubscriptionToProps !== 'function') {
-					return;
-				}
+			return action;
+		});
 
-				if (shallowEqual(prevProps, this.props)) {
-					return;
-				}
+		const ChildComponent = this.props.component;
+		const passProps = { ...this.props.passProps, ...this.state, ...actions };
 
-				this._renewSubscriptions();
-			}
-
-			componentWillUnmount() {
-				this._removeSubscriptions();
-			}
-
-			shouldComponentUpdate(nextProps, nextState) {
-				return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
-			}
-
-			render() {
-				const { store } = this.props;
-				const props = { ...this.props, ...this.state, store: null };
-				const actions = mapActionsToProps ? mapValues(mapActionsToProps, (value, key) => {
-					const action = value(props, store);
-
-					if (typeof action !== 'function') {
-						throw new Error(`Invalid action in ${key}. Action creators must return a curried action function.`);
-					}
-
-					return action;
-				}) : null;
-
-				return <Target {...props} {...actions} />;
-			}
-		}
-
-		const ContainerComponent = Container(Connect);
-
-		ContainerComponent.displayName = `${Target.name}Container`;
-
-		if (process.env.NODE_ENV !== 'production') {
-			if (typeof mapSubscriptionToProps === 'function') {
-				setTimeout(() => {
-					if (typeof ContainerComponent.propTypes !== 'object') {
-						console.warn(`No 'propTypes' was defined on '${ContainerComponent.displayName}', but 'mapSubscriptionToProps' was a function.`);
-					}
-				}, 0);
-			}
-		}
-
-		return ContainerComponent;
-	};
+		return <ChildComponent {...passProps} />;
+	}
 }

@@ -1,10 +1,10 @@
 /* @flow */
 
-import { PropTypes } from 'react';
-import { config } from '../../../core-client';
+import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import getAvatarURL from '../../../lib/getAvatarURL';
 import Dummy from '../views/Dummy';
+import { config } from '../../../core-client';
 
 const { host, protocol } = config.server;
 
@@ -16,22 +16,28 @@ const extractAvatarURL = (user, size = 48) => {
 	}
 };
 
-const AvatarContainer = Connect(({ user, size }) => ({
-	user: {
-		key: {
-			type: 'entity',
-			id: user,
-		},
-		transform: userObj => extractAvatarURL(userObj && userObj.id ? user : { id: user }, size)
-	}
-}))(Dummy);
+const AvatarContainer = (props: any) => (
+	<Connect
+		mapSubscriptionToProps={{
+			user: {
+				key: {
+					type: 'entity',
+					id: props.user,
+				},
+				transform: user => extractAvatarURL(user && user.id ? user : { id: props.user }, props.size)
+			}
+		}}
+		passProps={props}
+		component={Dummy}
+	/>
+);
 
 AvatarContainer.defaultProps = {
 	size: 48
 };
 
 AvatarContainer.propTypes = {
-	nick: PropTypes.string.isRequired,
+	user: PropTypes.string.isRequired,
 	size: PropTypes.number
 };
 

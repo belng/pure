@@ -1,91 +1,51 @@
+/* @flow */
 
-
-import React from 'react-native';
-import NextButton from './NextButton';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
+import LocationItem from './LocationItem';
+import KeyboardSpacer from '../KeyboardSpacer';
 import StatusbarWrapper from '../StatusbarWrapper';
-import OnboardTitle from './OnboardTitle';
-import OnboardError from './OnboardError';
-import PlaceManager from '../Account/PlaceManager';
-import Modal from '../Modal';
-import AppText from '../AppText';
+import SearchableList from '../SearchableList';
 import Colors from '../../../Colors';
+import GooglePlaces from '../../../modules/GooglePlaces';
 
 const {
-	ScrollView,
 	StyleSheet,
 	View,
-	TouchableOpacity
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: Colors.white
-	},
-
-	inner: {
-		padding: 16,
-		alignItems: 'stretch',
-		justifyContent: 'center'
-	},
-
-	places: {
-		marginHorizontal: 8,
-		height: 216,
-	},
-
-	skip: {
-		margin: 16,
-		fontSize: 12,
-		textAlign: 'center',
-		color: Colors.darkGrey,
-		textDecorationColor: Colors.darkGrey,
-		textDecorationStyle: 'solid',
-		textDecorationLine: 'underline',
+		backgroundColor: Colors.lightGrey
 	},
 });
 
-export default class LocationDetails extends React.Component {
+export default class LocationDetails extends Component {
 	static propTypes = {
-		places: React.PropTypes.array.isRequired,
-		error: React.PropTypes.object,
-		isLoading: React.PropTypes.bool,
-		isDisabled: React.PropTypes.bool,
-		onComplete: React.PropTypes.func.isRequired,
-		onChangePlace: React.PropTypes.func.isRequired,
-		onSkip: React.PropTypes.func.isRequired
+		location: PropTypes.shape({
+			latitude: PropTypes.number,
+			longitude: PropTypes.number
+		}),
 	};
+
+	_getResults: Function = async (query: string) => GooglePlaces.getAutoCompletePredictions(
+		query, [ this.props.location || { latitude: 12.9667, longitude: 77.5667 } ], null
+	);
+
+	_renderRow: Function = place => <LocationItem place={place} />;
 
 	render() {
 		return (
 			<View style={styles.container}>
 				<StatusbarWrapper />
-				<ScrollView contentContainerStyle={[ styles.container, styles.inner ]}>
-					<OnboardTitle>Pick neighborhoods to join</OnboardTitle>
-
-					<PlaceManager
-						style={styles.places}
-						places={this.props.places}
-						onChange={this.props.onChangePlace}
-					/>
-
-					{this.props.error ?
-						<OnboardError message={this.props.error.message} /> :
-						<TouchableOpacity onPress={this.props.onSkip}>
-							<AppText style={styles.skip}>I'm not in Bangalore or Mumbai</AppText>
-						</TouchableOpacity>
-					}
-				</ScrollView>
-				<NextButton
-					label='Get started'
-					loading={this.props.isLoading}
-					disabled={this.props.isDisabled}
-					onPress={this.props.onComplete}
+				<SearchableList
+					getResults={this._getResults}
+					renderRow={this._renderRow}
+					searchHint='Search for your apartment'
 				/>
-				<Modal />
+				<KeyboardSpacer />
 			</View>
 		);
 	}
 }
-
-export default LocationDetails;

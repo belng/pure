@@ -16,7 +16,8 @@ const styles = StyleSheet.create({
 		borderColor: Colors.placeholder,
 		borderBottomWidth: 1 / PixelRatio.get(),
 		paddingHorizontal: 4,
-		height: 56
+		height: 56,
+		elevation: 2
 	}
 });
 

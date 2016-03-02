@@ -63,7 +63,7 @@ bus.on('change', changes => {
 }, 1);
 
 bus.on('state:init', state => {
-	state.connectionStatus = '@@loading';
+	state.connectionStatus = 'connecting';
 	connect();
 });
 

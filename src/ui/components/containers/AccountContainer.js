@@ -1,26 +1,31 @@
 /* @flow */
 
-import { PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import Account from '../views/Account/Account';
 import { saveUser, signOut } from '../../../modules/store/actions';
 
-const mapSubscriptionsToProps = ({ user }) => ({
-	user: {
-		key: {
-			type: 'entity',
-			id: user,
-		}
-	}
-});
-
 const mapActionsToProps = {
-	saveUser: (props, store) => user => store.dispatch(saveUser(user)),
-	saveParams: (props, store) => params => store.dispatch(saveUser({ ...props.user, params })),
-	signOut: (props, store) => () => store.dispatch(signOut()),
+	saveUser: store => user => store.dispatch(saveUser(user)),
+	saveParams: (store, result) => params => store.dispatch(saveUser({ ...result.user, params })),
+	signOut: store => () => store.dispatch(signOut()),
 };
 
-const AccountContainer = Connect(mapSubscriptionsToProps, mapActionsToProps)(Account);
+const AccountContainer = (props: { user: string }) => (
+	<Connect
+		mapSubscriptionToProps={{
+			user: {
+				key: {
+					type: 'entity',
+					id: props.user,
+				}
+			}
+		}}
+		mapActionsToProps={mapActionsToProps}
+		passProps={props}
+		component={Account}
+	/>
+);
 
 AccountContainer.propTypes = {
 	user: PropTypes.string.isRequired
