@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
+	autoFocus?: boolean;
 	getResults: (filter: string) => any | Promise<any>;
 	renderRow: (data: any) => Element;
 	renderHeader?: (filter: string, data: any) => ?Element;
@@ -42,6 +43,7 @@ type State = {
 
 export default class SearchableList extends Component<void, Props, State> {
 	static propTypes = {
+		autoFocus: PropTypes.bool,
 		getResults: PropTypes.func.isRequired,
 		renderRow: PropTypes.func.isRequired,
 		renderHeader: PropTypes.func,
@@ -162,7 +164,7 @@ export default class SearchableList extends Component<void, Props, State> {
 					placeholder={this.props.searchHint}
 					onBack={this.props.onCancel}
 					onChangeSearch={this._handleChangeSearch}
-					autoFocus
+					autoFocus={this.props.autoFocus}
 				/>
 				{placeHolder}
 			</View>

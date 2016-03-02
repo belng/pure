@@ -1,11 +1,14 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 
 const {
 	PixelRatio,
 	StyleSheet,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	appbar: {
@@ -13,16 +16,27 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'space-between',
 		backgroundColor: Colors.white,
-		borderColor: Colors.placeholder,
+		borderColor: 'rgba(0, 0, 0, .24)',
 		borderBottomWidth: 1 / PixelRatio.get(),
 		paddingHorizontal: 4,
 		height: 56,
-		elevation: 2
 	}
 });
 
-export default class AppbarSecondary extends React.Component {
-	setNativeProps(nativeProps) {
+type Props = {
+	children?: any;
+	style?: any;
+}
+
+export default class AppbarSecondary extends Component<void, Props, void> {
+	static propTypes = {
+		children: PropTypes.node.isRequired,
+		style: View.propTypes.style
+	};
+
+	_root: any;
+
+	setNativeProps(nativeProps: any) {
 		this._root.setNativeProps(nativeProps);
 	}
 
@@ -38,8 +52,3 @@ export default class AppbarSecondary extends React.Component {
 		);
 	}
 }
-
-AppbarSecondary.propTypes = {
-	children: React.PropTypes.node.isRequired,
-	style: View.propTypes.style
-};
