@@ -27,9 +27,9 @@ const AvatarContainer = (props: any) => (
 				transform: user => extractAvatarURL(user && user.id ? user : { id: props.user }, props.size)
 			}
 		}}
-	>
-		<Dummy {...props} />
-	</Connect>
+		passProps={props}
+		component={Dummy}
+	/>
 );
 
 AvatarContainer.defaultProps = {

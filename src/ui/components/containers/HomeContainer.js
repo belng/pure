@@ -14,9 +14,9 @@ const HomeContainer = (props: any) => (
 				}
 			}
 		}}
-	>
-		<Home {...props} />
-	</Connect>
+		passProps={props}
+		component={Home}
+	/>
 );
 
 export default HomeContainer;

@@ -46,9 +46,9 @@ export default class ChatMessagesContainer extends Component<void, any, Subscrip
 						}
 					}
 				}}
-			>
-				<Dummy {...this.props} loadMore={this._loadMore} />
-			</Connect>
+				passProps={{ ...this.props, loadMore: this._loadMore }}
+				component={Dummy}
+			/>
 		);
 	}
 }

@@ -25,9 +25,9 @@ const NotificationBadgeContainer = (props: any) => (
 				transform: notes => notes ? notes.length : 0
 			}
 		}}
-	>
-		<Dummy {...props} />
-	</Connect>
+		passProps={props}
+		component={Dummy}
+	/>
 );
 
 NotificationBadgeContainer.propTypes = {

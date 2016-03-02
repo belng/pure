@@ -24,9 +24,11 @@ const mapSubscriptionToProps = {
 };
 
 const AppContainer = (props: any) => (
-	<Connect mapSubscriptionToProps={mapSubscriptionToProps}>
-		<App {...props} />
-	</Connect>
+	<Connect
+		mapSubscriptionToProps={mapSubscriptionToProps}
+		passProps={props}
+		component={App}
+	/>
 );
 
 export default AppContainer;

@@ -22,9 +22,9 @@ const AccountContainer = (props: { user: string }) => (
 			}
 		}}
 		mapActionsToProps={mapActionsToProps}
-	>
-		<Account {...props} />
-	</Connect>
+		passProps={props}
+		component={Account}
+	/>
 );
 
 AccountContainer.propTypes = {

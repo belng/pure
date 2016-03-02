@@ -27,9 +27,9 @@ const RoomsContainer = (props: any) => (
 				}
 			}
 		}}
-	>
-		<Dummy />
-	</Connect>
+		passProps={props}
+		component={Dummy}
+	/>
 );
 
 RoomsContainer.propTypes = {

@@ -46,9 +46,9 @@ export default class DiscussionsContainer extends Component<void, any, Subscript
 						}
 					}
 				}}
-			>
-				<Dummy {...this.props} loadMore={this._loadMore} />
-			</Connect>
+				passProps={{ ...this.props, loadMore: this._loadMore }}
+				component={Dummy}
+			/>
 		);
 	}
 }

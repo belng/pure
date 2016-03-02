@@ -18,9 +18,11 @@ const mapActionsToProps = {
 };
 
 const ChatItemContainer = (props: any) => (
-	<Connect mapActionsToProps={mapActionsToProps}>
-		<Dummy {...props} />
-	</Connect>
+	<Connect
+		mapActionsToProps={mapActionsToProps}
+		passProps={props}
+		component={Dummy}
+	/>
 );
 
 ChatItemContainer.propTypes = {

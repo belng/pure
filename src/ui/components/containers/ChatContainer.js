@@ -23,9 +23,9 @@ const ChatContainer = (props: any) => (
 				}
 			}
 		}}
-	>
-		<Dummy {...props} />
-	</Connect>
+		passProps={props}
+		component={Dummy}
+	/>
 );
 
 ChatContainer.propTypes = {

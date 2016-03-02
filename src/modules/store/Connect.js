@@ -1,7 +1,7 @@
 /* @flow */
 /* eslint-disable react/sort-comp */
 
-import React, { Component, PropTypes, Children } from 'react';
+import React, { Component, PropTypes } from 'react';
 import shallowEqual from 'shallowequal';
 import mapValues from 'lodash/mapValues';
 import storeShape from './storeShape';
@@ -15,7 +15,8 @@ import type {
 type Props = {
 	mapSubscriptionToProps?: MapSubscriptionToProps;
 	mapActionsToProps?: MapActionsToProps;
-	children?: Element;
+	passProps?: any;
+	component: ReactClass;
 }
 
 export default class Connect extends Component<void, Props, any> {
@@ -26,7 +27,8 @@ export default class Connect extends Component<void, Props, any> {
 	static propTypes = {
 		mapSubscriptionToProps: PropTypes.object,
 		mapActionsToProps: PropTypes.object,
-		children: PropTypes.element.isRequired
+		passProps: PropTypes.any,
+		component: PropTypes.any.isRequired
 	};
 
 	state: any = {};
@@ -134,24 +136,19 @@ export default class Connect extends Component<void, Props, any> {
 	}
 
 	render(): React$Element<any> {
-		const {
-			store
-		} = this.context;
-
-		const {
-			mapActionsToProps,
-		} = this.props;
-
-		const actions = mapActionsToProps ? mapValues(mapActionsToProps, (value, key) => {
-			const action = value(store, this.state);
+		const actions = mapValues(this.props.mapActionsToProps, (value, key) => {
+			const action = value(this.context.store, this.state);
 
 			if (typeof action !== 'function') {
 				throw new Error(`Invalid action in ${key}. Action creators must return a curried action function.`);
 			}
 
 			return action;
-		}) : null;
+		});
 
-		return React.cloneElement(Children.only(this.props.children), { ...this.state, ...actions });
+		const ChildComponent = this.props.component;
+		const passProps = { ...this.props.passProps, ...this.state, ...actions };
+
+		return <ChildComponent {...passProps} />;
 	}
 }

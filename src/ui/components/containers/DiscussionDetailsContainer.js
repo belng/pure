@@ -14,9 +14,9 @@ const DiscussionDetailsContainer = (props: any) => (
 				}
 			}
 		}}
-	>
-		<Dummy />
-	</Connect>
+		passProps={props}
+		component={Dummy}
+	/>
 );
 
 DiscussionDetailsContainer.propTypes = {

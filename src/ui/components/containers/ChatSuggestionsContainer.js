@@ -38,9 +38,9 @@ export default class ChatSuggestionsContainer extends Component<void, any, { pre
 						transform: results => results.filter(item => item.id !== this.props.user)
 					}
 				}}
-			>
-				<Dummy getMatchingUsers={this._getMatchingUsers} />
-			</Connect>
+				passProps={{ ...this.props, getMatchingUsers: this._getMatchingUsers }}
+				component={Dummy}
+			/>
 		);
 	}
 }

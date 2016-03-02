@@ -25,9 +25,9 @@ const ShareButtonContainer = (props: any) => (
 				}) : null
 			}
 		}}
-	>
-		<Dummy />
-	</Connect>
+		passProps={props}
+		component={Dummy}
+	/>
 );
 
 ShareButtonContainer.propTypes = {

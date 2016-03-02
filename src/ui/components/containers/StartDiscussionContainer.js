@@ -59,9 +59,9 @@ export default class StartDiscussionContainer extends Component<void, Props, Sta
 						});
 					}
 				}}
-			>
-				<Dummy {...this.props} />
-			</Connect>
+				passProps={this.props}
+				component={Dummy}
+			/>
 		);
 	}
 }

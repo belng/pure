@@ -15,9 +15,9 @@ const RoomTitleContainer = (props: any) => (
 				transform: room => room && room.name ? room.name : props.room
 			}
 		}}
-	>
-		<Dummy />
-	</Connect>
+		passProps={props}
+		component={Dummy}
+	/>
 );
 
 RoomTitleContainer.propTypes = {

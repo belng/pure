@@ -30,9 +30,9 @@ const NotificationCenterContainer = (props: any) => (
 			}
 		}}
 		mapActionsToProps={mapActionsToProps}
-	>
-		<Dummy {...props} />
-	</Connect>
+		passProps={props}
+		component={Dummy}
+	/>
 );
 
 NotificationCenterContainer.propTypes = {

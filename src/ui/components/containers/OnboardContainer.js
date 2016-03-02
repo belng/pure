@@ -288,6 +288,7 @@ const mapActionsToProps = {
 
 const OnboardContainerOuter = (props: any) => (
 	<Connect
+		mapActionsToProps={mapActionsToProps}
 		mapSubscriptionToProps={{
 			user: {
 				key: {
@@ -308,10 +309,8 @@ const OnboardContainerOuter = (props: any) => (
 				}
 			}
 		}}
-		mapActionsToProps={mapActionsToProps}
-	>
-		<OnboardContainer {...props} />
-	</Connect>
+		component={OnboardContainer}
+	/>
 );
 
 OnboardContainerOuter.propTypes = {

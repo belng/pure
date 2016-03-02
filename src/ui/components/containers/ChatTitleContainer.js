@@ -15,9 +15,9 @@ const ChatTitleContainer = (props: any) => (
 				transform: o => o ? o.name : null
 			}
 		}}
-	>
-		<Dummy {...props} />
-	</Connect>
+		passProps={props}
+		component={Dummy}
+	/>
 );
 
 ChatTitleContainer.propTypes = {

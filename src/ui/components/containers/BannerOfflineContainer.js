@@ -14,9 +14,11 @@ const mapSubscriptionToProps = {
 };
 
 const BannerOfflineContainer = (props: any) => (
-	<Connect mapSubscriptionToProps={mapSubscriptionToProps}>
-		<Dummy {...props} />
-	</Connect>
+	<Connect
+		mapSubscriptionToProps={mapSubscriptionToProps}
+		passProps={props}
+		component={Dummy}
+	/>
 );
 
 export default BannerOfflineContainer;

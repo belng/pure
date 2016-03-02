@@ -21,9 +21,7 @@ describe('Connect', () => {
 		};
 		const app = TestUtils.renderIntoDocument(
 			<Provider store={store}>
-				<Connect>
-					<TextComponent text='Hey!' />
-				</Connect>
+				<Connect component={TextComponent} passProps={{ text: 'Hey!' }} />
 			</Provider>
 		);
 
@@ -70,9 +68,8 @@ describe('Connect', () => {
 							}
 						},
 					}}
-				>
-					<NameComponent />
-				</Connect>
+					component={NameComponent}
+				/>
 			</Provider>
 		);
 
@@ -99,9 +96,7 @@ describe('Connect', () => {
 
 		ReactDOM.render(
 			<Provider store={store}>
-				<Connect mapSubscriptionToProps={{ textContent: 'text' }}>
-					<TextComponent />
-				</Connect>
+				<Connect mapSubscriptionToProps={{ textContent: 'text' }} component={TextComponent} />
 			</Provider>,
 			container
 		);
@@ -124,11 +119,10 @@ describe('Connect', () => {
 			<Provider store={store}>
 				<Connect
 					mapActionsToProps={{
-						ping: (props, s) => () => s.dispatch(TEST_ACTION)
+						ping: s => () => s.dispatch(TEST_ACTION)
 					}}
-				>
-					<ButtonComponent />
-				</Connect>
+					component={ButtonComponent}
+				/>
 			</Provider>
 		);
 
@@ -164,16 +158,16 @@ describe('Connect', () => {
 					}
 				}}
 				mapActionsToProps={{
-					click: (props, s) => () => s.dispatch({
+					click: s => () => s.dispatch({
 						type: 'CLICK',
 						payload: {
 							label: 'Clicked'
 						}
 					})
 				}}
-			>
-				<ButtonComponent initialLabel='Hello' />
-			</Connect>
+				passProps={{ initialLabel: 'Hello' }}
+				component={ButtonComponent}
+			/>
 		);
 
 		const app = TestUtils.renderIntoDocument(
