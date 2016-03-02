@@ -219,7 +219,7 @@ class OnboardContainer extends Component<void, Props, State> {
 			this.props.signUp(fields.nick.value, fields.name.value);
 			break;
 		case PAGE_PLACES:
-			this.props.savePlaces(fields.places);
+			this.props.savePlaces(fields.places.value);
 			break;
 		case PAGE_GET_STARTED:
 			this.setState({
@@ -278,9 +278,9 @@ const mapActionsToProps = {
 	savePlaces: (store, result) => places => {
 		store.dispatch(saveUser({
 			...result.user,
-			params: {
-				...result.user.params,
-				places
+			profile: {
+				...result.user.profile,
+				places: places.map(p => p.placeId)
 			}
 		}));
 	},
