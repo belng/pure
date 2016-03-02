@@ -42,6 +42,7 @@ cache.onChange((changes) => {
 		});
 	};
 
+	console.log("onChangeFired", changes.response.queries);
 	if (changes.queries) {
 		for (const key in changes.queries) {
 			if (key === 'entities') {
@@ -145,6 +146,7 @@ bus.on('change', (changes, next) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
 				jsonop(response, { indexes: { [key]: results } });
 				counter.dec();
+				console.log("done with query");
 			},
 			entityCallback = (err, result) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
@@ -165,6 +167,7 @@ bus.on('change', (changes, next) => {
 			} else {
 				for (const range of changes.queries[key]) {
 					counter.inc();
+					console.log("Adding query");
 					cache.query(key, range, cb.bind(null, key));
 				}
 			}

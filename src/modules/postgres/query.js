@@ -1,13 +1,15 @@
 
 
-import pg from '../../lib/pg';
+import * as pg from '../../lib/pg';
 import { TABLES, TYPES } from '../../lib/schema';
 
 const MAX_LIMIT = 1024;
 
 function propOp (prop, op) {
-	if (prop.substr(-op.length) === op) {
-		return prop.substr(0, prop.length - op.length);
+	const i = prop.lastIndexOf('_');
+
+	if (i > 0) {
+		return prop.substr(i+1, prop.length) === op && prop.substr(0, i);
 	} else {
 		return false;
 	}
@@ -16,7 +18,7 @@ function propOp (prop, op) {
 function fromPart (slice) {
 	const fields = [], joins = [];
 
-	fields.push('row_to_json("' + TABLES[TYPES[slice.type]] + '.*") as "' + slice.type + '"');
+	fields.push('row_to_json("' + TABLES[TYPES[slice.type]] + '".*) as "' + slice.type + '"');
 	joins.push('"' + TABLES[TYPES[slice.type]] + '"');
 
 	if (slice.join) {
@@ -26,7 +28,7 @@ function fromPart (slice) {
 				TABLES[TYPES[type]] + '"."' + slice.join[type] + '" = "' +
 				TABLES[TYPES[slice.type]] + '"."id"'
 			);
-			fields.push('row_to_json("' + TABLES[TYPES[type]] + '.*") as "' + type + '"');
+			fields.push('row_to_json("' + TABLES[TYPES[type]] + '".*) as "' + type + '"');
 		}
 	}
 
@@ -38,7 +40,7 @@ function fromPart (slice) {
 				TABLES[TYPES[type]] + '"."id"'
 			);
 
-			fields.push('row_to_json("' + TABLES[TYPES[type]] + '.*") as "' + type + '"');
+			fields.push('row_to_json("' + TABLES[TYPES[type]] + '".*) as "' + type + '"');
 		}
 	}
 
@@ -49,28 +51,31 @@ function wherePart (f) {
 	const sql = [];
 	let filter = f, name;
 
+
 	for (const prop in filter) {
-		if ((name = propOp(prop, 'Gt'))) {
+		if ((name = propOp(prop, 'gt'))) {
 			sql.push(`"${name}" > &{${prop}}`);
-		} else if ((name = propOp(prop, 'Lt'))) {
+		} else if ((name = propOp(prop, 'lt'))) {
 			sql.push(`"${name}" < &{${prop}}`);
-		} else if ((name = propOp(prop, 'In'))) {
+		} else if ((name = propOp(prop, 'in'))) {
 			sql.push(`"${name}" IN &{${prop}}`);
-		} else if ((name = propOp(prop, 'Neq'))) {
+		} else if ((name = propOp(prop, 'neq'))) {
 			sql.push(`"${name}" <> &{${prop}}`);
-		} else if ((name = propOp(prop, 'Gte'))) {
+		} else if ((name = propOp(prop, 'gte'))) {
 			sql.push(`"${name}" >= &{${prop}}`);
-		} else if ((name = propOp(prop, 'Lte'))) {
+		} else if ((name = propOp(prop, 'lte'))) {
 			sql.push(`"${name}" <= &{${prop}}`);
-		} else if ((name = propOp(prop, 'Cts'))) {
-			sql.push(`"${name}" @> &{${prop}}`);
-		} else if ((name = propOp(prop, 'Ctd'))) {
-			sql.push(`"${name}" <@ &{${prop}}`);
-		} else if ((name = propOp(prop, 'Mts'))) {
-			sql.push(`"${name}" @@ &{${prop}}`);
+		} else if ((name = propOp(prop, 'cts'))) {
+			sql.push(`"${name}" @> ARRAY[] || &{${prop}}`);
+		} else if ((name = propOp(prop, 'ctd'))) {
+			sql.push(`"${name}" <@ ARRAY[] || &{${prop}}`);
+		} else if ((name = propOp(prop, 'mts'))) {
+			sql.push(`"${name}" @@ ARRAY[] || &{${prop}}`);
 		} else {
-			sql.push(`"${prop}" = &{${prop}}`);
+			sql.push(`"${name}" = &{${prop}}`);
 		}
+
+		console.log(name, prop);
 	}
 
 	filter = Object.create(filter);
@@ -95,21 +100,21 @@ function simpleQuery(slice, limit) {
 }
 
 function boundQuery (slice, start, end) {
-	slice.filter[slice.order + 'Gte'] = start;
-	slice.filter[slice.order + 'Lte'] = end;
+	slice.filter[slice.order + '_gte'] = start;
+	slice.filter[slice.order + '_lte'] = end;
 	const query = simpleQuery(slice, MAX_LIMIT);
 
-	delete slice.filter[slice.order + 'Gte'];
-	delete slice.filter[slice.order + 'Lte'];
+	delete slice.filter[slice.order + '_gte'];
+	delete slice.filter[slice.order + '_lte'];
 
 	return query;
 }
 
 function beforeQuery (slice, start, before, exclude) {
-	slice.filter[slice.order + (exclude ? 'Lt' : 'Lte')] = start;
+	slice.filter[slice.order + (exclude ? '_lt' : '_lte')] = start;
 	const query = simpleQuery(slice, Math.max(-MAX_LIMIT, -before));
 
-	delete slice.filter[slice.order + (exclude ? 'Lt' : 'Lte')];
+	delete slice.filter[slice.order + (exclude ? '_lt' : '_lte')];
 
 	return pg.cat([
 		'SELECT * FROM (',
@@ -124,16 +129,19 @@ function beforeQuery (slice, start, before, exclude) {
 }
 
 function afterQuery (slice, start, after, exclude) {
-	slice.filter[slice.order + (exclude ? 'Gt' : 'Gte')] = start;
+	if (!slice.filter) slice.filter = {};
+	slice.filter[slice.order + (exclude ? '_gt' : '_gte')] = start;
 	const query = simpleQuery(slice, Math.min(MAX_LIMIT, after));
 
-	delete slice.filter[slice.order + (exclude ? 'Gt' : 'Gte')];
+	delete slice.filter[slice.order + (exclude ? '_gt' : '_gte')];
 
 	return query;
 }
 
 export default function (slice, range) {
 	let query;
+
+	console.log(slice, range);
 
 	if (slice.order) {
 		if (range.length === 2) {

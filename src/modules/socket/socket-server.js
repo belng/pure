@@ -48,7 +48,7 @@ bus.on('http/init', app => {
 				return;
 			}
 
-			winston.debug('message after parsing', message);
+			winston.debug('message after parsing', JSON.stringify(message));
 			message.id = uid(16);
 			(message.auth = message.auth || {}).resource = resourceId;
 
