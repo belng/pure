@@ -51,7 +51,7 @@ export default class LocationItem extends Component<void, Props, void> {
 		const { place } = this.props;
 
 		return (
-			<ListItem>
+			<ListItem {...this.props}>
 				<View style={styles.container}>
 					<AppText style={styles.title}>{place.primaryText}</AppText>
 					<AppText style={styles.summary}>{place.secondaryText || place.fullText}</AppText>
