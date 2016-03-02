@@ -26,10 +26,10 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	onDismiss: Function;
 	onChangeSearch: Function;
 	onFocus?: Function;
 	onBlur?: Function;
+	onDismiss?: Function;
 	placeholder?: string;
 	autoFocus?: boolean;
 }

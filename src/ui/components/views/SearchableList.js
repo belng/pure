@@ -28,6 +28,7 @@ type Props = {
 	getResults: (filter: string) => any | Promise<any>;
 	renderRow: (data: any) => Element;
 	renderHeader?: (filter: string, data: any) => ?Element;
+	renderFooter?: (filter: string, data: any) => ?Element;
 	renderBlankslate?: () => ?Element;
 	onCancel?: (data: any) => Element;
 	searchHint: string;
@@ -44,6 +45,7 @@ export default class SearchableList extends Component<void, Props, State> {
 		getResults: PropTypes.func.isRequired,
 		renderRow: PropTypes.func.isRequired,
 		renderHeader: PropTypes.func,
+		renderFooter: PropTypes.func,
 		renderBlankslate: PropTypes.func,
 		onCancel: PropTypes.func,
 		searchHint: PropTypes.string.isRequired,
@@ -55,43 +57,44 @@ export default class SearchableList extends Component<void, Props, State> {
 		data: '@@blankslate',
 	};
 
+	_cachedResults: Object = {};
+
 	_dataSource: ListView.DataSource = new ListView.DataSource({
 		rowHasChanged: (r1, r2) => r1 !== r2
 	});
 
-	_cachedResults: Object = {};
-
 	_fetchResults: Function = debounce(async (filter: string): Promise => {
 		try {
-			const data = await this.props.getResults(filter);
+			const data = this._cachedResults[filter] = await this.props.getResults(filter);
 
-			this._cachedResults[filter] = data;
-
-			this.setState({
-				data
-			});
+			if (filter === this.state.filter) {
+				this.setState({
+					data
+				});
+			}
 		} catch (e) {
-			this.setState({
-				data: '@@failed'
-			});
+			if (filter === this.state.filter) {
+				this.setState({
+					data: '@@failed'
+				});
+			}
 		}
 	});
 
 	_handleChangeSearch: Function = (filter: string) => {
 		if (filter) {
-			if (this._cachedResults[filter]) {
-				this.setState({
-					filter,
-					data: this._cachedResults[filter]
-				});
-			} else {
-				this.setState({
-					filter,
-					data: '@@loading'
-				});
+			const data = this._cachedResults[filter];
 
-				this._fetchResults(filter);
+			this.setState({
+				filter,
+				data: data || '@@loading'
+			});
+
+			if (data) {
+				return;
 			}
+
+			this._fetchResults(filter);
 		} else {
 			this.setState({
 				filter,
@@ -107,6 +110,14 @@ export default class SearchableList extends Component<void, Props, State> {
 	_renderHeader: Function = (): ?Element => {
 		if (this.props.renderHeader) {
 			return this.props.renderHeader(this.state.filter, this.state.data);
+		}
+
+		return null;
+	};
+
+	_renderFooter: Function = (): ?Element => {
+		if (this.props.renderFooter) {
+			return this.props.renderFooter(this.state.filter, this.state.data);
 		}
 
 		return null;
@@ -137,6 +148,7 @@ export default class SearchableList extends Component<void, Props, State> {
 						dataSource={this._getDataSource()}
 						renderRow={this.props.renderRow}
 						renderHeader={this._renderHeader}
+						renderFooter={this._renderFooter}
 					/>
 				);
 			} else {
