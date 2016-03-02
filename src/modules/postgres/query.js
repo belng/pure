@@ -2,14 +2,14 @@
 
 import * as pg from '../../lib/pg';
 import { TABLES, TYPES } from '../../lib/schema';
-
+import winston from 'winston';
 const MAX_LIMIT = 1024;
 
 function propOp (prop, op) {
 	const i = prop.lastIndexOf('_');
 
 	if (i > 0) {
-		return prop.substr(i+1, prop.length) === op && prop.substr(0, i);
+		return prop.substr(i + 1, prop.length) === op && prop.substr(0, i);
 	} else {
 		return false;
 	}
@@ -74,8 +74,6 @@ function wherePart (f) {
 		} else {
 			sql.push(`"${name}" = &{${prop}}`);
 		}
-
-		console.log(name, prop);
 	}
 
 	filter = Object.create(filter);
@@ -141,7 +139,7 @@ function afterQuery (slice, start, after, exclude) {
 export default function (slice, range) {
 	let query;
 
-	console.log(slice, range);
+	winston.debug(JSON.stringify({ slice, range }));
 
 	if (slice.order) {
 		if (range.length === 2) {
