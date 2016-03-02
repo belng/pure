@@ -17,7 +17,7 @@ export default function (entity) {
 
 	names.splice(names.indexOf('type'), 1);
 
-	if (entity.createTime) { // INSERT
+	if (entity.create) { // INSERT
 		return pg.cat([
 			`INSERT INTO "${TABLES[TYPES[entity.type]]}" (`,
 			'"' + names.map(name => name.toLowerCase()).join('", "') + '"',
