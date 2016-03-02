@@ -62,13 +62,17 @@ export default function (entity) {
 						name: entity.name,
 						body: entity.body
 					};
+				case 'identities': // TODO: find a way to merge and do uniq on the identities
+					return {
+						$: '"identities" = &{identities}',
+						identities: entity[name]
+					};
 				case 'meta':
-				case 'identities':
 				case 'params':
 				case 'data':
 				case 'resources':
 					return {
-						$: `"${name}" = jsonop("${name}", &{${name}}, &{${name}_op})`,
+						$: `"${name}" = jsonop("${name}"::jsonb, &{${name}}::jsonb, &{${name}_op}::jsonb)`,
 						[name]: entity[name],
 						[name + '_op']: ops[name] || {}
 					};
