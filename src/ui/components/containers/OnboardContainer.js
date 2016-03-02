@@ -110,7 +110,7 @@ class OnboardContainer extends Component<void, Props, State> {
 			});
 		} else {
 			if (user && user.type !== 'loading') {
-				if (user.params && user.params.places) {
+				if (user.profile && user.profile.places) {
 					if (this.state.onboarding) {
 						this.setState({
 							page: PAGE_HOME
