@@ -6,8 +6,10 @@ import App from '../views/App';
 
 const mapSubscriptionToProps = {
 	user: {
-		key: 'me',
-		transform: user => user ? user.id : null,
+		key: {
+			type: 'state',
+			path: 'user'
+		},
 	},
 	connection: {
 		key: {
