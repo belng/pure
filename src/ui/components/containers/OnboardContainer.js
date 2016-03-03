@@ -15,9 +15,11 @@ type Props = {
 	pendingUser: {
 		signedIdentities: string;
 		params: {
-			picture?: string;
-			name?: string
-		}
+			[key: string]: {
+				picture?: string;
+				name?: string;
+			};
+		};
 	};
 	signIn: Function;
 	signUp: Function;
@@ -51,7 +53,7 @@ class OnboardContainer extends Component<void, Props, State> {
 			nick: { value: '', error: null },
 			name: { value: '', error: null },
 			picture: { value: '', error: null },
-			places: { value: [], error: null },
+			places: { value: {}, error: null },
 		},
 		page: PAGE_LOADING,
 		onboarding: false,
@@ -68,6 +70,7 @@ class OnboardContainer extends Component<void, Props, State> {
 
 	_setUserDetails: Function = (props: Props) => {
 		const {
+			user,
 			pendingUser
 		} = props;
 
@@ -83,11 +86,20 @@ class OnboardContainer extends Component<void, Props, State> {
 			if (data) {
 				const { fields } = this.state;
 
+				const places = {};
+
+				if (isEmpty(fields.places) && user.params && user.params.places) {
+					for (const type in user.params.places) {
+						places[type] = { placeId: user.params.places[type] };
+					}
+				}
+
 				this.setState({
 					fields: {
 						...fields,
 						name: { value: fields.name.value || data.name, error: null },
 						picture: { value: fields.picture.value || data.picture, error: null },
+						places: { value: isEmpty(fields.places) ? places : fields.places, error: null },
 					}
 				});
 
@@ -110,7 +122,7 @@ class OnboardContainer extends Component<void, Props, State> {
 			});
 		} else {
 			if (user && user.type !== 'loading') {
-				if (user.profile && user.profile.places) {
+				if (user.params && user.params.places) {
 					if (this.state.onboarding) {
 						this.setState({
 							page: PAGE_GET_STARTED
@@ -276,12 +288,18 @@ const mapActionsToProps = {
 	cancelSignUp: (store) => () => store.dispatch(cancelSignUp()),
 	signUp: (store, result) => (id: string, name: string) => store.dispatch(signUp({ ...result.pendingUser, id, name })),
 	savePlaces: (store, result) => places => {
+		const data = { places };
+
+		for (const type in places) {
+			data.places[type] = places[type].placeId;
+		}
+
 		store.dispatch(saveUser({
 			...result.user,
-			profile: {
-				...result.user.profile,
-				places: places.map(p => p.placeId)
-			}
+			params: result.user.params ? {
+				...result.user.params,
+				...data
+			} : data
 		}));
 	},
 };

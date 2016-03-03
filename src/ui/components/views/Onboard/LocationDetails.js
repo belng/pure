@@ -37,7 +37,7 @@ type Props = {
 		latitude: number;
 		longitude: number;
 	};
-	onChangeField: (type: string, value: Array<Object>) => void;
+	onChangeField: (type: string, value: { [key: string]: string }) => void;
 	submitPlaceDetails: () => void;
 }
 
@@ -56,7 +56,7 @@ export default class LocationDetails extends Component<void, Props, void> {
 	);
 
 	_handleSelectPlace: Function = place => {
-		this.props.onChangeField('places', [ place ]);
+		this.props.onChangeField('places', { current: place });
 
 		setTimeout(() => this.props.submitPlaceDetails(), 1000);
 	};
