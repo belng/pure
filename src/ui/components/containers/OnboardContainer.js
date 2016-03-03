@@ -113,11 +113,11 @@ class OnboardContainer extends Component<void, Props, State> {
 				if (user.profile && user.profile.places) {
 					if (this.state.onboarding) {
 						this.setState({
-							page: PAGE_HOME
+							page: PAGE_GET_STARTED
 						});
 					} else {
 						this.setState({
-							page: PAGE_GET_STARTED
+							page: PAGE_HOME
 						});
 					}
 				} else {
