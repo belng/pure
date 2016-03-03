@@ -5,6 +5,7 @@ import jsonop from 'jsonop';
 import defaultOps from './../../lib/defaultOps';
 
 export default function (entity) {
+	// TODO: add validation for type else this code crashes.
 	const names = Object.keys(entity).filter(
 		name => COLUMNS[entity.type].indexOf(name) >= 0
 	);
@@ -39,7 +40,7 @@ export default function (entity) {
 				}
 			}), ', '),
 			{
-				$: ') RETURNING *, &{type}::number as "type"',
+				$: ') RETURNING *, &{type}::smallint as "type"',
 				type: entity.type
 			}
 		], ' ');
@@ -102,7 +103,7 @@ export default function (entity) {
 				group: entity.group
 			} : 'FALSE',
 			{
-				$: 'RETURNING *, &{type}::number as "type"',
+				$: 'RETURNING *, &{type}::smallint as "type"',
 				type: entity.type
 			}
 		], ' ');

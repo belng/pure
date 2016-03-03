@@ -80,11 +80,10 @@ cache.onChange((changes) => {
 			}
 		}
 
-		console.log(newRange);
+		console.log(newRange, orderedResult.length);
 		cache.put({
 			knowledge: { [key]: [ newRange ] },
-			indexes: { [key]: orderedResult },
-			source: 'postgres'
+			indexes: { [key]: orderedResult }
 		});
 	};
 
@@ -161,7 +160,6 @@ pg.listen(config.connStr, channel, (payload) => {
 
 bus.on('change', (changes, next) => {
 	const counter = new Counter(), response = changes.response = changes.response || {};
-
 	if (!response.entities) response.entities = {};
 	if (changes.source === 'postgres') {
 		next();
