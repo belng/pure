@@ -118,8 +118,7 @@ function beforeQuery (slice, start, before, exclude) {
 		'SELECT * FROM (',
 		query,
 		{
-			$: ') r ORDER BY &{type}->\'&{order}\' ASC',
-			type: slice.type.toLowerCase(),
+			$: `) r ORDER BY ${slice.type.toLowerCase()}->\'&{order}\' ASC`,
 			order: slice.order.toLowerCase()
 		}
 
