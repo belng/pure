@@ -1,4 +1,5 @@
 import jsonop from 'jsonop';
+import sbcache from 'sbcache';
 import winston from 'winston';
 import Counter from '../../lib/counter';
 import * as pg from '../../lib/pg';
@@ -30,14 +31,30 @@ function broadcast (entity) {
 }
 
 cache.onChange((changes) => {
-	const cb = (key, range, err, results) => {
+	const cb = (key, range, err, r) => {
 		if (err) {
 			winston.error(err);
 			return;
 		}
+
+		const results = r.map(e => {
+			const props = Object.keys(e), propsCount = props.length;
+			let prop;
+
+			props.forEach(name => {
+				e[name] = new Types[name](e[name]);
+				prop = name;
+			});
+
+			if (propsCount > 1) return e;
+			else return e[prop];
+		});
+
+		const orderedResult = new sbcache.OrderedArray([ cache.keyToSlice(key).order ], results);
+
 		bus.emit('change', {
 			knowledge: { [key]: [ range ] },
-			indexes: { [key]: results },
+			indexes: { [key]: orderedResult },
 			source: 'postgres'
 		});
 	};
@@ -111,7 +128,7 @@ pg.listen(config.connStr, channel, (payload) => {
 });
 
 bus.on('change', (changes, next) => {
-	const counter = new Counter(), response = changes.response = {};
+	const counter = new Counter(), response = changes.response = changes.response || {};
 
 	if (!response.entities) response.entities = {};
 	if (changes.source === 'postgres') {

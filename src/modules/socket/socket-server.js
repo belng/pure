@@ -82,6 +82,7 @@ bus.on('http/init', app => {
 				}
 			}
 
+			message.source = 'socket';
 			bus.emit('change', message, handleSetState);
 		});
 	});
