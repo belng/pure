@@ -128,6 +128,10 @@ export default class Connect extends Component<void, Props, any> {
 	}
 
 	componentWillReceiveProps(nextProps: Props) {
+		if (shallowEqual(this.props, nextProps)) {
+			return;
+		}
+
 		this._renewSubscriptions(nextProps, this.context);
 	}
 
