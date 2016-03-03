@@ -3,7 +3,8 @@ import { bus, cache, Constants } from '../../core-server';
 import winston from 'winston';
 
 bus.on('change', (changes) => {
-	winston.info('cache-updater got change event', JSON.stringify(changes));
+	console.trace("hi");
+	winston.info('cache-updater got change event', JSON.stringify(changes.knowledge));
 	if (changes.source !== 'socket') {
 		cache.put(changes);
 	}

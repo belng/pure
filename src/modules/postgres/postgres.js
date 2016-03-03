@@ -32,6 +32,7 @@ function broadcast (entity) {
 
 cache.onChange((changes) => {
 	const cb = (key, range, err, r) => {
+		let newRange = [], start, end;
 		if (err) {
 			winston.error(err);
 			return;
@@ -52,8 +53,36 @@ cache.onChange((changes) => {
 
 		const orderedResult = new sbcache.OrderedArray([ cache.keyToSlice(key).order ], results);
 
+		if (range.length === 2) {
+			newRange = range;
+		} else {
+			start = range[0];
+			if (range[1] > 0 && range[2] > 0) {
+				const index = orderedResult.indexOf(start);
+
+				start = orderedResult.valAt(0);
+				end = orderedResult.valAt(orderedResult.length - 1);
+
+				if (index < range[1]) {
+					start = -Infinity;
+				}
+
+				if (orderedResult.length - index < range[2]) {
+					end = +Infinity;
+				}
+				newRange.push(start, end);
+			} else if (range[1] > 0) {
+				end = orderedResult.length < range[1] ? -Infinity : orderedResult.valAt(orderedResult.length);
+				newRange.push(end, start);
+			} else if (range[2] > 0) {
+				end = orderedResult.length < range[2] ? +Infinity : orderedResult.valAt(orderedResult.length);
+				newRange.push(start, end);
+			}
+		}
+
+		console.log("NEW: ", newRange);
 		bus.emit('change', {
-			knowledge: { [key]: [ range ] },
+			knowledge: { [key]: [ newRange ] },
 			indexes: { [key]: orderedResult },
 			source: 'postgres'
 		});
@@ -193,5 +222,8 @@ bus.on('change', (changes, next) => {
 		}
 	}
 
-	counter.then(next);
+	counter.then(() => {
+		console.log('next fired in postgres');
+		next();
+	});
 });

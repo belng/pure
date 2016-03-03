@@ -30,7 +30,6 @@ function signinhandler(changes, n) {
 	}
 
 
-	winston.debug('setstate/signin:', changes);
 	if (changes.auth && changes.auth.signin) {
 		winston.debug('setstate: sign-in module', changes.auth.signin);
 		if (changes.auth.signin.id) {

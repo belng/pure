@@ -2,7 +2,6 @@
 import * as pg from '../../lib/pg';
 import { TABLES, TYPES } from '../../lib/schema';
 
-import winston from 'winston';
 const MAX_LIMIT = 1024;
 
 function propOp (prop, op) {
@@ -118,7 +117,7 @@ function beforeQuery (slice, start, before, exclude) {
 		'SELECT * FROM (',
 		query,
 		{
-			$: `) r ORDER BY ${slice.type.toLowerCase()}->\'&{order}\' ASC`,
+			$: `) r ORDER BY ${slice.type.toLowerCase()}->&{order} ASC`,
 			order: slice.order.toLowerCase()
 		}
 
@@ -138,17 +137,19 @@ function afterQuery (slice, start, after, exclude) {
 export default function (slice, range) {
 	let query;
 
-	winston.debug(JSON.stringify({ slice, range }));
-
 	if (slice.order) {
 		if (range.length === 2) {
 			query = boundQuery(slice, range[0], range[1]);
 		} else {
 			if (range[1] > 0 && range[2] > 0) {
 				query = pg.cat([
+					'(',
 					beforeQuery(slice, range[0], range[1], true),
+					')',
 					'UNION ALL',
-					afterQuery(slice, range[0], range[2])
+					'(',
+					afterQuery(slice, range[0], range[2]),
+					')'
 				], ' ');
 			} else if (range[1] > 0) {
 				query = beforeQuery(slice, range[0], range[1]);
