@@ -170,7 +170,7 @@ bus.on('change', change => {
 			cache.query({
 				type: 'rel',
 				link: { room: 'room' },
-				filter: { user: id, roleGte: constants.ROLE_FOLLOWER },
+				filter: { user: id, role_gte: constants.ROLE_FOLLOWER },
 				order: 'roleTime'
 			}, [ -Infinity, Infinity ], (err, results) => {
 				if (err) { reject(err); return; }
@@ -178,16 +178,24 @@ bus.on('change', change => {
 			});
 		}));
 
-		if (user.params.profile.home) {
-			promises.push(place.getStubset(user.params.profile.home));
-		}
+		if (user.params.profile) {
+			const {
+				home,
+				work,
+				hometown
+			} = user.params.profile;
 
-		if (user.params.profile.work) {
-			promises.push(place.getStubset(user.params.profile.work));
-		}
+			if (home && home.id) {
+				promises.push(place.getStubset(home.id));
+			}
 
-		if (user.params.profile.hometown) {
-			promises.push(place.getStubset(user.params.profile.hometown));
+			if (work && work.id) {
+				promises.push(place.getStubset(work.id));
+			}
+
+			if (hometown && hometown.id) {
+				promises.push(place.getStubset(hometown.id));
+			}
 		}
 
 		Promise.all(promises)
