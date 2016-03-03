@@ -111,7 +111,7 @@ pg.listen(config.connStr, channel, (payload) => {
 });
 
 bus.on('change', (changes, next) => {
-	const counter = new Counter(), response = changes.response = {};
+	const counter = new Counter(), response = changes.response = changes.response || {};
 
 	if (!response.entities) response.entities = {};
 	if (changes.source === 'postgres') {
