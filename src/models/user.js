@@ -3,7 +3,10 @@ import * as Constants from '../lib/Constants';
 
 export default class User {
 	constructor(data) {
-		if (data.type !== 'user') throw (new Error('invalid_type'));
+		if (!data.type) { data.type = Constants.TYPE_USER; }
+		if (data.type !== Constants.TYPE_USER) {
+			throw (new Error('invalid_type'));
+		}
 		for (const name of COLUMNS[Constants.TYPE_USER]) {
 			this[name] = data[name] || data[name.toLowerCase()];
 		}

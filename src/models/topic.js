@@ -1,7 +1,3 @@
 import Item from './item';
 
-export default class Topic extends Item {
-	constructor() {
-		super();
-	}
-}
+export default class Topic extends Item {}

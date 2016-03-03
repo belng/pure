@@ -1,7 +1,3 @@
 import Relation from './rel';
 
-export default class ThreadRel extends Relation {
-	constructor() {
-		super();
-	}
-}
+export default class ThreadRel extends Relation {}
