@@ -3,6 +3,7 @@ import logger from 'winston';
 import events from 'events';
 import uid from './uid-server';
 import BigInteger from 'big-integer';
+import packer from './packer';
 
 	// Variables for tracking and rolling back incomplete queries on shut down
 const runningQueries = {},
@@ -330,7 +331,7 @@ export function listen (connStr, channel, callback) {
 		}
 		client.on('notification', (data) => {
 			logger.log('Heard Notification', data);
-			callback(JSON.parse(data.payload));
+			callback(packer.decode(data.payload));
 		});
 		client.query('LISTEN ' + channel);
 	});
@@ -343,8 +344,8 @@ export function notify (connStr, channel, data, callback) {
 			done();
 			return callback(error);
 		}
-		logger.log("PgNotify '" + JSON.stringify(data).replace(/([\\'])/g, '\\$1') + "'");
-		client.query('NOTIFY ' + channel + ", '" + JSON.stringify(data).replace(/([\\'])/g, '\\$1') + "'");
+		logger.log("PgNotify '" + JSON.stringify(data));
+		client.query('SELECT pg_notify($1, $2)', [ channel, packer.encode(data) ]);
 	});
 }
 
