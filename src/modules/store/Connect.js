@@ -3,7 +3,6 @@
 
 import React, { Component, PropTypes } from 'react';
 import shallowEqual from 'shallowequal';
-import mapValues from 'lodash/mapValues';
 import storeShape from './storeShape';
 
 import type {
@@ -41,7 +40,8 @@ export default class Connect extends Component<void, Props, any> {
 		} = context;
 
 		const {
-			mapSubscriptionToProps
+			mapSubscriptionToProps,
+			component
 		} = props;
 
 		if (typeof store !== 'object') {
@@ -51,19 +51,23 @@ export default class Connect extends Component<void, Props, any> {
 		if (mapSubscriptionToProps) {
 			for (const item in mapSubscriptionToProps) {
 				const sub = mapSubscriptionToProps[item];
+				const source = component.displayName;
 
 				let listener;
 
 				switch (typeof sub) {
 				case 'string':
 					listener = store.subscribe(
-						{ type: sub },
+						{
+							type: sub,
+							source
+						},
 						this._updateListener(item)
 					);
 					break;
 				case 'object':
 					listener = store.subscribe(
-						typeof sub.key === 'string' ? { type: sub.key } : { ...sub.key },
+						typeof sub.key === 'string' ? { type: sub.key, source } : { ...sub.key, source },
 						this._updateListener(item, sub.transform)
 					);
 					break;
@@ -136,19 +140,32 @@ export default class Connect extends Component<void, Props, any> {
 	}
 
 	render(): React$Element<any> {
-		const actions = mapValues(this.props.mapActionsToProps, (value, key) => {
-			const action = value(this.context.store, this.state);
+		const {
+			store
+		} = this.context;
 
-			if (typeof action !== 'function') {
-				throw new Error(`Invalid action in ${key}. Action creators must return a curried action function.`);
-			}
+		const {
+			state
+		} = this;
 
-			return action;
-		});
+		const {
+			mapActionsToProps,
+			passProps,
+			component: ChildComponent,
+		} = this.props;
 
-		const ChildComponent = this.props.component;
-		const passProps = { ...this.props.passProps, ...this.state, ...actions };
+		const actions = {};
 
-		return <ChildComponent {...passProps} />;
+		for (const key in mapActionsToProps) {
+			actions[key] = mapActionsToProps[key](store, state);
+		}
+
+		return (
+			<ChildComponent
+				{...passProps}
+				{...state}
+				{...actions}
+			/>
+		);
 	}
 }
