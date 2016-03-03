@@ -5,8 +5,7 @@ export default class Item {
 	constructor(data) {
 		if (!data) throw new Error('CANNOT_INITIALIZE_MODEL');
 
-		this.type = data.type = data.type || 'item';
-		for (const name of COLUMNS[TYPES[this.type]]) {
+		for (const name of COLUMNS[data.type]) {
 			this[name] = data[name] || data[name.toLowerCase()];
 		}
 	}

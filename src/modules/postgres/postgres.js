@@ -72,14 +72,15 @@ cache.onChange((changes) => {
 				}
 				newRange.push(start, end);
 			} else if (range[1] > 0) {
-				end = orderedResult.length < range[1] ? -Infinity : orderedResult.valAt(orderedResult.length);
+				end = orderedResult.length < range[1] ? -Infinity : orderedResult.valAt(orderedResult.length - 1);
 				newRange.push(end, start);
 			} else if (range[2] > 0) {
-				end = orderedResult.length < range[2] ? +Infinity : orderedResult.valAt(orderedResult.length);
+				end = orderedResult.length < range[2] ? +Infinity : orderedResult.valAt(orderedResult.length - 1);
 				newRange.push(start, end);
 			}
 		}
 
+		console.log(newRange);
 		cache.put({
 			knowledge: { [key]: [ newRange ] },
 			indexes: { [key]: orderedResult },
