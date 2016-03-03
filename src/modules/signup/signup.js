@@ -67,7 +67,7 @@ function signuphandler(changes, n) {
 				changes.response.state.user = changes.auth.signup.id;
 				changes.response.state.__op__ = { signup: 'delete' };
 				(changes.entities = changes.entities || {})[changes.auth.signup.id] = changes.auth.signup;
-				changes.auth.signup.type = 'user';
+				changes.auth.signup.type = Constants.TYPE_USER;
 				changes.auth.signup.create = true;
 				changes.auth.signup.createTime = Date.now();
 				// REVIEW: check if this is fine or should the changes.entities itself be fired and sent to the client?

@@ -8,7 +8,6 @@ import queryHandler from './query';
 import entityHandler from './entity';
 import { bus, cache, config } from '../../core-server';
 import * as Types from './../../models/models';
-import './cache-updater';
 const channel = 'heyneighbor';
 
 
@@ -33,6 +32,7 @@ function broadcast (entity) {
 cache.onChange((changes) => {
 	const cb = (key, range, err, r) => {
 		let newRange = [], start, end;
+
 		if (err) {
 			winston.error(err);
 			return;
@@ -80,8 +80,7 @@ cache.onChange((changes) => {
 			}
 		}
 
-		console.log("NEW: ", newRange);
-		bus.emit('change', {
+		cache.put({
 			knowledge: { [key]: [ newRange ] },
 			indexes: { [key]: orderedResult },
 			source: 'postgres'
@@ -136,7 +135,7 @@ cache.onChange((changes) => {
 							state.entities[id] = null;
 						});
 
-						bus.emit('change', state);
+						cache.put('change', state);
 					});
 				}
 			} else {
@@ -153,7 +152,10 @@ cache.onChange((changes) => {
 });
 
 pg.listen(config.connStr, channel, (payload) => {
-	bus.emit('postchange', payload);
+	const change = { entities: { [payload.id]: payload } };
+
+	bus.emit('postchange', change);
+	cache.put(change);
 });
 
 bus.on('change', (changes, next) => {
@@ -222,8 +224,5 @@ bus.on('change', (changes, next) => {
 		}
 	}
 
-	counter.then(() => {
-		console.log('next fired in postgres');
-		next();
-	});
+	counter.then(next);
 });
