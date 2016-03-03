@@ -146,7 +146,7 @@ function sendInvitations ([ user, relRooms, ...stubsets ]) {
 		addRels(change, user, addable);
 		removeRels(change, removable);
 
-		bus.emit('change', change);
+		bus.emit('change', { entities: change, source: 'belong' });
 	});
 }
 
