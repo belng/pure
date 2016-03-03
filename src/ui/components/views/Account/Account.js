@@ -1,6 +1,7 @@
 /* @flow */
 
-import React from 'react-native';
+import React, { PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../../Colors';
 import AppText from '../AppText';
 import PageLoading from '../PageLoading';
@@ -8,7 +9,6 @@ import PageEmpty from '../PageEmpty';
 import AvatarRound from '../AvatarRound';
 import GrowingTextInput from '../GrowingTextInput';
 import Modal from '../Modal';
-import AccountPhotoChooser from './AccountPhotoChooser';
 import TouchFeedback from '../TouchFeedback';
 import PushNotification from '../../../modules/PushNotification';
 import debounce from '../../../../lib/debounce';
@@ -19,10 +19,9 @@ const {
 	ScrollView,
 	View,
 	PixelRatio,
-	TouchableOpacity,
 	TextInput,
 	Switch
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	info: {
@@ -76,7 +75,11 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	user: User
+	user: User,
+	saveUser: () => void,
+	saveParams: () => void,
+	signOut: () => void,
+	onNavigation: () => void,
 }
 
 type State = {
@@ -86,23 +89,32 @@ type State = {
 const PUSH_NOTIFICATION_ENABLED_KEY = 'enabled';
 
 export default class Account extends React.Component<void, Props, State> {
-	_saveUser: Function;
+	static propTypes = {
+		user: PropTypes.oneOfType([
+			PropTypes.oneOf([ 'missing', 'failed' ]),
+			PropTypes.shape({
+				id: PropTypes.string,
+				meta: PropTypes.object,
+				params: PropTypes.object,
+			})
+		]),
+		saveUser: PropTypes.func.isRequired,
+		saveParams: PropTypes.func.isRequired,
+		signOut: PropTypes.func.isRequired,
+		onNavigation: PropTypes.func.isRequired
+	};
 
-	constructor(props: Props) {
-		super(props);
-
-		this._saveUser = debounce(this.props.saveUser, 1000);
-
-		this.state = {
-			pushNotificationEnabled: true,
-		};
-	}
+	state: State = {
+		pushNotificationEnabled: true
+	};
 
 	componentWillMount() {
 		this._updatePushNotificationValue();
 	}
 
-	_updatePushNotificationValue = async (): Promise<void> => {
+	_saveUser: Function = debounce(user => this.props.saveUser(user), 1000);
+
+	_updatePushNotificationValue: Function = async (): Promise<void> => {
 		let value = true;
 
 		try {
@@ -116,21 +128,23 @@ export default class Account extends React.Component<void, Props, State> {
 		});
 	};
 
-	_handleStatusChange = (description: string) => {
-		const { user } = this.props.user;
+	_handleStatusChange: Function = (description: string) => {
+		const {
+			user
+		} = this.props;
 
-		const profile = user.profile ? { ...user.profile } : {};
+		const meta = user.meta ? { ...user.meta } : {};
 
-		profile.description = description;
+		meta.description = description;
 
-		this._saveUser({ ...this.props.user, profile });
+		this._saveUser({ ...this.props.user, meta });
 	};
 
-	_handleNameChange = (name: string) => {
+	_handleNameChange: Function = (name: string) => {
 		this._saveUser({ ...this.props.user, name });
 	};
 
-	_handlePushNotificationChange = (value: boolean) => {
+	_handlePushNotificationChange: Function = (value: boolean) => {
 		PushNotification.setPreference(PUSH_NOTIFICATION_ENABLED_KEY, value ? 'true' : 'false');
 
 		this.setState({
@@ -138,13 +152,12 @@ export default class Account extends React.Component<void, Props, State> {
 		});
 	};
 
-	_handleEmailNotificationChange = (value: string) => {
+	_handleEmailNotificationChange: Function = (value: string) => {
 		const {
-			user: {
-				params
-			}
-		} = this.props.user;
+			user
+		} = this.props;
 
+		const params = user.params ? { ...user.params } : {};
 		const email = params.email ? { ...params.email } : {};
 
 		email.notifications = value;
@@ -152,13 +165,12 @@ export default class Account extends React.Component<void, Props, State> {
 		this.props.saveParams({ ...params, email });
 	};
 
-	_handleEmailFrequencyChange = (value: string) => {
+	_handleEmailFrequencyChange: Function = (value: string) => {
 		const {
-			user: {
-				params
-			}
-		} = this.props.user;
+			user
+		} = this.props;
 
+		const params = user.params ? { ...user.params } : {};
 		const email = params.email ? { ...params.email } : {};
 
 		email.frequency = value;
@@ -166,7 +178,7 @@ export default class Account extends React.Component<void, Props, State> {
 		this.props.saveParams({ ...params, email });
 	};
 
-	_handleSelectFrequency = () => {
+	_handleSelectFrequency: Function = () => {
 		const options = [ 'Daily', 'Never' ];
 
 		Modal.showActionSheetWithOptions({ options }, i =>
@@ -174,33 +186,14 @@ export default class Account extends React.Component<void, Props, State> {
 		);
 	};
 
-	_handleSignOut = () => {
+	_handleSignOut: Function = () => {
 		this.props.signOut();
-	};
-
-	_handleSelectPhoto = (picture: string) => {
-		this.props.saveParams({ ...this.props.user.params, picture });
-
-		Modal.renderComponent(null);
-	};
-
-	_handlePhotoChooser = () => {
-		const photos = this.props.user.params.pictures;
-
-		if (photos && photos.length > 2) {
-			Modal.renderModal(
-				<AccountPhotoChooser
-					photos={photos}
-					onSelect={this._handleSelectPhoto}
-				/>
-			);
-		}
 	};
 
 	render() {
 		const { user } = this.props;
 
-		if (user === 'missing') {
+		if (!user) {
 			return <PageLoading />;
 		}
 
@@ -210,28 +203,15 @@ export default class Account extends React.Component<void, Props, State> {
 
 		return (
 			<ScrollView contentContainerStyle={styles.settings}>
-				<TouchableOpacity onPress={this._handlePhotoChooser}>
-					<View style={styles.item}>
-						<AvatarRound
-							size={48}
-							nick={user.id}
-						/>
-						<View style={styles.info}>
-							<AppText style={styles.nick}>{user.name ? `${user.name} (${user.id})` : user.id}</AppText>
-							<AppText style={styles.email}>{user.identities[0].slice(7)}</AppText>
-						</View>
-					</View>
-				</TouchableOpacity>
-				<View style={styles.inputContainer}>
-					<AppText style={styles.inputLabelText}>Status message</AppText>
-					<GrowingTextInput
-						inputStyle={styles.input}
-						defaultValue={user.description}
-						placeholder='Status message'
-						autoCapitalize='sentences'
-						numberOfLines={5}
-						onChangeText={this._handleStatusChange}
+				<View style={styles.item}>
+					<AvatarRound
+						size={48}
+						nick={user.id}
 					/>
+					<View style={styles.info}>
+						<AppText style={styles.nick}>{user.id}</AppText>
+						<AppText style={styles.email}>{user.identities[user.identities.length - 1].slice(7)}</AppText>
+					</View>
 				</View>
 				<View style={styles.inputContainer}>
 					<AppText style={styles.inputLabelText}>Fullname</AppText>
@@ -241,6 +221,17 @@ export default class Account extends React.Component<void, Props, State> {
 						placeholder='Fullname'
 						autoCapitalize='words'
 						onChangeText={this._handleNameChange}
+					/>
+				</View>
+				<View style={styles.inputContainer}>
+					<AppText style={styles.inputLabelText}>About me</AppText>
+					<GrowingTextInput
+						inputStyle={styles.input}
+						defaultValue={user.meta ? user.meta.description : ''}
+						placeholder='Short description'
+						autoCapitalize='sentences'
+						numberOfLines={5}
+						onChangeText={this._handleStatusChange}
 					/>
 				</View>
 				<View style={styles.item}>
@@ -285,17 +276,3 @@ export default class Account extends React.Component<void, Props, State> {
 		);
 	}
 }
-
-Account.propTypes = {
-	user: React.PropTypes.oneOfType([
-		React.PropTypes.oneOf([ 'missing', 'failed' ]),
-		React.PropTypes.shape({
-			id: React.PropTypes.string,
-			params: React.PropTypes.object
-		})
-	]).isRequired,
-	saveUser: React.PropTypes.func.isRequired,
-	saveParams: React.PropTypes.func.isRequired,
-	signOut: React.PropTypes.func.isRequired,
-	onNavigation: React.PropTypes.func.isRequired
-};

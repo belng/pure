@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+import React from 'react';
 import Connect from '../../../modules/store/Connect';
 import Account from '../views/Account/Account';
 import { saveUser, signOut } from '../../../modules/store/actions';
@@ -11,14 +11,11 @@ const mapActionsToProps = {
 	signOut: store => () => store.dispatch(signOut()),
 };
 
-const AccountContainer = (props: { user: string }) => (
+const AccountContainer = (props: any) => (
 	<Connect
 		mapSubscriptionToProps={{
 			user: {
-				key: {
-					type: 'entity',
-					id: props.user,
-				}
+				key: 'me'
 			}
 		}}
 		mapActionsToProps={mapActionsToProps}
@@ -26,9 +23,5 @@ const AccountContainer = (props: { user: string }) => (
 		component={Account}
 	/>
 );
-
-AccountContainer.propTypes = {
-	user: PropTypes.string.isRequired
-};
 
 export default AccountContainer;
