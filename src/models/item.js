@@ -1,5 +1,5 @@
 import { COLUMNS, TYPES } from '../lib/schema';
-import * as Constants from '../lib/Constants';
+// import * as Constants from '../lib/Constants';
 
 export default class Item {
 	constructor(data) {
@@ -14,7 +14,7 @@ export default class Item {
 	packArguments(): Object {
 		const data = {};
 
-		for (const name of COLUMNS[Constants[TYPES[this.type]]]) {
+		for (const name of COLUMNS[TYPES[this.type]]) {
 			data[name] = this[name];
 		}
 
