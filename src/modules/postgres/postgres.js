@@ -3,26 +3,26 @@ import sbcache from 'sbcache';
 import winston from 'winston';
 import Counter from '../../lib/counter';
 import * as pg from '../../lib/pg';
-import { TABLES, TYPES } from '../../lib/schema';
+import * as Constants from '../../lib/Constants';
+import { TABLES, TYPES, TYPE_NAMES } from '../../lib/schema';
 import queryHandler from './query';
 import entityHandler from './entity';
 import { bus, cache, config } from '../../core-server';
 import * as Types from './../../models/models';
 const channel = 'heyneighbor';
 
-
 const TYPE_SEGMENT = `case \
-when tableoid = 'notes'::regclass then 'note' \
-when tableoid = 'privs'::regclass then 'privs' \
-when tableoid = 'roomrels'::regclass then 'roomrels' \
-when tableoid = 'rooms'::regclass then 'room' \
-when tableoid = 'textrels'::regclass then 'textrel' \
-when tableoid = 'texts'::regclass then 'text' \
-when tableoid = 'threadrels'::regclass then 'threadrel' \
-when tableoid = 'threads'::regclass then 'thread' \
-when tableoid = 'topicrels'::regclass then 'topicrel' \
-when tableoid = 'topics'::regclass then 'topic' \
-when tableoid = 'users'::regclass then 'user' \
+when tableoid = 'notes'::regclass then ${Constants.TYPE_NOTE} \
+when tableoid = 'privs'::regclass then ${Constants.TYPE_PRIV} \
+when tableoid = 'roomrels'::regclass then ${Constants.TYPE_ROOMREL} \
+when tableoid = 'rooms'::regclass then ${Constants.TYPE_ROOM} \
+when tableoid = 'textrels'::regclass then ${Constants.TYPE_TEXTREL} \
+when tableoid = 'texts'::regclass then ${Constants.TYPE_TEXT} \
+when tableoid = 'threadrels'::regclass then ${Constants.TYPE_THREADREL} \
+when tableoid = 'threads'::regclass then ${Constants.TYPE_THREAD} \
+when tableoid = 'topicrels'::regclass then ${Constants.TYPE_TOPICREL} \
+when tableoid = 'topics'::regclass then ${Constants.TYPE_TOPIC} \
+when tableoid = 'users'::regclass then ${Constants.TYPE_USER} \
 end as type`;
 
 function broadcast (entity) {
@@ -127,7 +127,7 @@ cache.onChange((changes) => {
 						};
 
 						r.map((entity) => {
-							state.entities[entity.id] = new Types[entity.type](entity);
+							state.entities[entity.id] = new Types[TYPE_NAMES[entity.type]](entity);
 						});
 
 						const missingIds = ids.filter(itemID => !state.entities[itemID]);

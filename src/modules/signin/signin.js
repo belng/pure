@@ -6,7 +6,7 @@ import { user } from '../../models/models';
 
 function getEntityByIdentity(identities, callback) {
 	pg.read(config.connStr, {
-		$: 'select *, \'user\' as "type"  from users where identities && &{identities}',
+		$: 'select *  from users where identities && &{identities}',
 		identities
 	}, (err, results) => {
 		if (err) {

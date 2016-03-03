@@ -6,6 +6,7 @@ export const TABLES = {};
 export const COLUMNS = {};
 export const TYPES = {};
 export const ROLES = {};
+export const TYPE_NAMES = {};
 
 ROLES[Constants.ROLE_BANNED] = 'banned';
 ROLES[Constants.ROLE_FOLLOWER] = 'follower';
@@ -46,6 +47,22 @@ TYPES.topicrel = Constants.TYPE_TOPICREL;
 TYPES.privrel = Constants.TYPE_PRIVREL;
 TYPES.userrel = Constants.TYPE_USERREL;
 TYPES.note = Constants.TYPE_NOTE;
+
+TYPE_NAMES[Constants.TYPE_ITEM] = 'item';
+TYPE_NAMES[Constants.TYPE_ROOM] = 'room';
+TYPE_NAMES[Constants.TYPE_TEXT] = 'text';
+TYPE_NAMES[Constants.TYPE_THREAD] = 'thread';
+TYPE_NAMES[Constants.TYPE_TOPIC] = 'topic';
+TYPE_NAMES[Constants.TYPE_PRIV] = 'priv';
+TYPE_NAMES[Constants.TYPE_USER] = 'user';
+TYPE_NAMES[Constants.TYPE_REL] = 'rel';
+TYPE_NAMES[Constants.TYPE_ROOMREL] = 'roomrel';
+TYPE_NAMES[Constants.TYPE_TEXTREL] = 'textrel';
+TYPE_NAMES[Constants.TYPE_THREADREL] = 'threadrel';
+TYPE_NAMES[Constants.TYPE_TOPICREL] = 'topicrel';
+TYPE_NAMES[Constants.TYPE_PRIVREL] = 'privrel';
+TYPE_NAMES[Constants.TYPE_USERREL] = 'userrel';
+TYPE_NAMES[Constants.TYPE_NOTE] = 'note';
 
 COLUMNS[Constants.TYPE_USER] = [
 	'counts',
