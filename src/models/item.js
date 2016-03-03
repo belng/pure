@@ -1,10 +1,11 @@
-import { COLUMNS } from '../lib/schema';
-import * as Constants from '../lib/Constants';
+import { COLUMNS, TYPES } from '../lib/schema';
+// import * as Constants from '../lib/Constants';
 
 export default class Item {
 	constructor(data) {
 		if (!data) throw new Error('CANNOT_INITIALIZE_MODEL');
-		for (const name of COLUMNS[Constants.TYPE_ITEM]) {
+
+		for (const name of COLUMNS[data.type]) {
 			this[name] = data[name] || data[name.toLowerCase()];
 		}
 	}
@@ -12,7 +13,7 @@ export default class Item {
 	packArguments(): Object {
 		const data = {};
 
-		for (const name of COLUMNS[Constants.TYPE_ITEM]) {
+		for (const name of COLUMNS[TYPES[this.type]]) {
 			data[name] = this[name];
 		}
 

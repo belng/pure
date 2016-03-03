@@ -50,6 +50,9 @@ export const TAG_ROOM_SPOT = 23;
 export const TAG_REL_LIKE = 31;
 export const TAG_REL_FLAG = 32;
 export const TAG_REL_MUTE = 33;
+export const TAG_REL_HOME = 41;
+export const TAG_REL_WORK = 42;
+export const TAG_REL_HOMETOWN = 43;
 
 export const PRESENCE_FOREGROUND = 1;
 export const PRESENCE_BACKGROUND = 2;

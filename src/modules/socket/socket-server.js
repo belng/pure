@@ -53,7 +53,6 @@ bus.on('http/init', app => {
 			(message.auth = message.auth || {}).resource = resourceId;
 
 			function handleSetState(err) {
-				winston.debug('setstate response', JSON.stringify(err), JSON.stringify(message));
 				if (err) {
 					if (message.response) {
 						socket.send(packer.encode({
@@ -69,6 +68,7 @@ bus.on('http/init', app => {
 				}
 
 				if (message.response) {
+					console.log(message.response);
 					if (message.auth && message.auth.user) {
 						bus.emit('presence/online', {
 							resource: resourceId,
@@ -82,6 +82,7 @@ bus.on('http/init', app => {
 				}
 			}
 
+			message.source = 'socket';
 			bus.emit('change', message, handleSetState);
 		});
 	});

@@ -1,10 +1,10 @@
 import Item from './item';
-import { TYPE_ITEM, TYPE_THREAD } from '../lib/Constants';
+import { TYPE_ITEM, TYPE_PRIV } from '../lib/Constants';
 
-export default class Thread extends Item {
+export default class Priv extends Item {
 	constructor(data) {
 		if (!data.type || data.type === TYPE_ITEM) {
-			data.type = TYPE_THREAD;
+			data.type = TYPE_PRIV;
 		} else {
 			throw new Error('INVALID_TYPE');
 		}

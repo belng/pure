@@ -63,7 +63,7 @@ COLUMNS[Constants.TYPE_USER] = [
 	'tags',
 	'timezone',
 	'type',
-	'updateTime',
+	'updateTime'
 ];
 
 COLUMNS[Constants.TYPE_ITEM] =
@@ -78,7 +78,7 @@ COLUMNS[Constants.TYPE_PRIV] = [
 	'creator',
 	'deleteTime',
 	'id',
-	'indentities',
+	'identities',
 	'meta',
 	'name',
 	'params',

@@ -1,4 +1,5 @@
 import jsonop from 'jsonop';
+import sbcache from 'sbcache';
 import winston from 'winston';
 import Counter from '../../lib/counter';
 import * as pg from '../../lib/pg';
@@ -7,7 +8,6 @@ import queryHandler from './query';
 import entityHandler from './entity';
 import { bus, cache, config } from '../../core-server';
 import * as Types from './../../models/models';
-import './cache-updater';
 const channel = 'heyneighbor';
 
 
@@ -30,14 +30,60 @@ function broadcast (entity) {
 }
 
 cache.onChange((changes) => {
-	const cb = (key, range, err, results) => {
+	const cb = (key, range, err, r) => {
+		let newRange = [], start, end;
+
 		if (err) {
 			winston.error(err);
 			return;
 		}
-		bus.emit('change', {
-			knowledge: { [key]: [ range ] },
-			indexes: { [key]: results },
+
+		const results = r.map(e => {
+			const props = Object.keys(e), propsCount = props.length;
+			let prop;
+
+			props.forEach(name => {
+				e[name] = new Types[name](e[name]);
+				prop = name;
+			});
+
+			if (propsCount > 1) return e;
+			else return e[prop];
+		});
+
+		const orderedResult = new sbcache.OrderedArray([ cache.keyToSlice(key).order ], results);
+
+		if (range.length === 2) {
+			newRange = range;
+		} else {
+			start = range[0];
+			if (range[1] > 0 && range[2] > 0) {
+				const index = orderedResult.indexOf(start);
+
+				start = orderedResult.valAt(0);
+				end = orderedResult.valAt(orderedResult.length - 1);
+
+				if (index < range[1]) {
+					start = -Infinity;
+				}
+
+				if (orderedResult.length - index < range[2]) {
+					end = +Infinity;
+				}
+				newRange.push(start, end);
+			} else if (range[1] > 0) {
+				end = orderedResult.length < range[1] ? -Infinity : orderedResult.valAt(orderedResult.length - 1);
+				newRange.push(end, start);
+			} else if (range[2] > 0) {
+				end = orderedResult.length < range[2] ? +Infinity : orderedResult.valAt(orderedResult.length - 1);
+				newRange.push(start, end);
+			}
+		}
+
+		console.log(newRange);
+		cache.put({
+			knowledge: { [key]: [ newRange ] },
+			indexes: { [key]: orderedResult },
 			source: 'postgres'
 		});
 	};
@@ -90,7 +136,7 @@ cache.onChange((changes) => {
 							state.entities[id] = null;
 						});
 
-						bus.emit('change', state);
+						cache.put('change', state);
 					});
 				}
 			} else {
@@ -107,7 +153,10 @@ cache.onChange((changes) => {
 });
 
 pg.listen(config.connStr, channel, (payload) => {
-	bus.emit('postchange', payload);
+	const change = { entities: { [payload.id]: payload } };
+
+	bus.emit('postchange', change);
+	cache.put(change);
 });
 
 bus.on('change', (changes, next) => {

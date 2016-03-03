@@ -1,17 +1,17 @@
 import * as pg from '../../lib/pg';
-import { TABLES, COLUMNS, TYPES } from '../../lib/schema';
+import { TABLES, COLUMNS } from '../../lib/schema';
 import * as Constants from '../../lib/Constants';
 import jsonop from 'jsonop';
 import defaultOps from './../../lib/defaultOps';
 
 export default function (entity) {
 	const names = Object.keys(entity).filter(
-		name => COLUMNS[TYPES[entity.type]].indexOf(name) >= 0
+		name => COLUMNS[entity.type].indexOf(name) >= 0
 	);
 
 	const ops = jsonop(defaultOps, entity.__op__ || {});
 
-	if (TYPES[entity.type] === Constants.TYPE_ROOM) {
+	if (entity.type === Constants.TYPE_ROOM) {
 		names.push('terms');
 	}
 
@@ -19,7 +19,7 @@ export default function (entity) {
 
 	if (entity.create) { // INSERT
 		return pg.cat([
-			`INSERT INTO "${TABLES[TYPES[entity.type]]}" (`,
+			`INSERT INTO "${TABLES[entity.type]}" (`,
 			'"' + names.map(name => name.toLowerCase()).join('", "') + '"',
 			') VALUES (',
 			pg.cat(names.map(name => {
@@ -39,13 +39,13 @@ export default function (entity) {
 				}
 			}), ', '),
 			{
-				$: ') RETURNING *, &{type}::text as "type"',
+				$: ') RETURNING *, &{type}::number as "type"',
 				type: entity.type
 			}
 		], ' ');
 	} else { // UPDATE
 		return pg.cat([
-			'UPDATE "' + TABLES[TYPES[entity.type]] + '" SET',
+			'UPDATE "' + TABLES[entity.type] + '" SET',
 			pg.cat(names.map(name => {
 				switch (name) {
 				case 'id':
@@ -102,7 +102,7 @@ export default function (entity) {
 				group: entity.group
 			} : 'FALSE',
 			{
-				$: 'RETURNING *, &{type}::text as "type"',
+				$: 'RETURNING *, &{type}::number as "type"',
 				type: entity.type
 			}
 		], ' ');
