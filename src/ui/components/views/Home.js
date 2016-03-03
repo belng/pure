@@ -1,20 +1,21 @@
+/* @flow */
 
-
-import React from 'react-native';
+import React, { PropTypes } from 'react';
+import ReactNative from 'react-native';
 import PersistentNavigator from '../../navigation/PersistentNavigator';
 import StatusbarWrapper from './StatusbarWrapper';
 import KeyboardSpacer from './KeyboardSpacer';
 import Modal from './Modal';
 import VersionCodes from '../../modules/VersionCodes';
 import Colors from '../../Colors';
-import { getHomeRoute, convertRouteToState, convertURLToState } from '../../../lib/Route';
+import { convertRouteToState, convertURLToState } from '../../../lib/Route';
 
 const {
 	NavigationState,
 	StyleSheet,
 	Platform,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -29,7 +30,7 @@ const PERSISTANCE_KEY = __DEV__ ? 'FLAT_PERSISTENCE_0' : null;
 
 const Home = (props: { initialURL: string }) => {
 	const { initialURL } = props;
-	const { index, routes } = initialURL ? convertURLToState(initialURL) : convertRouteToState(getHomeRoute());
+	const { index, routes } = initialURL ? convertURLToState(initialURL) : convertRouteToState({ name: 'home' });
 
 	return (
 		<View style={styles.container}>
@@ -49,7 +50,7 @@ const Home = (props: { initialURL: string }) => {
 };
 
 Home.propTypes = {
-	initialURL: React.PropTypes.string
+	initialURL: PropTypes.string
 };
 
 export default Home;
