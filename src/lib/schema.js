@@ -78,7 +78,7 @@ COLUMNS[Constants.TYPE_PRIV] = [
 	'creator',
 	'deleteTime',
 	'id',
-	'indentities',
+	'identities',
 	'meta',
 	'name',
 	'params',
