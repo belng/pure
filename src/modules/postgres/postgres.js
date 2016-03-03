@@ -136,7 +136,7 @@ cache.onChange((changes) => {
 							state.entities[id] = null;
 						});
 
-						cache.put('change', state);
+						cache.put(state);
 					});
 				}
 			} else {
