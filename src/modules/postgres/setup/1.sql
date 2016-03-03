@@ -21,10 +21,10 @@ CREATE TABLE users (
 	tags smallint[], -- e.g. admin, manager
 	locale smallint,
 	counts jsonb,
+	meta jsonb,
 	params jsonb, -- user-private information
 	presence smallint, -- foreground/background/none
 	presencetime bigint,
-	profile jsonb,
 	processid smallint,
 	resources jsonb, -- { resourceId: foreground/background }
 	timezone smallint,
