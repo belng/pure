@@ -29,6 +29,18 @@ async function initializeSession() {
 	bus.emit('change', changes);
 }
 
+bus.on('error', changes => {
+	if (changes.state && changes.state.signin) {
+		sessionStorage.removeItem('id');
+
+		bus.emit('change', {
+			state: {
+				session: null
+			}
+		});
+	}
+});
+
 bus.on('postchange', changes => {
 	if (changes.state && 'session' in changes.state) {
 		const { session } = changes.state;
