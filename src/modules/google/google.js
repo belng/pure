@@ -6,6 +6,7 @@ https://developers.google.com/oauthplayground/
 TODO: use switch to 2.4.
 */
 
+import EnhancedError from '../../lib/EnhancedError';
 import fs from 'fs';
 import path from 'path';
 import winston from 'winston';
@@ -55,11 +56,19 @@ function getTokenFromCode(code) {
 				grant_type: 'authorization_code'
 			})
 		}, (err, res, t) => {
-			if (err) throw (err);
+
+			if (err) {
+				const error = new EnhancedError(err.message, err.message);
+
+				winston.error(err);
+				reject(error);
+				return;
+			}
+
 			try {
 				const tokenBody = JSON.parse(t), token = tokenBody.access_token;
 
-				if (!token) throw new Error('INVALID_ACCESS_TOKEN');
+				if (!token) throw new Error('INVALID_GOOGLE_CODE');
 				resolve(token);
 			} catch (e) {
 				reject(e);
@@ -86,7 +95,7 @@ function verifyToken(token, appId) {
 			}
 
 			if (response.audience === appId) resolve(token);
-			else reject(new Error('audience-mismatch'));
+			else reject(new EnhancedError(Constants.ERRORS.AUDIENCE_MISMATCH_GOOGLE, 'AUDIENCE_MISMATCH_GOOGLE'));
 		});
 	});
 }
@@ -101,9 +110,9 @@ function getDataFromToken(token) {
 				const user = JSON.parse(body);
 
 				if (user.error) {
-					throw (new Error(user.error || 'ERR_GOOGLE_SIGNIN'));
+					throw (new EnhancedError(user.error || Constants.ERRORS.ERR_FACEBOOK_SIGNIN_FAILED, user.error || 'ERR_FACEBOOK_SIGNIN_FAILED'));
 				} else if (!user.email) {
-					throw (new Error(user.error || 'ERR_GOOGLe_SIGNIN_NO_EMAIL'));
+					throw (new Error(user.error || 'ERR_GOOGLE_SIGNIN_NO_EMAIL'));
 				}
 	//			response.signin.pictures.push('https://gravatar.com/avatar/' + crypto.createHash('md5').update(user.email).digest('hex') + '/?d=retro');
 
@@ -124,19 +133,28 @@ function getDataFromToken(token) {
 	});
 }
 
-function googleAuth(changes, next) {
+function googleAuth(changes, n) {
 	winston.debug('setstate: facebook module');
+
+	function next(e) {
+		if (e) {
+			(changes.response = changes.response || {}).state = changes.auth;
+			changes.response.state.google.error = e;
+			n(changes);
+		} else {
+			n();
+		}
+	}
+
 	if (!changes.auth || !changes.auth.google) {
-		next();
-		return;
+		return next();
 	}
 
 	/* TODO: how do we handle auth from already logged in user?*/
 	const key = changes.auth.google.code || changes.auth.google.accessToken;
 
 	if (!key) {
-		next(new Error('GOOGLE_AUTH_FAILED'));
-		return;
+		return next(new EnhancedError(Constants.ERRORS.INVALID_GOOGLE_KEY, 'INVALID_GOOGLE_KEY'));
 	}
 
 	winston.debug('Google Login Request', changes.auth.google);
@@ -145,20 +163,21 @@ function googleAuth(changes, next) {
 	promise.then((token) => {
 		winston.debug('T->D', token);
 		if (!token) {
-			next(new Error('Invalid_GOOGLE_TOKEN'));
-			return;
+			return next(new EnhancedError(Constants.ERRORS.INVALID_GOOGLE_TOKEN, 'INVALID_GOOGLE_TOKEN'));
 		}
 
 		getDataFromToken(token).then((response) => {
 			if (!response) {
-				next(new Error('trouble construct the signin object'));
-				return;
+				return next(new EnhancedError(Constants.ERRORS.GOOGLE_RESPONSE_PARSE_ERROR, 'GOOGLE_RESPONSE_PARSE_ERROR'));
 			}
-			winston.debug(response);
+			winston.debug('response', changes);
 			changes.auth.signin = response;
-			next();
+			return next();
 		}).catch(error => next(error));
+
+		return null;
 	}).catch(error => next(error));
+	return null;
 }
 
 bus.on('change', googleAuth, Constants.APP_PRIORITIES.AUTHENTICATION_GOOGLE);

@@ -5,7 +5,8 @@
  *  @flow
  */
 
-import React from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import SearchBar from './Searchbar';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
@@ -15,8 +16,7 @@ const {
 	StyleSheet,
 	View,
 	ListView,
-	InteractionManager,
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -24,73 +24,102 @@ const styles = StyleSheet.create({
 	}
 });
 
-type State = {
-	filter: string;
-	data: Array<Object | string>;
+type Props = {
+	autoFocus?: boolean;
+	getResults: (filter: string) => any | Promise<any>;
+	renderRow: (data: any) => Element;
+	renderHeader?: (filter: string, data: any) => ?Element;
+	renderFooter?: (filter: string, data: any) => ?Element;
+	renderBlankslate?: () => ?Element;
+	onCancel?: (data: any) => Element;
+	searchHint: string;
+	style?: any;
 }
 
-export default class SearchableList extends React.Component {
+type State = {
+	filter: string;
+	data: Array<any> | '@@blankslate' | '@@loading' | '@@failed';
+}
+
+export default class SearchableList extends Component<void, Props, State> {
 	static propTypes = {
-		getResults: React.PropTypes.func.isRequired,
-		renderRow: React.PropTypes.func.isRequired,
-		renderHeader: React.PropTypes.func,
-		onDismiss: React.PropTypes.func.isRequired,
-		searchHint: React.PropTypes.string.isRequired,
+		autoFocus: PropTypes.bool,
+		getResults: PropTypes.func.isRequired,
+		renderRow: PropTypes.func.isRequired,
+		renderHeader: PropTypes.func,
+		renderFooter: PropTypes.func,
+		renderBlankslate: PropTypes.func,
+		onCancel: PropTypes.func,
+		searchHint: PropTypes.string.isRequired,
 		style: View.propTypes.style,
 	};
 
 	state: State = {
 		filter: '',
-		data: [ 'missing' ],
+		data: '@@blankslate',
 	};
 
-	componentDidMount() {
-		InteractionManager.runAfterInteractions(() => this._fetchResults());
-	}
+	_cachedResults: Object = {};
 
-	_dataSource = new ListView.DataSource({
+	_dataSource: ListView.DataSource = new ListView.DataSource({
 		rowHasChanged: (r1, r2) => r1 !== r2
 	});
 
-	_cachedResults = {};
-
-	_fetchResults = debounce(async (filter: string): Promise => {
+	_fetchResults: Function = debounce(async (filter: string): Promise => {
 		try {
-			let data;
+			const data = this._cachedResults[filter] = await this.props.getResults(filter);
 
-			if (this._cachedResults[filter]) {
-				data = this._cachedResults[filter];
-			} else {
-				data = await this.props.getResults(filter);
-				this._cachedResults[filter] = data;
+			if (filter === this.state.filter) {
+				this.setState({
+					data
+				});
 			}
-
-			this.setState({
-				data: data.length || filter ? data : [ 'blankslate' ]
-			});
 		} catch (e) {
-			this.setState({
-				data: [ 'failed' ]
-			});
+			if (filter === this.state.filter) {
+				this.setState({
+					data: '@@failed'
+				});
+			}
 		}
 	});
 
-	_handleChangeSearch = (filter: string) => {
-		this.setState({
-			filter,
-			data: [ 'missing' ]
-		});
+	_handleChangeSearch: Function = (filter: string) => {
+		if (filter) {
+			const data = this._cachedResults[filter];
 
-		this._fetchResults(filter);
+			this.setState({
+				filter,
+				data: data || '@@loading'
+			});
+
+			if (data) {
+				return;
+			}
+
+			this._fetchResults(filter);
+		} else {
+			this.setState({
+				filter,
+				data: '@@blankslate'
+			});
+		}
 	};
 
-	_getDataSource = (): ListView.DataSource => {
+	_getDataSource: Function = (): ListView.DataSource => {
 		return this._dataSource.cloneWithRows(this.state.data);
 	};
 
-	_renderHeader = (): ?Element => {
+	_renderHeader: Function = (): ?Element => {
 		if (this.props.renderHeader) {
 			return this.props.renderHeader(this.state.filter, this.state.data);
+		}
+
+		return null;
+	};
+
+	_renderFooter: Function = (): ?Element => {
+		if (this.props.renderFooter) {
+			return this.props.renderFooter(this.state.filter, this.state.data);
 		}
 
 		return null;
@@ -99,23 +128,33 @@ export default class SearchableList extends React.Component {
 	render() {
 		let placeHolder;
 
-		if (this.state.data) {
-			switch (this.state.data.length) {
-			case 0:
+		switch (this.state.data) {
+		case '@@blankslate':
+			if (this.props.renderBlankslate) {
+				placeHolder = this.props.renderBlankslate();
+			} else {
+				placeHolder = <PageEmpty label='Come on, type something!' image='happy' />;
+			}
+			break;
+		case '@@loading':
+			placeHolder = <PageLoading />;
+			break;
+		case '@@failed':
+			placeHolder = <PageEmpty label='Failed to load results' image='sad' />;
+			break;
+		default:
+			if (this.state.data && this.state.data.length) {
+				placeHolder = (
+					<ListView
+						keyboardShouldPersistTaps
+						dataSource={this._getDataSource()}
+						renderRow={this.props.renderRow}
+						renderHeader={this._renderHeader}
+						renderFooter={this._renderFooter}
+					/>
+				);
+			} else {
 				placeHolder = <PageEmpty label='No results found' image='sad' />;
-				break;
-			case 1:
-				switch (this.state.data[0]) {
-				case 'blankslate':
-					placeHolder = <PageEmpty label='Come on, type something!' image='happy' />;
-					break;
-				case 'missing':
-					placeHolder = <PageLoading />;
-					break;
-				case 'failed':
-					placeHolder = <PageEmpty label='Failed to load results' image='sad' />;
-					break;
-				}
 			}
 		}
 
@@ -123,19 +162,11 @@ export default class SearchableList extends React.Component {
 			<View {...this.props} style={[ styles.container, this.props.style ]}>
 				<SearchBar
 					placeholder={this.props.searchHint}
-					onBack={this.props.onDismiss}
+					onBack={this.props.onCancel}
 					onChangeSearch={this._handleChangeSearch}
-					autoFocus
+					autoFocus={this.props.autoFocus}
 				/>
-				{placeHolder ?
-					placeHolder :
-					<ListView
-						keyboardShouldPersistTaps
-						dataSource={this._getDataSource()}
-						renderRow={this.props.renderRow}
-						renderHeader={this._renderHeader}
-					/>
-				}
+				{placeHolder}
 			</View>
 		);
 	}

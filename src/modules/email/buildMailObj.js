@@ -1,6 +1,5 @@
-'use strict';
-
-let currentU = false, currentR = false;
+let currentU = false,
+	currentR = false;
 
 function userFromUserRel(user) {
 	return {

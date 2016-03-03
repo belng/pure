@@ -1,5 +1,6 @@
 /* @flow */
 
+import EnhancedError from '../../lib/EnhancedError';
 import { bus, cache, config, Constants } from '../../core-server';
 import jwt from 'jsonwebtoken';
 import merge from 'lodash/merge';
@@ -39,15 +40,17 @@ function generateSignedIdentities(identities) {
 }
 
 function signuphandler(changes, n) {
-	let signup = {}, hasNextFired = false;
+	let signup = {};
 
-	function next() {
-		if (!hasNextFired) {
-			hasNextFired = true;
+	function next(e) {
+		if (e) {
+			(changes.response = changes.response || {}).state = changes.auth;
+			changes.response.state.signup.error = e;
+			n(changes);
+		} else {
 			n();
 		}
 	}
-
 	if (changes.auth && changes.auth.signup) {
 		getIdentitiesFromJWT(changes.auth.signup.signedIdentities)
 		.then((identities) => {
@@ -55,18 +58,20 @@ function signuphandler(changes, n) {
 			delete changes.auth.signup.signedIdentities;
 
 			cache.getEntity(changes.auth.signup.id, (err, entity) => {
-				if (hasNextFired) return null;
 				if (err && next) return next(err);
-				if (entity && next) return next(new Error('USER_ALREADY_EXIST'));
+				if (entity && next) return next(new EnhancedError(Constants.ERRORS.ERR_USER_NAME_TAKEN, 'ERR_USER_NAME_TAKEN'));
 				changes.state = (changes.state || {}).user = changes.auth.signup.id;
 
 				changes.response = changes.response || {};
 				changes.response.state = changes.response.state || {};
 				changes.response.state.user = changes.auth.signup.id;
+				changes.response.state.__op__ = { signup: 'delete' };
 				(changes.entities = changes.entities || {})[changes.auth.signup.id] = changes.auth.signup;
+				changes.auth.signup.type = 'user';
+				changes.auth.signup.create = true;
+				changes.auth.signup.createTime = Date.now();
 				// REVIEW: check if this is fine or should the changes.entities itself be fired and sent to the client?
 				(changes.response.entities = changes.response.entities || {})[changes.auth.signup.id] = changes.auth.signup;
-
 				winston.info('okay its a sign up.', changes.entities);
 				return next();
 			});

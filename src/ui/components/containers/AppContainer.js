@@ -1,9 +1,10 @@
 /* @flow */
 
+import React from 'react';
 import Connect from '../../../modules/store/Connect';
 import App from '../views/App';
 
-export default Connect({
+const mapSubscriptionToProps = {
 	user: {
 		key: 'me',
 		transform: user => user ? user.id : null,
@@ -13,5 +14,21 @@ export default Connect({
 			type: 'state',
 			path: 'connectionStatus',
 		}
+	},
+	session: {
+		key: {
+			type: 'state',
+			path: 'session',
+		}
 	}
-})(App);
+};
+
+const AppContainer = (props: any) => (
+	<Connect
+		mapSubscriptionToProps={mapSubscriptionToProps}
+		passProps={props}
+		component={App}
+	/>
+);
+
+export default AppContainer;

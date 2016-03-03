@@ -3,6 +3,7 @@ import * as Constants from '../lib/Constants';
 
 export default class Item {
 	constructor(data) {
+		if (!data) throw new Error('CANNOT_INITIALIZE_MODEL');
 		for (const name of COLUMNS[Constants.TYPE_ITEM]) {
 			this[name] = data[name] || data[name.toLowerCase()];
 		}
@@ -15,6 +16,7 @@ export default class Item {
 			data[name] = this[name];
 		}
 
+		data.type = this.type;
 		return [ data ];
 	}
 

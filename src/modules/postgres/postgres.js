@@ -14,13 +14,13 @@ const channel = 'heyneighbor';
 const TYPE_SEGMENT = `case \
 when tableoid = 'notes'::regclass then 'note' \
 when tableoid = 'privs'::regclass then 'privs' \
-when tableoid = 'roomrelations'::regclass then 'roomrels' \
+when tableoid = 'roomrels'::regclass then 'roomrels' \
 when tableoid = 'rooms'::regclass then 'room' \
-when tableoid = 'textrelations'::regclass then 'textrel' \
+when tableoid = 'textrels'::regclass then 'textrel' \
 when tableoid = 'texts'::regclass then 'text' \
-when tableoid = 'threadrelations'::regclass then 'threadrel' \
+when tableoid = 'threadrels'::regclass then 'threadrel' \
 when tableoid = 'threads'::regclass then 'thread' \
-when tableoid = 'topicrelations'::regclass then 'topicrel' \
+when tableoid = 'topicrels'::regclass then 'topicrel' \
 when tableoid = 'topics'::regclass then 'topic' \
 when tableoid = 'users'::regclass then 'user' \
 end as type`;
@@ -111,8 +111,9 @@ pg.listen(config.connStr, channel, (payload) => {
 });
 
 bus.on('change', (changes, next) => {
-	const counter = new Counter();
+	const counter = new Counter(), response = changes.response = changes.response || {};
 
+	if (!response.entities) response.entities = {};
 	if (changes.source === 'postgres') {
 		next();
 		return;
@@ -134,14 +135,18 @@ bus.on('change', (changes, next) => {
 			}
 
 			winston.info('PgWrite Results', results[0].rows);
-			results.forEach((result) => broadcast(result.rows[0]));
+			results.forEach((result) => {
+				response.entities[result.rows[0].id] = result.rows[0];
+				broadcast(result.rows[0]);
+			});
+
 			counter.dec();
 		});
 	}
 
+
 	if (changes.queries) {
-		const response = changes.response = {},
-			cb = (key, err, results) => {
+		const cb = (key, err, results) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
 				jsonop(response, { indexes: { [key]: results } });
 				counter.dec();

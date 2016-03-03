@@ -5,32 +5,6 @@ import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 import type { SubscriptionRange } from '../../../modules/store/ConnectTypes';
 
-const ChatMessagesContainerInner = Connect(({ thread, start, before, after }) => ({
-	texts: {
-		key: {
-			slice: {
-				type: 'text',
-				filter: {
-					thread
-				},
-				order: 'createTime'
-			},
-			range: {
-				start,
-				before,
-				after
-			}
-		}
-	}
-}))(Dummy);
-
-ChatMessagesContainerInner.propTypes = {
-	thread: PropTypes.string.isRequired,
-	start: PropTypes.number,
-	before: PropTypes.number,
-	after: PropTypes.number,
-};
-
 export default class ChatMessagesContainer extends Component<void, any, SubscriptionRange> {
 	// Keep state flat for shallowEqual
 	state: SubscriptionRange = {
@@ -46,12 +20,39 @@ export default class ChatMessagesContainer extends Component<void, any, Subscrip
 	};
 
 	render() {
+		const {
+			start,
+			before,
+			after
+		} = this.state;
+
 		return (
-			<ChatMessagesContainerInner
-				{...this.props}
-				{...this.state}
-				loadMore={this._loadMore}
+			<Connect
+				mapSubscriptionToProps={{
+					texts: {
+						key: {
+							slice: {
+								type: 'text',
+								filter: {
+									thread: this.props.thread
+								},
+								order: 'createTime'
+							},
+							range: {
+								start,
+								before,
+								after
+							}
+						}
+					}
+				}}
+				passProps={{ ...this.props, loadMore: this._loadMore }}
+				component={Dummy}
 			/>
 		);
 	}
 }
+
+ChatMessagesContainer.propTypes = {
+	thread: PropTypes.string.isRequired
+};

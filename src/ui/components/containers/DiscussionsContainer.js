@@ -5,32 +5,6 @@ import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 import type { SubscriptionRange } from '../../../modules/store/ConnectTypes';
 
-const DiscussionsContainerInner = Connect(({ room, start, before, after }) => ({
-	threads: {
-		key: {
-			slice: {
-				type: 'thread',
-				filter: {
-					room
-				},
-				order: 'score'
-			},
-			range: {
-				start,
-				before,
-				after
-			}
-		}
-	}
-}))(Dummy);
-
-DiscussionsContainerInner.propTypes = {
-	room: React.PropTypes.string.isRequired,
-	start: React.PropTypes.number,
-	before: React.PropTypes.number,
-	after: React.PropTypes.number,
-};
-
 export default class DiscussionsContainer extends Component<void, any, SubscriptionRange> {
 	// Keep state flat for shallowEqual
 	state: SubscriptionRange = {
@@ -46,10 +20,39 @@ export default class DiscussionsContainer extends Component<void, any, Subscript
 	};
 
 	render() {
-		const props = { ...this.props, ...this.state };
+		const {
+			start,
+			before,
+			after
+		} = this.state;
 
 		return (
-			<DiscussionsContainerInner {...props} loadMore={this._loadMore} />
+			<Connect
+				mapSubscriptionToProps={{
+					threads: {
+						key: {
+							slice: {
+								type: 'thread',
+								filter: {
+									room: this.props.room
+								},
+								order: 'score'
+							},
+							range: {
+								start,
+								before,
+								after
+							}
+						}
+					}
+				}}
+				passProps={{ ...this.props, loadMore: this._loadMore }}
+				component={Dummy}
+			/>
 		);
 	}
 }
+
+DiscussionsContainer.propTypes = {
+	room: React.PropTypes.string.isRequired,
+};

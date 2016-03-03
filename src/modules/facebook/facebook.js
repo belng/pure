@@ -3,6 +3,8 @@
 	resources:
 	https://developers.facebook.com/tools/explorer/
  */
+
+import EnhancedError from '../../lib/EnhancedError';
 import route from 'koa-route';
 import { bus, config, Constants } from '../../core-server';
 import winston from 'winston';
@@ -13,12 +15,10 @@ import handlebars from 'handlebars';
 import encodeURITemplate from '../../lib/encodeURITemplate';
 
 const redirectURL = `https://${config.host}${config.facebook.redirect_path}`;
-
 const SCRIPT_REDIRECT = encodeURITemplate `location.href='https://www.facebook.com/dialog/oauth?\
 client_id=${config.facebook.client_id}&\
 redirect_uri=${redirectURL}&\
 response_type=code&scope=email`;
-
 const SCRIPT_MESSAGE = `
 	window.opener.postMessage({
 		type: "auth",
@@ -43,10 +43,13 @@ function getTokenFromCode(code, secret, clientID) {
 			let i, l, token;
 
 			if (err) {
-				winston.log(err);
-				reject(err);
+				const error = new EnhancedError(err.message, err.message);
+
+				winston.error(err);
+				reject(error);
 				return;
 			}
+
 			for (i = 0, l = queries.length; i < l; i++) {
 				if (queries[i].indexOf('access_token') >= 0) {
 					token = queries[i].replace('access_token=', '');
@@ -78,7 +81,7 @@ function verifyToken(token, appId) {
 			}
 
 			if (response.id === appId) resolve(token);
-			else reject(new Error('incorrect appid'));
+			else reject(new EnhancedError(Constants.ERRORS.AUDIENCE_MISMATCH_FACEBOOK, 'AUDIENCE_MISMATCH_FACEBOOK'));
 		});
 	});
 }
@@ -93,14 +96,13 @@ function getDataFromToken(token) {
 				const user = JSON.parse(body);
 
 				if (user.error) {
-					throw (new Error(user.error || 'ERR_FB_SIGNIN'));
-				} else if (!user.email) {
-					throw (new Error(user.error || 'ERR_FB_SIGNIN_NO_EMAIL'));
+					throw (new EnhancedError(user.error || Constants.ERRORS.ERR_FACEBOOK_SIGNIN_FAILED, user.error || 'ERR_FACEBOOK_SIGNIN_FAILED'));
 				}
 	//			response.signin.pictures.push('https://gravatar.com/avatar/' + crypto.createHash('md5').update(user.email).digest('hex') + '/?d=retro');
 
 				(signin.identities = []).push('facebook:' + user.id);
-				signin.identities.push('mailto:' + user.email);
+
+				if (user.email) signin.identities.push('mailto:' + user.email);
 
 				signin.params = {
 					facebook: {
@@ -120,43 +122,54 @@ function getDataFromToken(token) {
 	});
 }
 
-function fbAuth(changes, next) {
+function fbAuth(changes, n) {
 	winston.debug('setstate: facebook module');
+
+	function next(e) {
+		if (e) {
+			(changes.response = changes.response || {}).state = changes.auth;
+			changes.response.state.facebook.error = e;
+			n(changes);
+		} else {
+			n();
+		}
+	}
+
 	if (!changes.auth || !changes.auth.facebook) {
-		next();
-		return;
+		return next();
 	}
 
 	/* TODO: how do we handle auth from already logged in user?*/
 	const key = changes.auth.facebook.code || changes.auth.facebook.accessToken;
 
 	if (!key) {
-		next(new Error('FACEBOOK_AUTH_FAILED'));
-		return;
+		return next(new EnhancedError(Constants.ERRORS.INVALID_FACEBOOK_KEY, 'INVALID_FACEBOOK_KEY'));
 	}
 
 	const promise = ((changes.auth.facebook.code) ? getTokenFromCode(key, config.facebook.client_secret, config.facebook.client_id, config.host) : verifyToken(key, config.facebook.client_id));
 
 	promise.then((token) => {
 		if (!token) {
-			next(new Error('Invalid_FB_TOKEN'));
-			return;
+			return next(new EnhancedError(Constants.ERRORS.INVALID_FACEBOOK_TOKEN, 'INVALID_FB_TOKEN'));
 		}
 
 		getDataFromToken(token).then((response) => {
 			if (!response) {
-				next(new Error('trouble construct the signin object'));
-				return;
+				return next(new EnhancedError(Constants.ERRORS.FACEBOOK_RESPONSE_PARSE_ERROR, 'FACEBOOK_RESPONSE_PARSE_ERROR'));
 			}
 			changes.auth.signin = response;
 			winston.debug('response', changes);
-			next();
-		}).catch((error) => {
-			return next(error);
+			return next();
+		}).catch((err) => {
+			return next(new EnhancedError(Constants.ERRORS[err.message] || err.message, err.message));
 		});
+
+		return null;
 	}).catch((err) => {
-		return next(err);
+		// TODO: findout what other errors could possibily  happen
+		return next(new EnhancedError(Constants.ERRORS[err.message] || err.message, err.message));
 	});
+	return null;
 }
 
 bus.on('change', fbAuth, Constants.APP_PRIORITIES.AUTHENTICATION_FACEBOOK);

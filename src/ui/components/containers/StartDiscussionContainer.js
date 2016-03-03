@@ -5,57 +5,63 @@ import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 import { startThread } from '../../../modules/store/actions';
 
-const StartDiscussionContainerInner = Connect(({ room, thread }) => ({
-	room: {
-		key: {
-			type: 'entity',
-			id: room
-		}
-	},
-	thread: {
-		key: {
-			type: 'entity',
-			id: thread
-		}
-	}
-}), {
-	startThread: (props, store) => (name, body, meta) => {
-		const changes = startThread({
-			name,
-			body,
-			meta,
-			parents: [ props.room.id ].concat(props.room.parents),
-			creator: props.user
-		});
+type Props = {
+	user: string;
+	room: string;
+}
 
-		store.dispatch(changes);
+type State = {
+	thread: ?string
+}
 
-		// FIXME: This should be simpler
-		props.setCurrentThread(Object.keys(changes.entities)[0]);
-	}
-})(Dummy);
-
-StartDiscussionContainerInner.propTypes = {
-	room: PropTypes.string.isRequired,
-	user: PropTypes.string.isRequired,
-};
-
-export default class StartDiscussionContainer extends Component<void, any, { thread: ?string }> {
-	state: { thread: ?string } = {
-		thread: null
+export default class StartDiscussionContainer extends Component<void, Props, State> {
+	static propTypes = {
+		user: PropTypes.string.isRequired,
+		room: PropTypes.string.isRequired,
 	};
 
-	_setCurrentThread = (id: string) => {
-		this.setState({
-			thread: id
-		});
+	state: State = {
+		thread: null,
 	};
 
 	render() {
-		const props = { ...this.props, ...this.state };
-
 		return (
-			<StartDiscussionContainerInner {...props} setCurrentThread={this._setCurrentThread} />
+			<Connect
+				mapSubscriptionToProps={{
+					room: {
+						key: {
+							type: 'entity',
+							id: this.props.room
+						}
+					},
+					thread: {
+						key: {
+							type: 'entity',
+							id: this.state.thread
+						}
+					}
+				}}
+				mapActionsToProps={{
+					startThread: (store, result) => (name, body, meta) => {
+						const changes = startThread({
+							name,
+							body,
+							meta,
+							parents: [ result.room.id ].concat(result.room.parents),
+							creator: this.props.user
+						});
+
+						store.dispatch(changes);
+
+						// FIXME: This should be simpler
+						this.setState({
+							thread: Object.keys(changes.entities)[0]
+						});
+					}
+				}}
+				passProps={this.props}
+				component={Dummy}
+			/>
 		);
 	}
 }

@@ -6,7 +6,7 @@ import type { SubscriptionOptions, Subscription } from './ConnectTypes';
 export const subscribe = (options: SubscriptionOptions, callback: Function): Subscription => {
 	let unWatch;
 
-	switch (options.what) {
+	switch (options.type) {
 	case 'entity':
 		unWatch = cache.watchEntity(options.id, callback);
 		break;

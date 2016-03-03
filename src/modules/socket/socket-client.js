@@ -1,9 +1,8 @@
 /* @flow */
 
 import eio from 'engine.io-client';
-import { bus, config } from '../../core-client.js';
-import * as models from '../../models/models.js';
-import stringpack from 'stringpack';
+import { bus, config, cache } from '../../core-client.js';
+import packer from './../../lib/packer';
 
 const {
 	protocol,
@@ -11,8 +10,6 @@ const {
 } = config.server;
 
 let	backOff = 1, client;
-
-const packer = stringpack(Object.keys(models).sort().map(key => models[key]));
 
 function disconnected() {
 
@@ -55,7 +52,7 @@ function connect() {
 	client.on('message', onMessage);
 }
 
-bus.on('change', (changes) => {
+bus.on('change', changes => {
 	if (changes.source === 'server') return;
 
 	const { state, ...filtered } = changes;
@@ -65,4 +62,15 @@ bus.on('change', (changes) => {
 	}
 }, 1);
 
-connect();
+bus.on('state:init', state => {
+	state.connectionStatus = 'connecting';
+	connect();
+});
+
+cache.onChange((changes) => {
+	if (changes.queries) {
+		client.send(packer.encode({
+			queries: changes.queries
+		}));
+	}
+});

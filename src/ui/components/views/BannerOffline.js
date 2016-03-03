@@ -1,37 +1,36 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { PropTypes } from 'react';
 import Banner from './Banner';
 
-export default class BannerOffline extends React.Component {
-	shouldComponentUpdate(nextProps) {
-		return this.props.connectionStatus !== nextProps.connectionStatus;
-	}
-
-	render() {
-		const { connectionStatus } = this.props;
-
-		let label;
-
-		switch (connectionStatus) {
-		case 'offline':
-			label = 'Network unavailable. Waiting for connection…';
-			break;
-		case 'connecting':
-			label = 'Connecting to server…';
-			break;
-		default:
-			label = '';
-		}
-
-		return (
-			<Banner
-				{...this.props}
-				text={label}
-				showClose={false}
-			/>
-		);
-	}
+type Props = {
+	connectionStatus: 'connecting' | 'online' | 'offline'
 }
 
-BannerOffline.propTypes = {
-	connectionStatus: React.PropTypes.oneOf([ 'offline', 'connecting', 'online' ])
+const BannerOffline = ({ connectionStatus }: Props) => {
+	let label;
+
+	switch (connectionStatus) {
+	case 'online':
+		label = '';
+		break;
+	case 'offline':
+		label = 'Network unavailable. Waiting for connection…';
+		break;
+	default:
+		label = 'Connecting to server…';
+	}
+
+	return (
+		<Banner
+			text={label}
+			showClose={false}
+		/>
+	);
 };
+
+BannerOffline.propTypes = {
+	connectionStatus: PropTypes.oneOf([ 'connecting', 'offline', 'online' ])
+};
+
+export default BannerOffline;

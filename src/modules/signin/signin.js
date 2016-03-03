@@ -18,7 +18,18 @@ function getEntityByIdentity(identities, callback) {
 	});
 }
 // sign with default (HMAC SHA256)
-function signinhandler(changes, next) {
+function signinhandler(changes, n) {
+	function next(e) {
+		if (e) {
+			(changes.response = changes.response || {}).state = changes.auth;
+			changes.response.state.signin.error = e;
+			n(changes);
+		} else {
+			n();
+		}
+	}
+
+
 	winston.debug('setstate/signin:', changes);
 	if (changes.auth && changes.auth.signin) {
 		winston.debug('setstate: sign-in module', changes.auth.signin);

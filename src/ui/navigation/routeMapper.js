@@ -23,7 +23,7 @@ export type RouteDescription = {
 	titleComponent?: ReactClass;
 	leftComponent?: ReactClass;
 	rightComponent?: ReactClass;
-	component: ReactClass;
+	component: any;
 }
 
 export default function(route: Route): RouteDescription {

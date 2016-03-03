@@ -3,13 +3,18 @@ import * as Constants from '../lib/Constants';
 
 export default class User {
 	constructor(data) {
+		if (!data) { throw new Error('CANNOT_INITIALIZE_MODEL'); }
 		if (!data.type) { data.type = Constants.TYPE_USER; }
 		if (data.type !== Constants.TYPE_USER) {
-			throw (new Error('invalid_type'));
+			throw (new Error('INVALID_TYPE'));
 		}
+		if (!data.id) { throw new Error('INVALID_USER_ID'); }
+
 		for (const name of COLUMNS[Constants.TYPE_USER]) {
 			this[name] = data[name] || data[name.toLowerCase()];
 		}
+
+		this.type = 'user';
 	}
 
 	packArguments(): Object {
@@ -19,6 +24,7 @@ export default class User {
 			data[name] = this[name];
 		}
 
+		data.type = this.type;
 		return [ data ];
 	}
 
