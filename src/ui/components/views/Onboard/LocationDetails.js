@@ -56,7 +56,7 @@ export default class LocationDetails extends Component<void, Props, void> {
 	);
 
 	_handleSelectPlace: Function = place => {
-		this.props.onChangeField('places', { current: place });
+		this.props.onChangeField('places', { home: place });
 
 		setTimeout(() => this.props.submitPlaceDetails(), 1000);
 	};
