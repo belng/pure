@@ -1,6 +1,6 @@
 import * as Constants from './../../../lib/Constants';
 import uid from './../../../lib/uid-server';
-import pg from '../pg.js';
+import pg from '../../../lib/pg';
 import casual from 'casual';
 import logger from 'winston';
 
@@ -145,9 +145,9 @@ function insertText(i, done) {
 
 function insertMember(i, done) {
 	let tags = [];
-	if (Math.random() < 0.01) tags.push(Constants.TAG_REL_MUTE);
-	if (Math.random() < 0.01) tags.push(Constants.TAG_REL_LIKE);
-	if (Math.random() < 0.001) tags.push(Constants.TAG_REL_FLAG);
+	if (Math.random() < 0.01) tags.push(Constants.ROLE_MUTE);
+	if (Math.random() < 0.01) tags.push(Constants.ROLE_LIKE);
+	if (Math.random() < 0.001) tags.push(Constants.ROLE_FLAG);
 
 	pg.write(connStr, [ {
 		$: `INSERT INTO members (
@@ -164,9 +164,9 @@ function insertMember(i, done) {
 
 function insertWatcher(i, done) {
 	let tags = [];
-	if (Math.random() < 0.01) tags.push(Constants.TAG_REL_MUTE);
-	if (Math.random() < 0.01) tags.push(Constants.TAG_REL_LIKE);
-	if (Math.random() < 0.001) tags.push(Constants.TAG_REL_FLAG);
+	if (Math.random() < 0.01) tags.push(Constants.ROLE_MUTE);
+	if (Math.random() < 0.01) tags.push(Constants.ROLE_LIKE);
+	if (Math.random() < 0.001) tags.push(Constants.ROLE_FLAG);
 
 	pg.write(connStr, [ {
 		$: `INSERT INTO watchers (
