@@ -13,6 +13,9 @@ export default class User {
 		for (const name of COLUMNS[Constants.TYPE_USER]) {
 			this[name] = data[name] || data[name.toLowerCase()];
 		}
+
+		if (data.error) this.error = data.error;
+		if (data.create) this.create = data.create;
 	}
 
 	packArguments(): Object {
@@ -23,6 +26,8 @@ export default class User {
 		}
 
 		data.type = this.type;
+		if (this.error) data.error = this.error;
+		if (this.create) data.create = this.create;
 		return [ data ];
 	}
 
