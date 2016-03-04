@@ -47,8 +47,7 @@ function addRels(change, user, addable) {
 		const rel = new RoomRel({
 			user: user.id,
 			item: stub.id,
-			tags: stub.rels,
-			roles: [ constants.ROLE_FOLLOWER ],
+			roles: [ ...stub.rels, constants.ROLE_FOLLOWER ],
 			create: true
 		});
 
@@ -88,9 +87,9 @@ function sendInvitations ([ user, relRooms, ...stubsets ]) {
 		if (stubs[identity]) {
 			stubs[identity].exits = true;
 		} else {
-			const type = relRoom.rel.tags.filter(tag =>
-				tag >= constants.TAG_REL_HOME &&
-				tag <= constants.TAG_REL_HOMETOWN
+			const type = relRoom.rel.roles.filter(role =>
+				role >= constants.ROLE_HOME &&
+				role <= constants.ROLE_HOMETOWN
 			)[0];
 
 			if (changedRels[type]) {
@@ -158,17 +157,17 @@ bus.on('change', change => {
 			const { home, work, hometown } = user.params.places;
 
 			if (home && home.id) {
-				promises.push(place.getStubset(home.id, constants.TAG_REL_HOME));
+				promises.push(place.getStubset(home.id, constants.ROLE_HOME));
 				needsInvitations = true;
 			}
 
 			if (work && work.id) {
-				promises.push(place.getStubset(work.id, constants.TAG_REL_HOME));
+				promises.push(place.getStubset(work.id, constants.ROLE_HOME));
 				needsInvitations = true;
 			}
 
 			if (hometown && hometown.id) {
-				promises.push(place.getStubset(hometown.id, constants.TAG_REL_HOME));
+				promises.push(place.getStubset(hometown.id, constants.ROLE_HOME));
 				needsInvitations = true;
 			}
 		}

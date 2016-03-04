@@ -30,7 +30,7 @@ cache.onChange(change => {
 						rel: new RoomRel({
 							user: 'harish',
 							item: '5bb985a7-8e48-4aa7-bac7-5de9c6f6a35d',
-							tags: [ Constants.TAG_REL_HOME ],
+							tags: [ Constants.ROLE_HOME ],
 							role: [ Constants.ROLE_FOLLOWER ],
 							roleTime: 1
 						}),
