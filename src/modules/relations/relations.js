@@ -6,20 +6,23 @@ import Relation from '../../models/rel';
 
 bus.on('change', (changes, next) => {
 	if (!changes.entities) return next();
-	let counter = new Counter();
-	for (let id in changes.entities) {
-		let entity = changes.entities[id],
-			text, threadRel, role, user;
+	const counter = new Counter();
 
-		if ( entity.type === Constants.TYPE_TEXTREL && entity.roles.indexOf(Constants.ROLE_MENTIONED) > -1 ) {
+	for (const id in changes.entities) {
+		const entity = changes.entities[id];
+		let text, role, user;
+
+		if (entity.type === Constants.TYPE_TEXTREL && entity.roles.indexOf(Constants.ROLE_MENTIONED) > -1) {
 			text = changes.entities[entity.item];
 			role = [ Constants.ROLE_MENTIONED ];
 			user = entity.user;
 			if (!text) {
 				counter.inc();
 				cache.getEntity(entity.item, (err, item) => {
+					if (err) return next(err);
 					text = item;
 					counter.dec();
+					return null;
 				});
 			}
 		}
@@ -31,16 +34,20 @@ bus.on('change', (changes, next) => {
 		}
 
 		counter.then(() => {
-			threadRel = {
-				item: text.parents[0][0],
-				user: user,
+			const threadRel = {
+				item: text.parents[0],
+				user,
+				create: true,
 				type: Constants.TYPE_THREADREL,
 				roles: role
 			};
-			let relation = new Relation(threadRel);
-			changes.entities[relation.getId()] = relation;
+			const relation = new Relation(threadRel);
+
+			changes.entities[relation.id] = relation;
+			console.log('All Relations created:', JSON.stringify(changes));
+			next();
 		});
 	}
-	next();
-//	counter.then(next)
+
+	return null;
 });
