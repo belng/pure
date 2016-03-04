@@ -1,5 +1,5 @@
 import * as pg from '../../lib/pg';
-import { TABLES, COLUMNS, RELATION_TYPES } from '../../lib/schema';
+import { TABLES, COLUMNS, RELATION_TYPES, ITEM_TYPES, TYPES } from '../../lib/schema';
 import * as Constants from '../../lib/Constants';
 import jsonop from 'jsonop';
 import defaultOps from './../../lib/defaultOps';
@@ -20,10 +20,18 @@ export default function (entity) {
 
 	if (isRel) {
 		names.splice(names.indexOf('id'), 1);
+		names.push('roletime');
+	}
+
+	// Default properties that has to be set at all times.
+	if (ITEM_TYPES.indexOf(entity.type) >= 0 || TYPES.TYPE_USER) {
+		if (entity.create) names.push('createtime');
+		names.push('updatetime');
 	}
 
 	names.splice(names.indexOf('type'), 1);
 	if (entity.create) { // INSERT
+
 		return pg.cat([
 			`INSERT INTO "${TABLES[entity.type]}" (`,
 			'"' + names.map(name => name.toLowerCase()).join('", "') + '"',
@@ -36,6 +44,13 @@ export default function (entity) {
 						locale: 'english',
 						name: entity.name,
 						body: entity.body
+					};
+				case 'createtime':
+				case 'updatetime':
+				case 'roletime':
+					return {
+						$: `&{${name}}`,
+						[name]: Date.now()
 					};
 				default:
 					return {
@@ -68,6 +83,8 @@ export default function (entity) {
 						name: entity.name,
 						body: entity.body
 					};
+				case 'updatetime':
+					return `${name} = ${Date.now()}`;
 				case 'identities': // TODO: find a way to merge and do uniq on the identities
 					return {
 						$: '"identities" = &{identities}',
