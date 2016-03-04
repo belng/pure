@@ -169,8 +169,8 @@ bus.on('change', change => {
 		promises.push(new Promise((resolve, reject) => {
 			cache.query({
 				type: 'rel',
-				link: { room: 'room' },
-				filter: { user: id, role_gte: constants.ROLE_FOLLOWER },
+				link: { room: 'item' },
+				filter: { user: id, roles_cts: [ constants.ROLE_FOLLOWER ] },
 				order: 'roleTime'
 			}, [ -Infinity, Infinity ], (err, results) => {
 				if (err) { reject(err); return; }
