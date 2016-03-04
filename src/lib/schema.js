@@ -64,6 +64,15 @@ TYPE_NAMES[Constants.TYPE_PRIVREL] = 'privrel';
 TYPE_NAMES[Constants.TYPE_USERREL] = 'userrel';
 TYPE_NAMES[Constants.TYPE_NOTE] = 'note';
 
+export const ITEM_TYPES = [
+	Constants.TYPE_ITEM,
+	Constants.TYPE_ROOM,
+	Constants.TYPE_TEXT,
+	Constants.TYPE_THREAD,
+	Constants.TYPE_TOPIC,
+	Constants.TYPE_PRIV,
+];
+
 export const RELATION_TYPES = [
 	Constants.TYPE_REL,
 	Constants.TYPE_ROOMREL,
