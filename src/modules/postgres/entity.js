@@ -8,7 +8,8 @@ export default function (entity) {
 	// TODO: add validation for type else this code crashes.
 	const isRel = (RELATION_TYPES.indexOf(entity.type) >= 0),
 		names = Object.keys(entity).filter(
-			name => COLUMNS[entity.type].indexOf(name) >= 0
+			name => COLUMNS[entity.type].indexOf(name) >= 0 &&
+			typeof entity[name] !== 'undefined'
 		);
 
 	const ops = jsonop(defaultOps, entity.__op__ || {});

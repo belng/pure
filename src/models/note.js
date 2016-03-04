@@ -7,6 +7,8 @@ export default class Note {
 		for (const name of COLUMNS[Constants.TYPE_NOTE]) {
 			this[name] = data[name] || data[name.toLowerCase()];
 		}
+		if (data.error) this.error = data.error;
+		if (data.create) this.create = data.create;
 	}
 
 	packArguments() {
@@ -15,6 +17,9 @@ export default class Note {
 		for (const name of COLUMNS[Constants.TYPE_NOTE]) {
 			data[name] = this[name];
 		}
+
+		if (this.error) data.error = this.error;
+		if (this.create) data.create = this.create;
 		return [ data ];
 	}
 
