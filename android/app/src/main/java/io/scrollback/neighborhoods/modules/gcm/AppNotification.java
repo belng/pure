@@ -19,9 +19,9 @@ import java.net.URL;
 
 import io.scrollback.neighborhoods.R;
 
-public class HeyNeighborNotification {
+public class AppNotification {
 
-    private static final String TAG = "HeyNeighborNotification";
+    private static final String TAG = "AppNotification";
 
     private final Context mContext;
 
@@ -31,12 +31,12 @@ public class HeyNeighborNotification {
     private String mGroup;
     private String mPicture;
 
-    HeyNeighborNotification(Context c) {
+    AppNotification(Context c) {
         mContext = c;
     }
 
-    public static HeyNeighborNotification fromBundle(Context c, Bundle extras) {
-        HeyNeighborNotification note = new HeyNeighborNotification(c);
+    public static AppNotification fromBundle(Context c, Bundle extras) {
+        AppNotification note = new AppNotification(c);
 
         note.setTitle(extras.getString("title"));
         note.setText(extras.getString("text"));

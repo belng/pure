@@ -1,14 +1,8 @@
 package io.scrollback.neighborhoods;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.facebook.appevents.AppEventsLogger;
@@ -27,33 +21,21 @@ import io.scrollback.neighborhoods.bundle.JSBundleManager;
 import io.scrollback.neighborhoods.modules.analytics.AnalyticsPackage;
 import io.scrollback.neighborhoods.modules.core.CorePackage;
 import io.scrollback.neighborhoods.modules.facebook.FacebookPackage;
-import io.scrollback.neighborhoods.modules.gcm.GCMRegistrationIntentService;
-import io.scrollback.neighborhoods.modules.gcm.PushNotificationPackage;
-import io.scrollback.neighborhoods.modules.gcm.PushNotificationPreferences;
+import io.scrollback.neighborhoods.modules.gcm.GCMRegistrationManager;
+import io.scrollback.neighborhoods.modules.gcm.GCMPackage;
 import io.scrollback.neighborhoods.modules.google.GoogleLoginPackage;
+import io.scrollback.neighborhoods.modules.places.GooglePlacesPackage;
 
 public class MainActivity extends ReactActivity {
 
-    private static final String SENT_TOKEN_TO_SERVER = "SENT_TOKEN_TO_SERVER";
-
-    private BroadcastReceiver mRegistrationBroadcastReceiver;
-    private boolean isReceiverRegistered;
+    GCMRegistrationManager mRegistrationManager = new GCMRegistrationManager(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                SharedPreferences sharedPreferences = PushNotificationPreferences.get(getApplicationContext());
-            }
-        };
-
         if (checkPlayServices()) {
-            // Start IntentService to register this application with GCM.
-            Intent intent = new Intent(this, GCMRegistrationIntentService.class);
-            startService(intent);
+            mRegistrationManager.startIntentService();
         }
     }
 
@@ -101,7 +83,8 @@ public class MainActivity extends ReactActivity {
         return Arrays.asList(
                 new MainReactPackage(),
                 new CorePackage(),
-                new PushNotificationPackage(),
+                new GCMPackage(),
+                new GooglePlacesPackage(),
                 new AnalyticsPackage(),
                 new GoogleLoginPackage(),
                 new FacebookPackage(),
@@ -116,29 +99,18 @@ public class MainActivity extends ReactActivity {
 
     @Override
     protected void onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
-        isReceiverRegistered = false;
+        mRegistrationManager.unRegisterReciever();
         super.onPause();
-
         AppEventsLogger.deactivateApp(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("test", "resume app");
-        registerReceiver();
+        mRegistrationManager.registerReceiver();
         AppEventsLogger.activateApp(this);
     }
 
-    private void registerReceiver(){
-        if(!isReceiverRegistered) {
-            Log.i("test", "hellow");
-            LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
-                    new IntentFilter(PushNotificationPreferences.REGISTRATION_COMPLETE));
-            isReceiverRegistered = true;
-        }
-    }
 
     private boolean checkPlayServices() {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
@@ -148,7 +120,7 @@ public class MainActivity extends ReactActivity {
                 apiAvailability.getErrorDialog(this, resultCode, 9000)
                         .show();
             } else {
-                Log.i("MainActivity", "This device is not supported.");
+                Log.d("MainActivity", "This device is not supported.");
                 finish();
             }
             return false;

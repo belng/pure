@@ -23,7 +23,7 @@ public class GCMRegistrationIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        SharedPreferences sharedPreferences = PushNotificationPreferences.get(this);
+        SharedPreferences sharedPreferences = GCMPreferences.get(this);
         Log.d(TAG, "gcm service");
 
         try {
@@ -35,12 +35,12 @@ public class GCMRegistrationIntentService extends IntentService {
 
             //subscribeTopics(token);
 
-            sharedPreferences.edit().putString(PushNotificationPreferences.REGISTRATION_TOKEN, token).apply();
+            sharedPreferences.edit().putString(GCMPreferences.REGISTRATION_TOKEN, token).apply();
         } catch (Exception e) {
             Log.d(TAG, "Failed to complete token refresh", e);
         }
 
-        Intent registrationComplete = new Intent(PushNotificationPreferences.REGISTRATION_COMPLETE);
+        Intent registrationComplete = new Intent(GCMPreferences.REGISTRATION_COMPLETE);
         LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
     }
 

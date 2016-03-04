@@ -14,13 +14,13 @@ import io.scrollback.neighborhoods.AppState;
 import io.scrollback.neighborhoods.MainActivity;
 import io.scrollback.neighborhoods.R;
 
-public class PushNotificationHandler {
+public class GCMNotificationHandler {
 
-    private static final String TAG = "PushNotificationHandler";
+    private static final String TAG = "GCMNotificationHandler";
 
-    public static void send(Context context, int id, HeyNeighborNotification note) {
+    public static void send(Context context, int id, AppNotification note) {
         // If Push Notifications are disabled, do nothing
-        if (PushNotificationPreferences.get(context).getString("enabled", "").equals("false")) {
+        if (GCMPreferences.get(context).getString("enabled", "").equals("false")) {
             Log.d(TAG, "Push notifications are disabled");
 
             return;
