@@ -22,7 +22,6 @@ export default function (entity) {
 	}
 
 	names.splice(names.indexOf('type'), 1);
-	console.log("NAMES:", names);
 	if (entity.create) { // INSERT
 		return pg.cat([
 			`INSERT INTO "${TABLES[entity.type]}" (`,

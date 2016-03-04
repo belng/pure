@@ -5,7 +5,7 @@ export default class ThreadRel extends Relation {
 	constructor(data) {
 		if (!data.type || data.type === TYPE_REL) {
 			data.type = TYPE_THREADREL;
-		} else {
+		} else if (data.type !== TYPE_THREADREL) {
 			throw new Error('INVALID_TYPE');
 		}
 		super(data);

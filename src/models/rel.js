@@ -10,6 +10,8 @@ export default class Relation {
 			this[name] = data[name] || data[name.toLowerCase()];
 		}
 
+		if (data.error) this.error = data.error;
+
 		Object.defineProperty(this, 'id', { get: () => this.user + '_' + this.item });
 	}
 
@@ -21,6 +23,7 @@ export default class Relation {
 		}
 
 		data.type = this.type;
+		if (this.error) data.error = this.error;
 		return [ data ];
 	}
 }
