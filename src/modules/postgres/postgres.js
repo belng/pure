@@ -70,16 +70,14 @@ cache.onChange((changes) => {
 				if (orderedResult.length - index < range[2]) {
 					end = +Infinity;
 				}
-				newRange.push(start, end);
 			} else if (range[1] > 0) {
-				end = orderedResult.length < range[1] ? -Infinity : orderedResult.valAt(orderedResult.length - 1);
-				newRange.push(end, start);
+				end = orderedResult.valAt(orderedResult.length - 1);
+				if (orderedResult.length < range[1]) start = -Infinity;
 			} else if (range[2] > 0) {
 				end = orderedResult.length < range[2] ? +Infinity : orderedResult.valAt(orderedResult.length - 1);
-				newRange.push(start, end);
 			}
+			newRange.push(start, end);
 		}
-
 		cache.put({
 			knowledge: { [key]: [ newRange ] },
 			indexes: { [key]: orderedResult }
@@ -181,11 +179,14 @@ bus.on('change', (changes, next) => {
 				return;
 			}
 
-			winston.info('PgWrite Results', results[0].rows);
-			results.forEach((result) => {
-				response.entities[result.rows[0].id] = result.rows[0];
-				broadcast(result.rows[0]);
-			});
+			if(results.rowCount !== 0) {
+				winston.info('PgWrite Results', results[0].rows);
+				results.forEach((result) => {
+					// TODO: add errors if things are not saved.
+					response.entities[result.rows[0].id] = result.rows[0];
+					broadcast(result.rows[0]);
+				});
+			}
 
 			counter.dec();
 		});

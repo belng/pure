@@ -68,7 +68,6 @@ bus.on('http/init', app => {
 				}
 
 				if (message.response) {
-					console.log("response:", JSON.stringify(message.response));
 					if (message.auth && message.auth.user) {
 						bus.emit('presence/online', {
 							resource: resourceId,
