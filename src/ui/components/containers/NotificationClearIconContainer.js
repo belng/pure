@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
+import NotificationClearIcon from '../views/NotificationClearIcon';
 import { dismissAllNotes } from '../../../modules/store/actions';
 
 const mapActionsToProps = {
@@ -13,7 +13,7 @@ const NotificationClearIconContainer = (props: any) => (
 	<Connect
 		mapActionsToProps={mapActionsToProps}
 		passProps={props}
-		component={Dummy}
+		component={NotificationClearIcon}
 	/>
 );
 

@@ -3,13 +3,9 @@ import AppbarTouchable from './AppbarTouchable';
 import AppbarIcon from './AppbarIcon';
 
 export default class NotificationClearIcon extends React.Component {
-	shouldComponentUpdate() {
-		return false;
-	}
-
 	render() {
 		return (
-			<AppbarTouchable onPress={this.props.clearAll}>
+			<AppbarTouchable onPress={this.props.dismissAllNotes}>
 				<AppbarIcon name='clear-all' />
 			</AppbarTouchable>
 		);
@@ -17,5 +13,5 @@ export default class NotificationClearIcon extends React.Component {
 }
 
 NotificationClearIcon.propTypes = {
-	clearAll: React.PropTypes.func.isRequired
+	dismissAllNotes: React.PropTypes.func.isRequired
 };
