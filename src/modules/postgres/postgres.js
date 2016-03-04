@@ -181,7 +181,6 @@ bus.on('change', (changes, next) => {
 				return;
 			}
 
-			winston.info('PgWrite Results', results[0].rows);
 			results.forEach((result) => {
 				response.entities[result.rows[0].id] = result.rows[0];
 				broadcast(result.rows[0]);

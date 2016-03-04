@@ -70,13 +70,13 @@ function sendInvitations ([ user, relRooms, ...stubsets ]) {
 		let rel;
 
 		switch (stubset[0].identity.substr(6)) {
-		case user.params.profile.home:
+		case user.params.places.home:
 			rel = constants.TAG_REL_HOME;
 			break;
-		case user.params.profile.work:
+		case user.params.places.work:
 			rel = constants.TAG_REL_WORK;
 			break;
-		case user.params.profile.hometown:
+		case user.params.places.hometown:
 			rel = constants.TAG_REL_HOMETOWN;
 			break;
 		default:
@@ -162,11 +162,38 @@ bus.on('change', change => {
 
 		if (
 			user.type !== constants.TYPE_USER ||
-			!user.params || !user.params.profile
+			!user.params || !user.params.places
 		) { continue; }
 
+		let needsInvitations = false;
+
+		if (user.params.places) {
+			const {
+				home,
+				work,
+				hometown
+			} = user.params.places;
+
+			if (home && home.id) {
+				promises.push(place.getStubset(home.id));
+				needsInvitations = true;
+			}
+
+			if (work && work.id) {
+				promises.push(place.getStubset(work.id));
+				needsInvitations = true;
+			}
+
+			if (hometown && hometown.id) {
+				promises.push(place.getStubset(hometown.id));
+				needsInvitations = true;
+			}
+		}
+
+		if (needsInvitations) { return; }
+
 		/* Fetch the current rooms of this user. */
-		promises.push(new Promise((resolve, reject) => {
+		promises.unshift(new Promise((resolve, reject) => {
 			cache.query({
 				type: 'rel',
 				link: { room: 'item' },
@@ -177,26 +204,6 @@ bus.on('change', change => {
 				resolve(results);
 			});
 		}));
-
-		if (user.params.profile) {
-			const {
-				home,
-				work,
-				hometown
-			} = user.params.profile;
-
-			if (home && home.id) {
-				promises.push(place.getStubset(home.id));
-			}
-
-			if (work && work.id) {
-				promises.push(place.getStubset(work.id));
-			}
-
-			if (hometown && hometown.id) {
-				promises.push(place.getStubset(hometown.id));
-			}
-		}
 
 		Promise.all(promises)
 		.then(sendInvitations)
