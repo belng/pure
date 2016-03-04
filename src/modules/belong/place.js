@@ -1,33 +1,42 @@
+/* @flow */
+
 import { config } from '../../core-server';
 import request from 'request';
 import winston from 'winston';
 import * as constants from '../../lib/Constants';
 
-const PLACE_TYPE_RE = /.*(locality|administrative_area).*/g;
+const PLACE_TYPE_RE = /.*(locality).*/g;
+
+function handleError(message, reject) {
+	winston.error(message);
+	reject(new Error(message));
+	return;
+}
 
 function callApi(api, params) {
 	return new Promise((resolve, reject) => {
 		request(
 			'https://maps.googleapis.com/maps/api/' + api +
 			'/json?key=' + config.google.api_key + '&' +
+
+			/* $FlowFixMe : We don't need all keys to be present */
 			Object.keys(params).map(name => name + '=' + params[name])
 			.join('&'),
 			(error, response, body) => {
 				if (error) {
-					winston.error(error);
-					return reject(error);
+					return handleError(
+						'GAPI ' + api + ' HTTP ERROR: ' + error.message, reject
+					);
 				}
 
 				let res;
 
 				try { res = JSON.parse(body); } catch (e) {
-					winston.error(e);
-					return reject(e);
+					return handleError('GAPI ' + api + ' PARSE ERROR: ' + e.message, reject);
 				}
 
 				if (res.status !== 'OK') {
-					winston.error('Result Status' + res.status);
-					return reject(res.status);
+					return handleError('GAPI ' + api + ' STATUS: ' + res.status, reject);
 				}
 
 				return resolve(res.results || res.result);
@@ -45,7 +54,7 @@ function placeToStub(place) {
 	};
 }
 
-export function getStubset(placeid) {
+export function getStubset(placeid: string, rel: number): Promise<Object> {
 	let spot;
 
 	return callApi('place/details', { placeid })
@@ -58,10 +67,13 @@ export function getStubset(placeid) {
 	})
 	.then(results => {
 		const areas = results.filter(place =>
-			PLACE_TYPE_RE.test(place.types[0]));
+			place.types.filter(type =>
+				PLACE_TYPE_RE.test(type)
+			).length > 0
+		);
 
 		if (areas[0].place_id !== spot.place_id) { areas.unshift(spot); }
 
-		return areas.map(placeToStub);
+		return { rel, stubs: areas.map(placeToStub) };
 	});
 }
