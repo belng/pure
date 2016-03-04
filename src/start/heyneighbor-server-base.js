@@ -7,6 +7,7 @@ import '../modules/google/google';
 import '../modules/session/session';
 import '../modules/signin/signin';
 import '../modules/signup/signup';
+import '../modules/resource/resource';
 
 import '../modules/belong/belong';
 

@@ -1,9 +1,6 @@
-'use strict';
+import { bus, Constants } from '../../core-server';
 
-let core = require('../../core-server'),
-	bus = core.bus,
-	config = core.config,
-	resourceMap = {};
+const resourceMap = {};
 
 bus.on('presence/offline', resourceID => {
 	delete resourceMap[resourceID];
@@ -14,15 +11,19 @@ bus.on('presence/online', presence => {
 });
 
 function resourceHandler(changes, next) {
-	let signin = {};
-	if (changes.auth && changes.auth.resource && !changes.state.user) {
+	if (changes.state && changes.state.user) {
+		resourceMap[changes.auth.resource] = changes.state.user;
+	} else if (changes.auth && changes.auth.resource) {
+		changes.state = changes.state || {};
 		if (resourceMap[changes.auth.resource]) {
 			changes.state.user = resourceMap[changes.auth.resource];
+			const r = changes.response = changes.response || {};
+			const state = r.state = r.state || {};
+
+			state.user = state.user || changes.state.user;
 			next();
-		} else {
-			next(new Error('INVALID_RESOURCE'));
 		}
 	}
 }
 
-bus.on('change', resourceHandler, 'authentication');
+bus.on('change', resourceHandler, Constants.APP_PRIORITIES.AUTHENTICATION_RESOURCE);
