@@ -1,8 +1,15 @@
 package io.scrollback.neighborhoods;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.react.ReactActivity;
@@ -19,10 +26,27 @@ import io.scrollback.neighborhoods.modules.analytics.AnalyticsPackage;
 import io.scrollback.neighborhoods.modules.core.CorePackage;
 import io.scrollback.neighborhoods.modules.facebook.FacebookPackage;
 import io.scrollback.neighborhoods.modules.gcm.PushNotificationPackage;
+import io.scrollback.neighborhoods.modules.gcm.PushNotificationPreferences;
 import io.scrollback.neighborhoods.modules.google.GoogleLoginPackage;
-import io.scrollback.neighborhoods.modules.places.GooglePlacesPackage;
 
 public class MainActivity extends ReactActivity {
+
+    private static final String SENT_TOKEN_TO_SERVER = "SENT_TOKEN_TO_SERVER";
+
+    private BroadcastReceiver mRegistrationBroadcastReceiver;
+    private boolean isReceiverRegistered;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                SharedPreferences sharedPreferences = PushNotificationPreferences.get(getApplicationContext());
+            }
+        };
+    }
 
     @Override
     protected ReactRootView createRootView() {
@@ -49,7 +73,7 @@ public class MainActivity extends ReactActivity {
                 .setMetadataName("metadata.json")
                 .setRequestPath(
                         getString(R.string.app_protocol) + "//" +
-                        getString(R.string.app_host) + "/s/bundles/android/" + BuildConfig.VERSION_NAME)
+                                getString(R.string.app_host) + "/s/bundles/android/" + BuildConfig.VERSION_NAME)
                 .setCacheDir(getCacheDir())
                 .setAssetManager(getAssets())
                 .setEnabled(!BuildConfig.DEBUG)
@@ -71,7 +95,6 @@ public class MainActivity extends ReactActivity {
                 new PushNotificationPackage(),
                 new AnalyticsPackage(),
                 new GoogleLoginPackage(),
-                new GooglePlacesPackage(),
                 new FacebookPackage(),
                 new ImageChooserPackage()
         );
@@ -84,6 +107,8 @@ public class MainActivity extends ReactActivity {
 
     @Override
     protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+        isReceiverRegistered = false;
         super.onPause();
 
         AppEventsLogger.deactivateApp(this);
@@ -93,6 +118,16 @@ public class MainActivity extends ReactActivity {
     protected void onResume() {
         super.onResume();
 
+        registerReceiver();
         AppEventsLogger.activateApp(this);
+    }
+
+    private void registerReceiver(){
+        if(!isReceiverRegistered) {
+            Log.i("test", "hellow");
+            LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                    new IntentFilter(PushNotificationPreferences.REGISTRATION_COMPLETE));
+            isReceiverRegistered = true;
+        }
     }
 }
