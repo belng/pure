@@ -51,7 +51,7 @@ bus.emit('change', { entities: {
 	harish: new User({
 		id: 'harish',
 		params: { profile: {
-			home: 'ChIJvSvKgzESrjsRCEU5Xvukedw'
+			home: { id: 'EjpOUiBDb2xvbnksIE5hbmphIFJlZGR5IENvbG9ueSwgQmVuZ2FsdXJ1LCBLYXJuYXRha2EsIEluZGlh' }
 		} }
 	})
 } });

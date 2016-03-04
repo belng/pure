@@ -8,20 +8,20 @@ import * as constants from '../../lib/Constants';
 import uuid from 'uuid';
 import * as pg from '../../lib/pg';
 
-/*
+
 // postgres mock, because jest is acting up.
 
-const pg = {
-	read: (conn, sql, cb) => {
-		setImmediate(() => cb(null, [
-			{
-				id: '5055f5b6-466e-46bc-a55d-fe020ee9ac42',
-				name: 'Bangalore',
-				identities: [ 'place:ChIJbU60yXAWrjsR4E9-UejD3_g' ]
-			}
-		]));
-	}
-};
+// const pg = {
+// 	read: (conn, sql, cb) => {
+// 		setImmediate(() => cb(null, [
+// 			{
+// 				id: '5055f5b6-466e-46bc-a55d-fe020ee9ac42',
+// 				name: 'Bangalore',
+// 				identities: [ 'place:ChIJbU60yXAWrjsR4E9-UejD3_g' ]
+// 			}
+// 		]));
+// 	}
+// };
 
 // */
 
@@ -36,7 +36,8 @@ function addRooms(change, addable) {
 			id: stub.id,
 			name: stub.name,
 			tags: [ stub.type ],
-			identities: [ stub.identity ]
+			identities: [ stub.identity ],
+			create: true
 		});
 	}
 }
@@ -48,7 +49,7 @@ function addRels(change, user, addable) {
 			item: stub.id,
 			tags: stub.rels,
 			roles: [ constants.ROLE_FOLLOWER ],
-			createTime: Date.now()
+			create: true
 		});
 
 		change[rel.id] = rel;
@@ -67,30 +68,14 @@ function sendInvitations ([ user, relRooms, ...stubsets ]) {
 		change = {};
 
 	for (const stubset of stubsets) {
-		let rel;
+		changedRels[stubset.rel] = true;
 
-		switch (stubset[0].identity.substr(6)) {
-		case user.params.places.home:
-			rel = constants.TAG_REL_HOME;
-			break;
-		case user.params.places.work:
-			rel = constants.TAG_REL_WORK;
-			break;
-		case user.params.places.hometown:
-			rel = constants.TAG_REL_HOMETOWN;
-			break;
-		default:
-			continue;
-		}
-
-		changedRels[rel] = true;
-
-		for (const stub of stubset) {
-			stub.rels = [ rel ];
+		for (const stub of stubset.stubs) {
+			stub.rels = [ stubset.rel ];
 			if (!stubs[stub.identity]) {
 				stubs[stub.identity] = stub;
 			} else {
-				stubs[stub.identity].rels.push(rel);
+				stubs[stub.identity].rels.push(stubset.rel);
 			}
 		}
 	}
@@ -168,32 +153,28 @@ bus.on('change', change => {
 		let needsInvitations = false;
 
 		if (user.params.places) {
-			const {
-				home,
-				work,
-				hometown
-			} = user.params.places;
+			const { home, work, hometown } = user.params.places;
 
 			if (home && home.id) {
-				promises.push(place.getStubset(home.id));
+				promises.push(place.getStubset(home.id, constants.TAG_REL_HOME));
 				needsInvitations = true;
 			}
 
 			if (work && work.id) {
-				promises.push(place.getStubset(work.id));
+				promises.push(place.getStubset(work.id, constants.TAG_REL_HOME));
 				needsInvitations = true;
 			}
 
 			if (hometown && hometown.id) {
-				promises.push(place.getStubset(hometown.id));
+				promises.push(place.getStubset(hometown.id, constants.TAG_REL_HOME));
 				needsInvitations = true;
 			}
 		}
 
-		if (needsInvitations) { return; }
+		if (!needsInvitations) { return; }
 
 		/* Fetch the current rooms of this user. */
-		promises.unshift(new Promise((resolve, reject) => {
+		promises.splice(1, 0, new Promise((resolve, reject) => {
 			cache.query({
 				type: 'rel',
 				link: { room: 'item' },
