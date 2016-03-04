@@ -91,13 +91,11 @@ COLUMNS[Constants.TYPE_USER] = [
 	'tags',
 	'timezone',
 	'type',
-	'updateTime'
+	'updateTime',
 ];
 
 COLUMNS[Constants.TYPE_ITEM] =
-COLUMNS[Constants.TYPE_ROOM] =
 COLUMNS[Constants.TYPE_TEXT] =
-COLUMNS[Constants.TYPE_THREAD] =
 COLUMNS[Constants.TYPE_TOPIC] =
 COLUMNS[Constants.TYPE_PRIV] = [
 	'body',
@@ -106,16 +104,24 @@ COLUMNS[Constants.TYPE_PRIV] = [
 	'creator',
 	'deleteTime',
 	'id',
-	'identities',
 	'meta',
 	'name',
-	'params',
 	'parents',
-	'score',
 	'tags',
 	'type',
 	'updater',
 	'updateTime',
+];
+
+COLUMNS[Constants.TYPE_ROOM] = [
+	...COLUMNS[Constants.TYPE_ITEM],
+	'identities',
+	'params',
+];
+
+COLUMNS[Constants.TYPE_THREAD] = [
+	...COLUMNS[Constants.TYPE_ITEM],
+	'score',
 ];
 
 COLUMNS[Constants.TYPE_REL] =
