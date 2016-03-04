@@ -92,7 +92,11 @@ class OnboardContainer extends Component<void, Props, State> {
 					for (const type in user.params.places) {
 						const place = user.params.places[type];
 
-						places[type] = { placeId: place.id, primaryText: place.title };
+						places[type] = {
+							placeId: place.id,
+							primaryText: place.title,
+							secondaryText: place.description,
+						};
 					}
 				}
 
@@ -291,15 +295,6 @@ const mapActionsToProps = {
 	cancelSignUp: (store) => () => store.dispatch(cancelSignUp()),
 	signUp: (store, result) => (id: string, name: string) => store.dispatch(signUp({ ...result.pendingUser, id, name })),
 	savePlaces: (store, result) => places => {
-		const data = { places };
-
-		for (const type in places) {
-			data.places[type] = {
-				title: places[type].primaryText,
-				id: places[type].placeId
-			};
-		}
-
 		const {
 			user
 		} = result;
