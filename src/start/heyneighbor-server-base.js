@@ -1,6 +1,3 @@
-// ES201x polyfills
-import 'babel-polyfill';
-
 // Socket
 import '../modules/socket/socket-server';
 

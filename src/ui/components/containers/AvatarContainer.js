@@ -3,14 +3,14 @@
 import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import getAvatarURL from '../../../lib/getAvatarURL';
-import Dummy from '../views/Dummy';
+import Avatar from '../views/Avatar';
 import { config } from '../../../core-client';
 
 const { host, protocol } = config.server;
 
 const extractAvatarURL = (user, size = 48) => {
-	if (user.picture) {
-		return getAvatarURL(user.picture, size);
+	if (user.meta && user.meta.picture) {
+		return getAvatarURL(user.meta.picture, size);
 	} else {
 		return protocol + '//' + host + '/' + user.id + '/picture?size=' + size;
 	}
@@ -19,7 +19,7 @@ const extractAvatarURL = (user, size = 48) => {
 const AvatarContainer = (props: any) => (
 	<Connect
 		mapSubscriptionToProps={{
-			user: {
+			uri: {
 				key: {
 					type: 'entity',
 					id: props.user,
@@ -28,7 +28,7 @@ const AvatarContainer = (props: any) => (
 			}
 		}}
 		passProps={props}
-		component={Dummy}
+		component={Avatar}
 	/>
 );
 
@@ -37,7 +37,7 @@ AvatarContainer.defaultProps = {
 };
 
 AvatarContainer.propTypes = {
-	user: PropTypes.string.isRequired,
+	user: PropTypes.string,
 	size: PropTypes.number
 };
 

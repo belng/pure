@@ -206,7 +206,7 @@ export default class Account extends React.Component<void, Props, State> {
 				<View style={styles.item}>
 					<AvatarRound
 						size={48}
-						nick={user.id}
+						user={user.id}
 					/>
 					<View style={styles.info}>
 						<AppText style={styles.nick}>{user.id}</AppText>

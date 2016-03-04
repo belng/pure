@@ -90,7 +90,9 @@ class OnboardContainer extends Component<void, Props, State> {
 
 				if (isEmpty(fields.places) && user.params && user.params.places) {
 					for (const type in user.params.places) {
-						places[type] = { placeId: user.params.places[type] };
+						const place = user.params.places[type];
+
+						places[type] = { placeId: place.id, primaryText: place.title };
 					}
 				}
 
@@ -122,7 +124,7 @@ class OnboardContainer extends Component<void, Props, State> {
 			});
 		} else {
 			if (user && user.type !== 'loading') {
-				if (user.params && user.params.places) {
+				if (user.params && user.params.profile && user.params.profile.places) {
 					if (this.state.onboarding) {
 						this.setState({
 							page: PAGE_GET_STARTED
@@ -235,7 +237,8 @@ class OnboardContainer extends Component<void, Props, State> {
 			break;
 		case PAGE_GET_STARTED:
 			this.setState({
-				onboarding: false
+				page: PAGE_HOME,
+				onboarding: false,
 			});
 			break;
 		}
@@ -291,15 +294,37 @@ const mapActionsToProps = {
 		const data = { places };
 
 		for (const type in places) {
-			data.places[type] = places[type].placeId;
+			data.places[type] = {
+				title: places[type].primaryText,
+				id: places[type].placeId
+			};
+		}
+
+		const {
+			user
+		} = result;
+
+		const params = user.params ? { ...user.params } : {};
+		const profile = params.profile ? { ...params.profile } : {};
+
+		profile.places = {};
+
+		for (const type in places) {
+			const place = places[type];
+
+			profile.places[type] = {
+				id: place.placeId,
+				description: place.secondaryText,
+				title: place.primaryText,
+			};
 		}
 
 		store.dispatch(saveUser({
 			...result.user,
-			params: result.user.params ? {
-				...result.user.params,
-				...data
-			} : data
+			params: {
+				...params,
+				profile
+			}
 		}));
 	},
 };

@@ -47,7 +47,7 @@ function fromPart (slice) {
 		for (const type in slice.link) {
 			joins.push(
 				'LEFT OUTER JOIN "' + TABLES[TYPES[type]] + '" ON "' +
-				TABLES[TYPES[slice.type]] + '"."' + slice.join[type] + '" = "' +
+				TABLES[TYPES[slice.type]] + '"."' + slice.link[type] + '" = "' +
 				TABLES[TYPES[type]] + '"."id"'
 			);
 
@@ -82,7 +82,7 @@ function wherePart (f) {
 			sql.push(`"${name.toLowerCase()}" ${operators[op]} &{${prop}}`);
 			break;
 		default:
-			sql.push(`"${name.toLowerCase()}" = &{${prop}}`);
+			sql.push(`"${prop.toLowerCase()}" = &{${prop}}`);
 		}
 	}
 

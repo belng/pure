@@ -1,11 +1,14 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AvatarContainer from '../containers/AvatarContainer';
 
 const {
 	StyleSheet,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	avatar: {
@@ -17,10 +20,12 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class AvatarRound extends React.Component {
-	shouldComponentUpdate(nextProps) {
-		return (this.props.size !== nextProps.size || this.props.nick !== nextProps.nick);
-	}
+export default class AvatarRound extends Component {
+	static propTypes = {
+		size: PropTypes.number.isRequired,
+		user: PropTypes.string.isRequired,
+		style: View.propTypes.style
+	};
 
 	render() {
 		const { size } = this.props;
@@ -29,16 +34,10 @@ export default class AvatarRound extends React.Component {
 			<View {...this.props} style={[ styles.avatar, { height: size, width: size, borderRadius: size / 2 }, this.props.style ]}>
 				<AvatarContainer
 					size={this.props.size}
-					nick={this.props.nick}
+					user={this.props.user}
 					style={[ styles.image, { borderRadius: size / 2 } ]}
 				/>
 			</View>
 		);
 	}
 }
-
-AvatarRound.propTypes = {
-	size: React.PropTypes.number.isRequired,
-	nick: React.PropTypes.string.isRequired,
-	style: View.propTypes.style
-};
