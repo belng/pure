@@ -1,4 +1,5 @@
 import jsonop from 'jsonop';
+import EnhancedError from '../../lib/EnhancedError';
 import sbcache from 'sbcache';
 import winston from 'winston';
 import Counter from '../../lib/counter';
@@ -156,7 +157,7 @@ pg.listen(config.connStr, channel, (payload) => {
 });
 
 bus.on('change', (changes, next) => {
-	const counter = new Counter(), response = changes.response = changes.response || {};
+	const counter = new Counter(), response = changes.response = changes.response || {}, ids = [];
 
 	if (!response.entities) response.entities = {};
 	if (changes.source === 'postgres') {
@@ -168,26 +169,31 @@ bus.on('change', (changes, next) => {
 		const sql = [];
 
 		for (const id in changes.entities) {
+			ids.push(id);
 			sql.push(entityHandler(changes.entities[id]));
 		}
 
 		winston.info('sql', sql);
 		counter.inc();
 		pg.write(config.connStr, sql, (err, results) => {
+			let i = 0;
+
 			if (err) {
 				counter.err(err);
 				return;
 			}
 
-			if(results.rowCount !== 0) {
-				winston.info('PgWrite Results', results[0].rows);
-				results.forEach((result) => {
-					// TODO: add errors if things are not saved.
-					response.entities[result.rows[0].id] = result.rows[0];
+			results.forEach(result => {
+				if (result.rowCount) {
+					// response.entities[result.rows[0].id] = result.rows[0];
 					broadcast(result.rows[0]);
-				});
-			}
+				} else {
+					const c = response.entities[ids[i]] = changes.entities[ids[i]];
 
+					c.error = new EnhancedError('INVALID_ENTITY', 'INVALID_ENTITY');
+				}
+				i++;
+			});
 			counter.dec();
 		});
 	}

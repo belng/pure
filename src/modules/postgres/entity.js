@@ -1,14 +1,15 @@
 import * as pg from '../../lib/pg';
-import { TABLES, COLUMNS } from '../../lib/schema';
+import { TABLES, COLUMNS, RELATION_TYPES } from '../../lib/schema';
 import * as Constants from '../../lib/Constants';
 import jsonop from 'jsonop';
 import defaultOps from './../../lib/defaultOps';
 
 export default function (entity) {
 	// TODO: add validation for type else this code crashes.
-	const names = Object.keys(entity).filter(
-		name => COLUMNS[entity.type].indexOf(name) >= 0
-	);
+	const isRel = (RELATION_TYPES.indexOf(entity.type) >= 0),
+		names = Object.keys(entity).filter(
+			name => COLUMNS[entity.type].indexOf(name) >= 0
+		);
 
 	const ops = jsonop(defaultOps, entity.__op__ || {});
 
@@ -16,8 +17,12 @@ export default function (entity) {
 		names.push('terms');
 	}
 
-	names.splice(names.indexOf('type'), 1);
+	if (isRel) {
+		names.splice(names.indexOf('id'), 1);
+	}
 
+	names.splice(names.indexOf('type'), 1);
+	console.log("NAMES:", names);
 	if (entity.create) { // INSERT
 		return pg.cat([
 			`INSERT INTO "${TABLES[entity.type]}" (`,
@@ -86,7 +91,7 @@ export default function (entity) {
 			}).filter(sql => sql), ', '),
 
 			'WHERE',
-			entity.id ? {
+			entity.id && !isRel ? {
 				$: '"id" = &{id}',
 				id: entity.id
 			} :
