@@ -13,7 +13,10 @@ export default class Relation {
 		if (data.error) this.error = data.error;
 		if (data.create) this.create = data.create;
 
-		Object.defineProperty(this, 'id', { get: () => this.user + '_' + this.item });
+		Object.defineProperty(this, 'id', {
+			get: () => this.user + '_' + this.item,
+			enumerable: false
+		});
 	}
 
 	packArguments() {

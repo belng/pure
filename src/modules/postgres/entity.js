@@ -6,6 +6,7 @@ import defaultOps from './../../lib/defaultOps';
 
 export default function (entity) {
 	// TODO: add validation for type else this code crashes.
+
 	const isRel = (RELATION_TYPES.indexOf(entity.type) >= 0),
 		names = Object.keys(entity).filter(
 			name => COLUMNS[entity.type].indexOf(name) >= 0 &&
@@ -18,10 +19,7 @@ export default function (entity) {
 		names.push('terms');
 	}
 
-	if (isRel) {
-		names.splice(names.indexOf('id'), 1);
-		names.push('roletime');
-	}
+	if (isRel) names.push('roletime');
 
 	// Default properties that has to be set at all times.
 	if (ITEM_TYPES.indexOf(entity.type) >= 0 || TYPES.TYPE_USER) {
