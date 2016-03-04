@@ -37,7 +37,8 @@ const styles = StyleSheet.create({
 });
 
 const GetStarted = (props: { submitGetStarted: Function }) => {
-	const completed = at(props, [ 'props.user.params.profile.places.length' ])[0] !== 0;
+	const places = at(props, [ 'user.params.places' ])[0];
+	const completed = places ? Object.keys(places).length !== 0 : false;
 
 	return (
 		<View style={styles.container}>

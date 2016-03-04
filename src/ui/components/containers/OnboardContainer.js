@@ -128,7 +128,7 @@ class OnboardContainer extends Component<void, Props, State> {
 			});
 		} else {
 			if (user && user.type !== 'loading') {
-				if (user.params && user.params.profile && user.params.profile.places) {
+				if (user.params && user.params.places) {
 					if (this.state.onboarding) {
 						this.setState({
 							page: PAGE_GET_STARTED
@@ -294,20 +294,18 @@ const mapActionsToProps = {
 	signIn: (store) => (provider: string, token: string) => store.dispatch(signIn(provider, token)),
 	cancelSignUp: (store) => () => store.dispatch(cancelSignUp()),
 	signUp: (store, result) => (id: string, name: string) => store.dispatch(signUp({ ...result.pendingUser, id, name })),
-	savePlaces: (store, result) => places => {
+	savePlaces: (store, result) => results => {
 		const {
 			user
 		} = result;
 
 		const params = user.params ? { ...user.params } : {};
-		const profile = params.profile ? { ...params.profile } : {};
+		const places = params.places ? { ...params.places } : {};
 
-		profile.places = {};
+		for (const type in results) {
+			const place = results[type];
 
-		for (const type in places) {
-			const place = places[type];
-
-			profile.places[type] = {
+			places[type] = {
 				id: place.placeId,
 				description: place.secondaryText,
 				title: place.primaryText,
@@ -318,7 +316,7 @@ const mapActionsToProps = {
 			...result.user,
 			params: {
 				...params,
-				profile
+				places
 			}
 		}));
 	},
