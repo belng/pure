@@ -16,6 +16,8 @@ import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.ReactRootView;
 import com.facebook.react.shell.MainReactPackage;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.imagechooser.ImageChooserPackage;
 
 import java.util.Arrays;
@@ -25,6 +27,7 @@ import io.scrollback.neighborhoods.bundle.JSBundleManager;
 import io.scrollback.neighborhoods.modules.analytics.AnalyticsPackage;
 import io.scrollback.neighborhoods.modules.core.CorePackage;
 import io.scrollback.neighborhoods.modules.facebook.FacebookPackage;
+import io.scrollback.neighborhoods.modules.gcm.GCMRegistrationIntentService;
 import io.scrollback.neighborhoods.modules.gcm.PushNotificationPackage;
 import io.scrollback.neighborhoods.modules.gcm.PushNotificationPreferences;
 import io.scrollback.neighborhoods.modules.google.GoogleLoginPackage;
@@ -46,6 +49,12 @@ public class MainActivity extends ReactActivity {
                 SharedPreferences sharedPreferences = PushNotificationPreferences.get(getApplicationContext());
             }
         };
+
+        if (checkPlayServices()) {
+            // Start IntentService to register this application with GCM.
+            Intent intent = new Intent(this, GCMRegistrationIntentService.class);
+            startService(intent);
+        }
     }
 
     @Override
@@ -117,7 +126,7 @@ public class MainActivity extends ReactActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
+        Log.d("test", "resume app");
         registerReceiver();
         AppEventsLogger.activateApp(this);
     }
@@ -129,5 +138,21 @@ public class MainActivity extends ReactActivity {
                     new IntentFilter(PushNotificationPreferences.REGISTRATION_COMPLETE));
             isReceiverRegistered = true;
         }
+    }
+
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, 9000)
+                        .show();
+            } else {
+                Log.i("MainActivity", "This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        return true;
     }
 }

@@ -87,7 +87,10 @@
                 <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
         </service>
-
+        <service
+            android:name=".modules.gcm.GCMRegistrationIntentService"
+            android:exported="false">
+        </service>
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
 
         <activity
