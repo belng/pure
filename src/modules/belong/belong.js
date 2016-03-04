@@ -131,6 +131,8 @@ function sendInvitations ([ user, relRooms, ...stubsets ]) {
 		addRels(change, user, addable);
 		removeRels(change, removable);
 
+		winston.debug("BELONG", change);
+
 		bus.emit('change', { entities: change, source: 'belong' });
 	});
 }

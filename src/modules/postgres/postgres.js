@@ -184,7 +184,7 @@ bus.on('change', (changes, next) => {
 			}
 
 			results.forEach(result => {
-				winston.info(`Response for entity: ${ids[i]}`, JSON.stringify(result));
+				winston.info(`Response for entity: ${ids[i]}`, JSON.stringify(result.rowCount));
 
 				if (result.rowCount) {
 					// response.entities[result.rows[0].id] = result.rows[0];
