@@ -2,7 +2,7 @@
 
 import { Constants, bus, cache } from '../../core-server';
 import Counter from '../../lib/counter';
-import Relation from '../../models/rel';
+import {threadrel as ThreadRel} from './../../models/models';
 
 bus.on('change', (changes, next) => {
 	if (!changes.entities) return next();
@@ -37,12 +37,12 @@ bus.on('change', (changes, next) => {
 			const threadRel = {
 				item: text.parents[0],
 				user,
-				create: true,
 				type: Constants.TYPE_THREADREL,
 				roles: role
 			};
-			const relation = new Relation(threadRel);
+			const relation = new ThreadRel(threadRel);
 
+			relation.create = true;
 			changes.entities[relation.id] = relation;
 			console.log('All Relations created:', JSON.stringify(changes));
 			next();
