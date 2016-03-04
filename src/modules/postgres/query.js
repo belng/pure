@@ -4,13 +4,25 @@ import { TABLES, TYPES } from '../../lib/schema';
 
 const MAX_LIMIT = 1024;
 
-function propOp (prop, op) {
+const operators = {
+	gt: '>',
+	lt: '<',
+	in: 'IN',
+	neq: '<>',
+	gte: '>=',
+	lte: '<=',
+	cts: '@>',
+	ctd: '<@',
+	mts: '@@'
+};
+
+function getPropOp(prop) {
 	const i = prop.lastIndexOf('_');
 
 	if (i > 0) {
-		return prop.substr(i + 1, prop.length) === op && prop.substr(0, i);
+		return [ prop.substr(i + 1, prop.length), prop.substr(0, i) ];
 	} else {
-		return false;
+		return '';
 	}
 }
 
@@ -48,29 +60,28 @@ function fromPart (slice) {
 
 function wherePart (f) {
 	const sql = [];
-	let filter = f, name;
+	let filter = f;
 
 
 	for (const prop in filter) {
-		if ((name = propOp(prop, 'gt'))) {
-			sql.push(`"${name}" > &{${prop}}`);
-		} else if ((name = propOp(prop, 'lt'))) {
-			sql.push(`"${name.toLowerCase()}" < &{${prop}}`);
-		} else if ((name = propOp(prop, 'in'))) {
-			sql.push(`"${name.toLowerCase()}" IN &{${prop}}`);
-		} else if ((name = propOp(prop, 'neq'))) {
-			sql.push(`"${name.toLowerCase()}" <> &{${prop}}`);
-		} else if ((name = propOp(prop, 'gte'))) {
-			sql.push(`"${name.toLowerCase()}" >= &{${prop}}`);
-		} else if ((name = propOp(prop, 'lte'))) {
-			sql.push(`"${name.toLowerCase()}" <= &{${prop}}`);
-		} else if ((name = propOp(prop, 'cts'))) {
-			sql.push(`"${name.toLowerCase()}" @> &{${prop}}`);
-		} else if ((name = propOp(prop, 'ctd'))) {
-			sql.push(`"${name.toLowerCase()}" <@ &{${prop}}`);
-		} else if ((name = propOp(prop, 'mts'))) {
-			sql.push(`"${name.toLowerCase()}" @@ &{${prop}}`);
-		} else {
+		const [ op, name ] = getPropOp(prop);
+
+		if (Number.POSITIVE_INFINITY === filter[prop] || Number.NEGATIVE_INFINITY === filter[prop]) {
+			continue;
+		}
+		switch (op) {
+		case 'gt':
+		case 'lt':
+		case 'neq':
+		case 'gte':
+		case 'lte':
+		case 'in':
+		case 'cts':
+		case 'ctd':
+		case 'mts':
+			sql.push(`"${name.toLowerCase()}" ${operators[op]} &{${prop}}`);
+			break;
+		default:
 			sql.push(`"${name.toLowerCase()}" = &{${prop}}`);
 		}
 	}

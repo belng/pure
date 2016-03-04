@@ -80,7 +80,6 @@ cache.onChange((changes) => {
 			}
 		}
 
-		console.log(newRange, orderedResult.length);
 		cache.put({
 			knowledge: { [key]: [ newRange ] },
 			indexes: { [key]: orderedResult }
@@ -160,6 +159,7 @@ pg.listen(config.connStr, channel, (payload) => {
 
 bus.on('change', (changes, next) => {
 	const counter = new Counter(), response = changes.response = changes.response || {};
+
 	if (!response.entities) response.entities = {};
 	if (changes.source === 'postgres') {
 		next();
@@ -193,6 +193,7 @@ bus.on('change', (changes, next) => {
 
 
 	if (changes.queries) {
+		winston.debug('Got queries: ', JSON.stringify(changes));
 		const cb = (key, err, results) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
 				jsonop(response, { indexes: { [key]: results } });
