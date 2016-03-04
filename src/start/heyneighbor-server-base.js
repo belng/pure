@@ -11,6 +11,8 @@ import '../modules/signup/signup';
 import '../modules/belong/belong';
 
 /* ########### */
+import '../modules/relations/relations';
+
 /*import './../modules/count/count';
 import './../modules/note/note';
 import './../modules/upload/upload';*/

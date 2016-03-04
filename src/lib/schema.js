@@ -64,6 +64,17 @@ TYPE_NAMES[Constants.TYPE_PRIVREL] = 'privrel';
 TYPE_NAMES[Constants.TYPE_USERREL] = 'userrel';
 TYPE_NAMES[Constants.TYPE_NOTE] = 'note';
 
+export const RELATION_TYPES = [
+	Constants.TYPE_REL,
+	Constants.TYPE_ROOMREL,
+	Constants.TYPE_TEXTREL,
+	Constants.TYPE_THREADREL,
+	Constants.TYPE_TOPICREL,
+	Constants.TYPE_PRIVREL,
+	Constants.TYPE_USERREL,
+	Constants.TYPE_NOTE
+];
+
 COLUMNS[Constants.TYPE_USER] = [
 	'counts',
 	'createTime',
@@ -127,9 +138,8 @@ COLUMNS[Constants.TYPE_PRIVREL] = [
 	'presence',
 	'presenceTime',
 	'resources',
-	'role',
+	'roles',
 	'roleTime',
-	'tags',
 	'transitRole',
 	'transitType',
 	'type',
