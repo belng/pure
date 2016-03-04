@@ -1,91 +1,84 @@
+/* @flow */
 
-
-import React from 'react-native';
-import NextButton from './NextButton';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
+import LocationItem from './LocationItem';
+import PoweredByGoogle from './PoweredByGoogle';
+import KeyboardSpacer from '../KeyboardSpacer';
 import StatusbarWrapper from '../StatusbarWrapper';
-import OnboardTitle from './OnboardTitle';
-import OnboardError from './OnboardError';
-import PlaceManager from '../Account/PlaceManager';
-import Modal from '../Modal';
-import AppText from '../AppText';
+import SearchableList from '../SearchableList';
 import Colors from '../../../Colors';
+import GooglePlaces from '../../../modules/GooglePlaces';
 
 const {
-	ScrollView,
 	StyleSheet,
 	View,
-	TouchableOpacity
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: Colors.white
+		backgroundColor: Colors.lightGrey
 	},
 
-	inner: {
-		padding: 16,
-		alignItems: 'stretch',
-		justifyContent: 'center'
+	poweredBy: {
+		borderTopColor: Colors.separator,
+		borderTopWidth: StyleSheet.hairlineWidth,
+		alignSelf: 'stretch'
 	},
 
-	places: {
-		marginHorizontal: 8,
-		height: 216,
-	},
-
-	skip: {
-		margin: 16,
-		fontSize: 12,
-		textAlign: 'center',
-		color: Colors.darkGrey,
-		textDecorationColor: Colors.darkGrey,
-		textDecorationStyle: 'solid',
-		textDecorationLine: 'underline',
-	},
+	blankslate: {
+		flex: 1,
+	}
 });
 
-export default class LocationDetails extends React.Component {
-	static propTypes = {
-		places: React.PropTypes.array.isRequired,
-		error: React.PropTypes.object,
-		isLoading: React.PropTypes.bool,
-		isDisabled: React.PropTypes.bool,
-		onComplete: React.PropTypes.func.isRequired,
-		onChangePlace: React.PropTypes.func.isRequired,
-		onSkip: React.PropTypes.func.isRequired
+type Props = {
+	location: {
+		latitude: number;
+		longitude: number;
 	};
+	onChangeField: (type: string, value: { [key: string]: string }) => void;
+	submitPlaceDetails: () => void;
+}
+
+export default class LocationDetails extends Component<void, Props, void> {
+	static propTypes = {
+		location: PropTypes.shape({
+			latitude: PropTypes.number,
+			longitude: PropTypes.number
+		}),
+		onChangeField: PropTypes.func.isRequired,
+		submitPlaceDetails: PropTypes.func.isRequired
+	};
+
+	_getResults: Function = async (query: string) => GooglePlaces.getAutoCompletePredictions(
+		query, [ this.props.location || { latitude: 12.9667, longitude: 77.5667 } ], [ GooglePlaces.TYPE_FILTER_GEOCODE ]
+	);
+
+	_handleSelectPlace: Function = place => {
+		this.props.onChangeField('places', { home: place });
+
+		setTimeout(() => this.props.submitPlaceDetails(), 1000);
+	};
+
+	_renderRow: Function = place => <LocationItem place={place} onPress={() => this._handleSelectPlace(place)} />;
+
+	_renderBlankslate: Function = () => <View style={styles.blankslate} />;
 
 	render() {
 		return (
 			<View style={styles.container}>
 				<StatusbarWrapper />
-				<ScrollView contentContainerStyle={[ styles.container, styles.inner ]}>
-					<OnboardTitle>Pick neighborhoods to join</OnboardTitle>
-
-					<PlaceManager
-						style={styles.places}
-						places={this.props.places}
-						onChange={this.props.onChangePlace}
-					/>
-
-					{this.props.error ?
-						<OnboardError message={this.props.error.message} /> :
-						<TouchableOpacity onPress={this.props.onSkip}>
-							<AppText style={styles.skip}>I'm not in Bangalore or Mumbai</AppText>
-						</TouchableOpacity>
-					}
-				</ScrollView>
-				<NextButton
-					label='Get started'
-					loading={this.props.isLoading}
-					disabled={this.props.isDisabled}
-					onPress={this.props.onComplete}
+				<SearchableList
+					getResults={this._getResults}
+					renderRow={this._renderRow}
+					renderBlankslate={this._renderBlankslate}
+					searchHint='Search for your locality'
+					autoFocus
 				/>
-				<Modal />
+				<KeyboardSpacer offset={36} />
+				<PoweredByGoogle style={styles.poweredBy} />
 			</View>
 		);
 	}
 }
-
-export default LocationDetails;

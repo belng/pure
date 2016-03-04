@@ -1,10 +1,17 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 
 const {
 	Image
-} = React;
+} = ReactNative;
 
-export default class Avatar extends React.Component {
+export default class Avatar extends Component {
+	static propTypes = {
+		uri: PropTypes.string
+	};
+
 	render() {
 		if (this.props.uri) {
 			return <Image {...this.props} source={{ uri: this.props.uri }} />;
@@ -13,7 +20,3 @@ export default class Avatar extends React.Component {
 		}
 	}
 }
-
-Avatar.propTypes = {
-	uri: React.PropTypes.string
-};

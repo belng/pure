@@ -1,4 +1,5 @@
 /* @flow */
+/* eslint-disable react/no-multi-comp */
 
 import React, { PropTypes, Component } from 'react';
 import isEmpty from 'lodash/isEmpty';
@@ -14,9 +15,11 @@ type Props = {
 	pendingUser: {
 		signedIdentities: string;
 		params: {
-			picture?: string;
-			name?: string
-		}
+			[key: string]: {
+				picture?: string;
+				name?: string;
+			};
+		};
 	};
 	signIn: Function;
 	signUp: Function;
@@ -44,13 +47,13 @@ const PAGE_PLACES = 'PAGE_PLACES';
 const PAGE_GET_STARTED = 'PAGE_GET_STARTED';
 const PAGE_HOME = 'PAGE_HOME';
 
-class OnboardContainerInner extends Component<void, Props, State> {
+class OnboardContainer extends Component<void, Props, State> {
 	state: State = {
 		fields: {
 			nick: { value: '', error: null },
 			name: { value: '', error: null },
 			picture: { value: '', error: null },
-			places: { value: [], error: null },
+			places: { value: {}, error: null },
 		},
 		page: PAGE_LOADING,
 		onboarding: false,
@@ -60,17 +63,22 @@ class OnboardContainerInner extends Component<void, Props, State> {
 		this._setCurrentPage(this.props);
 	}
 
-	componentWillReceiveProps(nextProps) {
+	componentWillReceiveProps(nextProps: Props) {
 		this._setUserDetails(nextProps);
 		this._setCurrentPage(nextProps);
 	}
 
-	_setUserDetails = (props: Props) => {
-		if (!props.pendingUser) {
+	_setUserDetails: Function = (props: Props) => {
+		const {
+			user,
+			pendingUser
+		} = props;
+
+		if (!pendingUser) {
 			return;
 		}
 
-		const { params } = props.pendingUser;
+		const { params } = pendingUser;
 
 		for (const provider in params) {
 			const data = params[provider];
@@ -78,11 +86,26 @@ class OnboardContainerInner extends Component<void, Props, State> {
 			if (data) {
 				const { fields } = this.state;
 
+				const places = {};
+
+				if (isEmpty(fields.places) && user.params && user.params.places) {
+					for (const type in user.params.places) {
+						const place = user.params.places[type];
+
+						places[type] = {
+							placeId: place.id,
+							primaryText: place.title,
+							secondaryText: place.description,
+						};
+					}
+				}
+
 				this.setState({
 					fields: {
 						...fields,
 						name: { value: fields.name.value || data.name, error: null },
 						picture: { value: fields.picture.value || data.picture, error: null },
+						places: { value: isEmpty(fields.places) ? places : fields.places, error: null },
 					}
 				});
 
@@ -91,7 +114,7 @@ class OnboardContainerInner extends Component<void, Props, State> {
 		}
 	};
 
-	_setCurrentPage = (props: Props) => {
+	_setCurrentPage: Function = (props: Props) => {
 		const {
 			user,
 			pendingUser
@@ -108,11 +131,11 @@ class OnboardContainerInner extends Component<void, Props, State> {
 				if (user.params && user.params.places) {
 					if (this.state.onboarding) {
 						this.setState({
-							page: PAGE_HOME
+							page: PAGE_GET_STARTED
 						});
 					} else {
 						this.setState({
-							page: PAGE_GET_STARTED
+							page: PAGE_HOME
 						});
 					}
 				} else {
@@ -129,11 +152,11 @@ class OnboardContainerInner extends Component<void, Props, State> {
 		}
 	};
 
-	_isFieldRequired = (field: string) => {
+	_isFieldRequired: Function = (field: string) => {
 		return [ 'nick', 'name', 'places' ].indexOf(field) > -1;
 	};
 
-	_getPageForField = (field: string) => {
+	_getPageForField: Function = (field: string) => {
 		switch (field) {
 		case 'nick':
 		case 'name':
@@ -146,7 +169,7 @@ class OnboardContainerInner extends Component<void, Props, State> {
 		}
 	};
 
-	_canGoForward = (fields: Fields, page: string): boolean => {
+	_canGoForward: Function = (fields: Fields, page: string): boolean => {
 		for (const field in fields) {
 			const item = fields[field];
 
@@ -158,7 +181,7 @@ class OnboardContainerInner extends Component<void, Props, State> {
 		return true;
 	};
 
-	_ensureAllFields = (fields: Fields): Fields => {
+	_ensureAllFields: Function = (fields: Fields): Fields => {
 		for (const field in fields) {
 			const item = fields[field];
 
@@ -173,7 +196,7 @@ class OnboardContainerInner extends Component<void, Props, State> {
 		return fields;
 	};
 
-	_validateFields = (fields: Fields): Fields => {
+	_validateFields: Function = (fields: Fields): Fields => {
 		for (const field in fields) {
 			const item = fields[field];
 
@@ -196,7 +219,7 @@ class OnboardContainerInner extends Component<void, Props, State> {
 		return fields;
 	};
 
-	_onChangeField = (type: string, value: any) => {
+	_onChangeField: Function = (type: string, value: any) => {
 		const fields = this._validateFields({ ...this.state.fields, [type]: { value, error: null } });
 
 		this.setState({
@@ -204,7 +227,7 @@ class OnboardContainerInner extends Component<void, Props, State> {
 		});
 	};
 
-	_saveData = (fields: Fields, page: string) => {
+	_saveData: Function = (fields: Fields, page: string) => {
 		if (!this._canGoForward(fields, page)) {
 			return;
 		}
@@ -214,17 +237,18 @@ class OnboardContainerInner extends Component<void, Props, State> {
 			this.props.signUp(fields.nick.value, fields.name.value);
 			break;
 		case PAGE_PLACES:
-			this.props.savePlaces(fields.places);
+			this.props.savePlaces(fields.places.value);
 			break;
 		case PAGE_GET_STARTED:
 			this.setState({
-				onboarding: false
+				page: PAGE_HOME,
+				onboarding: false,
 			});
 			break;
 		}
 	};
 
-	_submitPage = (page: string): void => {
+	_submitPage: Function = (page: string): void => {
 		const fields = this._ensureAllFields(this._validateFields({ ...this.state.fields }));
 
 		this.setState({
@@ -232,11 +256,11 @@ class OnboardContainerInner extends Component<void, Props, State> {
 		}, () => this._saveData(this.state.fields, page));
 	};
 
-	_submitUserDetails = (): void => this._submitPage(PAGE_USER_DETAILS);
+	_submitUserDetails: Function = (): void => this._submitPage(PAGE_USER_DETAILS);
 
-	_submitPlaceDetails = (): void => this._submitPage(PAGE_PLACES);
+	_submitPlaceDetails: Function = (): void => this._submitPage(PAGE_PLACES);
 
-	_submitGetStarted = (): void => this._submitPage(PAGE_GET_STARTED);
+	_submitGetStarted: Function = (): void => this._submitPage(PAGE_GET_STARTED);
 
 	render() {
 		return (
@@ -253,16 +277,12 @@ class OnboardContainerInner extends Component<void, Props, State> {
 	}
 }
 
-OnboardContainerInner.propTypes = {
+OnboardContainer.propTypes = {
 	user: PropTypes.shape({
 		id: PropTypes.string
 	}),
 	pendingUser: PropTypes.shape({
-		signedIdentities: PropTypes.string,
-		params: PropTypes.shape({
-			name: PropTypes.string,
-			picture: PropTypes.string
-		})
+		params: PropTypes.object
 	}),
 	signIn: PropTypes.func.isRequired,
 	signUp: PropTypes.func.isRequired,
@@ -270,36 +290,67 @@ OnboardContainerInner.propTypes = {
 	savePlaces: PropTypes.func.isRequired,
 };
 
-const OnboardContainer = Connect(({ user }) => ({
-	user: {
-		key: {
-			type: 'entity',
-			id: user,
-		},
-	},
-	pendingUser: {
-		key: {
-			type: 'state',
-			path: 'signup',
+const mapActionsToProps = {
+	signIn: (store) => (provider: string, token: string) => store.dispatch(signIn(provider, token)),
+	cancelSignUp: (store) => () => store.dispatch(cancelSignUp()),
+	signUp: (store, result) => (id: string, name: string) => store.dispatch(signUp({ ...result.pendingUser, id, name })),
+	savePlaces: (store, result) => results => {
+		const {
+			user
+		} = result;
+
+		const params = user.params ? { ...user.params } : {};
+		const places = params.places ? { ...params.places } : {};
+
+		for (const type in results) {
+			const place = results[type];
+
+			places[type] = {
+				id: place.placeId,
+				description: place.secondaryText,
+				title: place.primaryText,
+			};
 		}
-	},
-}), {
-	signIn: (props, store) => (provider: string, token: string) => store.dispatch(signIn(provider, token)),
-	cancelSignUp: (props, store) => () => store.dispatch(cancelSignUp()),
-	signUp: (props, store) => (id: string, name: string) => store.dispatch(signUp({ ...props.pendingUser, id, name })),
-	savePlaces: (props, store) => places => {
+
 		store.dispatch(saveUser({
-			...props.user,
+			...result.user,
 			params: {
-				...props.user.params,
+				...params,
 				places
 			}
 		}));
 	},
-})(OnboardContainerInner);
-
-OnboardContainer.propTypes = {
-	user: PropTypes.string
 };
 
-export default OnboardContainer;
+const OnboardContainerOuter = (props: any) => (
+	<Connect
+		mapActionsToProps={mapActionsToProps}
+		mapSubscriptionToProps={{
+			user: {
+				key: {
+					type: 'entity',
+					id: props.user,
+				},
+			},
+			pendingUser: {
+				key: {
+					type: 'state',
+					path: 'signup',
+				}
+			},
+			location: {
+				key: {
+					type: 'state',
+					path: 'location'
+				}
+			}
+		}}
+		component={OnboardContainer}
+	/>
+);
+
+OnboardContainerOuter.propTypes = {
+	user: PropTypes.string,
+};
+
+export default OnboardContainerOuter;

@@ -1,25 +1,39 @@
 import * as pg from '../../lib/pg';
-import { TABLES, COLUMNS, TYPES } from '../../lib/schema';
+import { TABLES, COLUMNS, RELATION_TYPES, ITEM_TYPES, TYPES } from '../../lib/schema';
 import * as Constants from '../../lib/Constants';
 import jsonop from 'jsonop';
 import defaultOps from './../../lib/defaultOps';
 
 export default function (entity) {
-	const names = Object.keys(entity).filter(
-		name => COLUMNS[TYPES[entity.type]].indexOf(name) >= 0
-	);
+	// TODO: add validation for type else this code crashes.
+	const isRel = (RELATION_TYPES.indexOf(entity.type) >= 0),
+		names = Object.keys(entity).filter(
+			name => COLUMNS[entity.type].indexOf(name) >= 0 &&
+			typeof entity[name] !== 'undefined'
+		);
 
 	const ops = jsonop(defaultOps, entity.__op__ || {});
 
-	if (TYPES[entity.type] === Constants.TYPE_ROOM) {
+	if (entity.type === Constants.TYPE_ROOM) {
 		names.push('terms');
 	}
 
-	names.splice(names.indexOf('type'), 1);
+	if (isRel) {
+		names.splice(names.indexOf('id'), 1);
+		names.push('roletime');
+	}
 
-	if (entity.createTime) { // INSERT
+	// Default properties that has to be set at all times.
+	if (ITEM_TYPES.indexOf(entity.type) >= 0 || TYPES.TYPE_USER) {
+		if (entity.create) names.push('createtime');
+		names.push('updatetime');
+	}
+
+	names.splice(names.indexOf('type'), 1);
+	if (entity.create) { // INSERT
+
 		return pg.cat([
-			`INSERT INTO "${TABLES[TYPES[entity.type]]}" (`,
+			`INSERT INTO "${TABLES[entity.type]}" (`,
 			'"' + names.map(name => name.toLowerCase()).join('", "') + '"',
 			') VALUES (',
 			pg.cat(names.map(name => {
@@ -31,6 +45,13 @@ export default function (entity) {
 						name: entity.name,
 						body: entity.body
 					};
+				case 'createtime':
+				case 'updatetime':
+				case 'roletime':
+					return {
+						$: `&{${name}}`,
+						[name]: Date.now()
+					};
 				default:
 					return {
 						$: `&{${name}}`,
@@ -39,13 +60,13 @@ export default function (entity) {
 				}
 			}), ', '),
 			{
-				$: ') RETURNING *, &{type}::text as "type"',
+				$: ') RETURNING *, &{type}::smallint as "type"',
 				type: entity.type
 			}
 		], ' ');
 	} else { // UPDATE
 		return pg.cat([
-			'UPDATE "' + TABLES[TYPES[entity.type]] + '" SET',
+			'UPDATE "' + TABLES[entity.type] + '" SET',
 			pg.cat(names.map(name => {
 				switch (name) {
 				case 'id':
@@ -62,13 +83,19 @@ export default function (entity) {
 						name: entity.name,
 						body: entity.body
 					};
+				case 'updatetime':
+					return `${name} = ${Date.now()}`;
+				case 'identities': // TODO: find a way to merge and do uniq on the identities
+					return {
+						$: '"identities" = &{identities}',
+						identities: entity[name]
+					};
 				case 'meta':
-				case 'identities':
 				case 'params':
 				case 'data':
 				case 'resources':
 					return {
-						$: `"${name}" = jsonop("${name}", &{${name}}, &{${name}_op})`,
+						$: `"${name}" = jsonop("${name}"::jsonb, &{${name}}::jsonb, &{${name}_op}::jsonb)`,
 						[name]: entity[name],
 						[name + '_op']: ops[name] || {}
 					};
@@ -81,7 +108,7 @@ export default function (entity) {
 			}).filter(sql => sql), ', '),
 
 			'WHERE',
-			entity.id ? {
+			entity.id && !isRel ? {
 				$: '"id" = &{id}',
 				id: entity.id
 			} :
@@ -98,7 +125,7 @@ export default function (entity) {
 				group: entity.group
 			} : 'FALSE',
 			{
-				$: 'RETURNING *, &{type}::text as "type"',
+				$: 'RETURNING *, &{type}::smallint as "type"',
 				type: entity.type
 			}
 		], ' ');

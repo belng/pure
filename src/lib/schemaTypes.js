@@ -8,11 +8,11 @@ export type User = {
 	id: string;
 	identities: Array<string>;
 	locale: number;
+	meta: Object;
 	name: string;
 	params: Object;
 	presence: number;
 	presenceTime: number;
-	profile: Object;
 	resources: { [key: string]: number };
 	tags: Array<number>;
 	timezone: number;

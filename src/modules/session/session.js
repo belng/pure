@@ -40,6 +40,7 @@ function sessionHandler(changes, n) {
 	const signin = {};
 
 	function next(e) {
+		console.log(e);
 		if (e) {
 			(changes.response = changes.response || {}).state = {
 				signin: {
@@ -72,11 +73,9 @@ function sessionHandler(changes, n) {
 
 bus.on('change', sessionHandler, Constants.APP_PRIORITIES.AUTHENTICATION_SESSION);
 bus.on('change', (changes, next) => {
-	winston.debug('setstate: session module listener 2-1', changes);
+	console.log();
 	if (changes.response && changes.response.state && changes.response.state.user) {
-		winston.info('setstate: session module listener 2-2', changes.response.state.user);
 		generateSession(changes.response.state.user).then((session) => {
-			winston.debug('setstate: session module listener 2-3', session);
 			changes.response.state.session =	session;
 			next();
 		});

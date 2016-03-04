@@ -42,8 +42,6 @@ export type MapSubscriptionToProps = {
 	}
 };
 
-export type MapSubscriptionToPropsCreator = (props: Object) => MapSubscriptionToProps;
-
 export type MapActionsToProps = {
-	[key: string]: (props: Object, store: Store) => Function
+	[key: string]: (store: Store, result: Object) => Function
 };

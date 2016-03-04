@@ -31,10 +31,7 @@ export const signOut = (): Object => ({
 
 export const saveUser = (user: User): Object => ({
 	entities: {
-		[user.id]: user,
-		__op__: {
-			[user.id]: 'replace'
-		}
+		[user.id]: user
 	}
 });
 

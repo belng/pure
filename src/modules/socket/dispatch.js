@@ -1,29 +1,27 @@
-'use strict';
-import pg from '../postgres/postgres';
+import pg from '../../lib/pg';
 import { EventEmitter } from 'events';
 
-function dispatch(changes, core, options) {
-	let groups = {},
+export default function(changes) {
+	const groups = {},
 		stream = new EventEmitter();
 
-	for (let key in changes.entities) {
-		if (!groups[changes.entities[key].parent[0]]) {
+	for (const key in changes.entities) {
+		if (changes.entities[key].parent && !groups[changes.entities[key].parent[0]]) {
 			groups[changes.entities[key].parent[0]] = {};
+			groups[changes.entities[key].parent][0][changes.entities[key].id] = changes.entities[key];
 		}
-		groups[changes.entities[key].parent][0][changes.entities[key].id] = changes.entities[key];
 	}
 
-	for (let parent in groups) {
-		let change = { entities: groups[parent] };
+	for (const parent in groups) {
+		const change = { entities: groups[parent] };
+
 		pg.readStream(pg.cat({
 			$: 'select * from relations where itemid =&{parent} ?',
-			parent: parent
-		})).on('row', function (rel) {
+			parent
+		})).on('row', (rel) => {
 			stream.emit('data', change, rel);
 		});
 	}
 
 	return stream;
 }
-
-module.exports = dispatch;

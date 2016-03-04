@@ -39,8 +39,9 @@ cache.getThreads = function(roomId, time, r, callback) {
 		range.push(r);
 	}
 	q.order = 'startTime';
-	key = this.cache.sliceToKey(q);
-	return this.cache.query(key, range, callback);
+	key = this.sliceToKey(q);
+	console.log(key, range);
+	return this.query(key, range, callback);
 };
 
 cache.getUser = function(id) {

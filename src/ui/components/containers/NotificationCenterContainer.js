@@ -1,30 +1,39 @@
 /* @flow */
 
-import { PropTypes } from 'react';
+import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import Dummy from '../views/Dummy';
 import { dismissNote } from '../../../modules/store/actions';
 
-const NotificationCenterContainer = Connect(({ user }) => ({
-	count: {
-		key: {
-			slice: {
-				type: 'note',
-				filter: {
-					user
-				},
-				order: 'eventTime'
-			},
-			range: {
-				start: null,
-				before: 100,
-				after: 0
+const mapActionsToProps = {
+	dismissNote: store => id => store.dispatch(dismissNote(id))
+};
+
+const NotificationCenterContainer = (props: any) => (
+	<Connect
+		mapSubscriptionToProps={{
+			count: {
+				key: {
+					slice: {
+						type: 'note',
+						filter: {
+							user: props.user
+						},
+						order: 'eventTime'
+					},
+					range: {
+						start: null,
+						before: 100,
+						after: 0
+					}
+				}
 			}
-		}
-	}
-}), {
-	dismissNote: (props, store) => id => store.dispatch(dismissNote(id))
-})(Dummy);
+		}}
+		mapActionsToProps={mapActionsToProps}
+		passProps={props}
+		component={Dummy}
+	/>
+);
 
 NotificationCenterContainer.propTypes = {
 	user: PropTypes.string.isRequired

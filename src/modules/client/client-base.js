@@ -2,6 +2,8 @@
 
 // $FlowFixMe: Flow cannot find ignored modules
 import 'babel-polyfill';
+import './polyfills/babelHelpers';
+import './polyfills/requestIdleCallback';
 import '../session/session-client';
 import '../socket/socket-client';
 import '../location/location-client';

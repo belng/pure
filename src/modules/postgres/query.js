@@ -1,22 +1,35 @@
 
-
-import pg from '../../lib/pg';
+import * as pg from '../../lib/pg';
 import { TABLES, TYPES } from '../../lib/schema';
 
 const MAX_LIMIT = 1024;
 
-function propOp (prop, op) {
-	if (prop.substr(-op.length) === op) {
-		return prop.substr(0, prop.length - op.length);
+const operators = {
+	gt: '>',
+	lt: '<',
+	in: 'IN',
+	neq: '<>',
+	gte: '>=',
+	lte: '<=',
+	cts: '@>',
+	ctd: '<@',
+	mts: '@@'
+};
+
+function getPropOp(prop) {
+	const i = prop.lastIndexOf('_');
+
+	if (i > 0) {
+		return [ prop.substr(i + 1, prop.length), prop.substr(0, i) ];
 	} else {
-		return false;
+		return '';
 	}
 }
 
 function fromPart (slice) {
 	const fields = [], joins = [];
 
-	fields.push('row_to_json("' + TABLES[TYPES[slice.type]] + '.*") as "' + slice.type + '"');
+	fields.push('row_to_json("' + TABLES[TYPES[slice.type]] + '".*)::jsonb as "' + slice.type + '"');
 	joins.push('"' + TABLES[TYPES[slice.type]] + '"');
 
 	if (slice.join) {
@@ -26,7 +39,7 @@ function fromPart (slice) {
 				TABLES[TYPES[type]] + '"."' + slice.join[type] + '" = "' +
 				TABLES[TYPES[slice.type]] + '"."id"'
 			);
-			fields.push('row_to_json("' + TABLES[TYPES[type]] + '.*") as "' + type + '"');
+			fields.push('row_to_json("' + TABLES[TYPES[type]] + '".*)::jsonb as "' + type + '"');
 		}
 	}
 
@@ -34,11 +47,11 @@ function fromPart (slice) {
 		for (const type in slice.link) {
 			joins.push(
 				'LEFT OUTER JOIN "' + TABLES[TYPES[type]] + '" ON "' +
-				TABLES[TYPES[slice.type]] + '"."' + slice.join[type] + '" = "' +
+				TABLES[TYPES[slice.type]] + '"."' + slice.link[type] + '" = "' +
 				TABLES[TYPES[type]] + '"."id"'
 			);
 
-			fields.push('row_to_json("' + TABLES[TYPES[type]] + '.*") as "' + type + '"');
+			fields.push('row_to_json("' + TABLES[TYPES[type]] + '".*)::jsonb as "' + type + '"');
 		}
 	}
 
@@ -47,29 +60,29 @@ function fromPart (slice) {
 
 function wherePart (f) {
 	const sql = [];
-	let filter = f, name;
+	let filter = f;
+
 
 	for (const prop in filter) {
-		if ((name = propOp(prop, 'Gt'))) {
-			sql.push(`"${name}" > &{${prop}}`);
-		} else if ((name = propOp(prop, 'Lt'))) {
-			sql.push(`"${name}" < &{${prop}}`);
-		} else if ((name = propOp(prop, 'In'))) {
-			sql.push(`"${name}" IN &{${prop}}`);
-		} else if ((name = propOp(prop, 'Neq'))) {
-			sql.push(`"${name}" <> &{${prop}}`);
-		} else if ((name = propOp(prop, 'Gte'))) {
-			sql.push(`"${name}" >= &{${prop}}`);
-		} else if ((name = propOp(prop, 'Lte'))) {
-			sql.push(`"${name}" <= &{${prop}}`);
-		} else if ((name = propOp(prop, 'Cts'))) {
-			sql.push(`"${name}" @> &{${prop}}`);
-		} else if ((name = propOp(prop, 'Ctd'))) {
-			sql.push(`"${name}" <@ &{${prop}}`);
-		} else if ((name = propOp(prop, 'Mts'))) {
-			sql.push(`"${name}" @@ &{${prop}}`);
-		} else {
-			sql.push(`"${prop}" = &{${prop}}`);
+		const [ op, name ] = getPropOp(prop);
+
+		if (Number.POSITIVE_INFINITY === filter[prop] || Number.NEGATIVE_INFINITY === filter[prop]) {
+			continue;
+		}
+		switch (op) {
+		case 'gt':
+		case 'lt':
+		case 'neq':
+		case 'gte':
+		case 'lte':
+		case 'in':
+		case 'cts':
+		case 'ctd':
+		case 'mts':
+			sql.push(`"${name.toLowerCase()}" ${operators[op]} &{${prop}}`);
+			break;
+		default:
+			sql.push(`"${prop.toLowerCase()}" = &{${prop}}`);
 		}
 	}
 
@@ -80,9 +93,9 @@ function wherePart (f) {
 
 function orderPart(order, limit) {
 	if (limit < 0) {
-		return `ORDER BY "${order}" DESC LIMIT ${-limit}`;
+		return `ORDER BY "${order.toLowerCase()}" DESC LIMIT ${-limit}`;
 	} else {
-		return `ORDER BY "${order}" ASC LIMIT ${limit}`;
+		return `ORDER BY "${order.toLowerCase()}" ASC LIMIT ${limit}`;
 	}
 }
 
@@ -95,39 +108,39 @@ function simpleQuery(slice, limit) {
 }
 
 function boundQuery (slice, start, end) {
-	slice.filter[slice.order + 'Gte'] = start;
-	slice.filter[slice.order + 'Lte'] = end;
+	slice.filter[slice.order + '_gte'] = start;
+	slice.filter[slice.order + '_lte'] = end;
 	const query = simpleQuery(slice, MAX_LIMIT);
 
-	delete slice.filter[slice.order + 'Gte'];
-	delete slice.filter[slice.order + 'Lte'];
+	delete slice.filter[slice.order + '_gte'];
+	delete slice.filter[slice.order + '_lte'];
 
 	return query;
 }
 
 function beforeQuery (slice, start, before, exclude) {
-	slice.filter[slice.order + (exclude ? 'Lt' : 'Lte')] = start;
+	slice.filter[slice.order + (exclude ? '_lt' : '_lte')] = start;
 	const query = simpleQuery(slice, Math.max(-MAX_LIMIT, -before));
 
-	delete slice.filter[slice.order + (exclude ? 'Lt' : 'Lte')];
+	delete slice.filter[slice.order + (exclude ? '_lt' : '_lte')];
 
 	return pg.cat([
 		'SELECT * FROM (',
 		query,
 		{
-			$: ') r ORDER BY "&{type}"->\'&{order}\' ASC',
-			type: slice.type,
-			order: slice.order
+			$: `) r ORDER BY ${slice.type.toLowerCase()}->&{order} ASC`,
+			order: slice.order.toLowerCase()
 		}
 
 	], ' ');
 }
 
 function afterQuery (slice, start, after, exclude) {
-	slice.filter[slice.order + (exclude ? 'Gt' : 'Gte')] = start;
+	if (!slice.filter) slice.filter = {};
+	slice.filter[slice.order + (exclude ? '_gt' : '_gte')] = start;
 	const query = simpleQuery(slice, Math.min(MAX_LIMIT, after));
 
-	delete slice.filter[slice.order + (exclude ? 'Gt' : 'Gte')];
+	delete slice.filter[slice.order + (exclude ? '_gt' : '_gte')];
 
 	return query;
 }
@@ -141,9 +154,13 @@ export default function (slice, range) {
 		} else {
 			if (range[1] > 0 && range[2] > 0) {
 				query = pg.cat([
+					'(',
 					beforeQuery(slice, range[0], range[1], true),
+					')',
 					'UNION ALL',
-					afterQuery(slice, range[0], range[2])
+					'(',
+					afterQuery(slice, range[0], range[2]),
+					')'
 				], ' ');
 			} else if (range[1] > 0) {
 				query = beforeQuery(slice, range[0], range[1]);

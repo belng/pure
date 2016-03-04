@@ -6,6 +6,7 @@ export const TABLES = {};
 export const COLUMNS = {};
 export const TYPES = {};
 export const ROLES = {};
+export const TYPE_NAMES = {};
 
 ROLES[Constants.ROLE_BANNED] = 'banned';
 ROLES[Constants.ROLE_FOLLOWER] = 'follower';
@@ -47,6 +48,42 @@ TYPES.privrel = Constants.TYPE_PRIVREL;
 TYPES.userrel = Constants.TYPE_USERREL;
 TYPES.note = Constants.TYPE_NOTE;
 
+TYPE_NAMES[Constants.TYPE_ITEM] = 'item';
+TYPE_NAMES[Constants.TYPE_ROOM] = 'room';
+TYPE_NAMES[Constants.TYPE_TEXT] = 'text';
+TYPE_NAMES[Constants.TYPE_THREAD] = 'thread';
+TYPE_NAMES[Constants.TYPE_TOPIC] = 'topic';
+TYPE_NAMES[Constants.TYPE_PRIV] = 'priv';
+TYPE_NAMES[Constants.TYPE_USER] = 'user';
+TYPE_NAMES[Constants.TYPE_REL] = 'rel';
+TYPE_NAMES[Constants.TYPE_ROOMREL] = 'roomrel';
+TYPE_NAMES[Constants.TYPE_TEXTREL] = 'textrel';
+TYPE_NAMES[Constants.TYPE_THREADREL] = 'threadrel';
+TYPE_NAMES[Constants.TYPE_TOPICREL] = 'topicrel';
+TYPE_NAMES[Constants.TYPE_PRIVREL] = 'privrel';
+TYPE_NAMES[Constants.TYPE_USERREL] = 'userrel';
+TYPE_NAMES[Constants.TYPE_NOTE] = 'note';
+
+export const ITEM_TYPES = [
+	Constants.TYPE_ITEM,
+	Constants.TYPE_ROOM,
+	Constants.TYPE_TEXT,
+	Constants.TYPE_THREAD,
+	Constants.TYPE_TOPIC,
+	Constants.TYPE_PRIV,
+];
+
+export const RELATION_TYPES = [
+	Constants.TYPE_REL,
+	Constants.TYPE_ROOMREL,
+	Constants.TYPE_TEXTREL,
+	Constants.TYPE_THREADREL,
+	Constants.TYPE_TOPICREL,
+	Constants.TYPE_PRIVREL,
+	Constants.TYPE_USERREL,
+	Constants.TYPE_NOTE
+];
+
 COLUMNS[Constants.TYPE_USER] = [
 	'counts',
 	'createTime',
@@ -55,10 +92,10 @@ COLUMNS[Constants.TYPE_USER] = [
 	'identities',
 	'locale',
 	'name',
+	'meta',
 	'params',
 	'presence',
 	'presenceTime',
-	'profile',
 	'resources',
 	'tags',
 	'timezone',
@@ -67,9 +104,7 @@ COLUMNS[Constants.TYPE_USER] = [
 ];
 
 COLUMNS[Constants.TYPE_ITEM] =
-COLUMNS[Constants.TYPE_ROOM] =
 COLUMNS[Constants.TYPE_TEXT] =
-COLUMNS[Constants.TYPE_THREAD] =
 COLUMNS[Constants.TYPE_TOPIC] =
 COLUMNS[Constants.TYPE_PRIV] = [
 	'body',
@@ -78,16 +113,24 @@ COLUMNS[Constants.TYPE_PRIV] = [
 	'creator',
 	'deleteTime',
 	'id',
-	'indentities',
 	'meta',
 	'name',
-	'params',
 	'parents',
-	'score',
 	'tags',
 	'type',
 	'updater',
 	'updateTime',
+];
+
+COLUMNS[Constants.TYPE_ROOM] = [
+	...COLUMNS[Constants.TYPE_ITEM],
+	'identities',
+	'params',
+];
+
+COLUMNS[Constants.TYPE_THREAD] = [
+	...COLUMNS[Constants.TYPE_ITEM],
+	'score',
 ];
 
 COLUMNS[Constants.TYPE_REL] =
@@ -104,9 +147,8 @@ COLUMNS[Constants.TYPE_PRIVREL] = [
 	'presence',
 	'presenceTime',
 	'resources',
-	'role',
+	'roles',
 	'roleTime',
-	'tags',
 	'transitRole',
 	'transitType',
 	'type',

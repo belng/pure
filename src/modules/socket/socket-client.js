@@ -1,15 +1,8 @@
 /* @flow */
 
-import EnhancedError from '../../lib/EnhancedError';
 import eio from 'engine.io-client';
-import { bus, config } from '../../core-client.js';
-import * as models from '../../models/models.js';
-import stringPack from 'stringpack';
-
-const packerArg = Object.keys(models).sort().map(key => models[key]);
-
-packerArg.push(EnhancedError);
-const packer = stringPack(packerArg);
+import { bus, config, cache } from '../../core-client.js';
+import packer from './../../lib/packer';
 
 const {
 	protocol,
@@ -70,6 +63,14 @@ bus.on('change', changes => {
 }, 1);
 
 bus.on('state:init', state => {
-	state.connectionStatus = '@@loading';
+	state.connectionStatus = 'connecting';
 	connect();
+});
+
+cache.onChange((changes) => {
+	if (changes.queries) {
+		client.send(packer.encode({
+			queries: changes.queries
+		}));
+	}
 });

@@ -2,11 +2,12 @@
 import { bus, cache, Constants, config } from '../../core-server';
 import winston from 'winston';
 import * as pg from '../../lib/pg';
+import EnhancedError from '../../lib/EnhancedError';
 import { user } from '../../models/models';
 
 function getEntityByIdentity(identities, callback) {
 	pg.read(config.connStr, {
-		$: 'select *, \'user\' as "type"  from users where identities && &{identities}',
+		$: 'select *  from users where identities && &{identities}',
 		identities
 	}, (err, results) => {
 		if (err) {
@@ -30,7 +31,6 @@ function signinhandler(changes, n) {
 	}
 
 
-	winston.debug('setstate/signin:', changes);
 	if (changes.auth && changes.auth.signin) {
 		winston.debug('setstate: sign-in module', changes.auth.signin);
 		if (changes.auth.signin.id) {
@@ -42,7 +42,7 @@ function signinhandler(changes, n) {
 				}
 				if (!entity) {
 					winston.error('setstate: sign-in module: INVALID_USERID');
-					return next(new Error('INVALID_USERID'));
+					return next(new EnhancedError('The username is invalid', 'INVALID_USERID'));
 				}
 				winston.info('setstate: sign-in module: found user');
 				(changes.state = changes.state || {}).user = entity.id;

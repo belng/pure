@@ -1,28 +1,29 @@
 import jsonop from 'jsonop';
+import EnhancedError from '../../lib/EnhancedError';
+import sbcache from 'sbcache';
 import winston from 'winston';
 import Counter from '../../lib/counter';
 import * as pg from '../../lib/pg';
-import { TABLES, TYPES } from '../../lib/schema';
+import * as Constants from '../../lib/Constants';
+import { TABLES, TYPES, TYPE_NAMES } from '../../lib/schema';
 import queryHandler from './query';
 import entityHandler from './entity';
 import { bus, cache, config } from '../../core-server';
 import * as Types from './../../models/models';
-import './cache-updater';
 const channel = 'heyneighbor';
 
-
 const TYPE_SEGMENT = `case \
-when tableoid = 'notes'::regclass then 'note' \
-when tableoid = 'privs'::regclass then 'privs' \
-when tableoid = 'roomrels'::regclass then 'roomrels' \
-when tableoid = 'rooms'::regclass then 'room' \
-when tableoid = 'textrels'::regclass then 'textrel' \
-when tableoid = 'texts'::regclass then 'text' \
-when tableoid = 'threadrels'::regclass then 'threadrel' \
-when tableoid = 'threads'::regclass then 'thread' \
-when tableoid = 'topicrels'::regclass then 'topicrel' \
-when tableoid = 'topics'::regclass then 'topic' \
-when tableoid = 'users'::regclass then 'user' \
+when tableoid = 'notes'::regclass then ${Constants.TYPE_NOTE} \
+when tableoid = 'privs'::regclass then ${Constants.TYPE_PRIV} \
+when tableoid = 'roomrels'::regclass then ${Constants.TYPE_ROOMREL} \
+when tableoid = 'rooms'::regclass then ${Constants.TYPE_ROOM} \
+when tableoid = 'textrels'::regclass then ${Constants.TYPE_TEXTREL} \
+when tableoid = 'texts'::regclass then ${Constants.TYPE_TEXT} \
+when tableoid = 'threadrels'::regclass then ${Constants.TYPE_THREADREL} \
+when tableoid = 'threads'::regclass then ${Constants.TYPE_THREAD} \
+when tableoid = 'topicrels'::regclass then ${Constants.TYPE_TOPICREL} \
+when tableoid = 'topics'::regclass then ${Constants.TYPE_TOPIC} \
+when tableoid = 'users'::regclass then ${Constants.TYPE_USER} \
 end as type`;
 
 function broadcast (entity) {
@@ -30,15 +31,57 @@ function broadcast (entity) {
 }
 
 cache.onChange((changes) => {
-	const cb = (key, range, err, results) => {
+	const cb = (key, range, err, r) => {
+		let newRange = [], start, end;
+
 		if (err) {
 			winston.error(err);
 			return;
 		}
-		bus.emit('change', {
-			knowledge: { [key]: [ range ] },
-			indexes: { [key]: results },
-			source: 'postgres'
+
+		const results = r.map(e => {
+			const props = Object.keys(e), propsCount = props.length;
+			let prop;
+
+			props.forEach(name => {
+				e[name] = new Types[name](e[name]);
+				prop = name;
+			});
+
+			if (propsCount > 1) return e;
+			else return e[prop];
+		});
+
+		const orderedResult = new sbcache.OrderedArray([ cache.keyToSlice(key).order ], results);
+
+		if (range.length === 2) {
+			newRange = range;
+		} else {
+			start = range[0];
+			if (range[1] > 0 && range[2] > 0) {
+				const index = orderedResult.indexOf(start);
+
+				start = orderedResult.valAt(0);
+				end = orderedResult.valAt(orderedResult.length - 1);
+
+				if (index < range[1]) {
+					start = -Infinity;
+				}
+
+				if (orderedResult.length - index < range[2]) {
+					end = +Infinity;
+				}
+			} else if (range[1] > 0) {
+				end = orderedResult.valAt(orderedResult.length - 1);
+				if (orderedResult.length < range[1]) start = -Infinity;
+			} else if (range[2] > 0) {
+				end = orderedResult.length < range[2] ? +Infinity : orderedResult.valAt(orderedResult.length - 1);
+			}
+			newRange.push(start, end);
+		}
+		cache.put({
+			knowledge: { [key]: [ newRange ] },
+			indexes: { [key]: orderedResult }
 		});
 	};
 
@@ -81,7 +124,7 @@ cache.onChange((changes) => {
 						};
 
 						r.map((entity) => {
-							state.entities[entity.id] = new Types[entity.type](entity);
+							state.entities[entity.id] = new Types[TYPE_NAMES[entity.type]](entity);
 						});
 
 						const missingIds = ids.filter(itemID => !state.entities[itemID]);
@@ -90,7 +133,7 @@ cache.onChange((changes) => {
 							state.entities[id] = null;
 						});
 
-						bus.emit('change', state);
+						cache.put(state);
 					});
 				}
 			} else {
@@ -107,12 +150,16 @@ cache.onChange((changes) => {
 });
 
 pg.listen(config.connStr, channel, (payload) => {
-	bus.emit('postchange', payload);
+	const change = { entities: { [payload.id]: payload } };
+
+	bus.emit('postchange', change);
+	cache.put(change);
 });
 
 bus.on('change', (changes, next) => {
-	const counter = new Counter();
+	const counter = new Counter(), response = changes.response = changes.response || {}, ids = [];
 
+	if (!response.entities) response.entities = {};
 	if (changes.source === 'postgres') {
 		next();
 		return;
@@ -122,26 +169,41 @@ bus.on('change', (changes, next) => {
 		const sql = [];
 
 		for (const id in changes.entities) {
+			ids.push(id);
 			sql.push(entityHandler(changes.entities[id]));
 		}
 
 		winston.info('sql', sql);
 		counter.inc();
 		pg.write(config.connStr, sql, (err, results) => {
+			let i = 0;
+
 			if (err) {
 				counter.err(err);
 				return;
 			}
 
-			winston.info('PgWrite Results', results[0].rows);
-			results.forEach((result) => broadcast(result.rows[0]));
+			results.forEach(result => {
+				winston.info(`Response for entity: ${ids[i]}`, JSON.stringify(result.rowCount));
+
+				if (result.rowCount) {
+					// response.entities[result.rows[0].id] = result.rows[0];
+					broadcast(result.rows[0]);
+				} else {
+					const c = response.entities[ids[i]] = changes.entities[ids[i]];
+
+					c.error = new EnhancedError('INVALID_ENTITY', 'INVALID_ENTITY');
+				}
+				i++;
+			});
 			counter.dec();
 		});
 	}
 
+
 	if (changes.queries) {
-		const response = changes.response = {},
-			cb = (key, err, results) => {
+		winston.debug('Got queries: ', JSON.stringify(changes));
+		const cb = (key, err, results) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
 				jsonop(response, { indexes: { [key]: results } });
 				counter.dec();

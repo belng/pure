@@ -3,7 +3,6 @@
 import React from 'react-native';
 import PlaceItem from './PlaceItem';
 import PlaceButton from './PlaceButton';
-import RoomsFilteredContainer from '../../containers/RoomsFilteredContainer';
 import StatesFilteredContainer from '../../containers/StatesFilteredContainer';
 import Modal from '../Modal';
 
@@ -78,10 +77,7 @@ export default class PlaceManager extends React.Component {
 			);
 		} else {
 			Modal.renderComponent(
-				<RoomsFilteredContainer
-					onDismiss={this._handleDismissModal}
-					onSelectItem={place => this._handleSelectItem(type, place)}
-				/>
+				<View />
 			);
 		}
 	};

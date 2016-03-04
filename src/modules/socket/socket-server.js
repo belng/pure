@@ -1,18 +1,11 @@
 import engine from 'engine.io';
-import EnhancedError from '../../lib/EnhancedError';
 import winston from 'winston';
-import stringPack from 'stringpack';
 import * as core from '../../core-server';
 import uid from '../../lib/uid-server';
 import notify from './dispatch';
-import * as models from '../../models/models';
+import packer from './../../lib/packer';
 
-const sockets = {}, bus = core.bus,
-	packerArg = Object.keys(models).sort().map(key => models[key]);
-
-packerArg.push(EnhancedError);
-const packer = stringPack(packerArg);
-
+const sockets = {}, bus = core.bus;
 
 function sendError(socket, code, reason, event) {
 	socket.send(packer.encode({
@@ -55,12 +48,11 @@ bus.on('http/init', app => {
 				return;
 			}
 
-			winston.debug('message after parsing', message);
+			winston.debug('message after parsing', JSON.stringify(message));
 			message.id = uid(16);
 			(message.auth = message.auth || {}).resource = resourceId;
 
 			function handleSetState(err) {
-				winston.debug('setstate response', JSON.stringify(err));
 				if (err) {
 					if (message.response) {
 						socket.send(packer.encode({
@@ -89,6 +81,7 @@ bus.on('http/init', app => {
 				}
 			}
 
+			message.source = 'socket';
 			bus.emit('change', message, handleSetState);
 		});
 	});
