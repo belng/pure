@@ -19,19 +19,17 @@ export default class App extends React.Component<void, Props, void> {
 			user
 		} = this.props;
 
-		switch (connection) {
-		case 'online':
-			const loading = session === '@@loading' || session && !user;
+		const loading = session === '@@loading' || session && !user;
 
-			if (loading) {
+		if (loading) {
+			switch (connection) {
+			case 'offline':
+				return <Offline />;
+			default:
 				return <Splash />;
-			} else {
-				return <OnboardContainer {...this.props} />;
 			}
-		case 'offline':
-			return <Offline />;
-		default:
-			return <Splash />;
+		} else {
+			return <OnboardContainer {...this.props} />;
 		}
 	}
 }
