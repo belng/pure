@@ -12,7 +12,6 @@ import type {
 } from './ConnectTypes';
 
 type Props = {
-	initialProps?: { [key: string]: any },
 	mapSubscriptionToProps?: MapSubscriptionToProps;
 	mapActionsToProps?: MapActionsToProps;
 	passProps?: any;
@@ -30,7 +29,6 @@ export default class Connect extends Component<void, Props, State> {
 	};
 
 	static propTypes = {
-		initialProps: PropTypes.object,
 		mapSubscriptionToProps: PropTypes.object,
 		mapActionsToProps: PropTypes.object,
 		passProps: PropTypes.any,
@@ -120,14 +118,11 @@ export default class Connect extends Component<void, Props, State> {
 
 	_setInitialState: Function = () => {
 		const {
-			initialProps
+			mapSubscriptionToProps
 		} = this.props;
 
-		if (initialProps) {
-			this.setState({ ...initialProps, __defer: false });
-		} else {
-			this.setState({ __defer: true });
-		}
+
+		this.setState({ __defer: !!mapSubscriptionToProps });
 	};
 
 	componentWillMount() {
