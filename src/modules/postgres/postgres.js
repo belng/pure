@@ -10,6 +10,7 @@ import queryHandler from './query';
 import entityHandler from './entity';
 import { bus, cache, config } from '../../core-server';
 import * as Types from './../../models/models';
+import util from 'util';
 const channel = 'heyneighbor';
 
 const TYPE_SEGMENT = `case \
@@ -33,7 +34,7 @@ function broadcast (entity) {
 cache.onChange((changes) => {
 	const cb = (key, range, err, r) => {
 		let newRange = [], start, end;
-
+		console.log('CB within cache.onchange', key, range, err, r);
 		if (err) {
 			winston.error(err);
 			return;
@@ -52,7 +53,11 @@ cache.onChange((changes) => {
 			else return e[prop];
 		});
 
+		console.log("checkpoint alpha", cache.keyToSlice(key).order);
+
 		const orderedResult = new Know.OrderedArray([ cache.keyToSlice(key).order ], results);
+
+		console.log("checkpoint bravo", orderedResult);
 
 		if (range.length === 2) {
 			newRange = range;
@@ -61,24 +66,21 @@ cache.onChange((changes) => {
 			if (range[1] > 0 && range[2] > 0) {
 				const index = orderedResult.indexOf(start);
 
-				start = orderedResult.valAt(0);
-				end = orderedResult.valAt(orderedResult.length - 1);
-
-				if (index < range[1]) {
-					start = -Infinity;
-				}
-
-				if (orderedResult.length - index < range[2]) {
-					end = +Infinity;
-				}
+				start = index < range[1] ? -Infinity : orderedResult.valAt(0);
+				end = orderedResult.length - index < range[2] ? +Infinity :
+					orderedResult.valAt(orderedResult.length - 1);
 			} else if (range[1] > 0) {
-				end = orderedResult.valAt(orderedResult.length - 1);
-				if (orderedResult.length < range[1]) start = -Infinity;
+				start = orderedResult.length < range[1] ? -Infinity : orderedResult.valAt(0);
+				end = range[0];
 			} else if (range[2] > 0) {
+				start = range[0];
 				end = orderedResult.length < range[2] ? +Infinity : orderedResult.valAt(orderedResult.length - 1);
 			}
 			newRange.push(start, end);
 		}
+
+		console.log("checkpoint charlie", newRange, orderedResult);
+
 		cache.put({
 			knowledge: { [key]: [ newRange ] },
 			indexes: { [key]: orderedResult }
@@ -202,10 +204,13 @@ bus.on('change', (changes, next) => {
 
 
 	if (changes.queries) {
-		winston.debug('Got queries: ', JSON.stringify(changes));
+		winston.debug('Got queries: ', util.inspect(changes, { depth: null }));
 		const cb = (key, err, results) => {
+				console.log('State jsonop:', err, results);
 				if (err) { jsonop(response, { state: { error: err } }); }
+				console.log('not the first jsonop');
 				jsonop(response, { indexes: { [key]: results } });
+				console.log('neither of them.');
 				counter.dec();
 			},
 			entityCallback = (err, result) => {
