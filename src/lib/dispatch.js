@@ -1,4 +1,4 @@
-import pg from './pg';
+import * as pg from './pg';
 import { EventEmitter } from 'events';
 import { ROLES } from './schema';
 import * as Constants from './Constants';

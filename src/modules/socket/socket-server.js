@@ -52,6 +52,14 @@ bus.on('http/init', app => {
 			message.id = uid(16);
 			(message.auth = message.auth || {}).resource = resourceId;
 
+			if (message.entities) {
+				for (const id in message.entities) {
+					if (message.entities[id].presence) {
+						message.entities[id].resources = message.entities[id].resources || {};
+						message.entities[id].resources[resourceId] = message.entities[id].presence;
+					}
+				}
+			}
 			function handleSetState(err) {
 				if (err) {
 					if (message.response) {
