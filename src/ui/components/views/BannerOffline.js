@@ -4,13 +4,13 @@ import React, { PropTypes } from 'react';
 import Banner from './Banner';
 
 type Props = {
-	connectionStatus: 'connecting' | 'online' | 'offline'
+	status: 'connecting' | 'online' | 'offline'
 }
 
-const BannerOffline = ({ connectionStatus }: Props) => {
+const BannerOffline = ({ status }: Props) => {
 	let label;
 
-	switch (connectionStatus) {
+	switch (status) {
 	case 'online':
 		label = '';
 		break;
@@ -30,7 +30,7 @@ const BannerOffline = ({ connectionStatus }: Props) => {
 };
 
 BannerOffline.propTypes = {
-	connectionStatus: PropTypes.oneOf([ 'connecting', 'offline', 'online' ])
+	status: PropTypes.oneOf([ 'connecting', 'offline', 'online' ])
 };
 
 export default BannerOffline;

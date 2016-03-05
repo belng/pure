@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
+import BannerOffline from '../views/BannerOffline';
 
 const mapSubscriptionToProps = {
 	status: {
@@ -17,7 +17,7 @@ const BannerOfflineContainer = (props: any) => (
 	<Connect
 		mapSubscriptionToProps={mapSubscriptionToProps}
 		passProps={props}
-		component={Dummy}
+		component={BannerOffline}
 	/>
 );
 

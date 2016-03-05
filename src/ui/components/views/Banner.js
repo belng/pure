@@ -1,4 +1,5 @@
-import React from 'react-native';
+import React from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import Icon from './Icon';
@@ -8,7 +9,7 @@ const {
 	StyleSheet,
 	Animated,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	banner: {
@@ -66,7 +67,7 @@ export default class Banner extends React.Component {
 			}
 		} else {
 			if (this.state.text) {
-				this._closeBanner();
+				this._handleCloseBanner();
 
 				return;
 			}
