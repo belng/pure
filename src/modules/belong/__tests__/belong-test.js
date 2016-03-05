@@ -10,7 +10,7 @@ import {
 	roomrel as RoomRel,
 	room as Room
 } from '../../../models/models';
-import Cache from 'sbcache';
+import Cache from 'know';
 import * as Constants from '../../../lib/Constants';
 
 cache.onChange(change => {
