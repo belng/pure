@@ -2,7 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
+import ChatItem from '../views/ChatItem';
 import {
 	hideText,
 	unhideText,
@@ -21,7 +21,7 @@ const ChatItemContainer = (props: any) => (
 	<Connect
 		mapActionsToProps={mapActionsToProps}
 		passProps={props}
-		component={Dummy}
+		component={ChatItem}
 	/>
 );
 

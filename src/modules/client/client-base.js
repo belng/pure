@@ -4,6 +4,7 @@
 import 'babel-polyfill';
 import './polyfills/babelHelpers';
 import './polyfills/requestIdleCallback';
+import '../presence/presence-client';
 import '../session/session-client';
 import '../socket/socket-client';
 import '../location/location-client';

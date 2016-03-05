@@ -1,14 +1,18 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import ChatItemContainer from '../containers/ChatItemContainer';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
 import LoadingItem from './LoadingItem';
+import type { Item } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
 	ListView,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -24,25 +28,50 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class ChatMessages extends React.Component {
-	constructor(props) {
-		super(props);
+type Props = {
+	data: Array<Item | { type: 'loading' } | { type: 'failed' }>;
+	user: string;
+	loadMore: (count: number) => void;
+}
 
-		this._dataSource = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-	}
+type State = {
+	dataSource: ListView.DataSource
+}
 
-	componentDidMount() {
-		if (this._scroll) {
-			this._scroll.scrollTo(0);
-		}
-	}
-
-	_getDataSource = () => {
-		return this._dataSource.cloneWithRows(this.props.data);
+export default class ChatMessages extends Component {
+	static propTypes = {
+		data: PropTypes.arrayOf(PropTypes.object).isRequired,
+		user: PropTypes.string.isRequired,
+		loadMore: PropTypes.func.isRequired,
+		quoteMessage: PropTypes.func.isRequired,
+		replyToMessage: PropTypes.func.isRequired,
+		refreshData: PropTypes.func
 	};
 
-	_renderRow = item => {
-		if (item === 'missing') {
+	state: State = {
+		dataSource: new ListView.DataSource({
+			rowHasChanged: (r1, r2) => r1 !== r2
+		})
+	};
+
+	componentWillMount() {
+		this.setState({
+			dataSource: this.state.dataSource.cloneWithRows(this.props.data)
+		});
+	}
+
+	componentWillReceiveProps(nextProps: Props) {
+		this.setState({
+			dataSource: this.state.dataSource.cloneWithRows(nextProps.data)
+		});
+	}
+
+	_loadMore: Function = () => {
+		this.props.loadMore(this.props.data.length);
+	};
+
+	_renderRow: Function = item => {
+		if (item && item.type === 'loading') {
 			return <LoadingItem />;
 		}
 
@@ -66,8 +95,8 @@ export default class ChatMessages extends React.Component {
 		if (this.props.data.length === 0) {
 			placeHolder = <PageEmpty label='No messages yet' image='sad' />;
 		} else if (this.props.data.length === 1) {
-			switch (this.props.data[0]) {
-			case 'missing':
+			switch (this.props.data[0] && this.props.data[0].type) {
+			case 'loading':
 				placeHolder = <PageLoading />;
 				break;
 			case 'banned':
@@ -91,8 +120,8 @@ export default class ChatMessages extends React.Component {
 						style={styles.inverted}
 						contentContainerStyle={styles.container}
 						initialListSize={5}
-						onEndReached={this.props.onEndReached}
-						dataSource={this._getDataSource()}
+						dataSource={this.state.dataSource}
+						onEndReached={this._loadMore}
 						renderRow={this._renderRow}
 					/>
 				}
@@ -100,17 +129,3 @@ export default class ChatMessages extends React.Component {
 		);
 	}
 }
-
-ChatMessages.propTypes = {
-	data: React.PropTypes.arrayOf(React.PropTypes.oneOfType([
-		React.PropTypes.oneOf([ 'missing', 'failed' ]),
-		React.PropTypes.shape({
-			id: React.PropTypes.string
-		})
-	])).isRequired,
-	user: React.PropTypes.string.isRequired,
-	onEndReached: React.PropTypes.func.isRequired,
-	quoteMessage: React.PropTypes.func.isRequired,
-	replyToMessage: React.PropTypes.func.isRequired,
-	refreshData: React.PropTypes.func
-};

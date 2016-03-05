@@ -16,7 +16,7 @@ type State = {
 
 export default class StartDiscussionContainer extends Component<void, Props, State> {
 	static propTypes = {
-		user: PropTypes.string.isRequired,
+		user: PropTypes.string,
 		room: PropTypes.string.isRequired,
 	};
 

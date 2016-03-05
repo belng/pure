@@ -1,18 +1,36 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
 import FloatingActionButton from './FloatingActionButton';
 import Modal from './Modal';
 import StartDiscussionContainer from '../containers/StartDiscussionContainer';
 
-export default class StartDiscussionButton extends React.Component {
-	shouldComponentUpdate(nextProps) {
+type Props = {
+	room: string;
+	user: string;
+	onNavigation: Function;
+};
+
+export default class StartDiscussionButton extends Component<void, Props, void> {
+	static propTypes = {
+		room: PropTypes.string.isRequired,
+		user: PropTypes.string.isRequired,
+		onNavigation: PropTypes.func.isRequired
+	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
 		return (
 			this.props.room !== nextProps.room ||
 			this.props.user !== nextProps.user
 		);
 	}
 
-	_onPress = () => {
-		Modal.renderComponent(<StartDiscussionContainer {...this.props} dismiss={() => Modal.renderComponent(null)} />);
+	_dismissModal: Function = () => {
+		Modal.renderComponent(null);
+	};
+
+	_handlePress: Function = () => {
+		Modal.renderComponent(<StartDiscussionContainer {...this.props} dismiss={this._dismissModal} />);
 	};
 
 	render() {
@@ -20,14 +38,8 @@ export default class StartDiscussionButton extends React.Component {
 			<FloatingActionButton
 				{...this.props}
 				icon='create'
-				onPress={this._onPress}
+				onPress={this._handlePress}
 			/>
 		);
 	}
 }
-
-StartDiscussionButton.propTypes = {
-	room: React.PropTypes.string.isRequired,
-	user: React.PropTypes.string.isRequired,
-	onNavigation: React.PropTypes.func.isRequired
-};

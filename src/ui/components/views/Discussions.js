@@ -1,16 +1,20 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import DiscussionItem from './DiscussionItem';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
 import LoadingItem from './LoadingItem';
 import StartDiscussionButton from './StartDiscussionButton';
 import BannerOfflineContainer from '../containers/BannerOfflineContainer';
+import type { Item } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
 	ListView,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -22,19 +26,51 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class Discussions extends React.Component {
-	constructor(props) {
-		super(props);
+type Props = {
+	user: string;
+	room: string;
+	data: Array<Item | { type: 'loading' } | { type: 'failed' }>;
+	loadMore: (count: number) => void;
+	onNavigation: (count: number) => void;
+}
 
-		this._dataSource = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-	}
+type State = {
+	dataSource: ListView.DataSource
+}
 
-	_getDataSource = () => {
-		return this._dataSource.cloneWithRows(this.props.data);
+export default class Discussions extends Component<void, Props, State> {
+	static propTypes = {
+		data: PropTypes.arrayOf(PropTypes.object).isRequired,
+		room: PropTypes.string.isRequired,
+		user: PropTypes.string.isRequired,
+		loadMore: PropTypes.func.isRequired,
+		onNavigation: PropTypes.func.isRequired
 	};
 
-	_renderRow = thread => {
-		if (thread === 'missing') {
+	state: State = {
+		dataSource: new ListView.DataSource({
+			rowHasChanged: (r1, r2) => r1 !== r2
+		})
+	};
+
+	componentWillMount() {
+		this.setState({
+			dataSource: this.state.dataSource.cloneWithRows(this.props.data)
+		});
+	}
+
+	componentWillReceiveProps(nextProps: Props) {
+		this.setState({
+			dataSource: this.state.dataSource.cloneWithRows(nextProps.data)
+		});
+	}
+
+	_loadMore: Function = () => {
+		this.props.loadMore(this.props.data.length);
+	};
+
+	_renderRow: Function = thread => {
+		if (thread && thread.type === 'loading') {
 			return <LoadingItem />;
 		}
 
@@ -54,8 +90,8 @@ export default class Discussions extends React.Component {
 		if (this.props.data.length === 0) {
 			placeHolder = <PageEmpty label='No discussions yet' image='sad' />;
 		} else if (this.props.data.length === 1) {
-			switch (this.props.data[0]) {
-			case 'missing':
+			switch (this.props.data[0] && this.props.data[0].type) {
+			case 'loading':
 				placeHolder = <PageLoading />;
 				break;
 			case 'banned':
@@ -79,8 +115,8 @@ export default class Discussions extends React.Component {
 						removeClippedSubviews
 						contentContainerStyle={styles.container}
 						initialListSize={3}
-						onEndReached={this.props.onEndReached}
-						dataSource={this._getDataSource()}
+						onEndReached={this._loadMore}
+						dataSource={this.state.dataSource}
 						renderRow={this._renderRow}
 					/>
 				}
@@ -94,17 +130,3 @@ export default class Discussions extends React.Component {
 		);
 	}
 }
-
-Discussions.propTypes = {
-	data: React.PropTypes.arrayOf(React.PropTypes.oneOfType([
-		React.PropTypes.oneOf([ 'missing', 'failed' ]),
-		React.PropTypes.shape({
-			id: React.PropTypes.string
-		})
-	])).isRequired,
-	room: React.PropTypes.string.isRequired,
-	user: React.PropTypes.string.isRequired,
-	refreshData: React.PropTypes.func,
-	onEndReached: React.PropTypes.func.isRequired,
-	onNavigation: React.PropTypes.func.isRequired
-};

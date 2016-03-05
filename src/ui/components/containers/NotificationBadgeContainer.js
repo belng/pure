@@ -6,25 +6,6 @@ import Dummy from '../views/Dummy';
 
 const NotificationBadgeContainer = (props: any) => (
 	<Connect
-		mapSubscriptionToProps={{
-			count: {
-				key: {
-					slice: {
-						type: 'note',
-						filter: {
-							user: props.user
-						},
-						order: 'eventTime'
-					},
-					range: {
-						start: null,
-						before: 100,
-						after: 0
-					}
-				},
-				transform: notes => notes ? notes.length : 0
-			}
-		}}
 		passProps={props}
 		component={Dummy}
 	/>
@@ -34,4 +15,21 @@ NotificationBadgeContainer.propTypes = {
 	user: PropTypes.string.isRequired
 };
 
-export default NotificationBadgeContainer;
+const mapSubscriptionToProps = {
+	user: {
+		key: {
+			type: 'state',
+			path: 'user'
+		},
+	},
+};
+
+const NotificationBadgeContainerOuter = (props: any) => (
+	<Connect
+		mapSubscriptionToProps={mapSubscriptionToProps}
+		passProps={props}
+		component={NotificationBadgeContainer}
+	/>
+);
+
+export default NotificationBadgeContainerOuter;

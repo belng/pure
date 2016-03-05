@@ -2,7 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
+import ChatSuggestions from '../views/ChatSuggestions';
 
 export default class ChatSuggestionsContainer extends Component<void, any, { prefix: string }> {
 	state: { prefix: string } = {
@@ -39,12 +39,12 @@ export default class ChatSuggestionsContainer extends Component<void, any, { pre
 					}
 				}}
 				passProps={{ ...this.props, getMatchingUsers: this._getMatchingUsers }}
-				component={Dummy}
+				component={ChatSuggestions}
 			/>
 		);
 	}
 }
 
 ChatSuggestionsContainer.propTypes = {
-	user: PropTypes.string.isRequired
+	user: PropTypes.string
 };

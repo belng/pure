@@ -2,13 +2,12 @@
 
 import React, { Component } from 'react';
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
+import Discussions from '../views/Dummy';
 import type { SubscriptionRange } from '../../../modules/store/ConnectTypes';
 
 export default class DiscussionsContainer extends Component<void, any, SubscriptionRange> {
-	// Keep state flat for shallowEqual
 	state: SubscriptionRange = {
-		start: -Infinity,
+		start: Infinity,
 		before: 20,
 		after: 0,
 	};
@@ -29,6 +28,12 @@ export default class DiscussionsContainer extends Component<void, any, Subscript
 		return (
 			<Connect
 				mapSubscriptionToProps={{
+					user: {
+						key: {
+							type: 'state',
+							path: 'user'
+						},
+					},
 					threads: {
 						key: {
 							slice: {
@@ -47,7 +52,7 @@ export default class DiscussionsContainer extends Component<void, any, Subscript
 					}
 				}}
 				passProps={{ ...this.props, loadMore: this._loadMore }}
-				component={Dummy}
+				component={Discussions}
 			/>
 		);
 	}

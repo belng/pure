@@ -1,6 +1,7 @@
 /* @flow */
 
 import type { User } from '../../lib/schemaTypes';
+import { PRESENCE_FOREGROUND, PRESENCE_BACKGROUND } from '../../lib/Constants';
 
 /*
  * User related actions
@@ -76,4 +77,16 @@ export const dismissAllNotes = (): Object => ({
 
 export const dismissNote = (): Object => ({
 
+});
+
+/*
+ * Presence related actions
+ */
+
+export const setPresence = (id: string, status: 'online' | 'offline'): Object => ({
+	entities: {
+		[id]: {
+			presence: status === 'online' ? PRESENCE_FOREGROUND : PRESENCE_BACKGROUND
+		}
+	}
 });

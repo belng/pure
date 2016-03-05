@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import Loading from './Loading';
@@ -7,7 +10,7 @@ const {
 	StyleSheet,
 	View,
 	Image
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -41,11 +44,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class Splash extends React.Component {
-	shouldComponentUpdate() {
-		return false;
-	}
-
+export default class Splash extends Component {
 	render() {
 		return (
 			<View style={styles.container}>

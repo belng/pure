@@ -1,10 +1,13 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 
 const {
 	StyleSheet
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	title: {
@@ -18,10 +21,14 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class LocalityTitle extends React.Component {
-	shouldComponentUpdate(nextProps) {
-		return this.props.room.guides.displayName !== nextProps.room.guides.displayName;
-	}
+export default class RoomTitle extends Component {
+	static propTypes = {
+		room: PropTypes.shape({
+			guides: PropTypes.shape({
+				displayName: PropTypes.string.isRequired
+			})
+		}).isRequired
+	};
 
 	render() {
 		return (
@@ -31,11 +38,3 @@ export default class LocalityTitle extends React.Component {
 		);
 	}
 }
-
-LocalityTitle.propTypes = {
-	room: React.PropTypes.shape({
-		guides: React.PropTypes.shape({
-			displayName: React.PropTypes.string.isRequired
-		})
-	}).isRequired
-};

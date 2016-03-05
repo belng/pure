@@ -73,7 +73,7 @@ export default class LocationDetails extends Component<void, Props, void> {
 					getResults={this._getResults}
 					renderRow={this._renderRow}
 					renderBlankslate={this._renderBlankslate}
-					searchHint='Search for your locality'
+					searchHint='Search for your apartment'
 					autoFocus
 				/>
 				<KeyboardSpacer offset={36} />
