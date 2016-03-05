@@ -1,6 +1,7 @@
 /* @flow */
 
 import { bus } from '../../core-client';
+import { subscribe } from '../../modules/store/store';
 import PersistentStorage from '../../lib/PersistentStorage';
 
 const sessionStorage = new PersistentStorage('session');
@@ -31,8 +32,6 @@ async function initializeSession() {
 
 bus.on('error', changes => {
 	if (changes.state && changes.state.signin) {
-		sessionStorage.removeItem('id');
-
 		bus.emit('change', {
 			state: {
 				session: null
@@ -57,7 +56,10 @@ bus.on('postchange', changes => {
 	}
 });
 
-bus.on('state:init', state => {
-	state.session = '@@loading';
-	initializeSession();
+bus.on('state:init', state => (state.session = '@@loading'));
+
+subscribe({ type: 'state', path: 'connectionStatus' }, status => {
+	if (status === 'online') {
+		initializeSession();
+	}
 });
