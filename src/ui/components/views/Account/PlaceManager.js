@@ -3,7 +3,6 @@
 import React from 'react-native';
 import PlaceItem from './PlaceItem';
 import PlaceButton from './PlaceButton';
-import StatesFilteredContainer from '../../containers/StatesFilteredContainer';
 import Modal from '../Modal';
 
 const {
@@ -67,19 +66,10 @@ export default class PlaceManager extends React.Component {
 		this.props.onChange(this.props.places.filter(it => !(it.place.id === place.id && it.type === type)));
 	};
 
-	_handlePress = (type: string) => {
-		if (type === 'state') {
-			Modal.renderComponent(
-				<StatesFilteredContainer
-					onDismiss={this._handleDismissModal}
-					onSelectItem={place => this._handleSelectItem(type, place)}
-				/>
-			);
-		} else {
-			Modal.renderComponent(
-				<View />
-			);
-		}
+	_handlePress = () => {
+		Modal.renderComponent(
+			<View />
+		);
 	};
 
 	render() {

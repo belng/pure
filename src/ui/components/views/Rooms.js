@@ -1,22 +1,24 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import BannerUnavailable from './BannerUnavailable';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
 import LoadingItem from './LoadingItem';
-import BannerOfflineContainer from '../containers/BannerOfflineContainer';
 import RoomItem from './RoomItem';
 import ListItem from './ListItem';
 import AppText from './AppText';
 import Icon from './Icon';
-import Geolocation from '../../modules/Geolocation';
 import Colors from '../../Colors';
+import type { Relation } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
 	View,
 	NavigationActions,
 	ListView,
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -44,64 +46,42 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default class Localities extends React.Component {
+type Props = {
+	available?: boolean;
+	onNavigation: Function;
+	data: Array<Relation | { type: 'loading' } | { type: 'failed' }>;
+}
+
+type State = {
+	dataSource: ListView.DataSource
+}
+
+export default class Localities extends Component<void, Props, State> {
 	static propTypes = {
-		available: React.PropTypes.bool,
-		onNavigation: React.PropTypes.func.isRequired,
-		data: React.PropTypes.arrayOf(React.PropTypes.oneOfType([
-			React.PropTypes.oneOf([ 'missing', 'failed' ]),
-			React.PropTypes.shape({
-				id: React.PropTypes.string
-			})
-		])).isRequired,
+		available: PropTypes.bool,
+		onNavigation: PropTypes.func.isRequired,
+		data: PropTypes.arrayOf(PropTypes.object).isRequired,
 	};
 
-	state = {
-		location: null
+	state: State = {
+		dataSource: new ListView.DataSource({
+			rowHasChanged: (r1, r2) => r1 !== r2
+		})
 	};
 
-	_dataSource = new ListView.DataSource({
-		rowHasChanged: (r1, r2) => r1 !== r2
-	});
-
-	componentDidMount() {
-		this._setCurrentPosition();
-		this._watchPosition();
-	}
-
-	componentWillUnmount() {
-		this._clearWatch();
-	}
-
-	_watchPosition = () => {
-		this._watchID = Geolocation.watchPosition(location => {
-			this.setState({ location });
+	componentWillMount() {
+		this.setState({
+			dataSource: this.state.dataSource.cloneWithRows(this.props.data)
 		});
-	};
+	}
 
-	_clearWatch = () => {
-		if (this._watchID) {
-			Geolocation.clearWatch(this._watchID);
-		}
-	};
+	componentWillReceiveProps(nextProps: Props) {
+		this.setState({
+			dataSource: this.state.dataSource.cloneWithRows(nextProps.data)
+		});
+	}
 
-	_setCurrentPosition = async () => {
-		try {
-			const location = await Geolocation.getCurrentPosition();
-
-			this.setState({
-				location
-			});
-		} catch (e) {
-			// Ignore
-		}
-	};
-
-	_getDataSource = () => {
-		return this._dataSource.cloneWithRows(this.props.data);
-	};
-
-	_handleSelectLocality = room => {
+	_handleSelectLocality: Function = room => {
 		this.props.onNavigation(new NavigationActions.Push({
 			name: 'room',
 			props: {
@@ -110,8 +90,8 @@ export default class Localities extends React.Component {
 		}));
 	};
 
-	_renderRow = room => {
-		if (room === 'missing') {
+	_renderRow: Function = room => {
+		if (room && room.type === 'loading') {
 			return <LoadingItem />;
 		}
 
@@ -119,7 +99,6 @@ export default class Localities extends React.Component {
 			<RoomItem
 				key={room.id}
 				room={room}
-				location={this.state.location}
 				onSelect={this._handleSelectLocality}
 				showMenuButton
 				showBadge
@@ -127,13 +106,13 @@ export default class Localities extends React.Component {
 		);
 	};
 
-	_handleManagePlaces = () => {
+	_handleManagePlaces: Function = () => {
 		this.props.onNavigation(new NavigationActions.Push({
 			name: 'places',
 		}));
 	};
 
-	_handleReportIssue = () => {
+	_handleReportIssue: Function = () => {
 		this.props.onNavigation(new NavigationActions.Push({
 			name: 'room',
 			props: {
@@ -142,7 +121,7 @@ export default class Localities extends React.Component {
 		}));
 	};
 
-	_renderFooter = () => {
+	_renderFooter: Function = () => {
 		return (
 			<View style={styles.footer}>
 				<ListItem containerStyle={styles.footerItem} onPress={this._handleManagePlaces}>
@@ -169,8 +148,8 @@ export default class Localities extends React.Component {
 		let placeHolder;
 
 		if (this.props.data.length === 1) {
-			switch (this.props.data[0]) {
-			case 'missing':
+			switch (this.props.data[0] && this.props.data[0].type) {
+			case 'loading':
 				placeHolder = <PageLoading />;
 				break;
 			case 'failed':
@@ -181,7 +160,6 @@ export default class Localities extends React.Component {
 
 		return (
 			<View style={styles.container}>
-				<BannerOfflineContainer />
 				{this.props.available === false ?
 					<BannerUnavailable /> :
 					null
@@ -190,7 +168,7 @@ export default class Localities extends React.Component {
 				{placeHolder ? placeHolder :
 					<ListView
 						keyboardShouldPersistTaps
-						dataSource={this._getDataSource()}
+						dataSource={this.state.dataSource}
 						renderRow={this._renderRow}
 						renderFooter={this._renderFooter}
 					/>

@@ -36,7 +36,7 @@ const NotificationCenterContainer = (props: any) => (
 );
 
 NotificationCenterContainer.propTypes = {
-	user: PropTypes.string.isRequired
+	user: PropTypes.string
 };
 
 export default NotificationCenterContainer;

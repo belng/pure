@@ -1,13 +1,28 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import VersionCodes from '../../modules/VersionCodes';
 
 const {
 	TouchableNativeFeedback,
 	TouchableHighlight,
 	Platform
-} = React;
+} = ReactNative;
 
-export default class TouchFeedback extends React.Component {
+type Props = {
+	borderless?: boolean;
+	pressColor?: string;
+	children?: Element
+}
+
+export default class TouchFeedback extends Component<void, Props, void> {
+	static propTypes = {
+		borderless: PropTypes.bool,
+		pressColor: PropTypes.string,
+		children: PropTypes.node.isRequired
+	};
+
 	render() {
 		if (Platform.OS === 'android' && Platform.Version >= VersionCodes.LOLLIPOP) {
 			return (
@@ -24,9 +39,3 @@ export default class TouchFeedback extends React.Component {
 		}
 	}
 }
-
-TouchFeedback.propTypes = {
-	borderless: React.PropTypes.bool,
-	pressColor: React.PropTypes.string,
-	children: React.PropTypes.node.isRequired
-};

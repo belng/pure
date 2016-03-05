@@ -1,4 +1,6 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
 import AppText from './AppText';
 import { short, long } from '../../../lib/Time';
 
@@ -6,7 +8,23 @@ const msPerSec = 1000;
 const msPerMin = msPerSec * 60;
 const msPerHour = msPerMin * 60;
 
-export default class Time extends React.Component {
+type Props = {
+	type: 'short' | 'long',
+	time: number
+}
+
+type State = {
+	now: number
+}
+
+export default class Time extends Component<void, Props, State> {
+	static propTypes = {
+		type: PropTypes.oneOf([ 'short', 'long' ]).isRequired,
+		time: PropTypes.number.isRequired
+	};
+
+	state: State;
+
 	componentWillMount() {
 		const now = Date.now();
 
@@ -23,11 +41,14 @@ export default class Time extends React.Component {
 		}
 	}
 
-	setNativeProps(nativeProps) {
-		this._root.setNativeProps(nativeProps);
-	}
+	_root: Object;
+	_timer: any;
 
-	_setTimer = time => {
+	setNativeProps: Function = (nativeProps) => {
+		this._root.setNativeProps(nativeProps);
+	};
+
+	_setTimer: Function = time => {
 		const diff = time - this.props.time;
 
 		let interval;
@@ -58,14 +79,9 @@ export default class Time extends React.Component {
 		} = this.props;
 
 		return (
-			<AppText ref={c => { this._root = c; }} {...this.props}>
+			<AppText ref={c => (this._root = c)} {...this.props}>
 				{type === 'short' ? short(time, this.state.now) : long(time, this.state.now)}
 			</AppText>
 		);
 	}
 }
-
-Time.propTypes = {
-	type: React.PropTypes.oneOf([ 'short', 'long' ]).isRequired,
-	time: React.PropTypes.number.isRequired
-};

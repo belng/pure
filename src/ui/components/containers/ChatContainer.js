@@ -2,7 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
+import Chat from '../views/Chat';
 import { sendText } from '../../../modules/store/actions';
 
 const ChatContainer = (props: any) => (
@@ -24,14 +24,14 @@ const ChatContainer = (props: any) => (
 			}
 		}}
 		passProps={props}
-		component={Dummy}
+		component={Chat}
 	/>
 );
 
 ChatContainer.propTypes = {
 	room: PropTypes.string.isRequired,
 	thread: PropTypes.string.isRequired,
-	user: PropTypes.string.isRequired,
+	user: PropTypes.string,
 };
 
 export default ChatContainer;

@@ -1,12 +1,22 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
 import AppbarTouchable from './AppbarTouchable';
 import AppbarIcon from './AppbarIcon';
 import Share from '../../modules/Share';
 import { convertRouteToURL } from '../../../lib/Route';
 import { config } from '../../../core-client';
 
-export default class ShareButton extends React.Component {
-	_handlePress = () => {
+export default class ShareButton extends Component {
+	static propTypes = {
+		thread: PropTypes.shape({
+			to: PropTypes.string,
+			id: PropTypes.string,
+			title: PropTypes.string
+		})
+	};
+
+	_handlePress: Function = () => {
 		const { thread } = this.props;
 
 		if (thread) {
@@ -29,11 +39,3 @@ export default class ShareButton extends React.Component {
 		);
 	}
 }
-
-ShareButton.propTypes = {
-	thread: React.PropTypes.shape({
-		to: React.PropTypes.string,
-		id: React.PropTypes.string,
-		title: React.PropTypes.string
-	})
-};

@@ -2,7 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
+import ChatTitle from '../views/ChatTitle';
 
 const ChatTitleContainer = (props: any) => (
 	<Connect
@@ -16,7 +16,7 @@ const ChatTitleContainer = (props: any) => (
 			}
 		}}
 		passProps={props}
-		component={Dummy}
+		component={ChatTitle}
 	/>
 );
 

@@ -1,11 +1,14 @@
-import React from 'react-native';
+/* @flow */
+
+import React from 'react';
+import ReactNative from 'react-native';
 import VersionCodes from '../../modules/VersionCodes';
 
 const {
 	Platform,
 	StyleSheet,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	statusbar: {
@@ -13,7 +16,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-const StatusbarWrapper = props => <View style={[ styles.statusbar, props.style ]} />;
+const StatusbarWrapper = (props: { style: any }) => <View style={[ styles.statusbar, props.style ]} />;
 
 StatusbarWrapper.propTypes = {
 	style: View.propTypes.style
