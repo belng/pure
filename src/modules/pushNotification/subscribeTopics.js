@@ -6,10 +6,8 @@ import request from 'request';
 
 function unsubscribeTopics (iid) {
 	const opts = {
-		url: `https://iid.googleapis.com/iid/info/${iid}`,
-		json: true,
+		url: `https://iid.googleapis.com/iid/info/${iid}?details=true`,
 		method: 'GET',
-		details: true,
 		headers: {
 			Authorozation: config.gcm.apiKey
 		}
@@ -17,14 +15,18 @@ function unsubscribeTopics (iid) {
 
 	request(opts, (e, r, b) => {
 		if (e) {
+			log.error(e);
 			return;
 		}
 		const topicsSubscribed = b.rel.topics;
 
 		opts.method = 'POST';
 		opts.url = 'https://iid.googleapis.com/iid/v1:batchRemove';
-		// delete old topics
+		// unsubscribe thread topics
 		for (const topic in topicsSubscribed) {
+			if (!/thread-/.test(topic)) {
+				return;
+			}
 			request({
 				...opts,
 				to: topic,
@@ -97,10 +99,20 @@ bus.on('setstate', (changes, next) => {
 				log.info('subscribe ' + user.id + ' to ' + entity.item);
 				subscribe({
 					user,
-					topic: entity.type === Constants.TYPE_ROOMREL ? 'r-' + entity.item : 't-' + entity.item
+					topic: entity.type === Constants.TYPE_ROOMREL ? 'room-' + entity.item : 'thread-' + entity.item
 				});
 				next();
 			});
+		}
+		if (entity.type === Constants.TYPE_USER) {
+			if (entity.createtime) {
+				// subscribe for mention when user is created
+				subscribe({
+					entity,
+					topic: 'note-' + entity.id
+				});
+				next();
+			}
 		}
 	}
 });
