@@ -32,6 +32,7 @@ export default class Connect extends Component<void, Props, any> {
 
 	state: any = {};
 
+	_mounted: boolean = false;
 	_subscriptions: Array<Subscription> = [];
 
 	_addSubscriptions: Function = (props, context) => {
@@ -99,9 +100,11 @@ export default class Connect extends Component<void, Props, any> {
 
 	_updateListener: Function = (name, transform) => {
 		return data => {
-			this.setState({
-				[name]: transform ? transform(data) : data
-			});
+			if (this._mounted) {
+				this.setState({
+					[name]: transform ? transform(data) : data
+				});
+			}
 		};
 	};
 
@@ -124,6 +127,7 @@ export default class Connect extends Component<void, Props, any> {
 	}
 
 	componentDidMount() {
+		this._mounted = true;
 		this._addSubscriptions(this.props, this.context);
 	}
 
@@ -136,6 +140,7 @@ export default class Connect extends Component<void, Props, any> {
 	}
 
 	componentWillUnmount() {
+		this._mounted = false;
 		this._removeSubscriptions();
 	}
 
