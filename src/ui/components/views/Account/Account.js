@@ -10,7 +10,7 @@ import AvatarRound from '../AvatarRound';
 import GrowingTextInput from '../GrowingTextInput';
 import Modal from '../Modal';
 import TouchFeedback from '../TouchFeedback';
-import PushNotification from '../../../modules/PushNotification';
+import GCM from '../../../modules/GCM';
 import debounce from '../../../../lib/debounce';
 import type { User } from '../../../../lib/schemaTypes';
 
@@ -83,7 +83,7 @@ type Props = {
 }
 
 type State = {
-	pushNotificationEnabled: boolean
+	GCMEnabled: boolean
 }
 
 const PUSH_NOTIFICATION_ENABLED_KEY = 'enabled';
@@ -105,26 +105,26 @@ export default class Account extends React.Component<void, Props, State> {
 	};
 
 	state: State = {
-		pushNotificationEnabled: true
+		GCMEnabled: true
 	};
 
 	componentWillMount() {
-		this._updatePushNotificationValue();
+		this._updateGCMValue();
 	}
 
 	_saveUser: Function = debounce(user => this.props.saveUser(user), 1000);
 
-	_updatePushNotificationValue: Function = async (): Promise<void> => {
+	_updateGCMValue: Function = async (): Promise<void> => {
 		let value = true;
 
 		try {
-			value = await PushNotification.getPreference(PUSH_NOTIFICATION_ENABLED_KEY);
+			value = await GCM.getPreference(PUSH_NOTIFICATION_ENABLED_KEY);
 		} catch (e) {
 			// Ignore
 		}
 
 		this.setState({
-			pushNotificationEnabled: value !== 'false'
+			GCMEnabled: value !== 'false'
 		});
 	};
 
@@ -144,11 +144,11 @@ export default class Account extends React.Component<void, Props, State> {
 		this._saveUser({ ...this.props.user, name });
 	};
 
-	_handlePushNotificationChange: Function = (value: boolean) => {
-		PushNotification.setPreference(PUSH_NOTIFICATION_ENABLED_KEY, value ? 'true' : 'false');
+	_handleGCMChange: Function = (value: boolean) => {
+		GCM.setPreference(PUSH_NOTIFICATION_ENABLED_KEY, value ? 'true' : 'false');
 
 		this.setState({
-			pushNotificationEnabled: value
+			GCMEnabled: value
 		});
 	};
 
@@ -239,8 +239,8 @@ export default class Account extends React.Component<void, Props, State> {
 						<AppText style={styles.itemText}>Push notifications</AppText>
 					</View>
 					<Switch
-						value={this.state.pushNotificationEnabled}
-						onValueChange={this._handlePushNotificationChange}
+						value={this.state.GCMEnabled}
+						onValueChange={this._handleGCMChange}
 					/>
 				</View>
 				<View style={styles.item}>
