@@ -1,6 +1,6 @@
 import jsonop from 'jsonop';
 import EnhancedError from '../../lib/EnhancedError';
-import sbcache from 'sbcache';
+import Know from 'know';
 import winston from 'winston';
 import Counter from '../../lib/counter';
 import * as pg from '../../lib/pg';
@@ -52,7 +52,7 @@ cache.onChange((changes) => {
 			else return e[prop];
 		});
 
-		const orderedResult = new sbcache.OrderedArray([ cache.keyToSlice(key).order ], results);
+		const orderedResult = new Know.OrderedArray([ cache.keyToSlice(key).order ], results);
 
 		if (range.length === 2) {
 			newRange = range;

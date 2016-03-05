@@ -1,4 +1,4 @@
-import Cache from 'sbcache';
+import Know from 'know';
 import EnhancedError from './EnhancedError';
 import * as models from './../models/models';
 import stringPack from 'stringpack';
@@ -6,8 +6,8 @@ import stringPack from 'stringpack';
 const packerArg = Object.keys(models).sort().map(key => models[key]);
 
 packerArg.push(EnhancedError);
-packerArg.push(Cache.RangeArray);
-packerArg.push(Cache.OrderedArray);
+packerArg.push(Know.RangeArray);
+packerArg.push(Know.OrderedArray);
 
 const packer = stringPack(packerArg);
 
