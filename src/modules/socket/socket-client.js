@@ -1,7 +1,7 @@
 /* @flow */
 
 import eio from 'engine.io-client';
-import { bus, config, cache } from '../../core-client.js';
+import { bus, config } from '../../core-client.js';
 import packer from './../../lib/packer';
 
 const {
@@ -29,10 +29,10 @@ function disconnected() {
 }
 
 function onMessage(message) {
-	const changes = packer.decode(message);
+	const frame = packer.decode(message);
 
-	changes.message.source = 'server';
-	bus.emit(changes.type, changes.message);
+	frame.message.source = 'server';
+	bus.emit(frame.type, frame.message);
 }
 
 function connect() {
@@ -52,25 +52,17 @@ function connect() {
 	client.on('message', onMessage);
 }
 
-bus.on('change', changes => {
-	if (changes.source === 'server') return;
-
-	const { state, ...filtered } = changes;
-
-	if (Object.keys(filtered).length) {
-		client.send(packer.encode(filtered));
-	}
-}, 1);
-
 bus.on('state:init', state => {
 	state.connectionStatus = 'connecting';
 	connect();
 });
 
-cache.onChange((changes) => {
-	if (changes.queries) {
+bus.on('postchange', changes => {
+	if (changes.source === 'server') return;
+	if (changes.queries || changes.entities) {
 		client.send(packer.encode({
-			queries: changes.queries
+			queries: changes.queries,
+			entities: changes.entities
 		}));
 	}
 });

@@ -31,9 +31,34 @@ function broadcast (entity) {
 	pg.notify(config.connStr, channel, entity);
 }
 
+function rangeToKnowledge(range, orderedResult) {
+	let newRange = [], start, end;
+
+	if (range.length === 2) {
+		newRange = range;
+	} else {
+		start = range[0];
+		if (range[1] > 0 && range[2] > 0) {
+			const index = orderedResult.indexOf(start);
+
+			start = index < range[1] ? -Infinity : orderedResult.valAt(0);
+			end = orderedResult.length - index < range[2] ? +Infinity :
+				orderedResult.valAt(orderedResult.length - 1);
+		} else if (range[1] > 0) {
+			start = orderedResult.length < range[1] ? -Infinity : orderedResult.valAt(0);
+			end = range[0];
+		} else if (range[2] > 0) {
+			start = range[0];
+			end = orderedResult.length < range[2] ? +Infinity : orderedResult.valAt(orderedResult.length - 1);
+		}
+		newRange.push(start, end);
+	}
+	return newRange;
+}
+
+
 cache.onChange((changes) => {
 	const cb = (key, range, err, r) => {
-		let newRange = [], start, end;
 		console.log('CB within cache.onchange', key, range, err, r);
 		if (err) {
 			winston.error(err);
@@ -59,25 +84,7 @@ cache.onChange((changes) => {
 
 		console.log("checkpoint bravo", orderedResult);
 
-		if (range.length === 2) {
-			newRange = range;
-		} else {
-			start = range[0];
-			if (range[1] > 0 && range[2] > 0) {
-				const index = orderedResult.indexOf(start);
-
-				start = index < range[1] ? -Infinity : orderedResult.valAt(0);
-				end = orderedResult.length - index < range[2] ? +Infinity :
-					orderedResult.valAt(orderedResult.length - 1);
-			} else if (range[1] > 0) {
-				start = orderedResult.length < range[1] ? -Infinity : orderedResult.valAt(0);
-				end = range[0];
-			} else if (range[2] > 0) {
-				start = range[0];
-				end = orderedResult.length < range[2] ? +Infinity : orderedResult.valAt(orderedResult.length - 1);
-			}
-			newRange.push(start, end);
-		}
+		const newRange = rangeToKnowledge(range, orderedResult);
 
 		console.log("checkpoint charlie", newRange, orderedResult);
 
@@ -205,14 +212,18 @@ bus.on('change', (changes, next) => {
 
 	if (changes.queries) {
 		winston.debug('Got queries: ', util.inspect(changes, { depth: null }));
-		const cb = (key, err, results) => {
-				console.log('State jsonop:', err, results);
+		const cb = (key, range, err, results) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
-				console.log('not the first jsonop');
-				jsonop(response, { indexes: { [key]: results } });
-				console.log('neither of them.');
 				counter.dec();
+				const orderedResult = new Know.OrderedArray([ cache.keyToSlice(key).order ], results);
+				const newRange = rangeToKnowledge(range, orderedResult);
+
+				jsonop(response, {
+					indexes: { [key]: orderedResult },
+					knowledge: { [key]: [ newRange ] }
+				});
 			},
+
 			entityCallback = (err, result) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
 				if (result && result.id) {
@@ -232,7 +243,7 @@ bus.on('change', (changes, next) => {
 			} else {
 				for (const range of changes.queries[key]) {
 					counter.inc();
-					cache.query(key, range, cb.bind(null, key));
+					cache.query(key, range, cb.bind(null, key, range));
 				}
 			}
 		}
