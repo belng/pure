@@ -96,7 +96,7 @@ bus.on('http/init', app => {
 });
 
 bus.on('postchange', changes => {
-	notify(changes, core, {}).on('data', (change, rel) => {
+	notify(changes, core.config).on('data', (change, rel) => {
 		Object.keys(rel.resources).forEach(e => {
 			if (!sockets[e]) return;
 			sockets[e].send(packer.encode(change));
