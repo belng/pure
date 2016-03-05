@@ -1,7 +1,7 @@
 /* @flow */
 
 import Ebus from 'ebus';
-import SbCache from 'sbcache';
+import Know from 'know';
 import * as Constants from './lib/Constants';
 
 export type Bus = {
@@ -14,7 +14,7 @@ export type Bus = {
 
 export { Constants };
 export const bus: Bus = new Ebus();
-export const cache = new SbCache({
+export const cache = new Know({
 	is: (entity, type) => {
 		switch (type) {
 
