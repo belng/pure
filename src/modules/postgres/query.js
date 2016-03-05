@@ -86,9 +86,13 @@ function wherePart (f) {
 		}
 	}
 
-	filter = Object.create(filter);
-	filter.$ = 'WHERE ' + sql.join(' AND ');
-	return filter;
+	if (sql.length) {
+		filter = Object.create(filter);
+		filter.$ = 'WHERE ' + sql.join(' AND ');
+		return filter;
+	} else {
+		return '';
+	}
 }
 
 function orderPart(order, limit) {
