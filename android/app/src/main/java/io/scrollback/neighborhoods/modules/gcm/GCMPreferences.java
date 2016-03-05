@@ -3,7 +3,7 @@ package io.scrollback.neighborhoods.modules.gcm;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class PushNotificationPreferences {
+public class GCMPreferences {
 
     private static final String STORAGE_KEY = "push_notifications_shared_preferences";
 

@@ -12,26 +12,36 @@ import type {
 } from './ConnectTypes';
 
 type Props = {
+	initialProps?: { [key: string]: any },
 	mapSubscriptionToProps?: MapSubscriptionToProps;
 	mapActionsToProps?: MapActionsToProps;
 	passProps?: any;
 	component: ReactClass;
 }
 
-export default class Connect extends Component<void, Props, any> {
+type State = {
+	[key: string]: any;
+	__defer: boolean;
+}
+
+export default class Connect extends Component<void, Props, State> {
 	static contextTypes = {
 		store: storeShape.isRequired,
 	};
 
 	static propTypes = {
+		initialProps: PropTypes.object,
 		mapSubscriptionToProps: PropTypes.object,
 		mapActionsToProps: PropTypes.object,
 		passProps: PropTypes.any,
 		component: PropTypes.any.isRequired
 	};
 
-	state: any = {};
+	state: State = {
+		__defer: true
+	};
 
+	_mounted: boolean = false;
 	_subscriptions: Array<Subscription> = [];
 
 	_addSubscriptions: Function = (props, context) => {
@@ -99,24 +109,25 @@ export default class Connect extends Component<void, Props, any> {
 
 	_updateListener: Function = (name, transform) => {
 		return data => {
-			this.setState({
-				[name]: transform ? transform(data) : data
-			});
+			if (this._mounted) {
+				this.setState({
+					[name]: transform ? transform(data) : data,
+					__defer: false
+				});
+			}
 		};
 	};
 
 	_setInitialState: Function = () => {
 		const {
-			mapSubscriptionToProps
+			initialProps
 		} = this.props;
 
-		const state = {};
-
-		for (const item in mapSubscriptionToProps) {
-			state[item] = null;
+		if (initialProps) {
+			this.setState({ ...initialProps, __defer: false });
+		} else {
+			this.setState({ __defer: true });
 		}
-
-		this.setState(state);
 	};
 
 	componentWillMount() {
@@ -124,6 +135,7 @@ export default class Connect extends Component<void, Props, any> {
 	}
 
 	componentDidMount() {
+		this._mounted = true;
 		this._addSubscriptions(this.props, this.context);
 	}
 
@@ -136,6 +148,7 @@ export default class Connect extends Component<void, Props, any> {
 	}
 
 	componentWillUnmount() {
+		this._mounted = false;
 		this._removeSubscriptions();
 	}
 
@@ -143,7 +156,11 @@ export default class Connect extends Component<void, Props, any> {
 		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
 
-	render(): React$Element<any> {
+	render(): ?React$Element<any> {
+		if (this.state.__defer) {
+			return null;
+		}
+
 		const {
 			store
 		} = this.context;

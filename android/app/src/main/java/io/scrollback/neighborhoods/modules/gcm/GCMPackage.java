@@ -10,12 +10,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class PushNotificationPackage implements ReactPackage {
+public class GCMPackage implements ReactPackage {
 
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
         return Arrays.<NativeModule>asList(
-                new PushNotificationModule(reactContext)
+                new GCMModule(reactContext)
         );
     }
 

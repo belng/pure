@@ -2,6 +2,7 @@
 
 import React from 'react-native';
 import routeMapper from './routeMapper';
+import BannerOfflineContainer from '../components/containers/BannerOfflineContainer';
 import Colors from '../Colors';
 
 const {
@@ -35,7 +36,12 @@ const renderScene = function(navState: Object, onNavigation: Function): Function
 		return (
 			<NavigationCard {...props}>
 				<View style={[ styles.container, styles.scene, route.fullscreen ? null : styles.normal ]}>
-					<RouteComponent {...route.props} style={[ styles.container, route.props ? route.props.style : null ]} onNavigation={onNavigation} />
+					<BannerOfflineContainer />
+					<RouteComponent
+						{...route.props}
+						style={[ styles.container, route.props ? route.props.style : null ]}
+						onNavigation={onNavigation}
+					/>
 				</View>
 			</NavigationCard>
 		);

@@ -10,7 +10,7 @@ bus.on('presence/online', presence => {
 	resourceMap[presence.resourceId] = presence.user;
 });
 
-function resourceHandler(changes, next) {
+function resourceHandler(changes) {
 	if (changes.state && changes.state.user) {
 		resourceMap[changes.auth.resource] = changes.state.user;
 	} else if (changes.auth && changes.auth.resource) {
@@ -21,7 +21,6 @@ function resourceHandler(changes, next) {
 			const state = r.state = r.state || {};
 
 			state.user = state.user || changes.state.user;
-			next();
 		}
 	}
 }
