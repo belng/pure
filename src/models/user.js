@@ -11,7 +11,9 @@ export default class User {
 		if (!data.id) { throw new Error('INVALID_USER_ID'); }
 
 		for (const name of COLUMNS[Constants.TYPE_USER]) {
-			this[name] = data[name] || data[name.toLowerCase()];
+			if (typeof data[name] !== 'undefined') {
+				this[name] = data[name] || data[name.toLowerCase()];
+			}
 		}
 
 		if (data.error) this.error = data.error;
@@ -22,7 +24,9 @@ export default class User {
 		const data = {};
 
 		for (const name of COLUMNS[Constants.TYPE_USER]) {
-			data[name] = this[name];
+			if (typeof data[name] !== 'undefined') {
+				data[name] = this[name];
+			}
 		}
 
 		data.type = this.type;

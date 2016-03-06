@@ -17,7 +17,6 @@ export const bus: Bus = new Ebus();
 export const cache = new Know({
 	is: (entity, type) => {
 		switch (type) {
-
 		case 'thread':
 			return entity.type === Constants.TYPE_THREAD;
 		case 'text':
@@ -45,6 +44,7 @@ export const cache = new Know({
 		return false;
 	},
 	id: (entity) => {
+		if (!entity) return '';
 		switch (entity.type) {
 		case Constants.TYPE_THREAD:
 		case Constants.TYPE_TEXT:
