@@ -1,6 +1,7 @@
 /* @flow */
 
 import type { User } from '../../lib/schemaTypes';
+import UserModel from '../../models/user';
 import { PRESENCE_FOREGROUND, PRESENCE_BACKGROUND } from '../../lib/Constants';
 
 /*
@@ -16,7 +17,7 @@ export const signIn = (provider: string, accessToken: string): Object => ({
 
 export const signUp = (user: User): Object => ({
 	auth: {
-		signup: user
+		signup: new UserModel(user)
 	}
 });
 
@@ -32,7 +33,7 @@ export const signOut = (): Object => ({
 
 export const saveUser = (user: User): Object => ({
 	entities: {
-		[user.id]: user
+		[user.id]: new UserModel(user)
 	}
 });
 
@@ -85,8 +86,9 @@ export const dismissNote = (): Object => ({
 
 export const setPresence = (id: string, status: 'online' | 'offline'): Object => ({
 	entities: {
-		[id]: {
+		[id]: new UserModel({
+			id,
 			presence: status === 'online' ? PRESENCE_FOREGROUND : PRESENCE_BACKGROUND
-		}
+		})
 	}
 });
