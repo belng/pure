@@ -3,6 +3,25 @@ import { bus, Constants } from '../../core-server';
 const resourceMap = {};
 
 bus.on('presence/offline', resourceID => {
+	const user = resourceMap[resourceID];
+
+	if (user) {
+		bus.emit('change', {
+			auth: {
+				resource: resourceID
+			},
+			entities: {
+				[user]: {
+					resources: {
+						__op__: {
+							[resourceID]: 'delete'
+						}
+					}
+				}
+			}
+		});
+	}
+
 	delete resourceMap[resourceID];
 });
 

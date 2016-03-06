@@ -215,6 +215,8 @@ bus.on('change', (changes, next) => {
 		const cb = (key, range, err, results) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
 				counter.dec();
+				console.log("callback response received:", arguments);
+
 				const orderedResult = new Know.OrderedArray([ cache.keyToSlice(key).order ], results);
 				const newRange = rangeToKnowledge(range, orderedResult);
 
