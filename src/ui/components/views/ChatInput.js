@@ -1,6 +1,7 @@
+/* @flow */
 
-
-import React from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import Icon from './Icon';
 import GrowingTextInput from './GrowingTextInput';
@@ -15,7 +16,7 @@ const {
 	StyleSheet,
 	View,
 	PixelRatio
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -46,31 +47,53 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class ChatInput extends React.Component {
-	constructor(props) {
-		super(props);
+type Props = {
+	room: string;
+	thread: string;
+	user: string;
+	sendMessage: Function;
+}
 
-		this.state = {
-			text: '',
-			query: '',
-			imageData: null
-		};
+type State = {
+	text: string;
+	query: string;
+	imageData: ?{
+		height: number;
+		width: number;
+		name: string;
 	}
+}
 
-	set quotedText(text) {
+export default class ChatInput extends Component<void, Props, State> {
+	static propTypes = {
+		room: PropTypes.string.isRequired,
+		thread: PropTypes.string.isRequired,
+		user: PropTypes.string.isRequired,
+		sendMessage: PropTypes.func.isRequired
+	};
+
+	state: State = {
+		text: '',
+		query: '',
+		imageData: null
+	};
+
+	setQuotedText: Function = (text) => {
 		this._computeAndSetText({
 			replyTo: text.from,
 			quotedText: text.text
 		});
-	}
+	};
 
-	set replyTo(text) {
+	setReplyTo: Function = (text) => {
 		this._computeAndSetText({
 			replyTo: text.from
 		});
-	}
+	};
 
-	_sendMessage = () => {
+	_input: Object;
+
+	_sendMessage: Function = () => {
 		this.props.sendMessage(this.state.text);
 
 		this.setState({
@@ -78,7 +101,7 @@ export default class ChatInput extends React.Component {
 		});
 	};
 
-	_uploadImage = async () => {
+	_uploadImage: Function = async () => {
 		try {
 			const imageData = await ImageChooser.pickImage();
 
@@ -90,7 +113,11 @@ export default class ChatInput extends React.Component {
 		}
 	};
 
-	_handleUploadFinish = result => {
+	_handleUploadFinish: Function = result => {
+		if (!this.state.imageData) {
+			return;
+		}
+
 		const { height, width, name } = this.state.imageData;
 
 		const aspectRatio = height / width;
@@ -109,20 +136,20 @@ export default class ChatInput extends React.Component {
 		setTimeout(() => this._handleUploadClose(), 500);
 	};
 
-	_handleUploadClose = () => {
+	_handleUploadClose: Function = () => {
 		this.setState({
-			imageData: ''
+			imageData: null
 		});
 	};
 
-	_handleSuggestionSelect = nick => {
+	_handleSuggestionSelect: Function = nick => {
 		this.setState({
 			text: '@' + nick + ' ',
 			query: ''
 		});
 	};
 
-	_handleChangeText = text => {
+	_handleChangeText: Function = text => {
 		const query = /^@[a-z0-9]*$/.test(text) ? text : '';
 
 		this.setState({
@@ -131,7 +158,7 @@ export default class ChatInput extends React.Component {
 		});
 	};
 
-	_computeAndSetText = opts => {
+	_computeAndSetText: Function = opts => {
 		const quotedText = opts.quotedText ? opts.quotedText.replace(/\n/g, ' ') : null;
 
 		let newValue = this.state.text;
@@ -206,10 +233,3 @@ export default class ChatInput extends React.Component {
 		);
 	}
 }
-
-ChatInput.propTypes = {
-	room: React.PropTypes.string.isRequired,
-	thread: React.PropTypes.string.isRequired,
-	user: React.PropTypes.string.isRequired,
-	sendMessage: React.PropTypes.func.isRequired
-};

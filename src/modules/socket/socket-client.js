@@ -31,6 +31,7 @@ function disconnected() {
 function onMessage(message) {
 	const changes = packer.decode(message);
 
+	console.log('->', changes);
 	changes.message.source = 'server';
 	bus.emit(changes.type, changes.message);
 }
@@ -58,6 +59,7 @@ bus.on('change', changes => {
 	const { state, ...filtered } = changes;
 
 	if (Object.keys(filtered).length) {
+		console.log('<-', filtered);
 		client.send(packer.encode(filtered));
 	}
 }, 1);
@@ -69,6 +71,7 @@ bus.on('state:init', state => {
 
 cache.onChange((changes) => {
 	if (changes.queries) {
+		console.log('<- queries', changes);
 		client.send(packer.encode({
 			queries: changes.queries
 		}));

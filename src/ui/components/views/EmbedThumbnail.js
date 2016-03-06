@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Icon from './Icon';
 import Colors from '../../Colors';
 
@@ -7,7 +10,7 @@ const {
 	Dimensions,
 	View,
 	Image
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	thumbnail: {
@@ -29,7 +32,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class EmbedThumbnail extends React.Component {
+export default class EmbedThumbnail extends Component {
 	constructor(props) {
 		super(props);
 
@@ -95,12 +98,12 @@ export default class EmbedThumbnail extends React.Component {
 }
 
 EmbedThumbnail.propTypes = {
-	embed: React.PropTypes.shape({
-		type: React.PropTypes.string.isRequired,
-		height: React.PropTypes.number,
-		width: React.PropTypes.number,
-		thumbnail_height: React.PropTypes.number,
-		thumbnail_width: React.PropTypes.number,
-		thumbnail_url: React.PropTypes.string
+	embed: PropTypes.shape({
+		type: PropTypes.string.isRequired,
+		height: PropTypes.number,
+		width: PropTypes.number,
+		thumbnail_height: PropTypes.number,
+		thumbnail_width: PropTypes.number,
+		thumbnail_url: PropTypes.string
 	}).isRequired
 };

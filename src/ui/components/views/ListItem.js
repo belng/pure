@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { PropTypes } from 'react';
+import ReactNative from 'react-native';
 import TouchFeedback from './TouchFeedback';
 import Colors from '../../Colors';
 
@@ -6,7 +9,7 @@ const {
 	StyleSheet,
 	PixelRatio,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -19,7 +22,12 @@ const styles = StyleSheet.create({
 	},
 });
 
-const ListItem = props => (
+type Props = {
+	children?: any;
+	containerStyle?: any;
+}
+
+const ListItem = (props: Props) => (
 	<TouchFeedback {...props}>
 		<View style={[ styles.container, props.containerStyle ]}>
 			{props.children}
@@ -28,7 +36,7 @@ const ListItem = props => (
 );
 
 ListItem.propTypes = {
-	children: React.PropTypes.node.isRequired,
+	children: PropTypes.node.isRequired,
 	containerStyle: View.propTypes.style
 };
 

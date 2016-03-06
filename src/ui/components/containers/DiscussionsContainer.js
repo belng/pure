@@ -1,11 +1,15 @@
 /* @flow */
 
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import Discussions from '../views/Dummy';
 import type { SubscriptionRange } from '../../../modules/store/ConnectTypes';
 
 export default class DiscussionsContainer extends Component<void, any, SubscriptionRange> {
+	static propTypes = {
+		room: PropTypes.string.isRequired,
+	};
+
 	state: SubscriptionRange = {
 		start: Infinity,
 		before: 20,
@@ -57,7 +61,3 @@ export default class DiscussionsContainer extends Component<void, any, Subscript
 		);
 	}
 }
-
-DiscussionsContainer.propTypes = {
-	room: React.PropTypes.string.isRequired,
-};

@@ -1,11 +1,14 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import AppText from './AppText';
 import Page from './Page';
 
 const {
 	StyleSheet,
 	Image
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	missing: {
@@ -16,15 +19,18 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default class PageEmpty extends React.Component {
-	shouldComponentUpdate(nextProps) {
-		return (
-			this.props.label !== nextProps.label ||
-			this.props.image !== nextProps.image
-		);
-	}
+type Props = {
+	label: string;
+	image: string;
+}
 
-	_getImageSource = name => {
+export default class PageEmpty extends Component<void, Props, void> {
+	static propTypes = {
+		label: PropTypes.string,
+		image: PropTypes.any
+	};
+
+	_getImageSource: Function = name => {
 		switch (name) {
 		case 'cool':
 			return require('../../../../assets/monkey-cool.png');
@@ -40,22 +46,22 @@ export default class PageEmpty extends React.Component {
 	};
 
 	render() {
+		const {
+			label,
+			image,
+		} = this.props;
+
 		return (
 			<Page {...this.props}>
-				{this.props.image ?
-					<Image source={this._getImageSource(this.props.image)} /> :
+				{image ?
+					<Image source={this._getImageSource(image)} /> :
 					null
 				}
-				{this.props.label ?
-					<AppText style={styles.missing}>{this.props.label}</AppText> :
+				{label ?
+					<AppText style={styles.missing}>{label}</AppText> :
 					null
 				}
 			</Page>
 		);
 	}
 }
-
-PageEmpty.propTypes = {
-	label: React.PropTypes.string,
-	image: React.PropTypes.any
-};

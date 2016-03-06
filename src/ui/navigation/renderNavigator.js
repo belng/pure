@@ -1,6 +1,7 @@
 /* @flow */
 
-import React from 'react-native';
+import React from 'react';
+import ReactNative from 'react-native';
 import Modal from '../components/views/Modal';
 import renderOverlay from './renderOverlay';
 import renderScene from './renderScene';
@@ -10,7 +11,7 @@ const {
 	StyleSheet,
 	NavigationReducer,
 	BackAndroid
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	animatedView: {
@@ -22,7 +23,7 @@ let _navState, _onNavigation;
 
 BackAndroid.addEventListener('hardwareBackPress', () => {
 	if (Modal.isShown()) {
-		Modal.renderComponent(null);
+		Modal.renderChild(null);
 
 		return true;
 	}
@@ -44,7 +45,7 @@ const renderNavigator = (): Function => {
 
 		// Hide modal on navigate
 		if (Modal.isShown()) {
-			Modal.renderComponent(null);
+			Modal.renderChild(null);
 		}
 
 		_navState = navState;

@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import Icon from './Icon';
 
@@ -6,7 +9,7 @@ const {
 	StyleSheet,
 	TouchableHighlight,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -30,7 +33,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class FloatingActionButton extends React.Component {
+export default class FloatingActionButton extends Component {
 	render() {
 		return (
 			<TouchableHighlight {...this.props} style={styles.container}>
@@ -47,5 +50,5 @@ export default class FloatingActionButton extends React.Component {
 }
 
 FloatingActionButton.propTypes = {
-	icon: React.PropTypes.string.isRequired
+	icon: PropTypes.string.isRequired
 };

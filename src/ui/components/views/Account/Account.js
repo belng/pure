@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import Colors from '../../../Colors';
 import AppText from '../AppText';
@@ -88,7 +88,7 @@ type State = {
 
 const PUSH_NOTIFICATION_ENABLED_KEY = 'enabled';
 
-export default class Account extends React.Component<void, Props, State> {
+export default class Account extends Component<void, Props, State> {
 	static propTypes = {
 		user: PropTypes.oneOfType([
 			PropTypes.oneOf([ 'missing', 'failed' ]),

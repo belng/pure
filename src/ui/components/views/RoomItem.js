@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import NotificationBadgeContainer from '../containers/NotificationBadgeContainer';
@@ -6,16 +9,14 @@ import ListItem from './ListItem';
 import Icon from './Icon';
 import Modal from './Modal';
 import Share from '../../modules/Share';
-import Distance from '../../../lib/Distance';
 import { convertRouteToURL } from '../../../lib/Route';
 import { config } from '../../../core-client';
 
 const {
-	Linking,
 	StyleSheet,
 	TouchableOpacity,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	item: {
@@ -27,19 +28,30 @@ const styles = StyleSheet.create({
 		color: Colors.darkGrey,
 		fontWeight: 'bold'
 	},
-	distance: {
-		color: Colors.grey,
-		fontSize: 12,
-		lineHeight: 18
-	},
 	expand: {
 		margin: 20,
 		color: Colors.fadedBlack
 	}
 });
 
-export default class LocalityItem extends React.Component {
-	_handleShowMenu = () => {
+type Props = {
+	room: {
+		id: string,
+		name: string,
+	};
+	onSelect: Function;
+}
+
+export default class LocalityItem extends Component<void, Props, void> {
+	static propTypes = {
+		room: PropTypes.shape({
+			id: PropTypes.string.isRequired,
+			name: PropTypes.string,
+		}),
+		onSelect: PropTypes.func,
+	};
+
+	_handleShowMenu: Function = () => {
 		const { room } = this.props;
 
 		const options = [];
@@ -50,92 +62,39 @@ export default class LocalityItem extends React.Component {
 			Share.shareItem('Share community', config.server.protocol + '//' + config.server.host + convertRouteToURL({
 				name: 'room',
 				props: {
-					room
+					room: room.id
 				}
 			}));
 		});
 
-		if (room.location && room.location.lat && room.location.lon) {
-			options.push('View in Google Maps');
-			actions.push(() => {
-				const { lat, lon } = room.location;
-
-				Linking.openURL('http://maps.google.com/maps?q=loc:' + lat + ',' + lon);
-			});
-		}
-
 		Modal.showActionSheetWithOptions({ options }, index => actions[index]());
 	};
 
-	_handlePress = () => {
+	_handlePress: Function = () => {
 		if (this.props.onSelect) {
 			this.props.onSelect(this.props.room);
 		}
 	};
 
 	render() {
-		const { room, location } = this.props;
+		const { room } = this.props;
 
 		return (
-			<View {...this.props}>
-				<ListItem onPress={this._handlePress}>
-					<View style={styles.item}>
-						<AppText style={styles.title}>{room.guides && room.guides.displayName ? room.guides.displayName : room.id}</AppText>
-						{location && location.coords && room.location && room.location.lat && room.location.lon ?
-							<AppText style={styles.distance}>
-								{Distance.getFormattedDistance(location.coords, {
-									latitude: room.location.lat,
-									longitude: room.location.lon
-								})}
-							</AppText> :
-							null
-						}
-					</View>
+			<ListItem {...this.props} onPress={this._handlePress}>
+				<View style={styles.item}>
+					<AppText style={styles.title}>{room.name || room.id}</AppText>
+				</View>
 
-					{this.props.showBadge ?
-						<NotificationBadgeContainer room={this.props.room.id} /> :
-						null
-					}
+				<NotificationBadgeContainer room={this.props.room.id} />
 
-					{this.props.showMenuButton ?
-						<TouchableOpacity onPress={this._handleShowMenu}>
-							<Icon
-								name='expand-more'
-								style={styles.expand}
-								size={20}
-							/>
-						</TouchableOpacity> :
-						null
-					}
-				</ListItem>
-			</View>
+				<TouchableOpacity onPress={this._handleShowMenu}>
+					<Icon
+						name='expand-more'
+						style={styles.expand}
+						size={20}
+					/>
+				</TouchableOpacity>
+			</ListItem>
 		);
 	}
 }
-
-LocalityItem.propTypes = {
-	room: React.PropTypes.shape({
-		id: React.PropTypes.string.isRequired,
-		guides: React.PropTypes.shape({
-			displayName: React.PropTypes.string
-		}),
-		location: React.PropTypes.shape({
-			lat: React.PropTypes.number,
-			lon: React.PropTypes.number
-		})
-	}),
-	location: React.PropTypes.shape({
-		coords: React.PropTypes.shape({
-			latitude: React.PropTypes.number.isRequired,
-			longitude: React.PropTypes.number.isRequired
-		}).isRequired
-	}),
-	showMenuButton: React.PropTypes.bool,
-	showBadge: React.PropTypes.bool,
-	onSelect: React.PropTypes.func,
-};
-
-LocalityItem.defaultProps = {
-	showMenuButton: true,
-	showBadge: true
-};

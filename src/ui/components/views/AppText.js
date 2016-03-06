@@ -1,9 +1,12 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 
 const {
 	StyleSheet,
 	Text
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	text: {
@@ -13,10 +16,22 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class AppText extends React.Component {
-	setNativeProps(nativeProps) {
+type Props = {
+	children?: Element;
+	style?: any;
+}
+
+export default class AppText extends Component {
+	static propTypes = {
+		children: PropTypes.node.isRequired,
+		style: Text.propTypes.style
+	};
+
+	_root: Object;
+
+	setNativeProps: Function = (nativeProps: Props) => {
 		this._root.setNativeProps(nativeProps);
-	}
+	};
 
 	render() {
 		return (
@@ -30,8 +45,3 @@ export default class AppText extends React.Component {
 		);
 	}
 }
-
-AppText.propTypes = {
-	children: React.PropTypes.node.isRequired,
-	style: Text.propTypes.style
-};

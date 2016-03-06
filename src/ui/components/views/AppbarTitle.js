@@ -1,11 +1,14 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 
 const {
 	StyleSheet,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	titleContainer: {
@@ -23,7 +26,13 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class AppbarTitle extends React.Component {
+export default class AppbarTitle extends Component {
+	static propTypes = {
+		children: PropTypes.string.isRequired,
+		style: View.propTypes.style,
+		textStyle: AppText.propTypes.style
+	};
+
 	render() {
 		return (
 			<View {...this.props} style={[ styles.titleContainer, this.props.style ]}>
@@ -34,9 +43,3 @@ export default class AppbarTitle extends React.Component {
 		);
 	}
 }
-
-AppbarTitle.propTypes = {
-	children: React.PropTypes.string.isRequired,
-	style: View.propTypes.style,
-	textStyle: AppText.propTypes.style
-};

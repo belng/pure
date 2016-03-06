@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import Icon from './Icon';
 import Loading from './Loading';
@@ -7,7 +10,7 @@ const {
 	StyleSheet,
 	TouchableHighlight,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	iconContainerOuter: {
@@ -48,7 +51,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class ImageUploadButton extends React.Component {
+export default class ImageUploadButton extends Component {
 	render() {
 		let containerStyle, iconStyle, iconName;
 
@@ -95,13 +98,13 @@ export default class ImageUploadButton extends React.Component {
 }
 
 ImageUploadButton.propTypes = {
-	status: React.PropTypes.string.isRequired,
-	closeIcon: React.PropTypes.string.isRequired,
-	closeIconStyle: React.PropTypes.any,
-	doneIcon: React.PropTypes.string.isRequired,
-	doneIconStyle: React.PropTypes.any,
-	errorIcon: React.PropTypes.string.isRequired,
-	errorIconStyle: React.PropTypes.any,
-	idleIcon: React.PropTypes.string.isRequired,
-	idleIconStyle: React.PropTypes.any
+	status: PropTypes.string.isRequired,
+	closeIcon: PropTypes.string.isRequired,
+	closeIconStyle: PropTypes.any,
+	doneIcon: PropTypes.string.isRequired,
+	doneIconStyle: PropTypes.any,
+	errorIcon: PropTypes.string.isRequired,
+	errorIconStyle: PropTypes.any,
+	idleIcon: PropTypes.string.isRequired,
+	idleIconStyle: PropTypes.any
 };

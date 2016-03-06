@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { PropTypes } from 'react';
+import ReactNative from 'react-native';
 import CardSummary from './CardSummary';
 import Embed from './Embed';
 import { parseURLs } from '../../../lib/URL';
@@ -7,7 +10,7 @@ import textUtils from '../../../lib/text-utils';
 const {
 	StyleSheet,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	image: {
@@ -64,7 +67,7 @@ const DiscussionSummary = props => {
 };
 
 DiscussionSummary.propTypes = {
-	text: React.PropTypes.string.isRequired
+	text: PropTypes.string.isRequired
 };
 
 export default DiscussionSummary;

@@ -1,6 +1,7 @@
+/* @flow */
 
-
-import React from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import AppText from '../AppText';
 import Icon from '../Icon';
 import Colors from '../../../Colors';
@@ -8,7 +9,7 @@ import Colors from '../../../Colors';
 const {
 	View,
 	StyleSheet
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	label: {
@@ -22,9 +23,9 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class NextButtonLabel extends React.Component {
+export default class NextButtonLabel extends Component {
 	static propTypes = {
-		label: React.PropTypes.string,
+		label: PropTypes.string,
 		style: View.propTypes.style
 	};
 
@@ -45,5 +46,3 @@ export default class NextButtonLabel extends React.Component {
 		);
 	}
 }
-
-export default NextButtonLabel;

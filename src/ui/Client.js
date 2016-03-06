@@ -2,16 +2,17 @@
 
 import './navigation-rfc/polyfill';
 import '../modules/client/client';
-import React from 'react-native';
+import React, { Component } from 'react';
+import ReactNative from 'react-native';
 import AppContainer from './components/containers/AppContainer';
 import Provider from '../modules/store/Provider';
 import * as store from '../modules/store/store';
 
 const {
 	AppRegistry
-} = React;
+} = ReactNative;
 
-export default class HeyNeighbor extends React.Component {
+export default class HeyNeighbor extends Component {
 	render() {
 		return (
 			<Provider store={store}>

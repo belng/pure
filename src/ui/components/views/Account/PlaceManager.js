@@ -1,6 +1,7 @@
 /* @flow */
 
-import React from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import PlaceItem from './PlaceItem';
 import PlaceButton from './PlaceButton';
 import Modal from '../Modal';
@@ -8,7 +9,7 @@ import Modal from '../Modal';
 const {
 	View,
 	InteractionManager
-} = React;
+} = ReactNative;
 
 type Place = {
 	id: string;
@@ -35,21 +36,21 @@ const TYPES = [
 	}
 ];
 
-export default class PlaceManager extends React.Component {
+export default class PlaceManager extends Component {
 
 	static propTypes = {
-		onChange: React.PropTypes.func.isRequired,
-		places: React.PropTypes.arrayOf(React.PropTypes.shape({
-			place: React.PropTypes.object,
-			type: React.PropTypes.oneOf([ 'home', 'work', 'state' ])
+		onChange: PropTypes.func.isRequired,
+		places: PropTypes.arrayOf(PropTypes.shape({
+			place: PropTypes.object,
+			type: PropTypes.oneOf([ 'home', 'work', 'state' ])
 		}))
 	};
 
-	_handleDismissModal = () => {
-		Modal.renderComponent(null);
+	_handleDismissModal: Function = () => {
+		Modal.renderChild(null);
 	};
 
-	_handleSelectItem = (type: string, place: Place) => {
+	_handleSelectItem: Function = (type: string, place: Place) => {
 		this._handleDismissModal();
 
 		InteractionManager.runAfterInteractions(() => {
@@ -62,12 +63,12 @@ export default class PlaceManager extends React.Component {
 		});
 	};
 
-	_handleRemoveLocality = (place: Place, type: string) => {
+	_handleRemoveLocality: Function = (place: Place, type: string) => {
 		this.props.onChange(this.props.places.filter(it => !(it.place.id === place.id && it.type === type)));
 	};
 
-	_handlePress = () => {
-		Modal.renderComponent(
+	_handlePress: Function = () => {
+		Modal.renderChild(
 			<View />
 		);
 	};

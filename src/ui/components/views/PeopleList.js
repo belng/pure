@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import PeopleListItem from './PeopleListItem';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
@@ -6,9 +9,9 @@ import ListHeader from './ListHeader';
 
 const {
 	ListView,
-} = React;
+} = ReactNative;
 
-export default class PeopleList extends React.Component {
+export default class PeopleList extends Component {
 	constructor(props) {
 		super(props);
 
@@ -52,10 +55,10 @@ export default class PeopleList extends React.Component {
 }
 
 PeopleList.propTypes = {
-	data: React.PropTypes.arrayOf(React.PropTypes.oneOfType([
-		React.PropTypes.oneOf([ 'missing', 'failed' ]),
-		React.PropTypes.shape({
-			id: React.PropTypes.string
+	data: PropTypes.arrayOf(PropTypes.oneOfType([
+		PropTypes.oneOf([ 'missing', 'failed' ]),
+		PropTypes.shape({
+			id: PropTypes.string
 		})
 	])).isRequired
 };

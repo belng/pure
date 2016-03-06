@@ -1,13 +1,16 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import NotificationCenterItem from './NotificationCenterItem';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
 
 const {
 	ListView,
-} = React;
+} = ReactNative;
 
-export default class NotificationCenter extends React.Component {
+export default class NotificationCenter extends Component {
 	constructor(props) {
 		super(props);
 
@@ -54,13 +57,13 @@ export default class NotificationCenter extends React.Component {
 }
 
 NotificationCenter.propTypes = {
-	data: React.PropTypes.arrayOf(React.PropTypes.oneOfType([
-		React.PropTypes.oneOf([ 'missing', 'failed' ]),
-		React.PropTypes.shape({
-			id: React.PropTypes.string
+	data: PropTypes.arrayOf(PropTypes.oneOfType([
+		PropTypes.oneOf([ 'missing', 'failed' ]),
+		PropTypes.shape({
+			id: PropTypes.string
 		})
 	])).isRequired,
-	dismissNote: React.PropTypes.func.isRequired,
-	refreshData: React.PropTypes.func,
-	onNavigation: React.PropTypes.func.isRequired
+	dismissNote: PropTypes.func.isRequired,
+	refreshData: PropTypes.func,
+	onNavigation: PropTypes.func.isRequired
 };

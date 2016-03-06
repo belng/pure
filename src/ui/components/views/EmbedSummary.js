@@ -1,9 +1,12 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import AppText from './AppText';
 
 const {
 	StyleSheet
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	summary: {
@@ -12,7 +15,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class EmbedSummary extends React.Component {
+export default class EmbedSummary extends Component {
 	render() {
 		if (this.props.embed.description) {
 			return (
@@ -31,5 +34,5 @@ export default class EmbedSummary extends React.Component {
 }
 
 EmbedSummary.propTypes = {
-	embed: React.PropTypes.object.isRequired
+	embed: PropTypes.object.isRequired
 };

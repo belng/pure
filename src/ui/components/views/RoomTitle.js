@@ -21,19 +21,23 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class RoomTitle extends Component {
+type Props = {
+	room: {
+		name: string
+	}
+}
+
+export default class RoomTitle extends Component<void, Props, void> {
 	static propTypes = {
 		room: PropTypes.shape({
-			guides: PropTypes.shape({
-				displayName: PropTypes.string.isRequired
-			})
+			name: PropTypes.string.isRequired
 		}).isRequired
 	};
 
 	render() {
 		return (
 			<AppText numberOfLines={1} style={styles.title}>
-				{this.props.room.guides.displayName}
+				{this.props.room.name}
 			</AppText>
 		);
 	}

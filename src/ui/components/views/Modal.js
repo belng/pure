@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import ModalSheet from './ModalSheet';
@@ -14,7 +17,7 @@ const {
 	Animated,
 	PixelRatio,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -45,37 +48,103 @@ const styles = StyleSheet.create({
 	}
 });
 
-let _renderComponent, _isShown;
+type State = {
+	element: ?Element;
+	fadeAnim: ?Animated.Value
+}
 
-export default class Modal extends React.Component {
-	constructor(props) {
-		super(props);
+export default class Modal extends Component<void, void, State> {
+	static isShown() {
+		if (Modal._isShown) {
+			return Modal._isShown();
+		}
 
-		this.state = {
-			component: null
-		};
+		return false;
 	}
 
+	static renderChild(element) {
+		if (Modal._renderChild) {
+			Modal._renderChild(element);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	static renderModal(element) {
+		return Modal.renderChild((
+			<TouchableWithoutFeedback onPress={() => Modal.renderChild(null)}>
+				<View style={styles.overlay}>
+					<ModalSheet>
+						{element}
+					</ModalSheet>
+				</View>
+			</TouchableWithoutFeedback>
+		));
+	}
+
+	static showActionSheetWithItems(items, callback) {
+		const options = [];
+		const actions = [];
+
+		for (const k in items) {
+			options.push(k);
+			actions.push(items[k]);
+		}
+
+		Modal.showActionSheetWithOptions({ options }, index => actions[index](), callback);
+	}
+
+	static showActionSheetWithOptions = (options, callback) => {
+		return Modal.renderModal(options.options.map((item, index) => (
+			<TouchFeedback
+				key={index}
+				onPress={() =>
+					global.requestAnimationFrame(() => {
+						callback(index);
+
+						Modal.renderChild(null);
+					}
+				)}
+			>
+				<View style={[ styles.menuItem, index === 0 ? styles.menuItemFirst : null ]}>
+					<AppText style={styles.menuItemText}>{item}</AppText>
+				</View>
+			</TouchFeedback>
+		)));
+	};
+
+	static _renderChild: ?Function;
+	static _isShown: ?Function;
+
+	state: State = {
+		element: null,
+		fadeAnim: null
+	};
+
 	componentDidMount() {
-		_renderComponent = this._renderComponent;
-		_isShown = this._isShown;
+		Modal._renderChild = this._renderChild;
+		Modal._isShown = this._isShown;
 	}
 
 	componentWillUnmount() {
-		_renderComponent = null;
-		_isShown = null;
+		Modal._renderChild = null;
+		Modal._isShown = null;
 	}
 
-	_renderComponent = component => {
-		if (component === this._component) {
+	_element: ?Element;
+
+	_renderChild: Function = element => {
+		if (element === this._element) {
 			return;
 		}
 
-		this._component = component;
+		this._element = element;
 
-		if (component) {
+		if (element) {
 			this.setState({
-				component,
+				element,
 				fadeAnim: new Animated.Value(0)
 			}, () => Animated.timing(this.state.fadeAnim, {
 				toValue: 1,
@@ -89,12 +158,12 @@ export default class Modal extends React.Component {
 		}
 	};
 
-	_isShown = () => {
-		return !!this.state.component;
+	_isShown: Function = () => {
+		return !!this.state.element;
 	};
 
-	render() {
-		if (!this.state.component) {
+	render(): ?React$Element {
+		if (!this.state.element) {
 			return null;
 		}
 
@@ -108,71 +177,10 @@ export default class Modal extends React.Component {
 
 		return (
 			<Animated.View style={[ styles.container, { height, width, opacity: this.state.fadeAnim } ]}>
-				{this.state.component}
+				{this.state.element}
 
 				<KeyboardSpacer />
 			</Animated.View>
 		);
 	}
 }
-
-Modal.isShown = () => {
-	if (_isShown) {
-		return _isShown();
-	}
-
-	return false;
-};
-
-Modal.renderComponent = component => {
-	if (_renderComponent) {
-		_renderComponent(component);
-
-		return true;
-	}
-
-	return false;
-};
-
-Modal.renderModal = component => {
-	return Modal.renderComponent((
-		<TouchableWithoutFeedback onPress={() => Modal.renderComponent(null)}>
-			<View style={styles.overlay}>
-				<ModalSheet>
-					{component}
-				</ModalSheet>
-			</View>
-		</TouchableWithoutFeedback>
-	));
-};
-
-Modal.showActionSheetWithOptions = (options, callback) => {
-	return Modal.renderModal(options.options.map((item, index) => (
-		<TouchFeedback
-			key={index}
-			onPress={() =>
-				global.requestAnimationFrame(() => {
-					callback(index);
-
-					Modal.renderComponent(null);
-				}
-			)}
-		>
-			<View style={[ styles.menuItem, index === 0 ? styles.menuItemFirst : null ]}>
-				<AppText style={styles.menuItemText}>{item}</AppText>
-			</View>
-		</TouchFeedback>
-	)));
-};
-
-Modal.showActionSheetWithItems = (items, callback) => {
-	const options = [];
-	const actions = [];
-
-	for (const k in items) {
-		options.push(k);
-		actions.push(items[k]);
-	}
-
-	Modal.showActionSheetWithOptions({ options }, index => actions[index](), callback);
-};

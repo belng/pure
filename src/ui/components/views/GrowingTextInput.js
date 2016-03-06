@@ -1,11 +1,14 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import AppText from './AppText';
 import AppTextInput from './AppTextInput';
 
 const {
 	StyleSheet,
 	View,
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	phantom: {
@@ -17,22 +20,52 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class GrowingTextInput extends React.Component {
-	constructor(props) {
+type Props = {
+	value?: string;
+	defaultValue?: string;
+	numberOfLines?: number;
+	placeholder?: string;
+	inputStyle?: any;
+	style?: any;
+	onChange?: Function;
+	onValueChange?: Function;
+}
+
+type State = {
+	value: string;
+}
+
+export default class GrowingTextInput extends Component<void, Props, State> {
+	static propTypes = {
+		value: PropTypes.string,
+		defaultValue: PropTypes.string,
+		placeholder: PropTypes.string,
+		numberOfLines: PropTypes.number,
+		onChange: PropTypes.func,
+		onValueChange: PropTypes.func,
+		inputStyle: AppTextInput.propTypes.style,
+		style: View.propTypes.style,
+	};
+
+	constructor(props: Props) {
 		super(props);
 
 		this.state = {
-			value: this.props.value || this.props.defaultValue
+			value: this.props.value || this.props.defaultValue || ''
 		};
 	}
 
-	componentWillReceiveProps(nextProps) {
+	state: State;
+
+	componentWillReceiveProps(nextProps: Props) {
 		this.setState({
 			value: nextProps.value
 		});
 	}
 
-	_handleChange = e => {
+	_input: Object;
+
+	_handleChange: Function = e => {
 		if (this.props.onChange) {
 			this.props.onChange(e);
 		}
@@ -46,19 +79,19 @@ export default class GrowingTextInput extends React.Component {
 		this.setState({ value });
 	};
 
-	_handleLayout = e => {
+	_handleLayout: Function = e => {
 		this._input.setNativeProps({ height: e.nativeEvent.layout.height });
 	};
 
-	focus = (...args) => {
+	focus: Function = (...args) => {
 		this._input.focus(...args);
 	};
 
-	blur = (...args) => {
+	blur: Function = (...args) => {
 		this._input.blur(...args);
 	};
 
-	focusKeyboard = () => {
+	focusKeyboard: Function = () => {
 		// Need to blur first to trigger showing keyboard
 		this._input.blur();
 
@@ -75,7 +108,7 @@ export default class GrowingTextInput extends React.Component {
 					onLayout={this._handleLayout}
 					pointerEvents='none'
 				>
-					{(this.state.value || this.props.placeholder) + '\n'}
+					{(this.state.value || this.props.placeholder || '') + '\n'}
 				</AppText>
 				<AppTextInput
 					{...this.props}
@@ -89,14 +122,3 @@ export default class GrowingTextInput extends React.Component {
 		);
 	}
 }
-
-GrowingTextInput.propTypes = {
-	value: React.PropTypes.string,
-	defaultValue: React.PropTypes.string,
-	placeholder: React.PropTypes.string,
-	numberOfLines: React.PropTypes.number,
-	onChange: React.PropTypes.func,
-	onValueChange: React.PropTypes.func,
-	inputStyle: AppTextInput.propTypes.style,
-	style: View.propTypes.style,
-};

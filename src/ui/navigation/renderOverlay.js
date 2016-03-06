@@ -1,7 +1,8 @@
 /* @flow */
 /* eslint-disable react/no-multi-comp, react/jsx-no-bind */
 
-import React from 'react-native';
+import React from 'react';
+import ReactNative from 'react-native';
 import AppText from '../components/views/AppText';
 import AppbarTouchable from '../components/views/AppbarTouchable';
 import AppbarIcon from '../components/views/AppbarIcon';
@@ -14,7 +15,7 @@ const {
 	Platform,
 	NavigationHeader,
 	NavigationReducer
-} = React;
+} = ReactNative;
 
 const APPBAR_HEIGHT = Platform.OS === 'ios' ? 44 : 56;
 

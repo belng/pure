@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import Icon from './Icon';
@@ -8,7 +11,7 @@ import Time from './Time';
 const {
 	StyleSheet,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	footer: {
@@ -45,7 +48,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class DiscussionFooter extends React.Component {
+export default class DiscussionFooter extends Component {
 	shouldComponentUpdate(nextProps) {
 		return (
 			this.props.thread.updateTime !== nextProps.thread.updateTime ||
@@ -86,10 +89,10 @@ export default class DiscussionFooter extends React.Component {
 }
 
 DiscussionFooter.propTypes = {
-	thread: React.PropTypes.shape({
-		updateTime: React.PropTypes.number.isRequired,
-		length: React.PropTypes.number.isRequired,
-		from: React.PropTypes.string.isRequired
+	thread: PropTypes.shape({
+		updateTime: PropTypes.number.isRequired,
+		length: PropTypes.number.isRequired,
+		from: PropTypes.string.isRequired
 	}).isRequired,
 	style: View.propTypes.style
 };

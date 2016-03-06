@@ -1,12 +1,16 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import AppText from './AppText';
 import Link from './Link';
 import { buildLink } from '../../../lib/URL';
-import smiley from '../../../lib/Smiley';
+import { format, isEmoji } from '../../../lib/Smiley';
 
 const {
 	StyleSheet
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	emojiOnly: {
@@ -16,21 +20,35 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class RichText extends React.Component {
-	shouldComponentUpdate(nextProps) {
-		return this.props.text !== nextProps.text;
+type Props = {
+	text: string;
+	onOpenLink?: Function;
+	style?: any;
+}
+
+export default class RichText extends Component<void, Props, void> {
+	static propTypes = {
+		text: PropTypes.string.isRequired,
+		onOpenLink: PropTypes.func,
+		style: AppText.propTypes.style
+	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
 	}
 
-	setNativeProps(nativeProps) {
+	setNativeProps(nativeProps: any) {
 		this._root.setNativeProps(nativeProps);
 	}
+
+	_root: Object;
 
 	render() {
 		const { onOpenLink } = this.props;
 
-		const textWithEmoji = smiley.format(this.props.text);
+		const textWithEmoji = format(this.props.text);
 
-		if (smiley.isEmoji(textWithEmoji)) {
+		if (isEmoji(textWithEmoji)) {
 			return (
 				<AppText
 					{...this.props}
@@ -102,9 +120,3 @@ export default class RichText extends React.Component {
 		}
 	}
 }
-
-RichText.propTypes = {
-	text: React.PropTypes.string.isRequired,
-	onOpenLink: React.PropTypes.func,
-	style: AppText.propTypes.style
-};

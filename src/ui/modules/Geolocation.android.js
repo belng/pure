@@ -1,5 +1,9 @@
-import { NativeModules } from 'react-native';
-import RCTDeviceEventEmitter from 'RCTDeviceEventEmitter';
+import ReactNative from 'react-native';
+
+const {
+	NativeModules,
+	RCTDeviceEventEmitter
+} = ReactNative;
 
 const { GeolocationModule } = NativeModules;
 

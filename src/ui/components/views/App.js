@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import Splash from './Splash';
 import OnboardContainer from '../containers/OnboardContainer';
 import Offline from './Offline';
@@ -11,7 +11,13 @@ type Props = {
 	user: string
 }
 
-export default class App extends React.Component<void, Props, void> {
+export default class App extends Component<void, Props, void> {
+	static propTypes = {
+		connection: PropTypes.oneOf([ 'connecting', 'online', 'offline' ]),
+		session: PropTypes.string,
+		user: PropTypes.string
+	};
+
 	render() {
 		const {
 			connection,
@@ -33,9 +39,3 @@ export default class App extends React.Component<void, Props, void> {
 		}
 	}
 }
-
-App.propTypes = {
-	connection: PropTypes.oneOf([ 'connecting', 'online', 'offline' ]),
-	session: PropTypes.string,
-	user: PropTypes.string
-};

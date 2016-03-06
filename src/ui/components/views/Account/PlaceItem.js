@@ -1,6 +1,7 @@
+/* @flow */
 
-
-import React from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import AppText from '../AppText';
 import Icon from '../Icon';
 import Colors from '../../../Colors';
@@ -9,7 +10,7 @@ const {
 	View,
 	TouchableOpacity,
 	StyleSheet
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -66,21 +67,21 @@ const ICONS = {
 	state: 'location-city',
 };
 
-export default class PlaceItem extends React.Component {
+export default class PlaceItem extends Component {
 	static propTypes = {
-		place: React.PropTypes.shape({
-			id: React.PropTypes.string.isRequired,
-			name: React.PropTypes.string
+		place: PropTypes.shape({
+			id: PropTypes.string.isRequired,
+			name: PropTypes.string
 		}),
-		type: React.PropTypes.string.isRequired,
-		onRemove: React.PropTypes.func.isRequired
+		type: PropTypes.string.isRequired,
+		onRemove: PropTypes.func.isRequired
 	};
 
-	_handleRemove = () => {
+	_handleRemove: Function = () => {
 		this.props.onRemove(this.props.place, this.props.type);
 	};
 
-	_capitalizeText = text => {
+	_capitalizeText: Function = (text: string) => {
 		return text
 			.replace(/-+/g, ' ')
 			.replace(/\w\S*/g, s => s.charAt(0).toUpperCase() + s.slice(1))

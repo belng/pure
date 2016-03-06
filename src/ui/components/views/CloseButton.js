@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import Icon from './Icon';
 
@@ -6,7 +9,7 @@ const {
 	StyleSheet,
 	TouchableHighlight,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -28,7 +31,11 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class CloseButton extends React.Component {
+export default class CloseButton extends Component {
+	static propTypes = {
+		style: TouchableHighlight.propTypes.style
+	};
+
 	render() {
 		return (
 			<TouchableHighlight
@@ -47,7 +54,3 @@ export default class CloseButton extends React.Component {
 		);
 	}
 }
-
-CloseButton.propTypes = {
-	style: TouchableHighlight.propTypes.style
-};

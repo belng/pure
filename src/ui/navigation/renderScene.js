@@ -1,6 +1,7 @@
 /* @flow */
 
-import React from 'react-native';
+import React from 'react';
+import ReactNative from 'react-native';
 import routeMapper from './routeMapper';
 import BannerOfflineContainer from '../components/containers/BannerOfflineContainer';
 import Colors from '../Colors';
@@ -9,7 +10,7 @@ const {
 	NavigationCard,
 	StyleSheet,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	scene: {

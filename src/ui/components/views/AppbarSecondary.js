@@ -34,7 +34,7 @@ export default class AppbarSecondary extends Component<void, Props, void> {
 		style: View.propTypes.style
 	};
 
-	_root: any;
+	_root: Object;
 
 	setNativeProps(nativeProps: any) {
 		this._root.setNativeProps(nativeProps);

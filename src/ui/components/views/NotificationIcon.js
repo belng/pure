@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppbarTouchable from './AppbarTouchable';
 import AppbarIcon from './AppbarIcon';
@@ -8,7 +11,7 @@ const {
 	StyleSheet,
 	NavigationActions,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	badge: {
@@ -20,8 +23,12 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class NotificationIcon extends React.Component {
-	_handlePress = () => {
+export default class NotificationIcon extends Component {
+	static propTypes = {
+		onNavigation: PropTypes.func.isRequired
+	};
+
+	_handlePress: Function = () => {
 		this.props.onNavigation(new NavigationActions.Push({ name: 'notes' }));
 	};
 
@@ -36,7 +43,3 @@ export default class NotificationIcon extends React.Component {
 		);
 	}
 }
-
-NotificationIcon.propTypes = {
-	onNavigation: React.PropTypes.func.isRequired
-};

@@ -7,12 +7,20 @@ import Share from '../../modules/Share';
 import { convertRouteToURL } from '../../../lib/Route';
 import { config } from '../../../core-client';
 
-export default class ShareButton extends Component {
+type Props = {
+	thread: {
+		id: string;
+		parents: Array<string>;
+		name: string;
+	};
+}
+
+export default class ShareButton extends Component<void, Props, void> {
 	static propTypes = {
 		thread: PropTypes.shape({
-			to: PropTypes.string,
-			id: PropTypes.string,
-			title: PropTypes.string
+			id: PropTypes.string.isRequired,
+			parents: PropTypes.arrayOf(PropTypes.string).isRequired,
+			name: PropTypes.string.isRequired
 		})
 	};
 
@@ -23,9 +31,9 @@ export default class ShareButton extends Component {
 			Share.shareItem('Share discussion', config.server.protocol + '//' + config.server.host + convertRouteToURL({
 				name: 'chat',
 				props: {
-					room: thread.to,
+					room: thread.parents[0],
 					thread: thread.id,
-					title: thread.title
+					title: thread.name
 				}
 			}));
 		}

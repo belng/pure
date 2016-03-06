@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import Colors from '../../Colors';
 import AppText from './AppText';
@@ -24,7 +27,7 @@ const {
 	NavigationActions,
 	ScrollView,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -130,7 +133,7 @@ const styles = StyleSheet.create({
 
 const FACEBOOK_SHARE_CHECKED_KEY = 'start_discussion_facebook_share_checked';
 
-export default class StartDiscussionButton extends React.Component {
+export default class StartDiscussionButton extends Component {
 	state = {
 		title: '',
 		text: '',
@@ -432,11 +435,11 @@ export default class StartDiscussionButton extends React.Component {
 }
 
 StartDiscussionButton.propTypes = {
-	user: React.PropTypes.string.isRequired,
-	room: React.PropTypes.string.isRequired,
-	dismiss: React.PropTypes.func.isRequired,
-	postDiscussion: React.PropTypes.func.isRequired,
-	requestFacebookPermissions: React.PropTypes.func.isRequired,
-	isFacebookPermissionGranted: React.PropTypes.func.isRequired,
-	onNavigation: React.PropTypes.func.isRequired
+	user: PropTypes.string.isRequired,
+	room: PropTypes.string.isRequired,
+	dismiss: PropTypes.func.isRequired,
+	postDiscussion: PropTypes.func.isRequired,
+	requestFacebookPermissions: PropTypes.func.isRequired,
+	isFacebookPermissionGranted: PropTypes.func.isRequired,
+	onNavigation: PropTypes.func.isRequired
 };

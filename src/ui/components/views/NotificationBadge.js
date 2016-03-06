@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 
@@ -6,7 +9,7 @@ const {
 	StyleSheet,
 	Animated,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	badge: {
@@ -25,14 +28,24 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class NotificationBadge extends React.Component {
-	constructor(props) {
-		super(props);
+type Props = {
+	count: number;
+	style?: any;
+}
 
-		this.state = {
-			scaleAnim: new Animated.Value(0)
-		};
-	}
+type State = {
+	scaleAnim: Animated.Value
+}
+
+export default class NotificationBadge extends Component<void, Props, State> {
+	static propTypes = {
+		count: PropTypes.number.isRequired,
+		style: Animated.View.propTypes.style
+	};
+
+	state: State = {
+		scaleAnim: new Animated.Value(0)
+	};
 
 	componentDidMount() {
 		if (this.props.count > 0) {
@@ -40,11 +53,11 @@ export default class NotificationBadge extends React.Component {
 		}
 	}
 
-	shouldComponentUpdate(nextProps) {
+	shouldComponentUpdate(nextProps: Props): boolean {
 		return (this.props.count !== nextProps.count);
 	}
 
-	componentWillUpdate(nextProps) {
+	componentWillUpdate(nextProps: Props) {
 		if (nextProps.count > 0) {
 			if (this.props.count === 0) {
 				this._scaleIn();
@@ -58,7 +71,7 @@ export default class NotificationBadge extends React.Component {
 		}
 	}
 
-	_bounce = () => {
+	_bounce: Function = () => {
 		Animated.timing(this.state.scaleAnim, {
 			toValue: 0.5,
 			duration: 100
@@ -70,19 +83,19 @@ export default class NotificationBadge extends React.Component {
 		});
 	};
 
-	_scaleIn = () => {
+	_scaleIn: Function = () => {
 		Animated.spring(this.state.scaleAnim, {
 			toValue: 1
 		}).start();
 	};
 
-	_scaleOut = () => {
+	_scaleOut: Function = () => {
 		Animated.spring(this.state.scaleAnim, {
 			toValue: 0
 		}).start();
 	};
 
-	render() {
+	render(): ?React$Element {
 		const { count } = this.props;
 
 		if (!count) {
@@ -98,8 +111,3 @@ export default class NotificationBadge extends React.Component {
 		);
 	}
 }
-
-NotificationBadge.propTypes = {
-	count: React.PropTypes.number.isRequired,
-	style: Animated.View.propTypes.style
-};

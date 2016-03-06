@@ -1,12 +1,13 @@
 /* @flow */
 
-import React from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import AccountPhotoChooserItem from './AccountPhotoChooserItem';
 
 const {
 	StyleSheet,
 	View,
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -16,7 +17,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class AccountPhotoChooser extends React.Component {
+export default class AccountPhotoChooser extends Component {
 	render() {
 		const { photos } = this.props;
 
@@ -35,6 +36,6 @@ export default class AccountPhotoChooser extends React.Component {
 }
 
 AccountPhotoChooser.propTypes = {
-	photos: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
-	onSelect: React.PropTypes.func.isRequired
+	photos: PropTypes.arrayOf(PropTypes.string).isRequired,
+	onSelect: PropTypes.func.isRequired
 };

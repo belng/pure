@@ -1,12 +1,13 @@
 /* @flow */
 
-import React from 'react-native';
+import React, { PropTypes } from 'react';
+import ReactNative from 'react-native';
 import renderNavigator from './renderNavigator';
 
 const {
 	NavigationContainer,
 	NavigationState
-} = React;
+} = ReactNative;
 
 const stateToString = (navState) => {
 	return JSON.stringify({
@@ -32,8 +33,8 @@ const PersistentNavigator = (props: Object): Element => (
 );
 
 PersistentNavigator.propTypes = {
-	initialState: React.PropTypes.any.isRequired,
-	persistenceKey: React.PropTypes.string
+	initialState: PropTypes.any.isRequired,
+	persistenceKey: PropTypes.string
 };
 
 export default PersistentNavigator;

@@ -1,10 +1,13 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component } from 'react';
+import ReactNative from 'react-native';
 import LoadingFancy from './LoadingFancy';
 
 const {
 	StyleSheet,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -13,7 +16,15 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class LoadingItem extends React.Component {
+type Props = {
+	style?: any;
+}
+
+export default class LoadingItem extends Component<void, Props, void> {
+	static propTypes = {
+		style: View.propTypes.style
+	};
+
 	render() {
 		return (
 			<View style={[ styles.container, this.props.style ]}>
@@ -22,7 +33,3 @@ export default class LoadingItem extends React.Component {
 		);
 	}
 }
-
-LoadingItem.propTypes = {
-	style: View.propTypes.style
-};
