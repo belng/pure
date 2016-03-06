@@ -1,5 +1,5 @@
 /* @flow */
-import xmpp from './xmpp.js';
+import xmpp from './xmpp';
 import { bus, Constants } from '../../core-server';
 import log from 'winston';
 
@@ -11,7 +11,9 @@ bus.on('setstate', (changes, next) => {
 	for (const i in changes.entities) {
 		const entity = changes.entities[i];
 
-		if (entity.type === Constants.TYPE_NOTE) {
+		if (entity.type === Constants.TYPE_THREAD ||
+			entity.type === Constants.TYPE_TEXT ||
+			entity.type === Constants.TYPE_NOTE) {
 			log.info('sending pushnotification');
 			xmpp(entity);
 		}

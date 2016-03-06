@@ -32,7 +32,13 @@
 		"client_id": "XXXXXXXXX",
 		"client_secret": "XXXXXXXX"
 	},
-
+	"gcm" : {
+		"senderId": "XXXXXXX",
+		"apiKey": "",
+		"domain": "gcm-xmpp.googleapis.com",
+		"port": 5235,
+		"packageName": ""
+	},
 	"connStr": "pg://scrollback:@localhost/pure",
 	"open_in_browser": false
 }
