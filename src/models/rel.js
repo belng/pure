@@ -1,12 +1,13 @@
 import { COLUMNS } from '../lib/schema';
-import * as Constants from '../lib/Constants';
 
 export default class Relation {
 	constructor(data) {
 		if (!data) throw new Error('CANNOT_INITIALIZE_MODEL');
 
-		for (const name of COLUMNS[Constants.TYPE_REL]) {
-			this[name] = data[name] || data[name.toLowerCase()];
+		for (const name of COLUMNS[data.type]) {
+			if (typeof data[name] !== 'undefined') {
+				this[name] = data[name] || data[name.toLowerCase()];
+			}
 		}
 
 		if (data.error) this.error = data.error;
@@ -21,8 +22,10 @@ export default class Relation {
 	packArguments() {
 		const data = {};
 
-		for (const name of COLUMNS[Constants.TYPE_REL]) {
-			data[name] = this[name];
+		for (const name of COLUMNS[this.type]) {
+			if (typeof data[name] !== 'undefined') {
+				data[name] = this[name];
+			}
 		}
 
 		data.type = this.type;

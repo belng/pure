@@ -60,9 +60,7 @@ function rangeToKnowledge(range, orderedResult) {
 
 
 cache.onChange((changes) => {
-	console.log('cache.onchange', changes);
 	const cb = (key, range, err, r) => {
-		console.log('cache.onchange callback', key, range, err, r);
 		if (err) {
 			winston.error(err);
 			return;
@@ -73,23 +71,19 @@ cache.onChange((changes) => {
 			let prop;
 
 			props.forEach(name => {
-				e[name] = new Types[name](e[name]);
-				prop = name;
+				if (e[name]) {
+					e[name] = new Types[name](e[name]);
+					prop = name;
+				}
 			});
 
 			if (propsCount > 1) return e;
 			else return e[prop];
 		});
 
-		console.log("checkpoint alpha", cache.keyToSlice(key).order);
-
 		const orderedResult = new Know.OrderedArray(cache.arrayOrder(cache.keyToSlice(key)), results);
 
-		console.log("checkpoint bravo", orderedResult);
-
 		const newRange = rangeToKnowledge(range, orderedResult);
-
-		console.log("checkpoint charlie", newRange, orderedResult);
 
 		cache.put({
 			knowledge: { [key]: [ newRange ] },
@@ -218,7 +212,6 @@ bus.on('change', (changes, next) => {
 		const cb = (key, range, err, results) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
 				counter.dec();
-				console.log("callback response received:", arguments);
 
 				const orderedResult = new Know.OrderedArray([ cache.keyToSlice(key).order ], results);
 				const newRange = rangeToKnowledge(range, orderedResult);
@@ -249,7 +242,6 @@ bus.on('change', (changes, next) => {
 			} else {
 				for (const range of changes.queries[key]) {
 					counter.inc();
-					console.log('cache.query', key, range);
 					cache.query(key, range, cb.bind(null, key, range));
 				}
 			}
