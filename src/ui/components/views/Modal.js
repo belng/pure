@@ -63,6 +63,8 @@ export default class Modal extends Component<void, void, State> {
 	}
 
 	static renderChild(element) {
+		console.log('called');
+
 		if (Modal._renderChild) {
 			Modal._renderChild(element);
 
@@ -150,11 +152,11 @@ export default class Modal extends Component<void, void, State> {
 				toValue: 1,
 				duration: 300
 			}).start());
-		} else if (this.state.component) {
+		} else if (this.state.element) {
 			Animated.timing(this.state.fadeAnim, {
 				toValue: 0,
 				duration: 300
-			}).start(() => this.setState({ component: null }));
+			}).start(() => this.setState({ element: null }));
 		}
 	};
 
