@@ -63,8 +63,6 @@ export default class Modal extends Component<void, void, State> {
 	}
 
 	static renderChild(element) {
-		console.log('called');
-
 		if (Modal._renderChild) {
 			Modal._renderChild(element);
 
