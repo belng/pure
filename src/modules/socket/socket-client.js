@@ -52,17 +52,21 @@ function connect() {
 	client.on('message', onMessage);
 }
 
+bus.on('postchange', changes => {
+	if (changes.source === 'server') return;
+
+	const { queries, entities, auth } = changes;
+
+	if (queries || entities || auth) {
+		client.send(packer.encode({
+			queries,
+			entities,
+			auth
+		}));
+	}
+});
+
 bus.on('state:init', state => {
 	state.connectionStatus = 'connecting';
 	connect();
-});
-
-bus.on('postchange', changes => {
-	if (changes.source === 'server') return;
-	if (changes.queries || changes.entities) {
-		client.send(packer.encode({
-			queries: changes.queries,
-			entities: changes.entities
-		}));
-	}
 });
