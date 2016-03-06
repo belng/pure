@@ -11,7 +11,9 @@ import entityHandler from './entity';
 import { bus, cache, config } from '../../core-server';
 import * as Types from './../../models/models';
 import util from 'util';
+
 const channel = 'heyneighbor';
+
 
 const TYPE_SEGMENT = `case \
 when tableoid = 'notes'::regclass then ${Constants.TYPE_NOTE} \
@@ -32,7 +34,7 @@ function broadcast (entity) {
 }
 
 function rangeToKnowledge(range, orderedResult) {
-	let newRange = [], start, end;
+	let newRange = new Know.RangeArray([]), start, end;
 
 	if (range.length === 2) {
 		newRange = range;
@@ -51,15 +53,16 @@ function rangeToKnowledge(range, orderedResult) {
 			start = range[0];
 			end = orderedResult.length < range[2] ? +Infinity : orderedResult.valAt(orderedResult.length - 1);
 		}
-		newRange.push(start, end);
+		newRange.add([ start, end ]);
 	}
 	return newRange;
 }
 
 
 cache.onChange((changes) => {
+	console.log('cache.onchange', changes);
 	const cb = (key, range, err, r) => {
-		console.log('CB within cache.onchange', key, range, err, r);
+		console.log('cache.onchange callback', key, range, err, r);
 		if (err) {
 			winston.error(err);
 			return;
@@ -80,7 +83,7 @@ cache.onChange((changes) => {
 
 		console.log("checkpoint alpha", cache.keyToSlice(key).order);
 
-		const orderedResult = new Know.OrderedArray([ cache.keyToSlice(key).order ], results);
+		const orderedResult = new Know.OrderedArray(cache.arrayOrder(cache.keyToSlice(key)), results);
 
 		console.log("checkpoint bravo", orderedResult);
 
@@ -211,17 +214,16 @@ bus.on('change', (changes, next) => {
 
 
 	if (changes.queries) {
-		winston.debug('Got queries: ', util.inspect(changes, { depth: null }));
+		winston.debug('Got queries: ', util.inspect(changes.queries, { depth: null }));
 		const cb = (key, range, err, results) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
-				counter.dec();
-				const orderedResult = new Know.OrderedArray([ cache.keyToSlice(key).order ], results);
-				const newRange = rangeToKnowledge(range, orderedResult);
+				const newRange = rangeToKnowledge(range, results);
 
 				jsonop(response, {
-					indexes: { [key]: orderedResult },
+					indexes: { [key]: results },
 					knowledge: { [key]: [ newRange ] }
 				});
+				counter.dec();
 			},
 
 			entityCallback = (err, result) => {
@@ -243,6 +245,7 @@ bus.on('change', (changes, next) => {
 			} else {
 				for (const range of changes.queries[key]) {
 					counter.inc();
+					console.log('cache.query', key, range);
 					cache.query(key, range, cb.bind(null, key, range));
 				}
 			}
