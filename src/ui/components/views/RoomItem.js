@@ -42,7 +42,7 @@ type Props = {
 	onSelect: Function;
 }
 
-export default class LocalityItem extends Component<void, Props, void> {
+export default class RoomItem extends Component<void, Props, void> {
 	static propTypes = {
 		room: PropTypes.shape({
 			id: PropTypes.string.isRequired,

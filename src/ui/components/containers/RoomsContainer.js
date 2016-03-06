@@ -21,7 +21,7 @@ class RoomsContainer extends Component {
 								filter: {
 									user
 								},
-								order: 'presenceTime'
+								order: 'roleTime'
 							},
 							range: {
 								start: -Infinity,
