@@ -1,10 +1,14 @@
 import { Constants, bus } from '../../core-server';
+import log from 'winston';
 
 function getScore(params) {
 	return Math.log(params);
 }
 bus.on('change', (changes, next) => {
-	if (!changes.entities) return next();
+	if (!changes.entities) {
+		next();
+		return;
+	}
 
 	for (const id in changes.entities) {
 		const entity = changes.entities[id];
@@ -24,3 +28,4 @@ bus.on('change', (changes, next) => {
 
 	next();
 });
+log.info('Score module ready.');

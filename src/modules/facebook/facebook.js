@@ -192,4 +192,4 @@ bus.on('http/init', app => {
 	}));
 });
 
-winston.info('facebook module is ready.');
+winston.info('Facebook module ready.');

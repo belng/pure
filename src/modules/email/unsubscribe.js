@@ -7,7 +7,7 @@ import { bus, config } from '../../core-server';
 const template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/unsubscribe.hbs', 'utf8').toString());
 
 function handleRequest (req, res) {
-	let decoded, emailAddress;
+	let decoded;
 
 	// extract the Email address from the request
 	try {
@@ -19,7 +19,7 @@ function handleRequest (req, res) {
 			message: 'You were not unsubscribed because the unsubscribe link has expired. Please click the link on a newer email.'
 		}));
 	}
-	emailAddress = decoded.email;
+	const emailAddress = decoded.email;
 
 	// search the database and find the user with this email
 	bus.emit('getUsers', {
@@ -27,15 +27,17 @@ function handleRequest (req, res) {
 		session: 'internal/unsubscribe'
 	}, (err, query) => {
 		if (err) {
-			return res.end(template({
+			res.end(template({
 				message: 'Sorry, an internal server error prevented you from being unsubscribed.'
 			}));
+			return;
 		}
 
 		if (!query.results || !query.results.length) {
-			return res.end(template({
+			res.end(template({
 				message: 'User does not exist.'
 			}));
+			return;
 		}
 
 		// Received the user from the database! Changing the settings...
@@ -53,9 +55,10 @@ function handleRequest (req, res) {
 			session: 'internal/unsubscribe'
 		}, (e) => {
 			if (e) {
-				return res.end(template({
+				res.end(template({
 					message: 'Sorry, an internal server error prevented you from being unsubscribed.'
 				}));
+				return;
 			}
 			res.header('Content-Type', 'text/html');
 			res.end(template({

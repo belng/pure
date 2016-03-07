@@ -200,4 +200,4 @@ bus.on('http/init', app => {
 	}));
 });
 
-winston.info('google module ready...');
+winston.info('Google module ready.');

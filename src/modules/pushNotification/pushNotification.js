@@ -3,7 +3,7 @@ import xmpp from './xmpp';
 import { bus, Constants } from '../../core-server';
 import log from 'winston';
 
-bus.on('setstate', (changes, next) => {
+bus.on('change', (changes, next) => {
 	if (!changes.entities) {
 		next();
 		return;
@@ -20,3 +20,4 @@ bus.on('setstate', (changes, next) => {
 	}
 	next();
 });
+log.info('Pushnotification module ready.');

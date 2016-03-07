@@ -85,4 +85,4 @@ function signinhandler(changes, n) {
 }
 
 bus.on('change', signinhandler, Constants.APP_PRIORITIES.AUTHENTICATION_SIGNIN);
-winston.info('signin module ready...');
+winston.info('Signin module ready.');

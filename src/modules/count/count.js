@@ -1,15 +1,17 @@
 /* @flow */
 
-'use strict';
-
-import { TABLES, COLUMNS, TYPES, ROLES } from '../../lib/schema';
-import { Constants, bus, cache } from '../../core-server';
+import { TABLES, ROLES } from '../../lib/schema';
+import { Constants, bus } from '../../core-server';
+import log from 'winston';
 
 bus.on('change', (changes, next) => {
-	if (!changes.entities) return next();
+	if (!changes.entities) {
+		next();
+		return;
+	}
 
-	for (let id in changes.entities) {
-		let entity = changes.entities[id];
+	for (const id in changes.entities) {
+		const entity = changes.entities[id];
 
 		// 1. Increment children counts on parents
 		if (
@@ -26,18 +28,19 @@ bus.on('change', (changes, next) => {
 				continue;
 			}
 
-			let parent = changes.entities[entity.parents[0][0]] || {};
+			const parent = changes.entities[entity.parents[0][0]] || {};
 
 			parent.counts = parent.counts || {};
 			parent.counts.children = inc;
 			parent.id = entity.parents[0][0];
-			parent.type = ( entity.type === Constants.TYPE_TEXT ) ?
+			parent.type = (entity.type === Constants.TYPE_TEXT) ?
 				Constants.TYPE_THREAD : Constants.TYPE_ROOM;
 			changes.entities[entity.parents[0][0]] = parent;
 
 			// 2. Increment text/thread count of user
 
-			let user = changes.entities[entity.creator] || {};
+			const user = changes.entities[entity.creator] || {};
+
 			user.counts = user.counts || {};
 			user.counts[TABLES[entity.type]] = inc;
 			user.id = entity.creator;
@@ -53,12 +56,13 @@ bus.on('change', (changes, next) => {
 			entity.type === Constants.TYPE_PRIVREL ||
 			entity.type === Constants.TYPE_TOPICREL
 		) {
-			let item = changes.entities[entity.item] || {};
+			const item = changes.entities[entity.item] || {};
 
 			item.counts = item.counts || {};
 
 			if (entity.__op__ && entity.__op__.role && entity.__op__.roles[0] === 'union') {
-				let rem = entity.__op__.roles[0].slice(1);
+				const rem = entity.__op__.roles[0].slice(1);
+
 				rem.forEach((role) => {
 					if (ROLES[role]) {
 						item.counts[ROLES[role]] = -1;
@@ -95,4 +99,5 @@ bus.on('change', (changes, next) => {
 		}
 	}
 	next();
-}, 'modifier');
+}, Constants.APP_PRIORITIES.CACHE_UPDATER);
+log.info('Count module ready.');

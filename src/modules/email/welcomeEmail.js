@@ -30,7 +30,7 @@ function initMailSending(cUserRel) {
 			// console.log('counter1.pending: ',counter1.pending)
 			counter.then(() => {
 				pg.write(connStr, [ {
-					$: 'UPDATE jobs SET lastrun=&{end} WHERE jobid=&{jid}',
+					$: 'UPDATE jobs SET lastrun=&{end} WHERE id=&{jid}',
 					end,
 					jid: Constants.JOB_EMAIL_WELCOME
 				} ], (error) => {

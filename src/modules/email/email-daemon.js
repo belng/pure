@@ -8,18 +8,18 @@ import sendMentionEmail from './mentionEmail';
 import sendDigestEmail from './digestEmail';
 const conf = config.email, connString = config.connStr;
 
-if (!conf.auth) {
+if (!conf.auth.user && !conf.auth.pass) {
 	winston.info('Email module not enabled');
 } else {
-	winston.info('email module is ready');
+	winston.info('Email module ready.');
 	pg.read(connString, {
 		$: 'SELECT * FROM jobs WHERE id in (&(ids))',
 		ids: [ Constants.JOB_EMAIL_WELCOME, Constants.JOB_EMAIL_MENTION, Constants.JOB_EMAIL_DIGEST ]
 	}, (err, results) => {
 		if (err) return;
-		winston.info(results);
+		winston.info('Results: ', results);
 		results.forEach((row) => {
-			switch (row.jobid) {
+			switch (row.id) {
 			case Constants.JOB_EMAIL_WELCOME:
 				sendWelcomeEmail(row);
 				break;

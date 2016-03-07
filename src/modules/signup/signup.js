@@ -95,4 +95,4 @@ function signuphandler(changes, n) {
 }
 
 bus.on('change', signuphandler, Constants.APP_PRIORITIES.AUTHENTICATION_SIGNUP);
-winston.info('signup module ready...');
+winston.info('Signup module ready.');
