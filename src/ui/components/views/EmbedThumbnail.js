@@ -1,5 +1,3 @@
-/* @flow */
-
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import Icon from './Icon';

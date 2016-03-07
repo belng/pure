@@ -2,7 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
+import StartDiscussion from '../views/StartDiscussion';
 import { startThread } from '../../../modules/store/actions';
 
 type Props = {
@@ -14,9 +14,9 @@ type State = {
 	thread: ?string
 }
 
-export default class StartDiscussionContainer extends Component<void, Props, State> {
+class StartDiscussionContainer extends Component<void, Props, State> {
 	static propTypes = {
-		user: PropTypes.string,
+		user: PropTypes.string.isRequired,
 		room: PropTypes.string.isRequired,
 	};
 
@@ -60,7 +60,30 @@ export default class StartDiscussionContainer extends Component<void, Props, Sta
 					}
 				}}
 				passProps={this.props}
-				component={Dummy}
+				component={StartDiscussion}
+			/>
+		);
+	}
+}
+
+export default class StartDiscussionContainerOuter extends Component<void, { room: string }, void> {
+	static propTypes = {
+		room: PropTypes.string.isRequired,
+	};
+
+	render() {
+		return (
+			<Connect
+				mapSubscriptionToProps={{
+					user: {
+						key: {
+							type: 'state',
+							path: 'user'
+						}
+					}
+				}}
+				passProps={this.props}
+				component={StartDiscussionContainer}
 			/>
 		);
 	}

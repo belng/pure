@@ -1,5 +1,3 @@
-/* @flow */
-
 import React, { PropTypes } from 'react';
 import ReactNative from 'react-native';
 import PageEmpty from './PageEmpty';

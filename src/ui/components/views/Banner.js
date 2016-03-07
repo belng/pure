@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	text?: string;
+	text?: ?string;
 	type?: 'info' | 'success' | 'error';
 	style?: any;
 	showClose?: boolean;

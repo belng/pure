@@ -1,5 +1,3 @@
-/* @flow */
-
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import oembed from '../../../modules/oembed/oembed';

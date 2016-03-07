@@ -23,15 +23,22 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class NextButtonLabel extends Component {
+type Props = {
+	label: string;
+	style?: any;
+}
+
+export default class NextButtonLabel extends Component<void, Props, void> {
 	static propTypes = {
-		label: PropTypes.string,
+		label: PropTypes.string.isRequired,
 		style: View.propTypes.style
 	};
 
-	setNativeProps(nativeProps) {
+	setNativeProps(nativeProps: any) {
 		this._root.setNativeProps(nativeProps);
 	}
+
+	_root: Object;
 
 	render() {
 		return (

@@ -32,7 +32,14 @@ const styles = StyleSheet.create({
 	},
 });
 
-const NextButton = props => {
+type Props = {
+	label?: ?string;
+	loading?: boolean;
+	disabled?: boolean;
+	onPress: Function;
+}
+
+const NextButton = (props: Props) => {
 	if (props.loading) {
 		return (
 			<View style={styles.button}>
@@ -44,12 +51,12 @@ const NextButton = props => {
 	}
 
 	if (props.disabled) {
-		return <NextButtonLabel label={props.label} style={[ styles.button, styles.disabled ]} />;
+		return <NextButtonLabel label={props.label || ''} style={[ styles.button, styles.disabled ]} />;
 	}
 
 	return (
 		<TouchableHighlight onPress={props.onPress}>
-			<NextButtonLabel label={props.label} style={styles.button} />
+			<NextButtonLabel label={props.label || ''} style={styles.button} />
 		</TouchableHighlight>
 	);
 };

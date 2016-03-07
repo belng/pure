@@ -18,7 +18,6 @@ import ImageUploadContainer from '../containers/ImageUploadContainer';
 import Banner from './Banner';
 import ImageUploadDiscussion from './ImageUploadDiscussion';
 import ImageChooser from '../../modules/ImageChooser';
-import textUtils from '../../../lib/text-utils';
 
 const {
 	AsyncStorage,
@@ -38,7 +37,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 8,
 		paddingVertical: 16
 	},
-	threadTitle: {
+	threadName: {
 		fontWeight: 'bold',
 		fontSize: 20,
 		lineHeight: 30
@@ -133,12 +132,51 @@ const styles = StyleSheet.create({
 
 const FACEBOOK_SHARE_CHECKED_KEY = 'start_discussion_facebook_share_checked';
 
-export default class StartDiscussionButton extends Component {
-	state = {
-		title: '',
-		text: '',
-		imageData: null,
-		uploadResult: null,
+type Props = {
+	user: string;
+	room: {
+		id: string
+	};
+	dismiss: Function;
+	startThread: Function;
+	onNavigation: Function;
+}
+
+type State = {
+	name: string;
+	body: string;
+	meta: ?{
+		photo: ?{
+			title: string;
+			height: number;
+			width: number;
+		};
+	};
+	upload: ?{
+		originalUrl: string;
+		thumbnailUrl: string;
+	};
+	status: 'loading' | null;
+	error: ?string;
+	shareOnFacebook: boolean;
+}
+
+export default class StartDiscussionButton extends Component<void, Props, State> {
+	static propTypes = {
+		user: PropTypes.string.isRequired,
+		room: PropTypes.shape({
+			id: PropTypes.string.isRequired
+		}).isRequired,
+		dismiss: PropTypes.func.isRequired,
+		startThread: PropTypes.func.isRequired,
+		onNavigation: PropTypes.func.isRequired
+	};
+
+	state: State = {
+		name: '',
+		body: '',
+		meta: null,
+		upload: null,
 		status: null,
 		error: null,
 		shareOnFacebook: false
@@ -148,13 +186,13 @@ export default class StartDiscussionButton extends Component {
 		this._setShareCheckbox();
 	}
 
-	_handleSharePress = () => {
+	_handleSharePress: Function = () => {
 		global.requestAnimationFrame(async () => {
 			let shareOnFacebook = !this.state.shareOnFacebook;
 
 			if (shareOnFacebook) {
 				try {
-					await this.props.requestFacebookPermissions();
+					// await this.props.requestFacebookPermissions();
 				} catch (err) {
 					shareOnFacebook = false;
 				}
@@ -168,14 +206,15 @@ export default class StartDiscussionButton extends Component {
 		});
 	};
 
-	_setShareCheckbox = async () => {
+	_setShareCheckbox: Function = async (): Promise<any> => {
 		let shareOnFacebook;
 
 		try {
 			const isEnabled = JSON.parse(await AsyncStorage.getItem(FACEBOOK_SHARE_CHECKED_KEY));
 
 			if (isEnabled) {
-				const granted = await this.props.isFacebookPermissionGranted();
+				// const granted = await this.props.isFacebookPermissionGranted();
+				const granted = false;
 
 				shareOnFacebook = granted;
 			} else {
@@ -190,42 +229,46 @@ export default class StartDiscussionButton extends Component {
 		});
 	};
 
-	_handleLoading = () => {
+	_handleLoading: Function = () => {
 		this.setState({
 			status: 'loading'
 		});
 	};
 
-	_handlePosted = thread => {
+	_handlePosted: Function = thread => {
 		this.props.onNavigation(new NavigationActions.Push({
 			name: 'chat',
 			props: {
 				thread: thread.id,
-				room: this.props.room
+				room: this.props.room.id
 			}
 		}));
 	};
 
-	_handleError = message => {
+	_handleError: Function = message => {
 		this.setState({
 			error: message,
 			status: null
 		});
 	};
 
-	_postDiscussion = async () => {
-		const FAIL_MESSAGE = 'An error occurred while posting';
-		const SHORT_TITLE_MESSAGE = 'Title needs be at least 2 words';
-		const LONG_TITLE_MESSAGE = 'Title needs be less than 10 words';
+	_postDiscussion: Function = () => {
+		const SHORT_TITLE_MESSAGE = 'Name needs be at least 2 words';
+		const LONG_TITLE_MESSAGE = 'Name needs be less than 10 words';
 		const NO_TITLE_MESSAGE = 'Enter a title in 2 to 10 words';
 		const NO_SUMMARY_MESSAGE = 'Enter a short summary';
 
-		if (!this.state.title) {
+		if (!this.state.name) {
 			this._handleError(NO_TITLE_MESSAGE);
 			return;
 		}
 
-		const words = this.state.title.trim().split(/\s+/);
+		if (!this.state.body) {
+			this._handleError(NO_SUMMARY_MESSAGE);
+			return;
+		}
+
+		const words = this.state.name.trim().split(/\s+/);
 
 		if (words.length < 2) {
 			this._handleError(SHORT_TITLE_MESSAGE);
@@ -235,53 +278,36 @@ export default class StartDiscussionButton extends Component {
 			return;
 		}
 
-		if (this.state.uploadResult) {
-			const result = this.state.uploadResult;
-			const { height, width, name } = this.state.imageData;
+		let meta;
+
+		if (this.state.upload && this.state.meta && this.state.meta.photo) {
+			const { upload } = this.state;
+			const { height, width, title } = this.state.meta.photo;
 			const aspectRatio = height / width;
 
-			try {
-				this._handleLoading();
-
-				const thread = await this.props.postDiscussion({
-					title: this.state.title,
-					text: textUtils.getTextFromMetadata({
-						type: 'photo',
-						title: name,
-						url: result.originalUrl,
-						height,
-						width,
-						thumbnail_height: Math.min(480, width) * aspectRatio,
-						thumbnail_width: Math.min(480, width),
-						thumbnail_url: result.thumbnailUrl
-					}),
-					thread: result.textId,
-					image: result.thumbnailUrl
-				}, this.state.shareOnFacebook);
-
-				this._handlePosted(thread);
-			} catch (e) {
-				this._handleError(FAIL_MESSAGE);
-			}
-		} else if (this.state.text) {
-			try {
-				this._handleLoading();
-
-				const thread = await this.props.postDiscussion({
-					title: this.state.title,
-					text: this.state.text
-				}, this.state.shareOnFacebook);
-
-				this._handlePosted(thread);
-			} catch (e) {
-				this._handleError(FAIL_MESSAGE);
-			}
-		} else {
-			this._handleError(NO_SUMMARY_MESSAGE);
+			meta = {
+				photo: {
+					title,
+					height,
+					width,
+					url: upload.originalUrl,
+					thumbnail_height: Math.min(480, width) * aspectRatio,
+					thumbnail_width: Math.min(480, width),
+					thumbnail_url: upload.thumbnailUrl
+				}
+			};
 		}
+
+		this._handleLoading();
+
+		this.props.startThread(
+			this.state.name,
+			this.state.body,
+			meta
+		);
 	};
 
-	_handlePress = () => {
+	_handlePress: Function = () => {
 		if (this.state.status === 'loading') {
 			return;
 		}
@@ -289,54 +315,64 @@ export default class StartDiscussionButton extends Component {
 		this._postDiscussion();
 	};
 
-	_handleChangeTitle = title => {
+	_handleChangeName: Function = name => {
 		this.setState({
-			title,
+			name,
 			error: null
 		});
 	};
 
-	_handleChangeText = text => {
+	_handleChangeBody: Function = body => {
 		this.setState({
-			text,
+			body,
 			error: null
 		});
 	};
 
-	_handleUploadImage = async () => {
+	_handleUploadImage: Function = async () => {
 		try {
 			this.setState({
-				imageData: null
+				meta: {
+					photo: null
+				}
 			});
 
 			const imageData = await ImageChooser.pickImage();
 
 			this.setState({
-				imageData
+				meta: {
+					photo: {
+						title: imageData.name,
+						height: imageData.height,
+						width: imageData.width
+					}
+				}
 			});
 		} catch (e) {
 			// Do nothing
 		}
 	};
 
-	_handleUploadFinish = result => {
+	_handleUploadFinish: Function = upload => {
 		this.setState({
-			uploadResult: result,
+			upload,
 			error: null
 		});
 	};
 
-	_handleUploadClose = () => {
+	_handleUploadClose: Function = () => {
 		this.setState({
-			imageData: null,
-			uploadResult: null,
+			meta: {
+				photo: null
+			},
+			upload: null,
 			error: null
 		});
 	};
 
 	render() {
 		const isLoading = this.state.status === 'loading';
-		const isDisabled = !(this.state.title && (this.state.text || this.state.uploadResult) && !isLoading);
+		const isDisabled = !(this.state.name && (this.state.body || this.state.meta && this.state.meta.photo) && !isLoading);
 
 		return (
 			<View style={styles.container}>
@@ -359,11 +395,11 @@ export default class StartDiscussionButton extends Component {
 				<ScrollView style={styles.scene} keyboardShouldPersistTaps>
 					<AppTextInput
 						autoFocus
-						value={this.state.title}
-						onChangeText={this._handleChangeTitle}
+						value={this.state.name}
+						onChangeText={this._handleChangeName}
 						placeholder='Write a discussion title'
 						autoCapitalize='sentences'
-						style={[ styles.threadTitle, styles.entry ]}
+						style={[ styles.threadName, styles.entry ]}
 						underlineColorAndroid='transparent'
 					/>
 
@@ -377,8 +413,8 @@ export default class StartDiscussionButton extends Component {
 						/> :
 						<GrowingTextInput
 							numberOfLines={5}
-							value={this.state.text}
-							onChangeText={this._handleChangeText}
+							value={this.state.body}
+							onChangeText={this._handleChangeBody}
 							placeholder='And a short summary'
 							autoCapitalize='sentences'
 							inputStyle={[ styles.threadSummary, styles.entry ]}
@@ -433,13 +469,3 @@ export default class StartDiscussionButton extends Component {
 		);
 	}
 }
-
-StartDiscussionButton.propTypes = {
-	user: PropTypes.string.isRequired,
-	room: PropTypes.string.isRequired,
-	dismiss: PropTypes.func.isRequired,
-	postDiscussion: PropTypes.func.isRequired,
-	requestFacebookPermissions: PropTypes.func.isRequired,
-	isFacebookPermissionGranted: PropTypes.func.isRequired,
-	onNavigation: PropTypes.func.isRequired
-};

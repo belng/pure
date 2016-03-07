@@ -53,7 +53,7 @@ type State = {
 	fadeAnim: ?Animated.Value
 }
 
-export default class Modal extends Component<void, void, State> {
+export default class Modal extends Component<void, any, State> {
 	static isShown() {
 		if (Modal._isShown) {
 			return Modal._isShown();
@@ -73,7 +73,9 @@ export default class Modal extends Component<void, void, State> {
 	}
 
 	static renderModal(element) {
-		return Modal.renderChild((
+		return Modal.renderChild(
+
+			/* $FlowFixMe: Not sure what's happening here */
 			<TouchableWithoutFeedback onPress={() => Modal.renderChild(null)}>
 				<View style={styles.overlay}>
 					<ModalSheet>
@@ -81,7 +83,7 @@ export default class Modal extends Component<void, void, State> {
 					</ModalSheet>
 				</View>
 			</TouchableWithoutFeedback>
-		));
+		);
 	}
 
 	static showActionSheetWithItems(items, callback) {

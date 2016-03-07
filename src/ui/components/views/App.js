@@ -7,8 +7,8 @@ import Offline from './Offline';
 
 type Props = {
 	connection: 'connecting' | 'online' | 'offline';
-	session: string,
-	user: string
+	session: string;
+	user: string;
 }
 
 export default class App extends Component<void, Props, void> {

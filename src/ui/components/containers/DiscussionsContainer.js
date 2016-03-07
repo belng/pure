@@ -2,12 +2,13 @@
 
 import React, { Component, PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
-import Discussions from '../views/Dummy';
+import Discussions from '../views/Discussions';
 import type { SubscriptionRange } from '../../../modules/store/ConnectTypes';
 
-export default class DiscussionsContainer extends Component<void, any, SubscriptionRange> {
+class DiscussionsContainer extends Component<void, any, SubscriptionRange> {
 	static propTypes = {
 		room: PropTypes.string.isRequired,
+		user: PropTypes.string.isRequired,
 	};
 
 	state: SubscriptionRange = {
@@ -32,20 +33,14 @@ export default class DiscussionsContainer extends Component<void, any, Subscript
 		return (
 			<Connect
 				mapSubscriptionToProps={{
-					user: {
-						key: {
-							type: 'state',
-							path: 'user'
-						},
-					},
-					threads: {
+					data: {
 						key: {
 							slice: {
 								type: 'thread',
 								filter: {
-									room: this.props.room
+									parents_cts : [ this.props.room ]
 								},
-								order: 'score'
+								order: 'createTime'
 							},
 							range: {
 								start,
@@ -57,6 +52,29 @@ export default class DiscussionsContainer extends Component<void, any, Subscript
 				}}
 				passProps={{ ...this.props, loadMore: this._loadMore }}
 				component={Discussions}
+			/>
+		);
+	}
+}
+
+export default class DiscussionsContainerOuter extends Component<void, { room: string }, void> {
+	static propTypes = {
+		room: PropTypes.string.isRequired,
+	};
+
+	render() {
+		return (
+			<Connect
+				mapSubscriptionToProps={{
+					user: {
+						key: {
+							type: 'state',
+							path: 'user'
+						}
+					}
+				}}
+				passProps={this.props}
+				component={DiscussionsContainer}
 			/>
 		);
 	}
