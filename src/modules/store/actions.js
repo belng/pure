@@ -2,6 +2,8 @@
 
 import type { User } from '../../lib/schemaTypes';
 import UserModel from '../../models/user';
+import ThreadModel from '../../models/thread';
+import uuid from 'uuid';
 import { PRESENCE_FOREGROUND, PRESENCE_BACKGROUND } from '../../lib/Constants';
 
 /*
@@ -53,9 +55,15 @@ export const sendText = (): Object => ({
 
 });
 
-export const startThread = (): Object => ({
+export const startThread = (data: { name: string; body: string; meta?: ?Object; parents: Array<string>; creator: string; }): Object => {
+	const id = uuid.v4();
 
-});
+	return {
+		entities: {
+			[id]: new ThreadModel({ id, ...data, create: true })
+		}
+	};
+};
 
 export const hideText = (): Object => ({
 
