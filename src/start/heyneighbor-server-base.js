@@ -18,7 +18,7 @@ import './../modules/count/count';
 import './../modules/note/note';
 import './../modules/upload/upload';
 import '../modules/score/score';
-import '../modules/pushNotification/pushNotification';
+import '../modules/gcm/gcm-server';
 import '../modules/postgres/postgres';
 
 // import "./../modules/ui/ui-server";

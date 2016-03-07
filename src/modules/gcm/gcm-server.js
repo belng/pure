@@ -2,6 +2,7 @@
 import xmpp from './xmpp';
 import { bus, Constants } from '../../core-server';
 import log from 'winston';
+import './handleUpstreamMessage';
 
 bus.on('change', (changes, next) => {
 	if (!changes.entities) {
@@ -20,4 +21,4 @@ bus.on('change', (changes, next) => {
 	}
 	next();
 });
-log.info('Pushnotification module ready.');
+log.info('GCM module ready.');

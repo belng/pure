@@ -16,38 +16,28 @@ const options = {
 	preferred: 'PLAIN'
 };
 
-function updateUser() {
-
-}
 
 function onStanza (s) {
 	const st = s.toJSON();
-	let x, type;
+	let x;
 
 	log.info('stanza: ', st);
 
 	if (st.children && st.children[0] && st.children[0].children) {
 		x = JSON.parse(st.children[0].children[0]);
-		type = x.message_type;
-		console.log('x:', x);
-		console.log('category: ', x.category, config.gcm.packageName)
 	}
 
-	if (type === 'nack') {
+	if (x.message_type === 'nack') {
 		setTimeout(gcm, backOff * 1000);
 		backOff *= 2;
 		if (backOff > 128) backOff = 128;
 	}
-
-	if (x && x.category === config.gcm.packageName) {
-		log.info('Handle upstream message');
-		handleUpstreamMessage(x, updateUser);
-	}
 }
 
-function connect () {
+export function connect (cb) {
 	log.info('connecting.....');
 	client = new Client(options);
+	cb(client);
 }
 
 function onOnline (d) {
@@ -63,27 +53,11 @@ function onError(e) {
 
 export default function gcm (note) {
 	stanza = note;
-	connect();
+	connect(() => {
+		log.info('XMPP client connetced.');
+	});
 
 	client.on('online', onOnline);
 	client.on('error', onError);
 	client.on('stanza', onStanza);
-}
-
-function handleUpstreamMessage (upStanza, cb) {
-console.log(upStanza);
-	const stnza = `<message>
-		<gcm xmlns="google:mobile:data">
-			{
-					"to":${upStanza.from},
-					"message_id":${upStanza.message_id}
-					"message_type":"ack"
-			}
-		</gcm>
-	</message>`;
-
-	log.info('Sending ACK message');
-	console.log(stnza);
-	client.send(stnza);
-	cb();
 }
