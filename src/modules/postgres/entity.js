@@ -83,11 +83,6 @@ export default function (entity) {
 					};
 				case 'updatetime':
 					return `${name} = ${Date.now()}`;
-				case 'identities': // TODO: find a way to merge and do uniq on the identities
-					return {
-						$: '"identities" = &{identities}',
-						identities: entity[name]
-					};
 				case 'meta':
 				case 'params':
 				case 'data':
