@@ -1,10 +1,13 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import Icon from './Icon';
 
 const {
 	StyleSheet
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	icon: {
@@ -13,7 +16,15 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class AppbarIcon extends React.Component {
+type Props = {
+	style?: any;
+}
+
+export default class AppbarIcon extends Component<void, Props, void> {
+	static propTypes = {
+		style: Icon.propTypes.style
+	};
+
 	render() {
 		return (
 			<Icon
@@ -24,7 +35,3 @@ export default class AppbarIcon extends React.Component {
 		);
 	}
 }
-
-AppbarIcon.propTypes = {
-	style: Icon.propTypes.style
-};

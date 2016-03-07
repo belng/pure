@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import CloseButton from './CloseButton';
 import ImageUploadButton from './ImageUploadButton';
@@ -7,7 +10,7 @@ const {
 	StyleSheet,
 	View,
 	Image
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -39,7 +42,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class ChatInput extends React.Component {
+export default class ChatInput extends Component {
 	_onClose = () => {
 		this.props.closeUpload();
 	};
@@ -79,15 +82,15 @@ export default class ChatInput extends React.Component {
 }
 
 ChatInput.propTypes = {
-	imageData: React.PropTypes.shape({
-		name: React.PropTypes.string.isRequired,
-		uri: React.PropTypes.string.isRequired,
-		height: React.PropTypes.number.isRequired,
-		width: React.PropTypes.number.isRequired,
-		size: React.PropTypes.number.isRequired
+	imageData: PropTypes.shape({
+		name: PropTypes.string.isRequired,
+		uri: PropTypes.string.isRequired,
+		height: PropTypes.number.isRequired,
+		width: PropTypes.number.isRequired,
+		size: PropTypes.number.isRequired
 	}).isRequired,
-	status: React.PropTypes.string.isRequired,
-	startUpload: React.PropTypes.func.isRequired,
-	cancelUpload: React.PropTypes.func.isRequired,
-	closeUpload: React.PropTypes.func.isRequired
+	status: PropTypes.string.isRequired,
+	startUpload: PropTypes.func.isRequired,
+	cancelUpload: PropTypes.func.isRequired,
+	closeUpload: PropTypes.func.isRequired
 };

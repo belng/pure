@@ -20,10 +20,10 @@ import { config } from '../../core-client';
 
 export type RouteDescription = {
 	title?: string;
-	titleComponent?: ReactClass;
-	leftComponent?: ReactClass;
-	rightComponent?: ReactClass;
-	component: any;
+	titleComponent?: ReactClass<any>;
+	leftComponent?: ReactClass<any>;
+	rightComponent?: ReactClass<any>;
+	component: ReactClass<any>;
 }
 
 export default function(route: Route): RouteDescription {

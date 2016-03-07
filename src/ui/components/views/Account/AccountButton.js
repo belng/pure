@@ -1,14 +1,15 @@
 /* @flow */
 
-import React from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import AppbarTouchable from '../AppbarTouchable';
 import AppbarIcon from '../AppbarIcon';
 
 const {
 	NavigationActions
-} = React;
+} = ReactNative;
 
-export default class AccountButton extends React.Component {
+export default class AccountButton extends Component {
 	_handlePress = () => {
 		this.props.onNavigation(new NavigationActions.Push({ name: 'account' }));
 	};
@@ -23,5 +24,5 @@ export default class AccountButton extends React.Component {
 }
 
 AccountButton.propTypes = {
-	onNavigation: React.PropTypes.func.isRequired
+	onNavigation: PropTypes.func.isRequired
 };

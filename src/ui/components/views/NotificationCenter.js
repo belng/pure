@@ -1,26 +1,54 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import NotificationCenterItem from './NotificationCenterItem';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
+import type { Note } from '../../../lib/schemaTypes';
 
 const {
 	ListView,
-} = React;
+} = ReactNative;
 
-export default class NotificationCenter extends React.Component {
-	constructor(props) {
-		super(props);
+type Props = {
+	dismissNote: Function;
+	onNavigation: Function;
+	data: Array<Note | { type: 'loading' } | { type: 'failed' }>;
+}
 
-		this._dataSource = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-	}
+type State = {
+	dataSource: ListView.DataSource
+}
 
-	_getDataSource = () => {
-		return this._dataSource.cloneWithRows(this.props.data);
+export default class NotificationCenter extends Component {
+	static propTypes = {
+		dismissNote: PropTypes.func.isRequired,
+		onNavigation: PropTypes.func.isRequired,
+		data: PropTypes.arrayOf(PropTypes.object).isRequired,
 	};
 
-	_renderRow = note => (
+	state: State = {
+		dataSource: new ListView.DataSource({
+			rowHasChanged: (r1, r2) => r1 !== r2
+		})
+	};
+
+	componentWillMount() {
+		this.setState({
+			dataSource: this.state.dataSource.cloneWithRows(this.props.data)
+		});
+	}
+
+	componentWillReceiveProps(nextProps: Props) {
+		this.setState({
+			dataSource: this.state.dataSource.cloneWithRows(nextProps.data)
+		});
+	}
+
+	_renderRow: Function = (note: Note) => (
 		<NotificationCenterItem
-			key={note.ref + note.type}
+			key={note.id}
 			note={note}
 			onNavigation={this.props.onNavigation}
 			dismissNote={this.props.dismissNote}
@@ -46,21 +74,9 @@ export default class NotificationCenter extends React.Component {
 
 		return (
 			<ListView
-				dataSource={this._getDataSource()}
+				dataSource={this.state.dataSource}
 				renderRow={this._renderRow}
 			/>
 		);
 	}
 }
-
-NotificationCenter.propTypes = {
-	data: React.PropTypes.arrayOf(React.PropTypes.oneOfType([
-		React.PropTypes.oneOf([ 'missing', 'failed' ]),
-		React.PropTypes.shape({
-			id: React.PropTypes.string
-		})
-	])).isRequired,
-	dismissNote: React.PropTypes.func.isRequired,
-	refreshData: React.PropTypes.func,
-	onNavigation: React.PropTypes.func.isRequired
-};

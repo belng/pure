@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import AppbarTouchable from './AppbarTouchable';
@@ -7,7 +10,7 @@ const {
 	StyleSheet,
 	View,
 	NavigationActions
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -27,7 +30,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class ChatTitle extends React.Component {
+export default class ChatTitle extends Component {
 	_handlePress = () => {
 		const { thread } = this.props;
 
@@ -70,12 +73,12 @@ export default class ChatTitle extends React.Component {
 }
 
 ChatTitle.propTypes = {
-	thread: React.PropTypes.oneOfType([
-		React.PropTypes.shape({
-			title: React.PropTypes.string.isRequired,
-			concerns: React.PropTypes.arrayOf(React.PropTypes.string)
+	thread: PropTypes.oneOfType([
+		PropTypes.shape({
+			title: PropTypes.string.isRequired,
+			concerns: PropTypes.arrayOf(PropTypes.string)
 		}),
-		React.PropTypes.string
+		PropTypes.string
 	]).isRequired,
-	onNavigation: React.PropTypes.func.isRequired
+	onNavigation: PropTypes.func.isRequired
 };

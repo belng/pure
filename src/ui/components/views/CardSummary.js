@@ -1,10 +1,13 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import RichText from './RichText';
 
 const {
 	StyleSheet
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	summary: {
@@ -12,11 +15,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class TextSummary extends React.Component {
-	shouldComponentUpdate(nextProps) {
-		return this.props.text !== nextProps.text;
-	}
-
+export default class TextSummary extends Component {
 	render() {
 		return (
 			<RichText
@@ -30,6 +29,6 @@ export default class TextSummary extends React.Component {
 }
 
 TextSummary.propTypes = {
-	text: React.PropTypes.string.isRequired,
+	text: PropTypes.string.isRequired,
 	style: RichText.propTypes.style
 };

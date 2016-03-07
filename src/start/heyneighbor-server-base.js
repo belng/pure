@@ -12,7 +12,7 @@ import '../modules/resource/resource';
 import '../modules/belong/belong';
 
 /* ########### */
-import '../modules/relations/relations';
+// import '../modules/relations/relations';
 
 import './../modules/count/count';
 import './../modules/note/note';

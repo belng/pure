@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import ReactNative from 'react-native';
 
 const {
@@ -17,7 +17,7 @@ type State = {
 	keyboardHeightAnim: Animated.Value
 }
 
-export default class KeyboardSpacer extends React.Component<Props, Props, State> {
+export default class KeyboardSpacer extends Component<Props, Props, State> {
 	static propTypes = {
 		offset: PropTypes.number
 	};

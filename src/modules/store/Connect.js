@@ -106,11 +106,17 @@ export default class Connect extends Component<void, Props, State> {
 	};
 
 	_updateListener: Function = (name, transform) => {
+		const {
+			mapSubscriptionToProps
+		} = this.props;
+
+		const len = mapSubscriptionToProps ? Object.keys(mapSubscriptionToProps).length : 0;
+
 		return data => {
 			if (this._mounted) {
 				this.setState({
 					[name]: transform ? transform(data) : data,
-					__defer: false
+					__defer: this.state.__defer ? (Object.keys(this.state).length - 1) === len : false
 				});
 			}
 		};

@@ -1,6 +1,7 @@
 /* @flow */
 
-import React from 'react-native';
+import React, { PropTypes } from 'react';
+import ReactNative from 'react-native';
 import PlaceManager from './PlaceManager';
 import PageLoading from '../PageLoading';
 import Colors from '../../../Colors';
@@ -8,7 +9,7 @@ import Colors from '../../../Colors';
 const {
 	StyleSheet,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -28,7 +29,7 @@ const MyPlaces = (props: { places: Array<any>, style: any }) => {
 
 MyPlaces.propTypes = {
 	style: View.propTypes.style,
-	places: React.PropTypes.array
+	places: PropTypes.array
 };
 
 export default MyPlaces;

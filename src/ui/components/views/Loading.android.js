@@ -1,11 +1,24 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component } from 'react';
+import ReactNative from 'react-native';
 
 const {
 	ProgressBarAndroid
-} = React;
+} = ReactNative;
 
-export default class Loading extends React.Component {
-	setNativeProps(nativeProps) {
+type Props = {
+	style?: any;
+}
+
+export default class Loading extends Component<void, Props, void> {
+	static propTypes = {
+		style: ProgressBarAndroid.propTypes.style
+	};
+
+	_root: Object;
+
+	setNativeProps(nativeProps: any) {
 		this._root.setNativeProps(nativeProps);
 	}
 
@@ -13,7 +26,3 @@ export default class Loading extends React.Component {
 		return <ProgressBarAndroid ref={c => (this._root = c)} style={this.props.style} />;
 	}
 }
-
-Loading.propTypes = {
-	style: ProgressBarAndroid.propTypes.style
-};

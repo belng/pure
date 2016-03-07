@@ -26,11 +26,11 @@ export default class StartDiscussionButton extends Component<void, Props, void> 
 	}
 
 	_dismissModal: Function = () => {
-		Modal.renderComponent(null);
+		Modal.renderChild(null);
 	};
 
 	_handlePress: Function = () => {
-		Modal.renderComponent(<StartDiscussionContainer {...this.props} dismiss={this._dismissModal} />);
+		Modal.renderChild(<StartDiscussionContainer {...this.props} dismiss={this._dismissModal} />);
 	};
 
 	render() {

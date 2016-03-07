@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import AvatarRound from './AvatarRound';
@@ -6,7 +9,7 @@ import AvatarRound from './AvatarRound';
 const {
 	StyleSheet,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	author: {
@@ -22,11 +25,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class CardAuthor extends React.Component {
-	shouldComponentUpdate(nextProps) {
-		return this.props.nick !== nextProps.nick;
-	}
-
+export default class CardAuthor extends Component {
 	render() {
 		const { nick } = this.props;
 
@@ -43,6 +42,6 @@ export default class CardAuthor extends React.Component {
 }
 
 CardAuthor.propTypes = {
-	nick: React.PropTypes.string.isRequired,
+	nick: PropTypes.string.isRequired,
 	style: View.propTypes.style
 };

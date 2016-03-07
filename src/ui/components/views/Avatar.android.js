@@ -1,18 +1,31 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import URLResolver from '../../modules/URLResolver';
 
 const {
 	Image
-} = React;
+} = ReactNative;
 
-export default class Avatar extends React.Component {
-	constructor(props) {
-		super(props);
+type Props = {
+	uri?: string;
+	size: number;
+}
 
-		this.state = {
-			uri: ''
-		};
-	}
+type State = {
+	uri: string
+}
+
+export default class Avatar extends Component<void, Props, State> {
+	static propTypes = {
+		uri: PropTypes.string,
+		size: PropTypes.number.isRequired
+	};
+
+	state: State = {
+		uri: ''
+	};
 
 	componentWillMount() {
 		this._mounted = true;
@@ -22,13 +35,13 @@ export default class Avatar extends React.Component {
 		}
 	}
 
-	componentWillReceiveProps(nextProps) {
+	componentWillReceiveProps(nextProps: Props) {
 		if (this.props.uri !== nextProps.uri) {
 			this._updateData(nextProps.uri);
 		}
 	}
 
-	shouldComponentUpdate(nextProps, nextState) {
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
 		return (this.state.uri !== nextState.uri);
 	}
 
@@ -36,7 +49,9 @@ export default class Avatar extends React.Component {
 		this._mounted = false;
 	}
 
-	_updateData = async currentUri => {
+	_mounted: boolean = false;
+
+	_updateData: Function = async (currentUri: string) => {
 		try {
 			// We manually resolve the links since RN doesn't seem to handle redirects properly
 			const uri = await URLResolver.resolveURL(currentUri);
@@ -66,8 +81,3 @@ export default class Avatar extends React.Component {
 		}
 	}
 }
-
-Avatar.propTypes = {
-	uri: React.PropTypes.string,
-	size: React.PropTypes.number.isRequired
-};

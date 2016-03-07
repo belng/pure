@@ -1,42 +1,40 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 
 const {
-	StyleSheet,
-	View
-} = React;
+	StyleSheet
+} = ReactNative;
 
 const styles = StyleSheet.create({
-	titleContainer: {
-		flex: 1,
-		marginVertical: 15,
-		marginHorizontal: 4,
-		marginRight: 64
-	},
-	titleText: {
-		color: Colors.darkGrey,
+	title: {
+		color: Colors.white,
 		fontWeight: 'bold',
 		fontSize: 18,
 		lineHeight: 27,
+		marginVertical: 14,
+		marginRight: 64,
 		paddingHorizontal: 4
 	}
 });
 
-export default class AppbarTitle extends React.Component {
+type Props = {
+	title: string
+}
+
+export default class AppbarTitle extends Component<void, Props, void> {
+	static propTypes = {
+		title: PropTypes.string.isRequired
+	};
+
 	render() {
 		return (
-			<View {...this.props} style={[ styles.titleContainer, this.props.style ]}>
-				<AppText style={[ styles.titleText, this.props.textStyle ]} numberOfLines={1}>
-					{this.props.children}
-				</AppText>
-			</View>
+			<AppText numberOfLines={1} style={styles.title}>
+				{this.props.title}
+			</AppText>
 		);
 	}
 }
-
-AppbarTitle.propTypes = {
-	children: React.PropTypes.string.isRequired,
-	style: View.propTypes.style,
-	textStyle: AppText.propTypes.style
-};

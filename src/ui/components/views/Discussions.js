@@ -54,12 +54,16 @@ export default class Discussions extends Component<void, Props, State> {
 	};
 
 	componentWillMount() {
+		console.log('data', this.props.data);
+
 		this.setState({
 			dataSource: this.state.dataSource.cloneWithRows(this.props.data)
 		});
 	}
 
 	componentWillReceiveProps(nextProps: Props) {
+		console.log('update', nextProps);
+
 		this.setState({
 			dataSource: this.state.dataSource.cloneWithRows(nextProps.data)
 		});

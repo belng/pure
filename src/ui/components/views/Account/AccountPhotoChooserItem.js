@@ -1,6 +1,7 @@
 /* @flow */
 
-import React from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../../Colors';
 
 const {
@@ -8,7 +9,7 @@ const {
 	View,
 	Image,
 	TouchableOpacity
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	photoContainer: {
@@ -26,7 +27,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class AccountPhotoChooserItem extends React.Component {
+export default class AccountPhotoChooserItem extends Component {
 	_handlePress = () => {
 		this.props.onPress(this.props.uri);
 	};
@@ -43,6 +44,6 @@ export default class AccountPhotoChooserItem extends React.Component {
 }
 
 AccountPhotoChooserItem.propTypes = {
-	uri: React.PropTypes.string.isRequired,
-	onPress: React.PropTypes.func.isRequired
+	uri: PropTypes.string.isRequired,
+	onPress: PropTypes.func.isRequired
 };

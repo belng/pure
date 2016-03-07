@@ -1,9 +1,12 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { PropTypes } from 'react';
+import ReactNative from 'react-native';
 
 const {
 	StyleSheet,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	page: {
@@ -13,14 +16,19 @@ const styles = StyleSheet.create({
 	}
 });
 
-const Page = props => (
+type Props = {
+	children?: Element;
+	style?: any;
+}
+
+const Page = (props: Props) => (
 	<View style={[ styles.page, props.style ]}>
 		{props.children}
 	</View>
 );
 
 Page.propTypes = {
-	children: React.PropTypes.node.isRequired,
+	children: PropTypes.node.isRequired,
 	style: View.propTypes.style
 };
 

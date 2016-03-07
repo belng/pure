@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import PageLoading from './PageLoading';
 import ChatMessagesContainer from '../containers/ChatMessagesContainer';
 import ChatInput from './ChatInput';
@@ -7,7 +10,7 @@ import BannerOfflineContainer from '../containers/BannerOfflineContainer';
 const {
 	View,
 	StyleSheet
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -15,13 +18,22 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class Chat extends React.Component {
-	_quoteMessage = text => {
-		this._input.quotedText = text;
+export default class Chat extends Component {
+	static propTypes = {
+		room: PropTypes.string.isRequired,
+		thread: PropTypes.string.isRequired,
+		user: PropTypes.string.isRequired,
+		sendMessage: PropTypes.func.isRequired
 	};
 
-	_replyToMessage = user => {
-		this._input.replyTo = user;
+	_input: Object;
+
+	_quoteMessage: Function = (text: string) => {
+		this._input.setQuotedText(text);
+	};
+
+	_replyToMessage: Function = (user: string) => {
+		this._input.setReplyTo(user);
 	};
 
 	render() {
@@ -53,10 +65,3 @@ export default class Chat extends React.Component {
 		);
 	}
 }
-
-Chat.propTypes = {
-	room: React.PropTypes.string.isRequired,
-	thread: React.PropTypes.string.isRequired,
-	user: React.PropTypes.string.isRequired,
-	sendMessage: React.PropTypes.func.isRequired
-};

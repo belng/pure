@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import Loading from './Loading';
 
@@ -6,7 +9,7 @@ const {
 	StyleSheet,
 	PixelRatio,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -28,7 +31,11 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class LoadingFancy extends React.Component {
+export default class LoadingFancy extends Component {
+	static propTypes = {
+		style: View.propTypes.style
+	};
+
 	render() {
 		return (
 			<View style={[ styles.container, this.props.style ]}>
@@ -37,7 +44,3 @@ export default class LoadingFancy extends React.Component {
 		);
 	}
 }
-
-LoadingFancy.propTypes = {
-	style: View.propTypes.style
-};

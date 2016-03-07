@@ -9,6 +9,8 @@ const {
 	host,
 } = config.server;
 
+const poll = 'document' in window && 'createElement' in window.document; // Disable polling in non-web environments, e.g.- react-native
+
 let	backOff = 1, client;
 
 function disconnected() {
@@ -36,8 +38,10 @@ function onMessage(message) {
 }
 
 function connect() {
+
 	client = new eio.Socket((protocol === 'https:' ? 'wss:' : 'ws:') + '//' + host, {
-		jsonp: 'document' in window && 'createElement' in window.document // Disable JSONP in non-web environments, e.g.- react-native
+		jsonp: poll,
+		transports: poll ? [ 'polling', 'websocket' ] : [ 'websocket' ]
 	});
 
 	client.on('close', disconnected);

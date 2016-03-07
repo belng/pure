@@ -1,6 +1,9 @@
 /* @flow */
 
 import type { User } from '../../lib/schemaTypes';
+import UserModel from '../../models/user';
+import ThreadModel from '../../models/thread';
+import uuid from 'uuid';
 import { PRESENCE_FOREGROUND, PRESENCE_BACKGROUND } from '../../lib/Constants';
 
 /*
@@ -16,7 +19,7 @@ export const signIn = (provider: string, accessToken: string): Object => ({
 
 export const signUp = (user: User): Object => ({
 	auth: {
-		signup: user
+		signup: new UserModel(user)
 	}
 });
 
@@ -32,7 +35,7 @@ export const signOut = (): Object => ({
 
 export const saveUser = (user: User): Object => ({
 	entities: {
-		[user.id]: user
+		[user.id]: new UserModel(user)
 	}
 });
 
@@ -52,9 +55,15 @@ export const sendText = (): Object => ({
 
 });
 
-export const startThread = (): Object => ({
+export const startThread = (data: { name: string; body: string; meta?: ?Object; parents: Array<string>; creator: string; }): Object => {
+	const id = uuid.v4();
 
-});
+	return {
+		entities: {
+			[id]: new ThreadModel({ id, ...data, create: true })
+		}
+	};
+};
 
 export const hideText = (): Object => ({
 
@@ -85,8 +94,9 @@ export const dismissNote = (): Object => ({
 
 export const setPresence = (id: string, status: 'online' | 'offline'): Object => ({
 	entities: {
-		[id]: {
+		[id]: new UserModel({
+			id,
 			presence: status === 'online' ? PRESENCE_FOREGROUND : PRESENCE_BACKGROUND
-		}
+		})
 	}
 });

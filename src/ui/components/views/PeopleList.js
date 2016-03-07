@@ -1,30 +1,56 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import PeopleListItem from './PeopleListItem';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
 import ListHeader from './ListHeader';
+import type { Relation } from '../../../lib/schemaTypes';
 
 const {
 	ListView,
-} = React;
+} = ReactNative;
 
-export default class PeopleList extends React.Component {
-	constructor(props) {
-		super(props);
+type Props = {
+	data: Array<Relation | { type: 'loading' } | { type: 'failed' }>;
+}
 
-		this._dataSource = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-	}
+type State = {
+	dataSource: ListView.DataSource
+}
 
-	_getDataSource = () => {
-		return this._dataSource.cloneWithRows(this.props.data);
+export default class PeopleList extends Component<void, Props, State> {
+	static propTypes = {
+		data: PropTypes.arrayOf(PropTypes.object).isRequired,
 	};
 
-	_renderHeader = () => <ListHeader>People talking</ListHeader>;
+	state: State = {
+		dataSource: new ListView.DataSource({
+			rowHasChanged: (r1, r2) => r1 !== r2
+		})
+	};
 
-	_renderRow = user => (
+	componentWillMount() {
+		this.setState({
+			dataSource: this.state.dataSource.cloneWithRows(this.props.data)
+		});
+	}
+
+	componentWillReceiveProps(nextProps: Props) {
+		this.setState({
+			dataSource: this.state.dataSource.cloneWithRows(nextProps.data)
+		});
+	}
+	_dataSource: ListView.DataSource = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+
+	_renderHeader: Function = () => <ListHeader>People talking</ListHeader>;
+
+	_renderRow: Function = (relation: Relation) => (
 		<PeopleListItem
-			key={user.id}
-			user={user}
+			key={relation.user}
+			user={relation.user}
+			presence={relation.presence}
 		/>
 	);
 
@@ -34,28 +60,20 @@ export default class PeopleList extends React.Component {
 		if (data.length === 0) {
 			return <PageEmpty label='Nobody here' image='sad' />;
 		} else if (data.length === 1) {
-			if (data[0] === 'missing') {
+			switch (data[0] && data[0].type || null) {
+			case 'loading':
 				return <PageLoading />;
-			} else if (data.length === 1 && data[0] === 'failed') {
+			case 'failed':
 				return <PageEmpty label='Failed to load people list' image='sad' />;
 			}
 		}
 
 		return (
 			<ListView
-				dataSource={this._getDataSource()}
+				dataSource={this.state.dataSource}
 				renderHeader={this._renderHeader}
 				renderRow={this._renderRow}
 			/>
 		);
 	}
 }
-
-PeopleList.propTypes = {
-	data: React.PropTypes.arrayOf(React.PropTypes.oneOfType([
-		React.PropTypes.oneOf([ 'missing', 'failed' ]),
-		React.PropTypes.shape({
-			id: React.PropTypes.string
-		})
-	])).isRequired
-};

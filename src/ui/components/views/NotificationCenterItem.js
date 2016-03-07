@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* TODO: Notification center item */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import Icon from './Icon';
@@ -12,7 +15,7 @@ const {
 	TouchableHighlight,
 	NavigationActions,
 	PixelRatio
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	item: {
@@ -84,7 +87,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class NotificationCenterItem extends React.Component {
+export default class NotificationCenterItem extends Component {
 	_extractPart = (note, index) => {
 		return typeof note.group === 'string' ? note.group.split('/')[index] : null;
 	};
@@ -304,16 +307,16 @@ export default class NotificationCenterItem extends React.Component {
 }
 
 NotificationCenterItem.propTypes = {
-	note: React.PropTypes.shape({
-		count: React.PropTypes.number,
-		group: React.PropTypes.string.isRequired,
-		noteType: React.PropTypes.string.isRequired,
-		noteData: React.PropTypes.shape({
-			title: React.PropTypes.string,
-			text: React.PropTypes.string.isRequired,
-			from: React.PropTypes.string.isRequired
+	note: PropTypes.shape({
+		count: PropTypes.number,
+		group: PropTypes.string.isRequired,
+		noteType: PropTypes.string.isRequired,
+		noteData: PropTypes.shape({
+			title: PropTypes.string,
+			text: PropTypes.string.isRequired,
+			from: PropTypes.string.isRequired
 		}).isRequired
 	}).isRequired,
-	dismissNote: React.PropTypes.func.isRequired,
-	onNavigation: React.PropTypes.func.isRequired
+	dismissNote: PropTypes.func.isRequired,
+	onNavigation: PropTypes.func.isRequired
 };

@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import Page from './Page';
@@ -6,7 +9,7 @@ import Page from './Page';
 const {
 	StyleSheet,
 	Image
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -27,7 +30,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-const Offline = props => (
+const Offline = (props: { style?: any }) => (
 	<Page {...props} style={[ styles.container, props.style ]}>
 		<AppText style={styles.header}>Network unavailable!</AppText>
 		<Image style={styles.image} source={require('../../../../assets/astronaut.png')} />

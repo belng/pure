@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import RichText from './RichText';
@@ -7,7 +10,7 @@ const {
 	StyleSheet,
 	View,
 	Image
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	containerLeft: {
@@ -55,8 +58,28 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class ChatBubble extends React.Component {
-	setNativeProps(nativeProps) {
+export default class ChatBubble extends Component {
+	static propTypes = {
+		text: PropTypes.shape({
+			text: PropTypes.string,
+			from: PropTypes.string.isRequired
+		}).isRequired,
+		type: PropTypes.oneOf([ 'left', 'right' ]),
+		showAuthor: PropTypes.bool,
+		showArrow: PropTypes.bool,
+		onPress: PropTypes.func,
+		children: PropTypes.node,
+		style: View.propTypes.style
+	};
+
+	static defaultProps = {
+		showAuthor: false,
+		showArrow: true
+	};
+
+	_root: Object;
+
+	setNativeProps(nativeProps: any) {
 		this._root.setNativeProps(nativeProps);
 	}
 
@@ -93,21 +116,3 @@ export default class ChatBubble extends React.Component {
 		);
 	}
 }
-
-ChatBubble.defaultProps = {
-	showAuthor: false,
-	showArrow: true
-};
-
-ChatBubble.propTypes = {
-	text: React.PropTypes.shape({
-		text: React.PropTypes.string,
-		from: React.PropTypes.string.isRequired
-	}).isRequired,
-	type: React.PropTypes.oneOf([ 'left', 'right' ]),
-	showAuthor: React.PropTypes.bool,
-	showArrow: React.PropTypes.bool,
-	onPress: React.PropTypes.func,
-	children: React.PropTypes.node,
-	style: View.propTypes.style
-};

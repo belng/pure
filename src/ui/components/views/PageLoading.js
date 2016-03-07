@@ -1,8 +1,10 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component } from 'react';
 import LoadingItem from './LoadingItem';
 import Page from './Page';
 
-export default class PageLoading extends React.Component {
+export default class PageLoading extends Component {
 	render() {
 		return (
 			<Page {...this.props}>

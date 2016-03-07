@@ -1,6 +1,7 @@
 /* @flow */
 
-import React from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import AppText from '../AppText';
 import Icon from '../Icon';
 import Colors from '../../../Colors';
@@ -9,7 +10,7 @@ const {
 	StyleSheet,
 	TouchableOpacity,
 	View,
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
@@ -58,7 +59,7 @@ type Props = {
 	onPress: Function;
 }
 
-export default class PlaceButton extends React.Component<void, Props, any> {
+export default class PlaceButton extends Component<void, Props, any> {
 	props: Props;
 
 	_handlePress = () => {
@@ -87,8 +88,8 @@ export default class PlaceButton extends React.Component<void, Props, any> {
 }
 
 PlaceButton.propTypes = {
-	label: React.PropTypes.string.isRequired,
-	hint: React.PropTypes.string.isRequired,
-	type: React.PropTypes.string.isRequired,
-	onPress: React.PropTypes.func.isRequired,
+	label: PropTypes.string.isRequired,
+	hint: PropTypes.string.isRequired,
+	type: PropTypes.string.isRequired,
+	onPress: PropTypes.func.isRequired,
 };

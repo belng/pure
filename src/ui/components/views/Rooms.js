@@ -11,7 +11,7 @@ import ListItem from './ListItem';
 import AppText from './AppText';
 import Icon from './Icon';
 import Colors from '../../Colors';
-import type { Relation } from '../../../lib/schemaTypes';
+import type { Relation, Item } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
@@ -49,14 +49,14 @@ const styles = StyleSheet.create({
 type Props = {
 	available?: boolean;
 	onNavigation: Function;
-	data: Array<Relation | { type: 'loading' } | { type: 'failed' }>;
+	data: Array<{ rel: Relation, room: Item } | { type: 'loading' } | { type: 'failed' }>;
 }
 
 type State = {
 	dataSource: ListView.DataSource
 }
 
-export default class Localities extends Component<void, Props, State> {
+export default class Rooms extends Component<void, Props, State> {
 	static propTypes = {
 		available: PropTypes.bool,
 		onNavigation: PropTypes.func.isRequired,
@@ -90,15 +90,15 @@ export default class Localities extends Component<void, Props, State> {
 		}));
 	};
 
-	_renderRow: Function = room => {
-		if (room && room.type === 'loading') {
+	_renderRow: Function = result => {
+		if (result && result.type === 'loading') {
 			return <LoadingItem />;
 		}
 
 		return (
 			<RoomItem
-				key={room.id}
-				room={room}
+				key={result.room.id}
+				room={result.room}
 				onSelect={this._handleSelectLocality}
 				showMenuButton
 				showBadge
@@ -148,7 +148,7 @@ export default class Localities extends Component<void, Props, State> {
 		let placeHolder;
 
 		if (this.props.data.length === 1) {
-			switch (this.props.data[0] && this.props.data[0].type) {
+			switch (this.props.data[0] && this.props.data[0].type || null) {
 			case 'loading':
 				placeHolder = <PageLoading />;
 				break;

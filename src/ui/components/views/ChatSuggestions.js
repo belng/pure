@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import AvatarRound from './AvatarRound';
@@ -9,7 +12,7 @@ const {
 	TouchableHighlight,
 	ScrollView,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	inverted: {
@@ -33,7 +36,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class ChatSuggestions extends React.Component {
+export default class ChatSuggestions extends Component {
 	render() {
 		const { data } = this.props;
 
@@ -70,7 +73,7 @@ export default class ChatSuggestions extends React.Component {
 }
 
 ChatSuggestions.propTypes = {
-	data: React.PropTypes.arrayOf(React.PropTypes.string),
-	onSelect: React.PropTypes.func.isRequired,
+	data: PropTypes.arrayOf(PropTypes.string),
+	onSelect: PropTypes.func.isRequired,
 	style: ScrollView.propTypes.style
 };

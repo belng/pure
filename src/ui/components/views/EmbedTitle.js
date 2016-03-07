@@ -1,10 +1,13 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import AppText from './AppText';
 import Colors from '../../Colors';
 
 const {
 	StyleSheet
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	title: {
@@ -13,7 +16,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class EmbedTitle extends React.Component {
+export default class EmbedTitle extends Component {
 	render() {
 		if (this.props.embed.title) {
 			return (
@@ -32,7 +35,7 @@ export default class EmbedTitle extends React.Component {
 }
 
 EmbedTitle.propTypes = {
-	embed: React.PropTypes.shape({
-		title: React.PropTypes.string
+	embed: PropTypes.shape({
+		title: PropTypes.string
 	}).isRequired
 };

@@ -1,11 +1,14 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 
 const {
 	StyleSheet,
 	View,
 	PixelRatio
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	card: {
@@ -17,8 +20,10 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class Card extends React.Component {
-	setNativeProps(nativeProps) {
+export default class Card extends Component {
+	_root: Object;
+
+	setNativeProps(nativeProps: any) {
 		this._root.setNativeProps(nativeProps);
 	}
 
@@ -36,6 +41,6 @@ export default class Card extends React.Component {
 }
 
 Card.propTypes = {
-	children: React.PropTypes.node.isRequired,
+	children: PropTypes.node.isRequired,
 	style: View.propTypes.style
 };

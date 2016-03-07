@@ -1,4 +1,6 @@
-import React from 'react';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
@@ -40,15 +42,38 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class Banner extends React.Component {
-	constructor(props) {
-		super(props);
+type Props = {
+	text?: ?string;
+	type?: 'info' | 'success' | 'error';
+	style?: any;
+	showClose?: boolean;
+}
 
-		this.state = {
-			heightAnim: new Animated.Value(0),
-			text: this.props.text
-		};
-	}
+type DefaultProps = {
+	showClose: boolean;
+}
+
+type State = {
+	heightAnim: Animated.Value;
+	text?: ?string;
+}
+
+export default class Banner extends Component<DefaultProps, Props, State> {
+	static propTypes = {
+		text: PropTypes.string,
+		type: PropTypes.oneOf([ 'info', 'success', 'error' ]),
+		style: View.propTypes.style,
+		showClose: PropTypes.bool
+	};
+
+	static defaultProps = {
+		showClose: true
+	};
+
+	state: State = {
+		heightAnim: new Animated.Value(0),
+		text: this.props.text
+	};
 
 	componentDidMount() {
 		if (this.state.text) {
@@ -56,7 +81,7 @@ export default class Banner extends React.Component {
 		}
 	}
 
-	componentWillReceiveProps(nextProps) {
+	componentWillReceiveProps(nextProps: Props) {
 		if (nextProps.text) {
 			if (!this.state.text) {
 				this.setState({
@@ -78,21 +103,21 @@ export default class Banner extends React.Component {
 		});
 	}
 
-	_animateIn = cb => {
+	_animateIn: Function = cb => {
 		Animated.timing(this.state.heightAnim, {
 			toValue: 45,
 			duration: 200
 		}).start(cb);
 	};
 
-	_animateOut = cb => {
+	_animateOut: Function = cb => {
 		Animated.timing(this.state.heightAnim, {
 			toValue: 0,
 			duration: 200
 		}).start(cb);
 	};
 
-	_handleCloseBanner = () => {
+	_handleCloseBanner: Function = () => {
 		this._animateOut(() => {
 			this.setState({
 				text: null
@@ -100,7 +125,7 @@ export default class Banner extends React.Component {
 		});
 	};
 
-	render() {
+	render(): ?React$Element {
 		if (!this.state.text) {
 			return null;
 		}
@@ -126,14 +151,3 @@ export default class Banner extends React.Component {
 		);
 	}
 }
-
-Banner.propTypes = {
-	text: React.PropTypes.string,
-	type: React.PropTypes.oneOf([ 'info', 'success', 'error' ]),
-	style: View.propTypes.style,
-	showClose: React.PropTypes.bool
-};
-
-Banner.defaultProps = {
-	showClose: true
-};

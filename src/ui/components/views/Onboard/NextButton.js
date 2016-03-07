@@ -1,6 +1,7 @@
+/* @flow */
 
-
-import React from 'react-native';
+import React, { PropTypes } from 'react';
+import ReactNative from 'react-native';
 import AppText from '../AppText';
 import NextButtonLabel from './NextButtonLabel';
 import Colors from '../../../Colors';
@@ -9,7 +10,7 @@ const {
 	View,
 	TouchableHighlight,
 	StyleSheet
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	button: {
@@ -31,7 +32,14 @@ const styles = StyleSheet.create({
 	},
 });
 
-const NextButton = props => {
+type Props = {
+	label?: ?string;
+	loading?: boolean;
+	disabled?: boolean;
+	onPress: Function;
+}
+
+const NextButton = (props: Props) => {
 	if (props.loading) {
 		return (
 			<View style={styles.button}>
@@ -43,21 +51,21 @@ const NextButton = props => {
 	}
 
 	if (props.disabled) {
-		return <NextButtonLabel label={props.label} style={[ styles.button, styles.disabled ]} />;
+		return <NextButtonLabel label={props.label || ''} style={[ styles.button, styles.disabled ]} />;
 	}
 
 	return (
 		<TouchableHighlight onPress={props.onPress}>
-			<NextButtonLabel label={props.label} style={styles.button} />
+			<NextButtonLabel label={props.label || ''} style={styles.button} />
 		</TouchableHighlight>
 	);
 };
 
 NextButton.propTypes = {
-	label: React.PropTypes.string,
-	loading: React.PropTypes.bool,
-	disabled: React.PropTypes.bool,
-	onPress: React.PropTypes.func.isRequired
+	label: PropTypes.string,
+	loading: PropTypes.bool,
+	disabled: PropTypes.bool,
+	onPress: PropTypes.func.isRequired
 };
 
 export default NextButton;

@@ -1,6 +1,5 @@
-
-
-import React from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import oembed from '../../../modules/oembed/oembed';
 import EmbedThumbnail from './EmbedThumbnail';
 import EmbedTitle from './EmbedTitle';
@@ -10,20 +9,20 @@ const {
 	Linking,
 	TouchableOpacity,
 	View
-} = React;
+} = ReactNative;
 
-export default class Embed extends React.Component {
+export default class Embed extends Component {
 	static propTypes = {
-		data: React.PropTypes.object,
-		url: React.PropTypes.string.isRequired,
-		showThumbnail: React.PropTypes.bool,
-		showTitle: React.PropTypes.bool,
-		showSummary: React.PropTypes.bool,
-		openOnPress: React.PropTypes.bool,
-		containerStyle: React.PropTypes.any,
-		thumbnailStyle: React.PropTypes.any,
-		titleStyle: React.PropTypes.any,
-		summaryStyle: React.PropTypes.any
+		data: PropTypes.object,
+		url: PropTypes.string.isRequired,
+		showThumbnail: PropTypes.bool,
+		showTitle: PropTypes.bool,
+		showSummary: PropTypes.bool,
+		openOnPress: PropTypes.bool,
+		containerStyle: PropTypes.any,
+		thumbnailStyle: PropTypes.any,
+		titleStyle: PropTypes.any,
+		summaryStyle: PropTypes.any
 	};
 
 	static defaultProps = {

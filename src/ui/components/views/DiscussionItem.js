@@ -1,4 +1,5 @@
-import React from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import NotificationBadgeContainer from '../containers/NotificationBadgeContainer';
 import Card from './Card';
@@ -21,7 +22,7 @@ const {
 	TouchableOpacity,
 	NavigationActions,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	item: {
@@ -50,7 +51,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class DiscussionItem extends React.Component {
+export default class DiscussionItem extends Component {
 	shouldComponentUpdate(nextProps) {
 		return (
 				this.props.hidden !== nextProps.hidden ||
@@ -158,20 +159,20 @@ export default class DiscussionItem extends React.Component {
 }
 
 DiscussionItem.propTypes = {
-	thread: React.PropTypes.shape({
-		id: React.PropTypes.string.isRequired,
-		title: React.PropTypes.string.isRequired,
-		text: React.PropTypes.string.isRequired,
-		from: React.PropTypes.string.isRequired,
-		to: React.PropTypes.string.isRequired
+	thread: PropTypes.shape({
+		id: PropTypes.string.isRequired,
+		title: PropTypes.string.isRequired,
+		text: PropTypes.string.isRequired,
+		from: PropTypes.string.isRequired,
+		to: PropTypes.string.isRequired
 	}).isRequired,
-	onNavigation: React.PropTypes.func.isRequired,
-	currentUser: React.PropTypes.string.isRequired,
-	hidden: React.PropTypes.bool.isRequired,
-	isCurrentUserAdmin: React.PropTypes.func.isRequired,
-	isUserBanned: React.PropTypes.func.isRequired,
-	hideText: React.PropTypes.func.isRequired,
-	unhideText: React.PropTypes.func.isRequired,
-	banUser: React.PropTypes.func.isRequired,
-	unbanUser: React.PropTypes.func.isRequired
+	onNavigation: PropTypes.func.isRequired,
+	currentUser: PropTypes.string.isRequired,
+	hidden: PropTypes.bool.isRequired,
+	isCurrentUserAdmin: PropTypes.func.isRequired,
+	isUserBanned: PropTypes.func.isRequired,
+	hideText: PropTypes.func.isRequired,
+	unhideText: PropTypes.func.isRequired,
+	banUser: PropTypes.func.isRequired,
+	unbanUser: PropTypes.func.isRequired
 };

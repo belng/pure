@@ -1,12 +1,27 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import TouchFeedback from './TouchFeedback';
 
 const {
 	View
-} = React;
+} = ReactNative;
 
-export default class AppbarTouchable extends React.Component {
-	_handlePress = () => {
+type Props = {
+	type?: 'primary' | 'secondary';
+	onPress: Function;
+	children?: Element;
+}
+
+export default class AppbarTouchable extends Component<void, Props, void> {
+	static propTypes = {
+		type: PropTypes.oneOf([ 'primary', 'secondary' ]),
+		onPress: PropTypes.func.isRequired,
+		children: PropTypes.node.isRequired
+	};
+
+	_handlePress: Function = () => {
 		global.requestAnimationFrame(() => this.props.onPress());
 	};
 
@@ -26,9 +41,3 @@ export default class AppbarTouchable extends React.Component {
 		);
 	}
 }
-
-AppbarTouchable.propTypes = {
-	type: React.PropTypes.oneOf([ 'primary', 'secondary' ]),
-	onPress: React.PropTypes.func.isRequired,
-	children: React.PropTypes.node.isRequired
-};

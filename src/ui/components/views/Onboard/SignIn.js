@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import AppText from '../AppText';
 import LargeButton from './LargeButton';
@@ -82,16 +82,20 @@ type State = {
 }
 
 export default class SignIn extends Component<void, Props, State> {
+	static propTypes = {
+		signIn: PropTypes.func.isRequired
+	};
+
 	state: State = {
 		googleLoading: false,
 		facebookLoading: false
 	};
 
-	_onSignInSuccess = (provider: string, token: string) => {
+	_onSignInSuccess: Function = (provider: string, token: string) => {
 		this.props.signIn(provider, token);
 	};
 
-	_onSignInFailure = (provider: string) => {
+	_onSignInFailure: Function = (provider: string) => {
 		switch (provider) {
 		case PROVIDER_GOOGLE:
 			this.setState({
@@ -106,7 +110,7 @@ export default class SignIn extends Component<void, Props, State> {
 		}
 	};
 
-	_signInWithFacebook = async (): Promise => {
+	_signInWithFacebook: Function = async (): Promise => {
 		try {
 			const result = await Facebook.logInWithReadPermissions([
 				PERMISSION_PUBLIC_PROFILE, PERMISSION_EMAIL
@@ -136,7 +140,7 @@ export default class SignIn extends Component<void, Props, State> {
 		}
 	};
 
-	_signInWithGoogle = async (): Promise => {
+	_signInWithGoogle: Function = async (): Promise => {
 		try {
 			const result = await GoogleLogin.logIn();
 
@@ -150,7 +154,7 @@ export default class SignIn extends Component<void, Props, State> {
 		}
 	};
 
-	_handleFacebookPress = (): void => global.requestAnimationFrame(() => {
+	_handleFacebookPress: Function = (): void => global.requestAnimationFrame(() => {
 		this.setState({
 			facebookLoading: true
 		});
@@ -158,7 +162,7 @@ export default class SignIn extends Component<void, Props, State> {
 		this._signInWithFacebook();
 	});
 
-	_handleGooglePress = (): void => global.requestAnimationFrame(() => {
+	_handleGooglePress: Function = (): void => global.requestAnimationFrame(() => {
 		this.setState({
 			googleLoading: true
 		});
@@ -198,7 +202,3 @@ export default class SignIn extends Component<void, Props, State> {
 		);
 	}
 }
-
-SignIn.propTypes = {
-	signIn: React.PropTypes.func.isRequired
-};

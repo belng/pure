@@ -1,9 +1,12 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component } from 'react';
+import ReactNative from 'react-native';
 
 const {
 	StyleSheet,
 	TextInput
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	text: {
@@ -12,20 +15,26 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class AppTextInput extends React.Component {
+type Props = {
+	style?: any;
+}
+
+export default class AppTextInput extends Component<void, Props, void> {
 	static propTypes = {
 		style: TextInput.propTypes.style
 	};
 
-	setNativeProps = (nativeProps) => {
+	_root: Object;
+
+	setNativeProps: Function = (nativeProps) => {
 		this._root.setNativeProps(nativeProps);
 	};
 
-	focus = (...args) => {
+	focus: Function = (...args) => {
 		this._root.focus(...args);
 	};
 
-	blur = (...args) => {
+	blur: Function = (...args) => {
 		this._root.blur(...args);
 	};
 

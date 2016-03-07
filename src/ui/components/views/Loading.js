@@ -1,7 +1,9 @@
-import React from 'react-native';
+/* @flow */
 
-export default class Loading extends React.Component {
-	render() {
+import { Component } from 'react';
+
+export default class Loading extends Component {
+	render(): ?React$Element {
 		return null;
 	}
 }

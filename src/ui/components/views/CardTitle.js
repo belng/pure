@@ -1,10 +1,13 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 
 const {
 	StyleSheet
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	title: {
@@ -13,11 +16,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class CardTitle extends React.Component {
-	shouldComponentUpdate(nextProps) {
-		return this.props.children !== nextProps.children;
-	}
-
+export default class CardTitle extends Component {
 	render() {
 		return (
 			<AppText
@@ -32,6 +31,6 @@ export default class CardTitle extends React.Component {
 }
 
 CardTitle.propTypes = {
-	children: React.PropTypes.string.isRequired,
+	children: PropTypes.string.isRequired,
 	style: AppText.propTypes.style
 };

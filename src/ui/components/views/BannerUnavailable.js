@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component } from 'react';
+import ReactNative from 'react-native';
 import AppText from './AppText';
 import Colors from '../../Colors';
 import { config } from '../../../core-client';
@@ -6,7 +9,7 @@ import { config } from '../../../core-client';
 const {
 	StyleSheet,
 	View,
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	banner: {
@@ -19,7 +22,7 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class extends React.Component {
+export default class extends Component {
 	render() {
 		return (
 			<View style={styles.banner}>

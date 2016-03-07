@@ -1,4 +1,5 @@
-import React from 'react-native';
+import React, { PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Card from './Card';
 import CardTitle from './CardTitle';
 import DiscussionSummary from './DiscussionSummary';
@@ -6,7 +7,7 @@ import CardAuthor from './CardAuthor';
 
 const {
 	StyleSheet
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	details: {
@@ -40,10 +41,10 @@ const DiscussionDetailsCard = props => {
 };
 
 DiscussionDetailsCard.propTypes = {
-	thread: React.PropTypes.shape({
-		title: React.PropTypes.string.isRequired,
-		text: React.PropTypes.string.isRequired,
-		from: React.PropTypes.string.isRequired
+	thread: PropTypes.shape({
+		title: PropTypes.string.isRequired,
+		text: PropTypes.string.isRequired,
+		from: PropTypes.string.isRequired
 	})
 };
 

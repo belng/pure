@@ -8,10 +8,13 @@ export default class User {
 		if (data.type !== Constants.TYPE_USER) {
 			throw (new Error('INVALID_TYPE'));
 		}
+
+		console.trace(data);
+
 		if (!data.id) { throw new Error('INVALID_USER_ID'); }
 
 		for (const name of COLUMNS[Constants.TYPE_USER]) {
-			if (typeof data[name] !== 'undefined') {
+			if (typeof data[name.toLowerCase()] !== 'undefined' || typeof data[name] !== 'undefined') {
 				this[name] = data[name] || data[name.toLowerCase()];
 			}
 		}
@@ -24,7 +27,7 @@ export default class User {
 		const data = {};
 
 		for (const name of COLUMNS[Constants.TYPE_USER]) {
-			if (typeof data[name] !== 'undefined') {
+			if (typeof this[name] !== 'undefined') {
 				data[name] = this[name];
 			}
 		}

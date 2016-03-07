@@ -1,4 +1,7 @@
-import React from 'react-native';
+/* @flow */
+
+import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import AvatarRound from './AvatarRound';
@@ -8,7 +11,7 @@ const {
 	StyleSheet,
 	PixelRatio,
 	View
-} = React;
+} = ReactNative;
 
 const styles = StyleSheet.create({
 	item: {
@@ -30,7 +33,7 @@ const styles = StyleSheet.create({
 	nickText: {
 		color: Colors.darkGrey
 	},
-	status: {
+	presence: {
 		fontSize: 12,
 		lineHeight: 18,
 		marginHorizontal: 16,
@@ -46,20 +49,16 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class PeopleListItem extends React.Component {
-	shouldComponentUpdate(nextProps) {
-		return (
-			this.props.user.id !== nextProps.user.id ||
-			this.props.user.status !== nextProps.user.status
-		);
-	}
+export default class PeopleListItem extends Component {
+	static propTypes = {
+		user: PropTypes.string.isRequired,
+		presence: PropTypes.string
+	};
 
 	render() {
 		const {
-			user: {
-				id,
-				status
-			}
+			user,
+			presence
 		} = this.props;
 
 		return (
@@ -69,16 +68,16 @@ export default class PeopleListItem extends React.Component {
 						<AvatarRound
 							style={styles.avatar}
 							size={36}
-							nick={id}
+							nick={user}
 						/>
 						<View style={styles.nick}>
-							<AppText style={[ styles.nickText, status !== 'online' ? styles.offline : null ]}>
-								{id}
+							<AppText style={[ styles.nickText, presence !== 'online' ? styles.offline : null ]}>
+								{user}
 							</AppText>
 						</View>
 						<View>
-							<AppText style={[ styles.status, status === 'online' ? styles.online : styles.offline ]}>
-								{status ? status.toUpperCase() : 'OFFLINE'}
+							<AppText style={[ styles.presence, presence === 'online' ? styles.online : styles.offline ]}>
+								{presence ? presence.toUpperCase() : 'OFFLINE'}
 							</AppText>
 						</View>
 					</View>
@@ -87,10 +86,3 @@ export default class PeopleListItem extends React.Component {
 		);
 	}
 }
-
-PeopleListItem.propTypes = {
-	user: React.PropTypes.shape({
-		id: React.PropTypes.string.isRequired,
-		status: React.PropTypes.string
-	}).isRequired
-};
