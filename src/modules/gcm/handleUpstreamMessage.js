@@ -1,6 +1,7 @@
 import { connect } from './xmpp';
 import log from 'winston';
 import { config } from '../../core-server';
+
 let client;
 
 function handleUpstreamMessage (upStanza, cb) {
@@ -39,8 +40,10 @@ function handleStanza(stanza) {
 	}
 }
 
-connect(c => {
-	client = c;
-	log.info('XMPP client connected');
-	c.on('stanza', handleStanza);
-});
+if (config.gcm.senderId) {
+	connect(c => {
+		client = c;
+		log.info('XMPP client connected');
+		c.on('stanza', handleStanza);
+	});
+}

@@ -33,7 +33,7 @@
 		"client_secret": "XXXXXXXX"
 	},
 	"gcm" : {
-		"senderId": "XXXXXXX",
+		"senderId": "",
 		"apiKey": "",
 		"domain": "gcm-xmpp.googleapis.com",
 		"port": 5235,
