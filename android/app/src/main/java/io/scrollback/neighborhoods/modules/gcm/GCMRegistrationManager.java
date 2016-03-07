@@ -40,7 +40,7 @@ public class GCMRegistrationManager {
     public void registerReceiver() {
         if(!receiverRegistered) {
             LocalBroadcastManager.getInstance(mActivity).registerReceiver(mRegistrationBroadcastReceiver,
-                    new IntentFilter(GCMPreferences.REGISTRATION_COMPLETE));
+                    new IntentFilter(GCMPreferences.SAVED_TO_SERVER));
             receiverRegistered = true;
         }
     }

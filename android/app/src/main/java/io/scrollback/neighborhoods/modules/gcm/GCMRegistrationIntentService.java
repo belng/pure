@@ -13,7 +13,6 @@ import io.scrollback.neighborhoods.R;
 
 public class GCMRegistrationIntentService extends IntentService {
     private static final String TAG = "IntentService";
-    private static final String[] TOPICS = {"global"};
 
     public GCMRegistrationIntentService() {
         super(GCMRegistrationIntentService.class.getName());
@@ -32,15 +31,14 @@ public class GCMRegistrationIntentService extends IntentService {
                     GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
 
             Log.i(TAG, "GCM Registration Token: " + token);
-            GCMMessageHelpers.sendUpstreamMessage(getApplicationContext(), token);
-            //subscribeTopics(token);
+            GCMMessageHelpers.sendUpstreamMessageWithToken(getApplicationContext(), token);
 
-            sharedPreferences.edit().putString(GCMPreferences.REGISTRATION_TOKEN, token).apply();
+            sharedPreferences.edit().putString(GCMPreferences.TOKEN, token).apply();
         } catch (Exception e) {
             Log.d(TAG, "Failed to complete token refresh", e);
         }
 
-        Intent registrationComplete = new Intent(GCMPreferences.REGISTRATION_COMPLETE);
+        Intent registrationComplete = new Intent(GCMPreferences.SAVED_TO_SERVER);
         LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
     }
 
