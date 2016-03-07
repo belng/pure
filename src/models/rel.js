@@ -1,11 +1,15 @@
 import { COLUMNS } from '../lib/schema';
+import { TYPE_REL } from '../lib/Constants';
 
 export default class Relation {
 	constructor(data) {
 		if (!data) throw new Error('CANNOT_INITIALIZE_MODEL');
+		if (!data.type) data.type = TYPE_REL;
+
+		if (!COLUMNS[data.type]) { throw new Error('INVALID_TYPE'); }
 
 		for (const name of COLUMNS[data.type]) {
-			if (typeof data[name] !== 'undefined') {
+			if (typeof data[name.toLowerCase()] !== 'undefined' || typeof data[name] !== 'undefined') {
 				this[name] = data[name] || data[name.toLowerCase()];
 			}
 		}
@@ -23,7 +27,7 @@ export default class Relation {
 		const data = {};
 
 		for (const name of COLUMNS[this.type]) {
-			if (typeof data[name] !== 'undefined') {
+			if (typeof this[name] !== 'undefined') {
 				data[name] = this[name];
 			}
 		}
