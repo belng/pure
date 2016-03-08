@@ -29,14 +29,42 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16,
 		height: 40
 	},
-	nick: {
+	user: {
 		color: Colors.darkGrey,
 		marginHorizontal: 12,
 		paddingHorizontal: 4
 	}
 });
 
-export default class ChatSuggestions extends Component {
+type Props = {
+	data: Array<string>;
+	onSelect: Function;
+	style?: any;
+}
+
+export default class ChatSuggestions extends Component<void, Props, void> {
+	static propTypes = {
+		data: PropTypes.arrayOf(PropTypes.string),
+		onSelect: PropTypes.func.isRequired,
+		style: ScrollView.propTypes.style
+	};
+
+	_renderUser: Function = (user: string) => (
+		<TouchableHighlight
+			key={user}
+			underlayColor={Colors.underlay}
+			onPress={() => this.props.onSelect(user)}
+		>
+			<View style={[ styles.item, styles.inverted ]}>
+				<AvatarRound
+					user={user}
+					size={24}
+				/>
+				<AppText style={styles.user}>{user}</AppText>
+			</View>
+		</TouchableHighlight>
+	);
+
 	render() {
 		const { data } = this.props;
 
@@ -50,30 +78,8 @@ export default class ChatSuggestions extends Component {
 				style={[ data.length > 4 ? { height: 160 } : null, styles.inverted, this.props.style ]}
 				keyboardShouldPersistTaps
 			>
-				{data.map(nick => {
-					return (
-						<TouchableHighlight
-							key={nick}
-							underlayColor={Colors.underlay}
-							onPress={() => this.props.onSelect(nick)}
-						>
-							<View style={[ styles.item, styles.inverted ]}>
-								<AvatarRound
-									nick={nick}
-									size={24}
-								/>
-								<AppText style={styles.nick}>{nick}</AppText>
-							</View>
-						</TouchableHighlight>
-					);
-				})}
+				{data.map(this._renderUser)}
 			</ScrollView>
 		);
 	}
 }
-
-ChatSuggestions.propTypes = {
-	data: PropTypes.arrayOf(PropTypes.string),
-	onSelect: PropTypes.func.isRequired,
-	style: ScrollView.propTypes.style
-};

@@ -31,7 +31,11 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class LoadingFancy extends Component {
+type Props = {
+	style?: any
+}
+
+export default class LoadingFancy extends Component<void, Props, void> {
 	static propTypes = {
 		style: View.propTypes.style
 	};

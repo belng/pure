@@ -15,7 +15,17 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class TextSummary extends Component {
+type Props = {
+	text: string;
+	style?: any;
+}
+
+export default class TextSummary extends Component<void, Props, void> {
+	static propTypes = {
+		text: PropTypes.string.isRequired,
+		style: RichText.propTypes.style
+	};
+
 	render() {
 		return (
 			<RichText
@@ -27,8 +37,3 @@ export default class TextSummary extends Component {
 		);
 	}
 }
-
-TextSummary.propTypes = {
-	text: PropTypes.string.isRequired,
-	style: RichText.propTypes.style
-};

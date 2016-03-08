@@ -5,6 +5,7 @@ import ReactNative from 'react-native';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import AppbarTouchable from './AppbarTouchable';
+import type { Item } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
@@ -30,8 +31,20 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class ChatTitle extends Component {
-	_handlePress = () => {
+type Props = {
+	thread: ?Item;
+	onNavigation: Function;
+}
+
+export default class ChatTitle extends Component<void, Props, void> {
+	static propTypes = {
+		thread: PropTypes.shape({
+			name: PropTypes.string
+		}),
+		onNavigation: PropTypes.func.isRequired
+	};
+
+	_handlePress: Function = () => {
 		const { thread } = this.props;
 
 		if (thread && thread.id) {
@@ -50,10 +63,10 @@ export default class ChatTitle extends Component {
 		let title = '…',
 			concerns = 1;
 
-		if (thread && thread.title) {
-			title = thread.title;
+		if (thread && thread.name) {
+			title = thread.name;
 			concerns = thread.concerns && thread.concerns.length ? thread.concerns.length : 1;
-		} else if (thread === 'missing') {
+		} else {
 			title = 'Loading…';
 		}
 
@@ -71,14 +84,3 @@ export default class ChatTitle extends Component {
 		);
 	}
 }
-
-ChatTitle.propTypes = {
-	thread: PropTypes.oneOfType([
-		PropTypes.shape({
-			title: PropTypes.string.isRequired,
-			concerns: PropTypes.arrayOf(PropTypes.string)
-		}),
-		PropTypes.string
-	]).isRequired,
-	onNavigation: PropTypes.func.isRequired
-};

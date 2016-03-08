@@ -62,7 +62,14 @@ export type Relation = {
 // Note
 export type Note = {
 	count: number;
-	data: Object;
+	data: {
+		body: string;
+		creator: string;
+		id: string;
+		room?: string;
+		title?: string;
+		thread?: string;
+	};
 	dismissTime: number;
 	event: number;
 	eventTime: number;

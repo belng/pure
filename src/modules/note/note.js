@@ -36,11 +36,12 @@ bus.on('change', (changes, next) => {
 					if (err) log.error(err);
 					noteObj.group = text.parents[0][0];
 					noteObj.data = {
-						textId: text.id,
-						from: text.creator,
-						text: text.body,
-						thread: text.name,
+						id: text.id,
+						creator: text.creator,
+						body: text.body,
+						title: text.name,
 						createTime: text.createTime,
+						thread: entity.type === Constants.TYPE_TEXTREL ? text.parents[0][0] : null,
 						room: entity.type === Constants.TYPE_TEXTREL ? text.parents[0][1] : text.parents[0][0]
 					};
 					note = new Note(noteObj);
@@ -50,11 +51,12 @@ bus.on('change', (changes, next) => {
 			} else {
 				noteObj.group = item.parents[0][0];
 				noteObj.data = {
-					textId: item.id,
-					from: item.creator,
-					text: item.body,
-					thread: item.name,
+					id: item.id,
+					creator: item.creator,
+					body: item.body,
+					title: item.name,
 					createTime: item.createTime,
+					thread: entity.type === Constants.TYPE_TEXTREL ? item.parents[0][0] : null,
 					room: entity.type === Constants.TYPE_TEXTREL ? item.parents[0][1] : item.parents[0][0]
 				};
 				note = new Note(noteObj);

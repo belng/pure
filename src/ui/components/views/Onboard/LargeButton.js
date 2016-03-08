@@ -36,7 +36,23 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class LargeButton extends Component {
+type Props = {
+	label: string;
+	onPress: Function;
+	spinner?: boolean;
+	disabled?: boolean;
+	style?: any;
+}
+
+export default class LargeButton extends Component<void, Props, void> {
+	static propTypes = {
+		label: PropTypes.string.isRequired,
+		onPress: PropTypes.func.isRequired,
+		spinner: PropTypes.bool,
+		disabled: PropTypes.bool,
+		style: View.propTypes.style
+	};
+
 	render() {
 		return (
 			<View style={styles.container}>
@@ -51,11 +67,3 @@ export default class LargeButton extends Component {
 		);
 	}
 }
-
-LargeButton.propTypes = {
-	label: PropTypes.string.isRequired,
-	onPress: PropTypes.func.isRequired,
-	spinner: PropTypes.bool,
-	disabled: PropTypes.bool,
-	style: View.propTypes.style
-};

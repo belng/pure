@@ -33,7 +33,15 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class FloatingActionButton extends Component {
+type Props = {
+	icon: string;
+}
+
+export default class FloatingActionButton extends Component<void, Props, void> {
+	static propTypes = {
+		icon: PropTypes.string.isRequired
+	};
+
 	render() {
 		return (
 			<TouchableHighlight {...this.props} style={styles.container}>
@@ -48,7 +56,3 @@ export default class FloatingActionButton extends Component {
 		);
 	}
 }
-
-FloatingActionButton.propTypes = {
-	icon: PropTypes.string.isRequired
-};

@@ -9,8 +9,16 @@ const {
 	NavigationActions
 } = ReactNative;
 
-export default class AccountButton extends Component {
-	_handlePress = () => {
+type Props = {
+	onNavigation: Function;
+}
+
+export default class AccountButton extends Component<void, Props, void> {
+	static propTypes = {
+		onNavigation: PropTypes.func.isRequired
+	};
+
+	_handlePress: Function = () => {
 		this.props.onNavigation(new NavigationActions.Push({ name: 'account' }));
 	};
 
@@ -22,7 +30,3 @@ export default class AccountButton extends Component {
 		);
 	}
 }
-
-AccountButton.propTypes = {
-	onNavigation: PropTypes.func.isRequired
-};
