@@ -2,9 +2,10 @@
 import { config, bus, Constants, cache } from '../../core-server';
 import Counter from '../../lib/counter';
 import log from 'winston';
+import values from 'lodash/values';
 import request from 'request';
 
-function unsubscribeTopics (iid) {
+function unsubscribeTopics (iid, cb) {
 	const opts = {
 		url: `https://iid.googleapis.com/iid/info/${iid}?details=true`,
 		method: 'GET',
@@ -25,55 +26,68 @@ function unsubscribeTopics (iid) {
 		// unsubscribe thread topics
 		for (const topic in topicsSubscribed) {
 			if (!/thread-/.test(topic)) {
-				return;
+				continue;
 			}
 			request({
 				...opts,
-				to: topic,
+				to: '/topics/' + topic,
 				registration_tokens: [ iid ]
 			}, (err, rspns, bdy) => {
 				if (!err) {
 					log.info('unsubscribed from ', topic);
 					log.info(bdy);
+				} else {
+					log.error(err);
 				}
 			});
 		}
+		cb();
 	});
 }
 
 function subscribe (userRel: Object) {
 	// console.log(userRel);
-	const iid_token = userRel.user.params.regId,
+	const gcm = userRel.user.params.gcm,
+		tokens = values(gcm),
 		options = {
-			url: `https://iid.googleapis.com/iid/v1/${iid_token}/rel/topics/${userRel.topic}`,
+			url: 'https://iid.googleapis.com/iid/v1:batchAdd',
 			json: true,
 			method: 'POST',
 			headers: {
-				Authorization: `key=${config.gcm.apiKey}`
+				Authorization: 'key=AIzaSyC3SD_4R3oXy7vXKd-3nNCgpRRW-0dYA9M'
+			},
+			body: {
+				registration_tokens: [],
+				to: '/topics/' + userRel.topic
 			}
 		};
 
-	request(options, (error, response, body) => {
-		if (error) {
-			log.error(error);
-			if (error.type === 'TOO_MANY_TOPICS') {
-				log.info('unsubscribe few old topics');
-				unsubscribeTopics(iid_token);
-			} else {
+	tokens.forEach(token => {
+		options.body.registration_tokens = [ token ];
+		request(options, (error, response, body) => {
+			if (error) {
 				log.error(error);
-				subscribe(userRel);
+				if (error.type === 'TOO_MANY_TOPICS') {
+					log.info('unsubscribe few old topics');
+					unsubscribeTopics(token, () => {
+						subscribe(userRel);
+					});
+				} else {
+					log.error('can not subscribe to topic', error);
+				}
 			}
-		}
-		if (body.error) {
-			log.error(body);
-			// console.log(options);
-		} else {
-			log.info('succefully subscribed to: ' + userRel.topic, body);
-		}
+			if (body.error) {
+				log.error(body);
+				// console.log(options);
+			} else {
+				log.info('succefully subscribed to: ' + userRel.topic, body);
+			}
+		});
 	});
+
 }
 
-bus.on('setstate', (changes, next) => {
+bus.on('change', (changes, next) => {
 	const counter = new Counter();
 
 	if (!changes.entities) {

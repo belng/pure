@@ -1,7 +1,6 @@
 import { connect } from './xmpp';
 import log from 'winston';
-import { config } from '../../core-server';
-
+import { config, bus } from '../../core-server';
 let client;
 
 function handleUpstreamMessage (upStanza, cb) {
@@ -18,11 +17,29 @@ function handleUpstreamMessage (upStanza, cb) {
 
 	log.info('Sending ACK message: ', stnza);
 	client.send(stnza);
-	cb();
+	cb(upStanza);
 }
 
-function updateUser() {
+function updateUser(u) {
+	bus.emit('change', {
+		auth: {
+			session: u.session
+		}
+	}, (err, changes) => {
+		if (err) {
+			log.e(err);
+			return;
+		}
+		const userId = changes.response.state.user;
 
+		bus.emit('change', {
+			entities: {
+				[userId]: {	params: { gcm: { [u.device]: u.token } } }
+			}
+		}, (e, c) => {
+			log.info(e, c);
+		});
+	});
 }
 
 function handleStanza(stanza) {
@@ -40,10 +57,8 @@ function handleStanza(stanza) {
 	}
 }
 
-if (config.gcm.senderId) {
-	connect(c => {
-		client = c;
-		log.info('XMPP client connected');
-		c.on('stanza', handleStanza);
-	});
-}
+connect(c => {
+	client = c;
+	log.info('XMPP client connected');
+	c.on('stanza', handleStanza);
+});
