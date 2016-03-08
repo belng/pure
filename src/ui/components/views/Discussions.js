@@ -7,6 +7,7 @@ import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
 import LoadingItem from './LoadingItem';
 import StartDiscussionButton from './StartDiscussionButton';
+import { TAG_POST_HIDDEN } from '../../../lib/Constants';
 import type { Item } from '../../../lib/schemaTypes';
 
 const {
@@ -77,6 +78,7 @@ export default class Discussions extends Component<void, Props, State> {
 			<DiscussionItem
 				key={thread.id}
 				thread={thread}
+				hidden={thread.tags && thread.tags.indexOf(TAG_POST_HIDDEN) > -1}
 				onNavigation={this.props.onNavigation}
 				style={styles.item}
 			/>
