@@ -2,7 +2,7 @@
 
 import { Constants, bus, cache } from '../../core-server';
 import Counter from '../../lib/counter';
-import {threadrel as ThreadRel} from './../../models/models';
+import ThreadRel from './../../models/Models';
 
 bus.on('change', (changes, next) => {
 	if (!changes.entities) return next();

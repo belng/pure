@@ -1,4 +1,4 @@
-import Relation from './rel';
+import Relation from './Rel';
 import { TYPE_REL, TYPE_THREADREL } from '../lib/Constants';
 
 export default class ThreadRel extends Relation {

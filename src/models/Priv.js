@@ -1,4 +1,4 @@
-import Item from './item';
+import Item from './Item';
 import { TYPE_ITEM, TYPE_PRIV } from '../lib/Constants';
 
 export default class Priv extends Item {

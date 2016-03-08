@@ -2,7 +2,8 @@
 
 import { bus, cache, config } from '../../core-server';
 import winston from 'winston';
-import { room as Room, roomrel as RoomRel } from '../../models/models';
+import Room from '../../models/Room';
+import RoomRel from '../../models/RoomRel';
 import * as place from './place';
 import * as constants from '../../lib/Constants';
 import uuid from 'uuid';
