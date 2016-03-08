@@ -10,6 +10,7 @@ import { signIn, signUp, cancelSignUp, saveUser } from '../../../modules/store/a
 import type { User } from '../../../lib/schemaTypes';
 
 type Props = {
+	error: ?Error;
 	user: User;
 	pendingUser: {
 		error?: Error,
@@ -71,14 +72,15 @@ class OnboardContainer extends Component<void, Props, State> {
 	_setUserDetails: Function = (props: Props) => {
 		const {
 			user,
-			pendingUser
+			pendingUser,
+			error,
 		} = props;
 
 		if (!pendingUser) {
 			return;
 		}
 
-		const { params, error } = pendingUser;
+		const { params } = pendingUser;
 
 		for (const provider in params) {
 			const data = params[provider];
@@ -284,6 +286,7 @@ OnboardContainer.propTypes = {
 	pendingUser: PropTypes.shape({
 		params: PropTypes.object
 	}),
+	error: PropTypes.instanceOf(Error),
 	signIn: PropTypes.func.isRequired,
 	signUp: PropTypes.func.isRequired,
 	cancelSignUp: PropTypes.func.isRequired,
@@ -326,6 +329,12 @@ const OnboardContainerOuter = (props: any) => (
 	<Connect
 		mapActionsToProps={mapActionsToProps}
 		mapSubscriptionToProps={{
+			error: {
+				key: {
+					type: 'state',
+					path: [ 'errors', 'signup' ],
+				},
+			},
 			user: {
 				key: {
 					type: 'entity',

@@ -3,7 +3,6 @@
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import PlacesSelectorContainer from '../../containers/PlaceSelectorContainer';
-import Colors from '../../../Colors';
 
 const {
 	StyleSheet,
@@ -11,17 +10,6 @@ const {
 } = ReactNative;
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: Colors.lightGrey
-	},
-
-	poweredBy: {
-		borderTopColor: Colors.separator,
-		borderTopWidth: StyleSheet.hairlineWidth,
-		alignSelf: 'stretch'
-	},
-
 	blankslate: {
 		flex: 1,
 	}

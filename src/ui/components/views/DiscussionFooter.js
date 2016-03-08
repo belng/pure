@@ -1,10 +1,14 @@
+/* @flow */
+
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import Icon from './Icon';
 import CardAuthor from './CardAuthor';
 import Time from './Time';
+import type { Item } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
@@ -35,9 +39,6 @@ const styles = StyleSheet.create({
 		marginRight: 16,
 		paddingHorizontal: 4
 	},
-	action: {
-		fontWeight: 'bold'
-	},
 	icon: {
 		color: Colors.black
 	},
@@ -46,18 +47,33 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class DiscussionFooter extends Component {
-	shouldComponentUpdate(nextProps) {
-		return (
-			this.props.thread.updateTime !== nextProps.thread.updateTime ||
-			this.props.thread.length !== nextProps.thread.length
-		);
+type Props = {
+	thread: Item;
+	style?: any;
+}
+
+export default class DiscussionFooter extends Component<void, Props, void> {
+	static propTypes = {
+		thread: PropTypes.shape({
+			updateTime: PropTypes.number.isRequired,
+			creator: PropTypes.string.isRequired,
+			counts: PropTypes.objectOf(PropTypes.number).isRequired
+		}).isRequired,
+		style: View.propTypes.style
+	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
 	}
 
 	render() {
+		const {
+			thread
+		} = this.props;
+
 		return (
 			<View {...this.props} style={[ styles.footer, this.props.style ]}>
-				<CardAuthor nick={this.props.thread.from} style={styles.left} />
+				<CardAuthor nick={thread.creator} style={styles.left} />
 
 				<View style={styles.right}>
 					<View style={[ styles.info, styles.faded ]}>
@@ -68,7 +84,7 @@ export default class DiscussionFooter extends Component {
 						/>
 						<Time
 							type='short'
-							time={this.props.thread.updateTime}
+							time={thread.updateTime}
 							style={styles.label}
 						/>
 					</View>
@@ -78,19 +94,10 @@ export default class DiscussionFooter extends Component {
 							style={styles.icon}
 							size={24}
 						/>
-						<AppText style={styles.label}>{this.props.thread.length || 1}</AppText>
+						<AppText style={styles.label}>{thread.counts && thread.counts.length ? thread.counts.length : 1}</AppText>
 					</View>
 				</View>
 			</View>
 		);
 	}
 }
-
-DiscussionFooter.propTypes = {
-	thread: PropTypes.shape({
-		updateTime: PropTypes.number.isRequired,
-		length: PropTypes.number.isRequired,
-		from: PropTypes.string.isRequired
-	}).isRequired,
-	style: View.propTypes.style
-};
