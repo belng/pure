@@ -23,7 +23,11 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class NotificationIcon extends Component {
+type Props = {
+	onNavigation: Function;
+}
+
+export default class NotificationIcon extends Component<void, Props, void> {
 	static propTypes = {
 		onNavigation: PropTypes.func.isRequired
 	};

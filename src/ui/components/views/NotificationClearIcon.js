@@ -4,7 +4,11 @@ import React, { Component, PropTypes } from 'react';
 import AppbarTouchable from './AppbarTouchable';
 import AppbarIcon from './AppbarIcon';
 
-export default class NotificationClearIcon extends Component {
+type Props = {
+	dismissAllNotes: Function;
+}
+
+export default class NotificationClearIcon extends Component<void, Props, void> {
 	static propTypes = {
 		dismissAllNotes: PropTypes.func.isRequired
 	};
