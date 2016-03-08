@@ -9,8 +9,6 @@ export default class User {
 			throw (new Error('INVALID_TYPE'));
 		}
 
-		console.trace(data);
-
 		if (!data.id) { throw new Error('INVALID_USER_ID'); }
 
 		for (const name of COLUMNS[Constants.TYPE_USER]) {
@@ -21,6 +19,7 @@ export default class User {
 
 		if (data.error) this.error = data.error;
 		if (data.create) this.create = data.create;
+		if (data.signedIdentities) this.signedIdentities = data.signedIdentities;
 	}
 
 	packArguments(): Object {
@@ -35,6 +34,7 @@ export default class User {
 		data.type = this.type;
 		if (this.error) data.error = this.error;
 		if (this.create) data.create = this.create;
+		if (this.signedIdentities) data.signedIdentities = this.signedIdentities;
 		return [ data ];
 	}
 
