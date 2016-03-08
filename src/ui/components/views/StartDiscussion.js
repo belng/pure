@@ -17,6 +17,7 @@ import AvatarContainer from '../containers/AvatarContainer';
 import ImageUploadContainer from '../containers/ImageUploadContainer';
 import Banner from './Banner';
 import ImageUploadDiscussion from './ImageUploadDiscussion';
+import KeyboardSpacer from './KeyboardSpacer';
 import ImageChooser from '../../modules/ImageChooser';
 
 const {
@@ -465,6 +466,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 						}
 					</View>
 				</View>
+				<KeyboardSpacer />
 			</View>
 		);
 	}
