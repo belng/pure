@@ -37,7 +37,7 @@ function rangeToKnowledge(range, orderedResult) {
 	let newRange = new Know.RangeArray([]), start, end;
 
 	if (range.length === 2) {
-		newRange = range;
+		newRange = new Know.RangeArray([ range ]);
 	} else {
 		start = range[0];
 		if (range[1] > 0 && range[2] > 0) {
@@ -55,6 +55,7 @@ function rangeToKnowledge(range, orderedResult) {
 		}
 		newRange.add([ start, end ]);
 	}
+
 	return newRange;
 }
 
@@ -86,7 +87,7 @@ cache.onChange((changes) => {
 		const newRange = rangeToKnowledge(range, orderedResult);
 
 		cache.put({
-			knowledge: { [key]: [ newRange ] },
+			knowledge: { [key]: newRange },
 			indexes: { [key]: orderedResult }
 		});
 	};
@@ -218,7 +219,7 @@ bus.on('change', (changes, next) => {
 
 				jsonop(response, {
 					indexes: { [key]: results },
-					knowledge: { [key]: [ newRange ] }
+					knowledge: { [key]: newRange }
 				});
 				counter.dec();
 			},
