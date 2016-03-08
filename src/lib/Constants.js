@@ -62,6 +62,8 @@ export const PRESENCE_NONE = 0;
 export const NOTE_MENTION = 1;
 export const NOTE_REQUEST = 2;
 export const NOTE_INVITE = 3;
+export const NOTE_THREAD = 4;
+export const NOTE_REPLY = 5;
 
 export const JOB_EMAIL_WELCOME = 1;
 export const JOB_EMAIL_MENTION = 2;
