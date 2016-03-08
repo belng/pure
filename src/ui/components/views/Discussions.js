@@ -7,7 +7,6 @@ import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
 import LoadingItem from './LoadingItem';
 import StartDiscussionButton from './StartDiscussionButton';
-import BannerOfflineContainer from '../containers/BannerOfflineContainer';
 import type { Item } from '../../../lib/schemaTypes';
 
 const {
@@ -108,8 +107,6 @@ export default class Discussions extends Component<void, Props, State> {
 
 		return (
 			<View {...this.props}>
-				<BannerOfflineContainer />
-
 				{placeHolder ? placeHolder :
 					<ListView
 						removeClippedSubviews
