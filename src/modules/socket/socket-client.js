@@ -1,6 +1,5 @@
 /* @flow */
 
-import eio from 'engine.io-client';
 import { bus, config } from '../../core-client.js';
 import packer from './../../lib/packer';
 
@@ -10,6 +9,13 @@ const {
 } = config.server;
 
 const poll = 'document' in window && 'createElement' in window.document; // Disable polling in non-web environments, e.g.- react-native
+
+// engine.io needs the userAgent string to be present
+if (!global.navigator.userAgent) {
+	global.navigator.userAgent = 'React Native';
+}
+
+const eio = require('engine.io-client'); // eslint-disable-line import/no-commonjs
 
 let	backOff = 1, client;
 

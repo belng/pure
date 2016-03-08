@@ -26,10 +26,6 @@ const styles = StyleSheet.create({
 		borderTopWidth: StyleSheet.hairlineWidth,
 		alignSelf: 'stretch'
 	},
-
-	blankslate: {
-		flex: 1,
-	}
 });
 
 type Props = {
@@ -37,33 +33,29 @@ type Props = {
 		latitude: number;
 		longitude: number;
 	};
-	onChangeField: (type: string, value: { [key: string]: string }) => void;
-	submitPlaceDetails: () => void;
+	onSelectPlace: Function;
+	onCancel?: Function;
+	renderBlankslate?: Function;
+	searchHint: string;
 }
 
-export default class LocationDetails extends Component<void, Props, void> {
+export default class PlacesSelector extends Component<void, Props, void> {
 	static propTypes = {
 		location: PropTypes.shape({
 			latitude: PropTypes.number,
 			longitude: PropTypes.number
 		}),
-		onChangeField: PropTypes.func.isRequired,
-		submitPlaceDetails: PropTypes.func.isRequired
+		onSelectPlace: PropTypes.func.isRequired,
+		onCancel: PropTypes.func,
+		renderBlankslate: PropTypes.func,
+		searchHint: PropTypes.string.isRequired,
 	};
 
 	_getResults: Function = (query: string) => GooglePlaces.getAutoCompletePredictions(
 		query, [ this.props.location || { latitude: 12.9667, longitude: 77.5667 } ], [ GooglePlaces.TYPE_FILTER_GEOCODE ]
 	);
 
-	_handleSelectPlace: Function = place => {
-		this.props.onChangeField('places', { home: place });
-
-		setTimeout(() => this.props.submitPlaceDetails(), 1000);
-	};
-
-	_renderRow: Function = place => <LocationItem place={place} onPress={() => this._handleSelectPlace(place)} />;
-
-	_renderBlankslate: Function = () => <View style={styles.blankslate} />;
+	_renderRow: Function = place => <LocationItem place={place} onPress={() => this.props.onSelectPlace(place)} />;
 
 	render() {
 		return (
@@ -72,8 +64,9 @@ export default class LocationDetails extends Component<void, Props, void> {
 				<SearchableList
 					getResults={this._getResults}
 					renderRow={this._renderRow}
-					renderBlankslate={this._renderBlankslate}
-					searchHint='Search for your apartment'
+					renderBlankslate={this.props.renderBlankslate}
+					onCancel={this.props.onCancel}
+					searchHint={this.props.searchHint}
 					autoFocus
 				/>
 				<KeyboardSpacer offset={36} />

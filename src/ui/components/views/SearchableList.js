@@ -28,10 +28,10 @@ type Props = {
 	autoFocus?: boolean;
 	getResults: (filter: string) => any | Promise<any>;
 	renderRow: (data: any) => Element;
-	renderHeader?: (filter: string, data: any) => ?Element;
-	renderFooter?: (filter: string, data: any) => ?Element;
-	renderBlankslate?: () => ?Element;
-	onCancel?: (data: any) => Element;
+	renderHeader?: ?(filter: string, data: any) => ?Element;
+	renderFooter?: ?(filter: string, data: any) => ?Element;
+	renderBlankslate?: ?() => ?Element;
+	onCancel?: ?(data: any) => Element;
 	searchHint: string;
 	style?: any;
 }
@@ -162,7 +162,7 @@ export default class SearchableList extends Component<void, Props, State> {
 			<View {...this.props} style={[ styles.container, this.props.style ]}>
 				<SearchBar
 					placeholder={this.props.searchHint}
-					onBack={this.props.onCancel}
+					onCancel={this.props.onCancel}
 					onChangeSearch={this._handleChangeSearch}
 					autoFocus={this.props.autoFocus}
 				/>

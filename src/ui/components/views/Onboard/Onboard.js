@@ -3,7 +3,7 @@
 import React, { PropTypes, Component } from 'react';
 import SignIn from './SignIn';
 import UserDetails from './UserDetails';
-import LocationDetails from './LocationDetails';
+import PlacesDetails from './PlacesDetails';
 import GetStarted from './GetStarted';
 import HomeContainer from '../../containers/HomeContainer';
 
@@ -21,7 +21,7 @@ export default class Onboard extends Component<void, Object, void> {
 		case 'PAGE_USER_DETAILS':
 			return <UserDetails {...props} />;
 		case 'PAGE_PLACES':
-			return <LocationDetails {...props} />;
+			return <PlacesDetails {...props} />;
 		case 'PAGE_GET_STARTED':
 			return <GetStarted {...props} />;
 		case 'PAGE_HOME':
