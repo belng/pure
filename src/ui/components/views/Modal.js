@@ -81,6 +81,8 @@ export default class Modal extends Component<void, any, State> {
 					<ModalSheet>
 						{element}
 					</ModalSheet>
+
+					<KeyboardSpacer />
 				</View>
 			</TouchableWithoutFeedback>
 		);
@@ -180,8 +182,6 @@ export default class Modal extends Component<void, any, State> {
 		return (
 			<Animated.View style={[ styles.container, { height, width, opacity: this.state.fadeAnim } ]}>
 				{this.state.element}
-
-				<KeyboardSpacer />
 			</Animated.View>
 		);
 	}

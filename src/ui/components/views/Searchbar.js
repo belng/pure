@@ -29,7 +29,7 @@ type Props = {
 	onChangeSearch: Function;
 	onFocus?: Function;
 	onBlur?: Function;
-	onDismiss?: Function;
+	onCancel?: ?Function;
 	placeholder?: string;
 	autoFocus?: boolean;
 }
@@ -43,7 +43,7 @@ export default class SearchBar extends Component<void, Props, State> {
 		onChangeSearch: PropTypes.func.isRequired,
 		onFocus: PropTypes.func,
 		onBlur: PropTypes.func,
-		onDismiss: PropTypes.func,
+		onCancel: PropTypes.func,
 		placeholder: PropTypes.string,
 		autoFocus: PropTypes.bool
 	};
@@ -71,8 +71,8 @@ export default class SearchBar extends Component<void, Props, State> {
 	render() {
 		return (
 			<AppbarSecondary {...this.props}>
-				{this.props.onDismiss ?
-					<AppbarTouchable type='secondary' onPress={this.props.onDismiss}>
+				{this.props.onCancel ?
+					<AppbarTouchable type='secondary' onPress={this.props.onCancel}>
 						<AppbarIcon name='arrow-back' style={styles.icon} />
 					</AppbarTouchable> :
 					<AppbarIcon name='search' style={styles.icon} />

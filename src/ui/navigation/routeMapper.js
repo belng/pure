@@ -15,7 +15,7 @@ import RoomsContainer from '../components/containers/RoomsContainer';
 import AccountContainer from '../components/containers/AccountContainer';
 import OnboardContainer from '../components/containers/OnboardContainer';
 import StartDiscussionContainer from '../components/containers/StartDiscussionContainer';
-import MyRoomsContainer from '../components/containers/MyRoomsContainer';
+import MyPlacesContainer from '../components/containers/MyPlacesContainer';
 import { config } from '../../core-client';
 
 export type RouteDescription = {
@@ -54,7 +54,7 @@ export default function(route: Route): RouteDescription {
 	case 'places':
 		return {
 			title: 'My places',
-			component: MyRoomsContainer
+			component: MyPlacesContainer
 		};
 	case 'details':
 		return {

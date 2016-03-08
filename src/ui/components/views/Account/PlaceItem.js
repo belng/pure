@@ -67,18 +67,25 @@ const ICONS = {
 	state: 'location-city',
 };
 
-export default class PlaceItem extends Component {
+type Props = {
+	place: {
+		title: string;
+	};
+	type: string;
+	onRemove: Function;
+}
+
+export default class PlaceItem extends Component<void, Props, void> {
 	static propTypes = {
 		place: PropTypes.shape({
-			id: PropTypes.string.isRequired,
-			name: PropTypes.string
+			title: PropTypes.string.isRequired
 		}),
 		type: PropTypes.string.isRequired,
 		onRemove: PropTypes.func.isRequired
 	};
 
 	_handleRemove: Function = () => {
-		this.props.onRemove(this.props.place, this.props.type);
+		this.props.onRemove(this.props.type, this.props.place);
 	};
 
 	_capitalizeText: Function = (text: string) => {
@@ -104,7 +111,7 @@ export default class PlaceItem extends Component {
 					/>
 				</View>
 				<View style={styles.nameContainer}>
-					<AppText style={styles.name} numberOfLines={1}>{place.name || this._capitalizeText(place.id)}</AppText>
+					<AppText style={styles.name} numberOfLines={1}>{place.title}</AppText>
 					<AppText style={styles.type} numberOfLines={1}>{this._capitalizeText(type)}</AppText>
 				</View>
 				<TouchableOpacity onPress={this._handleRemove}>

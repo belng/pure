@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import ReactNative from 'react-native';
 import PlaceManager from './PlaceManager';
 import PageLoading from '../PageLoading';
@@ -19,17 +19,30 @@ const styles = StyleSheet.create({
 	}
 });
 
-const MyPlaces = (props: { places: Array<any>, style: any }) => {
-	if (props.places && props.places.length === 1 && props.places[0] === 'missing') {
+type Props = {
+	places: Object;
+	savePlaces: Function;
+	style?: any;
+}
+
+export default class MyPlaces extends Component<void, Props, void> {
+	static propTypes = {
+		places: PropTypes.object,
+		savePlaces: PropTypes.func.isRequired,
+		style: View.propTypes.style,
+	};
+
+	render() {
+		if (this.props.places) {
+			return (
+				<PlaceManager
+					{...this.props}
+					onChange={this.props.savePlaces}
+					style={[ styles.container, this.props.style ]}
+				/>
+			);
+		}
+
 		return <PageLoading />;
 	}
-
-	return <PlaceManager {...props} style={[ styles.container, props.style ]} />;
-};
-
-MyPlaces.propTypes = {
-	style: View.propTypes.style,
-	places: PropTypes.array
-};
-
-export default MyPlaces;
+}
