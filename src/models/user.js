@@ -9,8 +9,6 @@ export default class User {
 			throw (new Error('INVALID_TYPE'));
 		}
 
-		console.trace(data);
-
 		if (!data.id) { throw new Error('INVALID_USER_ID'); }
 
 		for (const name of COLUMNS[Constants.TYPE_USER]) {
