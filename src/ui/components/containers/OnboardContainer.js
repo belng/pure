@@ -5,7 +5,6 @@ import React, { PropTypes, Component } from 'react';
 import isEmpty from 'lodash/isEmpty';
 import Connect from '../../../modules/store/Connect';
 import Onboard from '../views/Onboard/Onboard';
-import EnhancedError from '../../../lib/EnhancedError';
 import Validator from '../../../lib/Validator';
 import { signIn, signUp, cancelSignUp, saveUser } from '../../../modules/store/actions';
 import type { User } from '../../../lib/schemaTypes';
@@ -13,6 +12,7 @@ import type { User } from '../../../lib/schemaTypes';
 type Props = {
 	user: User;
 	pendingUser: {
+		error?: Error,
 		signedIdentities: string;
 		params: {
 			[key: string]: {
@@ -30,7 +30,7 @@ type Props = {
 type Fields = {
 	[key: string]: {
 		value: any;
-		error: ?EnhancedError
+		error: ?Error
 	};
 }
 
@@ -78,7 +78,7 @@ class OnboardContainer extends Component<void, Props, State> {
 			return;
 		}
 
-		const { params } = pendingUser;
+		const { params, error } = pendingUser;
 
 		for (const provider in params) {
 			const data = params[provider];
@@ -102,7 +102,7 @@ class OnboardContainer extends Component<void, Props, State> {
 
 				this.setState({
 					fields: {
-						...fields,
+						nick: { value: fields.nick.value, error },
 						name: { value: fields.name.value || data.name, error: null },
 						picture: { value: fields.picture.value || data.picture, error: null },
 						places: { value: isEmpty(fields.places) ? places : fields.places, error: null },
@@ -188,7 +188,7 @@ class OnboardContainer extends Component<void, Props, State> {
 			if (this._isFieldRequired(field) && isEmpty(item.value)) {
 				fields[field] = {
 					...item,
-					error: new EnhancedError('must be specified', 'E_EMPTY'),
+					error: new Error('must be specified'),
 				};
 			}
 		}

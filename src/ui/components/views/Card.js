@@ -20,7 +20,17 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class Card extends Component {
+type Props = {
+	children?: Element;
+	style?: any;
+}
+
+export default class Card extends Component<void, Props, void> {
+	static propTypes = {
+		children: PropTypes.node.isRequired,
+		style: View.propTypes.style
+	};
+
 	_root: Object;
 
 	setNativeProps(nativeProps: any) {
@@ -39,8 +49,3 @@ export default class Card extends Component {
 		);
 	}
 }
-
-Card.propTypes = {
-	children: PropTypes.node.isRequired,
-	style: View.propTypes.style
-};

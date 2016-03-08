@@ -11,7 +11,6 @@ import OnboardParagraph from './OnboardParagraph';
 import OnboardError from './OnboardError';
 import Icon from '../Icon';
 import VersionCodes from '../../../modules/VersionCodes';
-import EnhancedError from '../../../../lib/EnhancedError';
 import Colors from '../../../Colors';
 
 const {
@@ -73,8 +72,8 @@ type Props = {
 	submitUserDetails: Function;
 	onChangeField: Function;
 	fields: {
-		nick: { value: string; error: ?EnhancedError };
-		name: { value: string; error: ?EnhancedError };
+		nick: { value: string; error: ?Error };
+		name: { value: string; error: ?Error };
 		picture: { value: string; error: void };
 	};
 };
@@ -88,11 +87,11 @@ export default class UserDetails extends Component<void, Props, void> {
 		fields: PropTypes.objectOf(PropTypes.shape({
 			nick: PropTypes.shape({
 				value: PropTypes.string,
-				error: PropTypes.instanceOf(EnhancedError)
+				error: PropTypes.instanceOf(Error)
 			}),
 			name: PropTypes.shape({
 				value: PropTypes.string,
-				error: PropTypes.instanceOf(EnhancedError)
+				error: PropTypes.instanceOf(Error)
 			})
 		})).isRequired,
 	};

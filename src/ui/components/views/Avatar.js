@@ -7,7 +7,11 @@ const {
 	Image
 } = ReactNative;
 
-export default class Avatar extends Component {
+type Props = {
+	uri: ?string;
+}
+
+export default class Avatar extends Component<void, Props, void> {
 	static propTypes = {
 		uri: PropTypes.string
 	};

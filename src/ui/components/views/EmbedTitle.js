@@ -16,16 +16,26 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class EmbedTitle extends Component {
+type Props = {
+	title: ?string;
+	style?: any;
+}
+
+export default class EmbedTitle extends Component<void, Props, void> {
+	static propTypes = {
+		title: PropTypes.string,
+		style: AppText.propTypes.style,
+	};
+
 	render() {
-		if (this.props.embed.title) {
+		if (this.props.title) {
 			return (
 				<AppText
 					numberOfLines={1}
 					{...this.props}
 					style={[ styles.title, this.props.style ]}
 				>
-					{this.props.embed.title}
+					{this.props.title}
 				</AppText>
 			);
 		} else {
@@ -33,9 +43,3 @@ export default class EmbedTitle extends Component {
 		}
 	}
 }
-
-EmbedTitle.propTypes = {
-	embed: PropTypes.shape({
-		title: PropTypes.string
-	}).isRequired
-};

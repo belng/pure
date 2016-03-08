@@ -5,7 +5,6 @@ import ReactNative from 'react-native';
 import PageLoading from './PageLoading';
 import ChatMessagesContainer from '../containers/ChatMessagesContainer';
 import ChatInput from './ChatInput';
-import BannerOfflineContainer from '../containers/BannerOfflineContainer';
 
 const {
 	View,
@@ -43,8 +42,6 @@ export default class Chat extends Component {
 
 		return (
 			<View {...this.props}>
-				<BannerOfflineContainer />
-
 				<ChatMessagesContainer
 					style={styles.container}
 					room={this.props.room}

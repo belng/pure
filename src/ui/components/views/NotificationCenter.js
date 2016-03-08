@@ -21,7 +21,7 @@ type State = {
 	dataSource: ListView.DataSource
 }
 
-export default class NotificationCenter extends Component {
+export default class NotificationCenter extends Component<void, Props, State> {
 	static propTypes = {
 		dismissNote: PropTypes.func.isRequired,
 		onNavigation: PropTypes.func.isRequired,

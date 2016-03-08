@@ -15,16 +15,26 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class EmbedSummary extends Component {
+type Props = {
+	summary: string;
+	style?: any;
+}
+
+export default class EmbedSummary extends Component<void, Props, void> {
+	static propTypes = {
+		summary: PropTypes.string.isRequired,
+		style: PropTypes.any.isRequired,
+	};
+
 	render() {
-		if (this.props.embed.description) {
+		if (this.props.summary) {
 			return (
 				<AppText
 					numberOfLines={2}
 					{...this.props}
 					style={[ styles.summary, this.props.style ]}
 				>
-					{this.props.embed.description}
+					{this.props.summary}
 				</AppText>
 			);
 		} else {
@@ -32,7 +42,3 @@ export default class EmbedSummary extends Component {
 		}
 	}
 }
-
-EmbedSummary.propTypes = {
-	embed: PropTypes.object.isRequired
-};

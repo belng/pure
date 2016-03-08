@@ -21,7 +21,7 @@ type Props = {
 	style?: any;
 }
 
-export default class AppText extends Component {
+export default class AppText extends Component<void, Props, void> {
 	static propTypes = {
 		children: PropTypes.node.isRequired,
 		style: Text.propTypes.style

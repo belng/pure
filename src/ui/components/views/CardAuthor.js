@@ -25,7 +25,17 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class CardAuthor extends Component {
+type Props = {
+	nick: string;
+	style?: any;
+}
+
+export default class CardAuthor extends Component<void, Props, void> {
+	static propTypes = {
+		nick: PropTypes.string.isRequired,
+		style: View.propTypes.style
+	};
+
 	render() {
 		const { nick } = this.props;
 
@@ -33,15 +43,10 @@ export default class CardAuthor extends Component {
 			<View {...this.props} style={[ styles.author, this.props.style ]}>
 				<AvatarRound
 					size={24}
-					nick={nick}
+					user={nick}
 				/>
 				<AppText style={styles.name}>{nick}</AppText>
 			</View>
 		);
 	}
 }
-
-CardAuthor.propTypes = {
-	nick: PropTypes.string.isRequired,
-	style: View.propTypes.style
-};

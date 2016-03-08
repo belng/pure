@@ -17,7 +17,17 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class AccountPhotoChooser extends Component {
+type Props = {
+	photos: Array<string>;
+	onSelect: Function;
+}
+
+export default class AccountPhotoChooser extends Component<void, Props, void> {
+	static propTypes = {
+		photos: PropTypes.arrayOf(PropTypes.string).isRequired,
+		onSelect: PropTypes.func.isRequired
+	};
+
 	render() {
 		const { photos } = this.props;
 
@@ -34,8 +44,3 @@ export default class AccountPhotoChooser extends Component {
 		);
 	}
 }
-
-AccountPhotoChooser.propTypes = {
-	photos: PropTypes.arrayOf(PropTypes.string).isRequired,
-	onSelect: PropTypes.func.isRequired
-};

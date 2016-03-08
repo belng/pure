@@ -29,8 +29,11 @@ type Props = {
 	hint: ?string;
 };
 
-export default class OnboardError extends Component {
-	props: Props;
+export default class OnboardError extends Component<void, Props, void> {
+	static propTypes = {
+		message: PropTypes.string,
+		hint: PropTypes.string
+	};
 
 	render() {
 		const message = this.props.message || this.props.hint || '';
@@ -42,8 +45,3 @@ export default class OnboardError extends Component {
 		);
 	}
 }
-
-OnboardError.propTypes = {
-	message: PropTypes.string,
-	hint: PropTypes.string
-};

@@ -38,16 +38,46 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class ChatInput extends Component {
-	_onClose = () => {
-		this.props.closeUpload();
+type Props = {
+	imageData: {
+		name: string;
+		uri: string;
+		height: number;
+		width: number;
+		size: number;
+	};
+	status: 'loading' | 'idle' | 'error';
+	startUpload: Function;
+	cancelUpload: Function;
+	closeUpload: Function;
+	style?: any;
+}
+
+export default class ChatInput extends Component<void, Props, void> {
+	static propTypes = {
+		imageData: PropTypes.shape({
+			name: PropTypes.string.isRequired,
+			uri: PropTypes.string.isRequired,
+			height: PropTypes.number.isRequired,
+			width: PropTypes.number.isRequired,
+			size: PropTypes.number.isRequired
+		}).isRequired,
+		status: PropTypes.string.isRequired,
+		startUpload: PropTypes.func.isRequired,
+		cancelUpload: PropTypes.func.isRequired,
+		closeUpload: PropTypes.func.isRequired,
+		style: View.propTypes.any,
 	};
 
-	_onPress = () => {
-		if (this.props.status === 'loading') {
-			this.props.cancelUpload();
-		} else if (this.props.status === 'idle' || this.props.status === 'error') {
+	_handlePress: Function = () => {
+		switch (this.props.status) {
+		case 'idle':
+		case 'error':
 			this.props.startUpload();
+			break;
+		case 'loading':
+			this.props.cancelUpload();
+			break;
 		}
 	};
 
@@ -59,7 +89,7 @@ export default class ChatInput extends Component {
 				<View style={styles.thumbnailContainer}>
 					<Image source={{ uri, height: (height / width) * 160, width: 160 }} style={styles.thumbnailStyle}>
 						<ImageUploadButton
-							onPress={this._onPress}
+							onPress={this._handlePress}
 							status={this.props.status}
 							idleIcon='file-upload'
 							closeIcon='close'
@@ -71,22 +101,8 @@ export default class ChatInput extends Component {
 					</Image>
 				</View>
 
-				<CloseButton onPress={this._onClose} style={styles.closeButton} />
+				<CloseButton onPress={this.props.closeUpload} style={styles.closeButton} />
 			</View>
 		);
 	}
 }
-
-ChatInput.propTypes = {
-	imageData: PropTypes.shape({
-		name: PropTypes.string.isRequired,
-		uri: PropTypes.string.isRequired,
-		height: PropTypes.number.isRequired,
-		width: PropTypes.number.isRequired,
-		size: PropTypes.number.isRequired
-	}).isRequired,
-	status: PropTypes.string.isRequired,
-	startUpload: PropTypes.func.isRequired,
-	cancelUpload: PropTypes.func.isRequired,
-	closeUpload: PropTypes.func.isRequired
-};

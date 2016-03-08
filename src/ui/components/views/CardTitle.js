@@ -16,7 +16,17 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class CardTitle extends Component {
+type Props = {
+	children?: Element;
+	style?: any;
+}
+
+export default class CardTitle extends Component<void, Props, void> {
+	static propTypes = {
+		children: PropTypes.string.isRequired,
+		style: AppText.propTypes.style
+	};
+
 	render() {
 		return (
 			<AppText
@@ -29,8 +39,3 @@ export default class CardTitle extends Component {
 		);
 	}
 }
-
-CardTitle.propTypes = {
-	children: PropTypes.string.isRequired,
-	style: AppText.propTypes.style
-};

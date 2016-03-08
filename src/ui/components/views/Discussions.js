@@ -7,7 +7,6 @@ import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
 import LoadingItem from './LoadingItem';
 import StartDiscussionButton from './StartDiscussionButton';
-import BannerOfflineContainer from '../containers/BannerOfflineContainer';
 import type { Item } from '../../../lib/schemaTypes';
 
 const {
@@ -54,16 +53,12 @@ export default class Discussions extends Component<void, Props, State> {
 	};
 
 	componentWillMount() {
-		console.log('data', this.props.data);
-
 		this.setState({
 			dataSource: this.state.dataSource.cloneWithRows(this.props.data)
 		});
 	}
 
 	componentWillReceiveProps(nextProps: Props) {
-		console.log('update', nextProps);
-
 		this.setState({
 			dataSource: this.state.dataSource.cloneWithRows(nextProps.data)
 		});
@@ -112,8 +107,6 @@ export default class Discussions extends Component<void, Props, State> {
 
 		return (
 			<View {...this.props}>
-				<BannerOfflineContainer />
-
 				{placeHolder ? placeHolder :
 					<ListView
 						removeClippedSubviews
