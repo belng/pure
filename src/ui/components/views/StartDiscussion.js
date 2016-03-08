@@ -146,16 +146,16 @@ type Props = {
 type State = {
 	name: string;
 	body: string;
-	meta: ?{
-		photo: ?{
-			title: string;
-			height: number;
-			width: number;
-		};
-	};
 	upload: ?{
 		originalUrl: string;
 		thumbnailUrl: string;
+	};
+	photo: ?{
+		uri: string;
+		size: number;
+		name: string;
+		height: number;
+		width: number;
 	};
 	status: 'loading' | null;
 	error: ?string;
@@ -176,7 +176,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 	state: State = {
 		name: '',
 		body: '',
-		meta: null,
+		photo: null,
 		upload: null,
 		status: null,
 		error: null,
@@ -281,16 +281,16 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 
 		let meta;
 
-		if (this.state.upload && this.state.meta && this.state.meta.photo) {
+		if (this.state.upload && this.state.photo) {
 			const { upload } = this.state;
-			const { height, width, title } = this.state.meta.photo;
+			const { height, width, name } = this.state.photo;
 			const aspectRatio = height / width;
 
 			meta = {
 				photo: {
-					title,
 					height,
 					width,
+					title: name,
 					url: upload.originalUrl,
 					thumbnail_height: Math.min(480, width) * aspectRatio,
 					thumbnail_width: Math.min(480, width),
@@ -333,21 +333,13 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 	_handleUploadImage: Function = async () => {
 		try {
 			this.setState({
-				meta: {
-					photo: null
-				}
+				photo: null
 			});
 
-			const imageData = await ImageChooser.pickImage();
+			const photo = await ImageChooser.pickImage();
 
 			this.setState({
-				meta: {
-					photo: {
-						title: imageData.name,
-						height: imageData.height,
-						width: imageData.width
-					}
-				}
+				photo
 			});
 		} catch (e) {
 			// Do nothing
@@ -363,9 +355,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 
 	_handleUploadClose: Function = () => {
 		this.setState({
-			meta: {
-				photo: null
-			},
+			photo: null,
 			upload: null,
 			error: null
 		});
@@ -404,10 +394,10 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 						underlineColorAndroid='transparent'
 					/>
 
-					{this.state.imageData ?
+					{this.state.photo ?
 						<ImageUploadContainer
 							component={ImageUploadDiscussion}
-							imageData={this.state.imageData}
+							imageData={this.state.photo}
 							onUploadClose={this._handleUploadClose}
 							onUploadFinish={this._handleUploadFinish}
 							autoStart
@@ -448,7 +438,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 						<View style={styles.uploadButton}>
 							<Icon
 								name='image'
-								style={[ styles.uploadButtonIcon, this.state.imageData ? styles.uploadButtonIconActive : null ]}
+								style={[ styles.uploadButtonIcon, this.state.photo ? styles.uploadButtonIconActive : null ]}
 								size={24}
 							/>
 						</View>
