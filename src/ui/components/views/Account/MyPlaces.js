@@ -21,14 +21,16 @@ const styles = StyleSheet.create({
 
 type Props = {
 	places: Object;
-	savePlaces: Function;
+	addPlace: Function;
+	removePlace: Function;
 	style?: any;
 }
 
 export default class MyPlaces extends Component<void, Props, void> {
 	static propTypes = {
 		places: PropTypes.object,
-		savePlaces: PropTypes.func.isRequired,
+		addPlace: PropTypes.func.isRequired,
+		removePlace: PropTypes.func.isRequired,
 		style: View.propTypes.style,
 	};
 
@@ -37,7 +39,8 @@ export default class MyPlaces extends Component<void, Props, void> {
 			return (
 				<PlaceManager
 					{...this.props}
-					onChange={this.props.savePlaces}
+					onPlaceAdded={this.props.addPlace}
+					onPlaceRemoved={this.props.removePlace}
 					style={[ styles.container, this.props.style ]}
 				/>
 			);

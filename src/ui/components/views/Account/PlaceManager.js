@@ -36,10 +36,22 @@ const TYPES = [
 	}
 ];
 
-export default class PlaceManager extends Component {
+type Props = {
+	onPlaceAdded: Function,
+	onPlaceRemoved: Function,
+	places: {
+		[key: string]: {
+			id: string;
+			title: string;
+			description: string;
+		}
+	}
+}
 
+export default class PlaceManager extends Component<void, Props, void> {
 	static propTypes = {
-		onChange: PropTypes.func.isRequired,
+		onPlaceAdded: PropTypes.func.isRequired,
+		onPlaceRemoved: PropTypes.func.isRequired,
 		places: PropTypes.objectOf(PropTypes.object).isRequired
 	};
 
@@ -51,25 +63,16 @@ export default class PlaceManager extends Component {
 		this._handleDismissModal();
 
 		InteractionManager.runAfterInteractions(() => {
-			const places = {
-				...this.props.places,
-				[type]: {
-					id: place.placeId,
-					title: place.primaryText || '',
-					description: place.secondaryText || '',
-				}
-			};
-
-			this.props.onChange(places);
+			this.props.onPlaceAdded(type, {
+				id: place.placeId,
+				title: place.primaryText || '',
+				description: place.secondaryText || '',
+			});
 		});
 	};
 
 	_handleRemoveLocality: Function = (type: string) => {
-		const places = { ...this.props.places };
-
-		delete places[type];
-
-		this.props.onChange(places);
+		this.props.onPlaceRemoved(type, this.props.places[type]);
 	};
 
 	_handlePress: Function = type => {

@@ -64,14 +64,14 @@ const styles = StyleSheet.create({
 const ICONS = {
 	home: 'home',
 	work: 'work',
-	state: 'location-city',
+	hometown: 'location-city',
 };
 
 type Props = {
 	place: {
 		title: string;
 	};
-	type: string;
+	type: 'home' | 'work' | 'hometown';
 	onRemove: Function;
 }
 

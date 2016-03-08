@@ -3,11 +3,14 @@
 import React from 'react';
 import Connect from '../../../modules/store/Connect';
 import MyPlaces from '../views/Account/MyPlaces';
-import { saveUser } from '../../../modules/store/actions';
+import { addPlace, removePlace } from '../../../modules/store/actions';
 
 const mapSubscriptionToProps = {
 	user: {
-		key: 'me',
+		key: {
+			type: 'state',
+			path: 'user'
+		},
 	},
 	places: {
 		key: 'me',
@@ -22,13 +25,8 @@ const mapSubscriptionToProps = {
 };
 
 const mapActionsToProps = {
-	savePlaces: (store, result) => places => store.dispatch(saveUser({
-		...result.user,
-		params: {
-			...result.user.params,
-			places
-		}
-	})),
+	addPlace: (store, result) => (type, place) => store.dispatch(addPlace(result.user, type, place)),
+	removePlace: (store, result) => (type, place) => store.dispatch(removePlace(result.user, type, place)),
 };
 
 const MyPlacesContainer = (props: any) => (

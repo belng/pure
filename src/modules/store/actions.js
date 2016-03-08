@@ -39,6 +39,34 @@ export const saveUser = (user: User): Object => ({
 	}
 });
 
+export const addPlace = (user: string, type: string, place: Object): Object => ({
+	entities: {
+		[user]: new UserModel({
+			id: user,
+			params: {
+				places: {
+					[type]: place
+				}
+			}
+		})
+	}
+});
+
+export const removePlace = (user: string, type: string): Object => ({
+	entities: {
+		[user]: new UserModel({
+			id: user,
+			params: {
+				places: {
+					__op__: {
+						[type]: 'delete'
+					}
+				}
+			}
+		})
+	}
+});
+
 export const banUser = (): Object => ({
 
 });
