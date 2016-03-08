@@ -27,8 +27,18 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class AccountPhotoChooserItem extends Component {
-	_handlePress = () => {
+type Props = {
+	uri: string;
+	onPress: Function;
+}
+
+export default class AccountPhotoChooserItem extends Component<void, Props, void> {
+	static propTypes = {
+		uri: PropTypes.string.isRequired,
+		onPress: PropTypes.func.isRequired
+	};
+
+	_handlePress: Function = () => {
 		this.props.onPress(this.props.uri);
 	};
 
@@ -42,8 +52,3 @@ export default class AccountPhotoChooserItem extends Component {
 		);
 	}
 }
-
-AccountPhotoChooserItem.propTypes = {
-	uri: PropTypes.string.isRequired,
-	onPress: PropTypes.func.isRequired
-};

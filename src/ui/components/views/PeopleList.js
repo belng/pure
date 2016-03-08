@@ -6,6 +6,7 @@ import PeopleListItem from './PeopleListItem';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
 import ListHeader from './ListHeader';
+import { PRESENCE_FOREGROUND } from '../../../lib/Constants';
 import type { Relation } from '../../../lib/schemaTypes';
 
 const {
@@ -50,7 +51,7 @@ export default class PeopleList extends Component<void, Props, State> {
 		<PeopleListItem
 			key={relation.user}
 			user={relation.user}
-			presence={relation.presence}
+			status={relation.presence === PRESENCE_FOREGROUND ? 'online' : 'offline'}
 		/>
 	);
 

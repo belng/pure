@@ -2,7 +2,11 @@
 
 import { Component } from 'react';
 
-export default class Loading extends Component {
+type Props = {
+	style?: any;
+}
+
+export default class Loading extends Component<void, Props, void> {
 	render(): ?React$Element {
 		return null;
 	}

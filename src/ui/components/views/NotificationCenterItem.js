@@ -270,7 +270,7 @@ export default class NotificationCenterItem extends Component<void, Props, void>
 					<View style={styles.note}>
 						<View style={styles.avatarContainer}>
 							<AvatarRound
-								nick={note.data.creator}
+								user={note.data.creator}
 								size={36}
 							/>
 							<View style={[ styles.badge, { backgroundColor: this._getIconColor() } ]}>

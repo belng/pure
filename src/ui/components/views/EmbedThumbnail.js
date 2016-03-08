@@ -30,14 +30,41 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class EmbedThumbnail extends Component {
-	constructor(props) {
-		super(props);
+type Props = {
+	embed: {
+		type: string;
+		height?: number;
+		width?: number;
+		thumbnail_height?: number;
+		thumbnail_width?: number;
+		thumbnail_url?: string;
+	};
+	style?: any;
+}
 
+export default class EmbedThumbnail extends Component<void, Props, void> {
+	static propTypes = {
+		embed: PropTypes.shape({
+			type: PropTypes.string.isRequired,
+			height: PropTypes.number,
+			width: PropTypes.number,
+			thumbnail_height: PropTypes.number,
+			thumbnail_width: PropTypes.number,
+			thumbnail_url: PropTypes.string
+		}).isRequired,
+		style: Image.propTypes.style
+	};
+
+	componentWillMount() {
 		this._dimen = this.props.embed.thumbnail_url ? this._getOptimalDimensions() : null;
 	}
 
-	_getOptimalDimensions = () => {
+	_dimen: ?{
+		height: number;
+		width: number;
+	};
+
+	_getOptimalDimensions: Function = () => {
 		const {
 			height,
 			width,
@@ -59,9 +86,9 @@ export default class EmbedThumbnail extends Component {
 
 		let displayWidth;
 
-		if (thumbnail_height) {
+		if (thumbnail_height && thumbnail_width) {
 			displayWidth = Math.min(thumbnail_width, win.width - 120);
-		} else if (height) {
+		} else if (height && width) {
 			displayWidth = Math.min(width, win.width - 120);
 		} else {
 			displayWidth = 160;
@@ -94,14 +121,3 @@ export default class EmbedThumbnail extends Component {
 		}
 	}
 }
-
-EmbedThumbnail.propTypes = {
-	embed: PropTypes.shape({
-		type: PropTypes.string.isRequired,
-		height: PropTypes.number,
-		width: PropTypes.number,
-		thumbnail_height: PropTypes.number,
-		thumbnail_width: PropTypes.number,
-		thumbnail_url: PropTypes.string
-	}).isRequired
-};

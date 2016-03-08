@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
 	nickText: {
 		color: Colors.darkGrey
 	},
-	presence: {
+	status: {
 		fontSize: 12,
 		lineHeight: 18,
 		marginHorizontal: 16,
@@ -49,16 +49,21 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class PeopleListItem extends Component {
+type Props = {
+	user: string;
+	status: 'online' | 'offline';
+}
+
+export default class PeopleListItem extends Component<void, Props, void> {
 	static propTypes = {
 		user: PropTypes.string.isRequired,
-		presence: PropTypes.string
+		status: PropTypes.string
 	};
 
 	render() {
 		const {
 			user,
-			presence
+			status
 		} = this.props;
 
 		return (
@@ -68,16 +73,16 @@ export default class PeopleListItem extends Component {
 						<AvatarRound
 							style={styles.avatar}
 							size={36}
-							nick={user}
+							user={user}
 						/>
 						<View style={styles.nick}>
-							<AppText style={[ styles.nickText, presence !== 'online' ? styles.offline : null ]}>
+							<AppText style={[ styles.nickText, status !== 'online' ? styles.offline : null ]}>
 								{user}
 							</AppText>
 						</View>
 						<View>
-							<AppText style={[ styles.presence, presence === 'online' ? styles.online : styles.offline ]}>
-								{presence ? presence.toUpperCase() : 'OFFLINE'}
+							<AppText style={[ styles.status, status === 'online' ? styles.online : styles.offline ]}>
+								{status.toUpperCase()}
 							</AppText>
 						</View>
 					</View>

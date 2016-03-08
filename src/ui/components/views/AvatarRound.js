@@ -20,7 +20,13 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class AvatarRound extends Component {
+type Props = {
+	user: string;
+	size: number;
+	style?: any;
+}
+
+export default class AvatarRound extends Component<void, Props, void> {
 	static propTypes = {
 		size: PropTypes.number.isRequired,
 		user: PropTypes.string.isRequired,
