@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 
 const {
@@ -26,6 +27,10 @@ export default class ModalSheet extends Component<void, Props, void> {
 		children: PropTypes.node.isRequired,
 		style: View.propTypes.style
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	render() {
 		return (

@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import Icon from './Icon';
@@ -112,6 +113,10 @@ export default class NotificationCenterItem extends Component<void, Props, void>
 		dismissNote: PropTypes.func.isRequired,
 		onNavigation: PropTypes.func.isRequired
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	_getSummary: Function = note => {
 		const { data, event, count } = note;

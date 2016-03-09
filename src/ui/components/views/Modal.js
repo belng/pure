@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import ModalSheet from './ModalSheet';
@@ -130,6 +131,10 @@ export default class Modal extends Component<void, any, State> {
 	componentDidMount() {
 		Modal._renderChild = this._renderChild;
 		Modal._isShown = this._isShown;
+	}
+
+	shouldComponentUpdate(nextProps: any, nextState: State): boolean {
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
 
 	componentWillUnmount() {

@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import AppText from './AppText';
 import Colors from '../../Colors';
 
@@ -26,6 +27,10 @@ export default class EmbedTitle extends Component<void, Props, void> {
 		title: PropTypes.string,
 		style: AppText.propTypes.style,
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	render() {
 		if (this.props.title) {

@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import NotificationBadgeContainer from '../containers/NotificationBadgeContainer';
@@ -50,6 +51,10 @@ export default class RoomItem extends Component<void, Props, void> {
 		}),
 		onSelect: PropTypes.func,
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	_handleShowMenu: Function = () => {
 		const { room } = this.props;

@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
+import shallowEqual from 'shallowequal';
 import AppText from './AppText';
 import { short, long } from '../../../lib/Time';
 
@@ -33,6 +34,10 @@ export default class Time extends Component<void, Props, State> {
 		});
 
 		this._setTimer(now);
+	}
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
 
 	componentWillUnmount() {

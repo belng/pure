@@ -1,7 +1,8 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import TouchFeedback from './TouchFeedback';
 import Colors from '../../Colors';
 
@@ -27,17 +28,23 @@ type Props = {
 	containerStyle?: any;
 }
 
-const ListItem = (props: Props) => (
-	<TouchFeedback {...props}>
-		<View style={[ styles.container, props.containerStyle ]}>
-			{props.children}
-		</View>
-	</TouchFeedback>
-);
+export default class ListItem extends Component<void, Props, void> {
+	static propTypes = {
+		children: PropTypes.node.isRequired,
+		containerStyle: View.propTypes.style
+	};
 
-ListItem.propTypes = {
-	children: PropTypes.node.isRequired,
-	containerStyle: View.propTypes.style
-};
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
-export default ListItem;
+	render() {
+		return (
+			<TouchFeedback {...this.props}>
+				<View style={[ styles.container, this.props.containerStyle ]}>
+					{this.props.children}
+				</View>
+			</TouchFeedback>
+		);
+	}
+}

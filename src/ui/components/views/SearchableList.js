@@ -7,6 +7,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import SearchBar from './Searchbar';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
@@ -58,6 +59,10 @@ export default class SearchableList extends Component<void, Props, State> {
 		filter: '',
 		data: '@@blankslate',
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+	}
 
 	_cachedResults: Object = {};
 

@@ -1,7 +1,8 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import AppText from './AppText';
 import Colors from '../../Colors';
 
@@ -27,16 +28,24 @@ type Props = {
 	children?: string;
 }
 
-const ListHeader = ({ children }: Props) => {
-	return (
-		<View style={styles.header}>
-			<AppText style={styles.headerText}>{children && children.toUpperCase()}</AppText>
-		</View>
-	);
-};
+export default class ListHeader extends Component<void, Props, void> {
+	static propTypes = {
+		children: PropTypes.string.isRequired
+	};
 
-ListHeader.propTypes = {
-	children: PropTypes.string.isRequired
-};
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
-export default ListHeader;
+	render() {
+		const {
+			children
+		} = this.props;
+
+		return (
+			<View style={styles.header}>
+				<AppText style={styles.headerText}>{children && children.toUpperCase()}</AppText>
+			</View>
+		);
+	}
+}

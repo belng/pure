@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import AppText from './AppText';
 
 const {
@@ -25,6 +26,10 @@ export default class EmbedSummary extends Component<void, Props, void> {
 		summary: PropTypes.string.isRequired,
 		style: PropTypes.any.isRequired,
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	render() {
 		if (this.props.summary) {

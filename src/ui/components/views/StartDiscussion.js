@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import Colors from '../../Colors';
 import AppText from './AppText';
@@ -185,6 +186,10 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 
 	componentDidMount() {
 		this._setShareCheckbox();
+	}
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
 
 	_handleSharePress: Function = () => {

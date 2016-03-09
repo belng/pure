@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import VersionCodes from '../../modules/VersionCodes';
 
 const {
@@ -22,6 +23,10 @@ export default class TouchFeedback extends Component<void, Props, void> {
 		pressColor: PropTypes.string,
 		children: PropTypes.node.isRequired
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	render() {
 		if (Platform.OS === 'android' && Platform.Version >= VersionCodes.LOLLIPOP) {

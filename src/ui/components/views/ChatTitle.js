@@ -45,6 +45,10 @@ export default class ChatTitle extends Component<void, Props, void> {
 		onNavigation: PropTypes.func.isRequired
 	};
 
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
+
 	_handlePress: Function = () => {
 		const { thread } = this.props;
 
@@ -57,10 +61,6 @@ export default class ChatTitle extends Component<void, Props, void> {
 			}));
 		}
 	};
-
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
-	}
 
 	render() {
 		const { thread } = this.props;

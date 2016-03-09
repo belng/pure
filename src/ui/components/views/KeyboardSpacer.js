@@ -2,6 +2,7 @@
 
 import React, { PropTypes, Component } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 
 const {
 	Animated,
@@ -32,6 +33,10 @@ export default class KeyboardSpacer extends Component<Props, Props, State> {
 
 	componentWillMount() {
 		this._registerEvents();
+	}
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
 	}
 
 	componentWillUnmount() {

@@ -1,7 +1,8 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import CardSummary from './CardSummary';
 import Embed from './Embed';
 import { parseURLs } from '../../../lib/URL';
@@ -29,56 +30,60 @@ type Props = {
 	};
 }
 
-const DiscussionSummary = (props: Props) => {
-	const {
-		text,
-		meta
-	} = props;
+export default class DiscussionSummary extends Component {
+	static propTypes = {
+		text: PropTypes.string.isRequired,
+		meta: PropTypes.object
+	};
 
-	const trimmedText = text.trim();
-
-	const links = parseURLs(trimmedText, 1);
-
-	let cover, hideSummary;
-
-	if (meta && meta.photo) {
-		cover = (
-			<Embed
-				url={meta.photo.url}
-				data={meta.photo}
-				thumbnailStyle={styles.image}
-				showTitle={false}
-				showSummary={false}
-				openOnPress={false}
-			/>
-		);
-
-		hideSummary = true;
-	} else if (links.length) {
-		cover = (
-			<Embed
-				url={links[0]}
-				thumbnailStyle={styles.image}
-				showTitle={false}
-				showSummary={false}
-			/>
-		);
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
 	}
 
-	return (
-		<View {...props}>
-			{cover}
+	render() {
+		const {
+			text,
+			meta,
+		} = this.props;
 
-			{hideSummary ? null :
-				<CardSummary style={styles.item} text={trimmedText} />
-			}
-		</View>
-	);
-};
+		const trimmedText = text.trim();
 
-DiscussionSummary.propTypes = {
-	text: PropTypes.string.isRequired,
-	meta: PropTypes.object
-};
+		const links = parseURLs(trimmedText, 1);
 
-export default DiscussionSummary;
+		let cover, hideSummary;
+
+		if (meta && meta.photo) {
+			cover = (
+				<Embed
+					url={meta.photo.url}
+					data={meta.photo}
+					thumbnailStyle={styles.image}
+					showTitle={false}
+					showSummary={false}
+					openOnPress={false}
+				/>
+			);
+
+			hideSummary = true;
+		} else if (links.length) {
+			cover = (
+				<Embed
+					url={links[0]}
+					thumbnailStyle={styles.image}
+					showTitle={false}
+					showSummary={false}
+				/>
+			);
+		}
+
+		return (
+			<View {...this.props}>
+				{cover}
+
+				{hideSummary ? null :
+					<CardSummary style={styles.item} text={trimmedText} />
+				}
+			</View>
+		);
+	}
+}

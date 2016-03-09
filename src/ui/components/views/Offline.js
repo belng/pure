@@ -1,7 +1,8 @@
 /* @flow */
 
-import React from 'react';
+import React, { Component } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import Page from './Page';
@@ -30,16 +31,26 @@ const styles = StyleSheet.create({
 	}
 });
 
-const Offline = (props: { style?: any }) => (
-	<Page {...props} style={[ styles.container, props.style ]}>
-		<AppText style={styles.header}>Network unavailable!</AppText>
-		<Image style={styles.image} source={require('../../../../assets/astronaut.png')} />
-		<AppText style={styles.footer}>Waiting for connection…</AppText>
-	</Page>
-);
+type Props = {
+	style?: any;
+}
 
-Offline.propTypes = {
-	style: Page.propTypes.style
-};
+export default class Offline extends Component<void, Props, void> {
+	static propTypes = {
+		style: Page.propTypes.style
+	};
 
-export default Offline;
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
+
+	render() {
+		return (
+			<Page {...this.props} style={[ styles.container, this.props.style ]}>
+				<AppText style={styles.header}>Network unavailable!</AppText>
+				<Image style={styles.image} source={require('../../../../assets/astronaut.png')} />
+				<AppText style={styles.footer}>Waiting for connection…</AppText>
+			</Page>
+		);
+	}
+}

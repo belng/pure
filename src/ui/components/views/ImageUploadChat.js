@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import CloseButton from './CloseButton';
 import ImageUploadButton from './ImageUploadButton';
@@ -42,28 +43,70 @@ const styles = StyleSheet.create({
 	}
 });
 
+type Props = {
+	imageData: {
+		name: string;
+		uri: string;
+		height: number;
+		width: number;
+		size: number;
+	};
+	status: 'loading' | 'idle' | 'error';
+	startUpload: Function;
+	cancelUpload: Function;
+	closeUpload: Function;
+	style?: any;
+}
+
 export default class ChatInput extends Component {
-	_onClose = () => {
+	static propTypes = {
+		imageData: PropTypes.shape({
+			name: PropTypes.string.isRequired,
+			uri: PropTypes.string.isRequired,
+			height: PropTypes.number.isRequired,
+			width: PropTypes.number.isRequired,
+			size: PropTypes.number.isRequired
+		}).isRequired,
+		status: PropTypes.string.isRequired,
+		startUpload: PropTypes.func.isRequired,
+		cancelUpload: PropTypes.func.isRequired,
+		closeUpload: PropTypes.func.isRequired,
+		style: View.propTypes.any,
+	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
+
+	_onClose: Function = () => {
 		this.props.closeUpload();
 	};
 
-	_onPress = () => {
-		if (this.props.status === 'loading') {
-			this.props.cancelUpload();
-		} else if (this.props.status === 'idle' || this.props.status === 'error') {
+	_handlePress: Function = () => {
+		switch (this.props.status) {
+		case 'idle':
+		case 'error':
 			this.props.startUpload();
+			break;
+		case 'loading':
+			this.props.cancelUpload();
+			break;
 		}
 	};
 
 	render() {
-		const { uri, height, width } = this.props.imageData;
+		const {
+			uri,
+			height,
+			width
+		} = this.props.imageData;
 
 		return (
 			<View {...this.props} style={[ styles.container, this.props.style ]}>
 				<View style={styles.thumbnailContainer}>
 					<Image source={{ uri, height: (height / width) * 160, width: 160 }} style={styles.thumbnailStyle}>
 						<ImageUploadButton
-							onPress={this._onPress}
+							onPress={this._handlePress}
 							status={this.props.status}
 							idleIcon='send'
 							closeIcon='close'
@@ -80,17 +123,3 @@ export default class ChatInput extends Component {
 		);
 	}
 }
-
-ChatInput.propTypes = {
-	imageData: PropTypes.shape({
-		name: PropTypes.string.isRequired,
-		uri: PropTypes.string.isRequired,
-		height: PropTypes.number.isRequired,
-		width: PropTypes.number.isRequired,
-		size: PropTypes.number.isRequired
-	}).isRequired,
-	status: PropTypes.string.isRequired,
-	startUpload: PropTypes.func.isRequired,
-	cancelUpload: PropTypes.func.isRequired,
-	closeUpload: PropTypes.func.isRequired
-};

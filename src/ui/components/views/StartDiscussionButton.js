@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
+import shallowEqual from 'shallowequal';
 import FloatingActionButton from './FloatingActionButton';
 import Modal from './Modal';
 import StartDiscussionContainer from '../containers/StartDiscussionContainer';
@@ -19,10 +20,7 @@ export default class StartDiscussionButton extends Component<void, Props, void> 
 	};
 
 	shouldComponentUpdate(nextProps: Props): boolean {
-		return (
-			this.props.room !== nextProps.room ||
-			this.props.user !== nextProps.user
-		);
+		return !shallowEqual(this.props, nextProps);
 	}
 
 	_dismissModal: Function = () => {

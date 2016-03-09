@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 
 const {
 	ProgressBarAndroid
@@ -16,11 +17,15 @@ export default class Loading extends Component<void, Props, void> {
 		style: ProgressBarAndroid.propTypes.style
 	};
 
-	_root: Object;
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	setNativeProps(nativeProps: any) {
 		this._root.setNativeProps(nativeProps);
 	}
+
+	_root: Object;
 
 	render() {
 		return <ProgressBarAndroid ref={c => (this._root = c)} style={this.props.style} />;

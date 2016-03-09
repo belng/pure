@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import AppText from './AppText';
 import AppTextInput from './AppTextInput';
 
@@ -61,6 +62,10 @@ export default class GrowingTextInput extends Component<void, Props, State> {
 		this.setState({
 			value: nextProps.value
 		});
+	}
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
 
 	_input: Object;

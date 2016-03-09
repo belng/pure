@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import Icon from './Icon';
 import Loading from './Loading';
@@ -51,7 +52,37 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class ImageUploadButton extends Component {
+type Props = {
+	status: string;
+	closeIcon: string;
+	closeIconStyle?: any;
+	doneIcon: string;
+	doneIconStyle?: any;
+	errorIcon: string;
+	errorIconStyle?: any;
+	idleIcon: string;
+	idleIconStyle?: any;
+	style?: any;
+}
+
+export default class ImageUploadButton extends Component<void, Props, void> {
+	static propTypes = {
+		status: PropTypes.string.isRequired,
+		closeIcon: PropTypes.string.isRequired,
+		closeIconStyle: Icon.propTypes.style,
+		doneIcon: PropTypes.string.isRequired,
+		doneIconStyle: Icon.propTypes.style,
+		errorIcon: PropTypes.string.isRequired,
+		errorIconStyle: Icon.propTypes.style,
+		idleIcon: PropTypes.string.isRequired,
+		idleIconStyle: Icon.propTypes.style,
+		style: TouchableHighlight.propTypes.style
+	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
+
 	render() {
 		let containerStyle, iconStyle, iconName;
 
@@ -96,15 +127,3 @@ export default class ImageUploadButton extends Component {
 		);
 	}
 }
-
-ImageUploadButton.propTypes = {
-	status: PropTypes.string.isRequired,
-	closeIcon: PropTypes.string.isRequired,
-	closeIconStyle: PropTypes.any,
-	doneIcon: PropTypes.string.isRequired,
-	doneIconStyle: PropTypes.any,
-	errorIcon: PropTypes.string.isRequired,
-	errorIconStyle: PropTypes.any,
-	idleIcon: PropTypes.string.isRequired,
-	idleIconStyle: PropTypes.any
-};

@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import Loading from './Loading';
 
@@ -39,6 +40,10 @@ export default class LoadingFancy extends Component<void, Props, void> {
 	static propTypes = {
 		style: View.propTypes.style
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	render() {
 		return (

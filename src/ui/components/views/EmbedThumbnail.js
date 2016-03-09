@@ -1,5 +1,8 @@
+/* @flow */
+
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Icon from './Icon';
 import Colors from '../../Colors';
 
@@ -42,7 +45,14 @@ type Props = {
 	style?: any;
 }
 
-export default class EmbedThumbnail extends Component<void, Props, void> {
+type State = {
+	dimensions: ?{
+		height: number;
+		width: number;
+	}
+}
+
+export default class EmbedThumbnail extends Component<void, Props, State> {
 	static propTypes = {
 		embed: PropTypes.shape({
 			type: PropTypes.string.isRequired,
@@ -55,22 +65,25 @@ export default class EmbedThumbnail extends Component<void, Props, void> {
 		style: Image.propTypes.style
 	};
 
+	state: State;
+
 	componentWillMount() {
-		this._dimen = this.props.embed.thumbnail_url ? this._getOptimalDimensions() : null;
+		this.setState({
+			dimensions: this.props.embed.thumbnail_url ? this._getOptimalDimensions(this.props.embed) : null
+		});
 	}
 
-	_dimen: ?{
-		height: number;
-		width: number;
-	};
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+	}
 
-	_getOptimalDimensions: Function = () => {
+	_getOptimalDimensions: Function = (embed) => {
 		const {
 			height,
 			width,
 			thumbnail_width,
 			thumbnail_height
-		} = this.props.embed;
+		} = embed;
 
 		const win = Dimensions.get('window');
 
@@ -103,7 +116,7 @@ export default class EmbedThumbnail extends Component<void, Props, void> {
 	render() {
 		if (this.props.embed.thumbnail_url) {
 			return (
-				<Image source={{ uri: this.props.embed.thumbnail_url }} style={[ styles.thumbnail, this._dimen, this.props.style ]}>
+				<Image source={{ uri: this.props.embed.thumbnail_url }} style={[ styles.thumbnail, this.state.dimensions, this.props.style ]}>
 					{this.props.embed.type === 'video' ?
 						<View style={styles.playContainer}>
 							<Icon

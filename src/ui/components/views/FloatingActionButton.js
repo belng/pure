@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import Icon from './Icon';
 
@@ -41,6 +42,10 @@ export default class FloatingActionButton extends Component<void, Props, void> {
 	static propTypes = {
 		icon: PropTypes.string.isRequired
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	render() {
 		return (

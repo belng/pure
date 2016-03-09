@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import oembed from '../../../modules/oembed/oembed';
 import EmbedThumbnail from './EmbedThumbnail';
 import EmbedTitle from './EmbedTitle';
@@ -25,6 +26,7 @@ type EmbedData = {
 	thumbnail_height?: number;
 	thumbnail_width?: number;
 	thumbnail_url?: string;
+	type: string;
 }
 
 type Props = {
@@ -72,6 +74,10 @@ export default class Embed extends Component<DefaultProps, Props, State> {
 
 	componentDidMount() {
 		this._mounted = true;
+	}
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
 
 	componentWillUnmount() {

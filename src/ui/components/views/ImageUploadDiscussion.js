@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import CloseButton from './CloseButton';
 import ImageUploadButton from './ImageUploadButton';
@@ -68,6 +69,10 @@ export default class ChatInput extends Component<void, Props, void> {
 		closeUpload: PropTypes.func.isRequired,
 		style: View.propTypes.any,
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	_handlePress: Function = () => {
 		switch (this.props.status) {

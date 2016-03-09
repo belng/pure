@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
+import shallowEqual from 'shallowequal';
 import AppbarTouchable from './AppbarTouchable';
 import AppbarIcon from './AppbarIcon';
 import Share from '../../modules/Share';
@@ -23,6 +24,10 @@ export default class ShareButton extends Component<void, Props, void> {
 			name: PropTypes.string.isRequired
 		})
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	_handlePress: Function = () => {
 		const { thread } = this.props;

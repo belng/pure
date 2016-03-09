@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AppText from './AppText';
 
@@ -53,8 +54,8 @@ export default class NotificationBadge extends Component<void, Props, State> {
 		}
 	}
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return (this.props.count !== nextProps.count);
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
 
 	componentWillUpdate(nextProps: Props) {

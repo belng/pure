@@ -1,5 +1,8 @@
-import React, { PropTypes } from 'react';
+/* @flow */
+
+import React, { PropTypes, Component } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Card from './Card';
 import CardTitle from './CardTitle';
 import DiscussionSummary from './DiscussionSummary';
@@ -26,26 +29,36 @@ const styles = StyleSheet.create({
 	}
 });
 
-const DiscussionDetailsCard = props => {
-	const {
-		thread
-	} = props;
+type Props = {
+	thread: {
+		name: string;
+		body: string;
+		creator: string;
+	}
+}
 
-	return (
-		<Card style={styles.details}>
-			<CardTitle style={styles.title}>{thread.title}</CardTitle>
-			<DiscussionSummary text={thread.text} />
-			<CardAuthor nick={thread.from} style={styles.author} />
-		</Card>
-	);
-};
+export default class DiscussionDetailsCard extends Component<void, Props, void> {
+	static propTypes = {
+		thread: PropTypes.shape({
+			name: PropTypes.string.isRequired,
+			body: PropTypes.string.isRequired,
+			creator: PropTypes.string.isRequired
+		})
+	};
 
-DiscussionDetailsCard.propTypes = {
-	thread: PropTypes.shape({
-		title: PropTypes.string.isRequired,
-		text: PropTypes.string.isRequired,
-		from: PropTypes.string.isRequired
-	})
-};
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
-export default DiscussionDetailsCard;
+	render() {
+		const { thread } = this.props;
+
+		return (
+			<Card style={styles.details}>
+				<CardTitle style={styles.title}>{thread.name}</CardTitle>
+				<DiscussionSummary text={thread.body} />
+				<CardAuthor nick={thread.creator} style={styles.author} />
+			</Card>
+		);
+	}
+}

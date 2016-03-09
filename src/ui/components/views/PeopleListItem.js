@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import AvatarRound from './AvatarRound';
@@ -59,6 +60,10 @@ export default class PeopleListItem extends Component<void, Props, void> {
 		user: PropTypes.string.isRequired,
 		status: PropTypes.string
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	render() {
 		const {

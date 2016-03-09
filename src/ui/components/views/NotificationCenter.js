@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import NotificationCenterItem from './NotificationCenterItem';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
@@ -44,6 +45,10 @@ export default class NotificationCenter extends Component<void, Props, State> {
 		this.setState({
 			dataSource: this.state.dataSource.cloneWithRows(nextProps.data)
 		});
+	}
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
 
 	_renderRow: Function = (note: Note) => (

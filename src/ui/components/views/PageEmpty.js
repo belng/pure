@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import AppText from './AppText';
 import Page from './Page';
 
@@ -29,6 +30,10 @@ export default class PageEmpty extends Component<void, Props, void> {
 		label: PropTypes.string,
 		image: PropTypes.any
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	_getImageSource: Function = name => {
 		switch (name) {

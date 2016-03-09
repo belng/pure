@@ -1,7 +1,8 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 
 const {
 	StyleSheet,
@@ -21,15 +22,21 @@ type Props = {
 	style?: any;
 }
 
-const Page = (props: Props) => (
-	<View style={[ styles.page, props.style ]}>
-		{props.children}
-	</View>
-);
+export default class Page extends Component<void, Props, void> {
+	static propTypes = {
+		children: PropTypes.node.isRequired,
+		style: View.propTypes.style
+	};
 
-Page.propTypes = {
-	children: PropTypes.node.isRequired,
-	style: View.propTypes.style
-};
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
-export default Page;
+	render() {
+		return (
+			<View style={[ styles.page, this.props.style ]}>
+				{this.props.children}
+			</View>
+		);
+	}
+}

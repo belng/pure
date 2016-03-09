@@ -50,6 +50,10 @@ export default class ChatSuggestions extends Component<void, Props, void> {
 		style: ScrollView.propTypes.style
 	};
 
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
+
 	_renderUser: Function = (user: string) => (
 		<TouchableHighlight
 			key={user}
@@ -65,10 +69,6 @@ export default class ChatSuggestions extends Component<void, Props, void> {
 			</View>
 		</TouchableHighlight>
 	);
-
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
-	}
 
 	render() {
 		const { data } = this.props;
