@@ -1,6 +1,8 @@
-import React, { PropTypes } from 'react';
+/* @flow */
+
+import React, { PropTypes, Component } from 'react';
 import ReactNative from 'react-native';
-import PageEmpty from './PageEmpty';
+import shallowEqual from 'shallowequal';
 import PageLoading from './PageLoading';
 import DiscussionDetailsCard from './DiscussionDetailsCard';
 import PeopleListContainer from '../containers/PeopleListContainer';
@@ -9,26 +11,31 @@ const {
 	ScrollView
 } = ReactNative;
 
-const DiscussionDetails = props => {
-	if (props.thread === 'missing') {
-		return <PageLoading />;
-	} else if (typeof props.thread === 'object') {
-		return (
-			<ScrollView {...props}>
-				<DiscussionDetailsCard thread={props.thread} />
-				<PeopleListContainer thread={props.thread} />
-			</ScrollView>
-		);
-	} else {
-		return <PageEmpty label='Failed to load discussion' image='sad' />;
+type Props = {
+	thread: ?Object
+}
+
+export default class DiscussionDetails extends Component<void, Props, void> {
+	static propTypes = {
+		thread: PropTypes.object
+	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
 	}
-};
 
-DiscussionDetails.propTypes = {
-	thread: PropTypes.oneOfType([
-		PropTypes.oneOf([ 'missing', 'failed' ]),
-		PropTypes.object
-	])
-};
+	render() {
+		const { thread } = this.props;
 
-export default DiscussionDetails;
+		if (thread) {
+			return (
+				<ScrollView {...this.props}>
+					<DiscussionDetailsCard thread={thread} />
+					<PeopleListContainer thread={thread} />
+				</ScrollView>
+			);
+		} else {
+			return <PageLoading />;
+		}
+	}
+}

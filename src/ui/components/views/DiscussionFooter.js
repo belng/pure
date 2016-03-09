@@ -57,7 +57,7 @@ export default class DiscussionFooter extends Component<void, Props, void> {
 		thread: PropTypes.shape({
 			updateTime: PropTypes.number.isRequired,
 			creator: PropTypes.string.isRequired,
-			counts: PropTypes.objectOf(PropTypes.number).isRequired
+			counts: PropTypes.objectOf(PropTypes.number)
 		}).isRequired,
 		style: View.propTypes.style
 	};

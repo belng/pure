@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
 
 type Props = {
 	thread: Item;
-	hidden: boolean;
+	hidden?: boolean;
 	onNavigation: Function;
 }
 
@@ -69,7 +69,7 @@ export default class DiscussionItem extends Component<void, Props, void> {
 			creator: PropTypes.string.isRequired,
 			parents: PropTypes.arrayOf(PropTypes.string).isRequired
 		}).isRequired,
-		hidden: PropTypes.bool.isRequired,
+		hidden: PropTypes.bool,
 		onNavigation: PropTypes.func.isRequired,
 		// user: PropTypes.string.isRequired,
 		// isUserAdmin: PropTypes.bool.isRequired,
