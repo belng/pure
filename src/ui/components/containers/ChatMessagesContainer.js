@@ -28,18 +28,12 @@ export default class ChatMessagesContainer extends Component<void, any, Subscrip
 		return (
 			<Connect
 				mapSubscriptionToProps={{
-					user: {
-						key: {
-							type: 'state',
-							path: 'user'
-						},
-					},
-					texts: {
+					data: {
 						key: {
 							slice: {
 								type: 'text',
 								filter: {
-									parent_cts: [ this.props.thread ]
+									parents_cts: [ this.props.thread ]
 								},
 								order: 'createTime'
 							},
@@ -59,5 +53,6 @@ export default class ChatMessagesContainer extends Component<void, any, Subscrip
 }
 
 ChatMessagesContainer.propTypes = {
-	thread: PropTypes.string.isRequired
+	thread: PropTypes.string.isRequired,
+	user: PropTypes.string.isRequired,
 };

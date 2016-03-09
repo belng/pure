@@ -79,7 +79,7 @@ export const unbanUser = (): Object => ({
 /*
  * Text related actions
  */
-export const sendText = (): Object => ({
+export const sendMessage = (): Object => ({
 
 });
 

@@ -48,7 +48,7 @@ export default class Chat extends Component<void, Props, void> {
 	};
 
 	render() {
-		if (this.props.user === 'missing') {
+		if (!this.props.user) {
 			return <PageLoading />;
 		}
 
