@@ -64,7 +64,6 @@
 
 # stetho
 
--keep class com.facebook.stetho.** { *; }
 -dontwarn com.facebook.stetho.**
 
 # play services
