@@ -38,7 +38,7 @@ class DiscussionsContainer extends Component<void, any, SubscriptionRange> {
 							slice: {
 								type: 'thread',
 								filter: {
-									parents_cts : [ this.props.room ]
+									parents_cts: [ this.props.room ]
 								},
 								order: 'createTime'
 							},

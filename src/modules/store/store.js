@@ -15,7 +15,7 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 		unWatch = cache.watchEntity(options.id, callback);
 		break;
 	case 'state':
-		if (typeof options.path !== 'string' || !Array.isArray(options.path)) {
+		if (typeof options.path !== 'string' && !Array.isArray(options.path)) {
 			throw new TypeError(`Invalid 'path' passed to store.subscribe::state in ${options.source}`);
 		}
 
