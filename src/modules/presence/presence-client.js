@@ -6,13 +6,13 @@ import { setPresence } from '../store/actions';
 
 let subscription;
 
-subscribe({ type: 'state', path: 'connectionStatus' }, status => {
+subscribe({ type: 'state', path: 'connectionStatus', source: 'presence' }, status => {
 	if (status === 'online') {
 		if (subscription) {
 			subscription.remove();
 		}
 
-		subscription = subscribe({ type: 'state', path: 'user' }, id => {
+		subscription = subscribe({ type: 'state', path: 'user', source: 'presence' }, id => {
 			if (id) {
 				bus.emit('change', setPresence(id, 'online'));
 				subscription.remove();

@@ -11,9 +11,10 @@ export type SubscriptionSlice = {
 }
 
 export type SubscriptionRange = {
-	start: ?number,
-	before: ?number,
-	after: ?number
+	start: number;
+	before?: number;
+	after?: number;
+	end?: number;
 }
 
 export type SubscriptionOptions = {
@@ -22,7 +23,8 @@ export type SubscriptionOptions = {
 	range?: SubscriptionRange;
 	order?: string;
 	id?: string;
-	path?: string|Array<string>
+	path?: string|Array<string>;
+	source: string;
 }
 
 export type Store = {

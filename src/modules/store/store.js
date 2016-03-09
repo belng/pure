@@ -8,9 +8,17 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 
 	switch (options.type) {
 	case 'entity':
+		if (typeof options.id !== 'string') {
+			throw new TypeError(`Invalid 'id' passed to store.subscribe::entity in ${options.source}`);
+		}
+
 		unWatch = cache.watchEntity(options.id, callback);
 		break;
 	case 'state':
+		if (typeof options.path !== 'string' || !Array.isArray(options.path)) {
+			throw new TypeError(`Invalid 'path' passed to store.subscribe::state in ${options.source}`);
+		}
+
 		unWatch = cache.watchState(typeof options.path === 'string' ? [ options.path ] : options.path, callback);
 		break;
 	case 'me':
@@ -35,9 +43,23 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 		break;
 	default:
 		if (options.slice) {
-			unWatch = cache.watch(options.slice, options.range || [ -Infinity, Infinity ], results => callback(results.arr));
+			let range;
+
+			if (options.range) {
+				const r = options.range;
+
+				if ('before' in r || 'after' in r) {
+					range = [ r.start, r.before || 0, r.after || 0 ];
+				} else {
+					range = [ r.start, r.end ];
+				}
+			} else {
+				throw new TypeError(`Range was not passed to store.subscribe in ${options.source}`);
+			}
+
+			unWatch = cache.watch(options.slice, range, results => callback(results.arr));
 		} else {
-			throw new Error('Invalid options passed to subscribe');
+			throw new TypeError(`Invalid options passed to store.subscribe in ${options.source}`);
 		}
 	}
 

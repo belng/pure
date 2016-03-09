@@ -144,6 +144,7 @@ cache.onChange((changes) => {
 					});
 				}
 			} else {
+				console.log(changes.queries[key]);
 				for (const range of changes.queries[key]) {
 					pg.read(
 						config.connStr,

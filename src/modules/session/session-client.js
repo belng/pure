@@ -58,7 +58,7 @@ bus.on('postchange', changes => {
 
 bus.on('state:init', state => (state.session = '@@loading'));
 
-subscribe({ type: 'state', path: 'connectionStatus' }, status => {
+subscribe({ type: 'state', path: 'connectionStatus', source: 'session' }, status => {
 	if (status === 'online') {
 		initializeSession();
 	}
