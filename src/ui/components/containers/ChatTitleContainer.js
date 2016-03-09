@@ -11,8 +11,7 @@ const ChatTitleContainer = (props: any) => (
 				key: {
 					type: 'entity',
 					id: props.thread
-				},
-				transform: o => o ? o.name : null
+				}
 			}
 		}}
 		passProps={props}
