@@ -5,7 +5,11 @@
 
 import '../belong';
 import { bus, cache } from '../../../core-server';
-import { User, RoomRel, Room } from '../../../models/Models';
+import {
+	user as User,
+	roomrel as RoomRel,
+	room as Room
+} from '../../../models/models';
 import Cache from 'know';
 import * as Constants from '../../../lib/Constants';
 

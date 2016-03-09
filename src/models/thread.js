@@ -1,4 +1,4 @@
-import Item from './Item';
+import Item from './item';
 import { TYPE_THREAD } from '../lib/Constants';
 
 export default class Thread extends Item {

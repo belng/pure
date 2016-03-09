@@ -1,7 +1,7 @@
 /* eslint no-loop-func: 0 */
 import log from 'winston';
 import Counter from '../../lib/counter';
-import Note from '../../models/Note';
+import Note from '../../models/note';
 import { Constants, bus, cache } from '../../core-server';
 
 bus.on('change', (changes, next) => {

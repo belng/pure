@@ -1,8 +1,8 @@
 /* @flow */
 
 import type { User } from '../../lib/schemaTypes';
-import UserModel from '../../models/User';
-import ThreadModel from '../../models/Thread';
+import UserModel from '../../models/user';
+import ThreadModel from '../../models/thread';
 import uuid from 'uuid';
 import { PRESENCE_FOREGROUND, PRESENCE_BACKGROUND } from '../../lib/Constants';
 

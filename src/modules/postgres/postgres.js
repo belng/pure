@@ -9,7 +9,7 @@ import { TABLES, TYPES, TYPE_NAMES } from '../../lib/schema';
 import queryHandler from './query';
 import entityHandler from './entity';
 import { bus, cache, config } from '../../core-server';
-import * as Types from './../../models/Models';
+import * as Types from './../../models/models';
 import util from 'util';
 
 const channel = 'heyneighbor';
