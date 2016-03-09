@@ -57,8 +57,10 @@ function handleStanza(stanza) {
 	}
 }
 
-connect(c => {
-	client = c;
-	log.info('XMPP client connected');
-	c.on('stanza', handleStanza);
-});
+if (config.gcm.senderId) {
+	connect(c => {
+		client = c;
+		log.info('XMPP client connected');
+		c.on('stanza', handleStanza);
+	});
+}
