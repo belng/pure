@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  *
- * 
+ *
  *
  */
 'use strict';
@@ -117,7 +117,7 @@ class NavigationAnimatedView extends React.Component {
   }
   componentDidUpdate(lastProps) {
     if (lastProps.navigationState.index !== this.props.navigationState.index) {
-      Animated.spring(
+      Animated.timing(
         this._position,
         {toValue: this.props.navigationState.index}
       ).start();
