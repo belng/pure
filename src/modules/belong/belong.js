@@ -57,7 +57,7 @@ function addRels(change, user, addable) {
 
 function removeRels(change, removable) {
 	for (const rel of removable) {
-		change[rel.id] = { roles: [] };
+		change[rel.id] = new RoomRel({ roles: [] });
 	}
 }
 
