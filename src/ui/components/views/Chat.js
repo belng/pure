@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import PageLoading from './PageLoading';
 import ChatMessagesContainer from '../containers/ChatMessagesContainer';
 import ChatInput from './ChatInput';
@@ -17,13 +18,24 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class Chat extends Component {
+type Props = {
+	room: string;
+	thread: string;
+	user: string;
+	sendMessage: Function;
+}
+
+export default class Chat extends Component<void, Props, void> {
 	static propTypes = {
 		room: PropTypes.string.isRequired,
 		thread: PropTypes.string.isRequired,
 		user: PropTypes.string.isRequired,
 		sendMessage: PropTypes.func.isRequired
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	_input: Object;
 

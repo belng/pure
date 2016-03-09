@@ -1,36 +1,43 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
+import shallowEqual from 'shallowequal';
 import Banner from './Banner';
 
 type Props = {
 	status: 'connecting' | 'online' | 'offline'
 }
 
-const BannerOffline = ({ status }: Props) => {
-	let label;
+export default class BannerOffline extends Component<void, Props, void> {
+	static propTypes = {
+		status: PropTypes.oneOf([ 'connecting', 'offline', 'online' ])
+	};
 
-	switch (status) {
-	case 'online':
-		label = '';
-		break;
-	case 'offline':
-		label = 'Network unavailable. Waiting for connection…';
-		break;
-	default:
-		label = 'Connecting to server…';
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
 	}
 
-	return (
-		<Banner
-			text={label}
-			showClose={false}
-		/>
-	);
-};
+	render() {
+		const { status } = this.props;
 
-BannerOffline.propTypes = {
-	status: PropTypes.oneOf([ 'connecting', 'offline', 'online' ])
-};
+		let label;
 
-export default BannerOffline;
+		switch (status) {
+		case 'online':
+			label = '';
+			break;
+		case 'offline':
+			label = 'Network unavailable. Waiting for connection…';
+			break;
+		default:
+			label = 'Connecting to server…';
+		}
+
+		return (
+			<Banner
+				text={label}
+				showClose={false}
+			/>
+		);
+	}
+}

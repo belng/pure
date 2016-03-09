@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 
 const {
 	StyleSheet,
@@ -23,6 +24,10 @@ export default class AppTextInput extends Component<void, Props, void> {
 	static propTypes = {
 		style: TextInput.propTypes.style
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	_root: Object;
 

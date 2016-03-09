@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 
 const {
@@ -31,11 +32,15 @@ export default class Card extends Component<void, Props, void> {
 		style: View.propTypes.style
 	};
 
-	_root: Object;
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	setNativeProps(nativeProps: any) {
 		this._root.setNativeProps(nativeProps);
 	}
+
+	_root: Object;
 
 	render() {
 		return (

@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AppText from './AppText';
 
@@ -26,6 +27,10 @@ export default class CardTitle extends Component<void, Props, void> {
 		children: PropTypes.string.isRequired,
 		style: AppText.propTypes.style
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	render() {
 		return (

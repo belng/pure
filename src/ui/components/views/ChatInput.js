@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import Icon from './Icon';
 import GrowingTextInput from './GrowingTextInput';
@@ -77,6 +78,10 @@ export default class ChatInput extends Component<void, Props, State> {
 		query: '',
 		imageData: null
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+	}
 
 	setQuotedText: Function = (text) => {
 		this._computeAndSetText({

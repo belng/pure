@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AvatarContainer from '../containers/AvatarContainer';
 
@@ -32,6 +33,10 @@ export default class AvatarRound extends Component<void, Props, void> {
 		user: PropTypes.string.isRequired,
 		style: View.propTypes.style
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	render() {
 		const { size } = this.props;

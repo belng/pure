@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import Icon from './Icon';
 
@@ -24,6 +25,10 @@ export default class AppbarIcon extends Component<void, Props, void> {
 	static propTypes = {
 		style: Icon.propTypes.style
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	render() {
 		return (

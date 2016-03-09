@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import URLResolver from '../../modules/URLResolver';
 
 const {
@@ -42,7 +43,7 @@ export default class Avatar extends Component<void, Props, State> {
 	}
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-		return (this.state.uri !== nextState.uri);
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
 
 	componentWillUnmount() {

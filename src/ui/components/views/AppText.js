@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 
 const {
 	StyleSheet,
@@ -28,6 +29,10 @@ export default class AppText extends Component<void, Props, void> {
 	};
 
 	_root: Object;
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	setNativeProps: Function = (nativeProps: Props) => {
 		this._root.setNativeProps(nativeProps);

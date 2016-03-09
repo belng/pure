@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
+import shallowEqual from 'shallowequal';
 import Splash from './Splash';
 import OnboardContainer from '../containers/OnboardContainer';
 import Offline from './Offline';
@@ -17,6 +18,10 @@ export default class App extends Component<void, Props, void> {
 		session: PropTypes.string,
 		user: PropTypes.string
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	render() {
 		const {

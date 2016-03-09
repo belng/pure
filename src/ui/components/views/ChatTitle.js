@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import AppbarTouchable from './AppbarTouchable';
@@ -56,6 +57,10 @@ export default class ChatTitle extends Component<void, Props, void> {
 			}));
 		}
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	render() {
 		const { thread } = this.props;

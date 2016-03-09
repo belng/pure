@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import AvatarRound from './AvatarRound';
@@ -35,6 +36,10 @@ export default class CardAuthor extends Component<void, Props, void> {
 		nick: PropTypes.string.isRequired,
 		style: View.propTypes.style
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	render() {
 		const { nick } = this.props;

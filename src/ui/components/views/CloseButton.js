@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import Icon from './Icon';
 
@@ -31,10 +32,18 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class CloseButton extends Component {
+type Props = {
+	style?: any;
+}
+
+export default class CloseButton extends Component<void, Props, void> {
 	static propTypes = {
 		style: TouchableHighlight.propTypes.style
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	render() {
 		return (

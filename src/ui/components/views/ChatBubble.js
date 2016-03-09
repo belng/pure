@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import RichText from './RichText';
@@ -58,12 +59,26 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class ChatBubble extends Component {
+type Props = {
+	body: ?string;
+	creator: string;
+	type: 'left' | 'right';
+	showAuthor?: boolean;
+	showArrow?: boolean;
+	onPress?: Function;
+	children?: Element;
+	style?: any;
+}
+
+type DefaultProps = {
+	showAuthor: boolean;
+	showArrow: boolean;
+}
+
+export default class ChatBubble extends Component<DefaultProps, Props, void> {
 	static propTypes = {
-		text: PropTypes.shape({
-			text: PropTypes.string,
-			from: PropTypes.string.isRequired
-		}).isRequired,
+		body: PropTypes.string,
+		creator: PropTypes.string.isRequired,
 		type: PropTypes.oneOf([ 'left', 'right' ]),
 		showAuthor: PropTypes.bool,
 		showArrow: PropTypes.bool,
@@ -77,14 +92,18 @@ export default class ChatBubble extends Component {
 		showArrow: true
 	};
 
-	_root: Object;
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	setNativeProps(nativeProps: any) {
 		this._root.setNativeProps(nativeProps);
 	}
 
+	_root: Object;
+
 	render() {
-		const { text, type, showArrow } = this.props;
+		const { body, creator, type, showArrow } = this.props;
 
 		const right = type === 'right';
 
@@ -96,14 +115,14 @@ export default class ChatBubble extends Component {
 
 				<View style={[ styles.bubble, right ? styles.bubbleRight : styles.bubbleLeft ]}>
 					{this.props.showAuthor ?
-						<AppText style={styles.author}>{text.from}</AppText> :
+						<AppText style={styles.author}>{creator}</AppText> :
 						null
 					}
 
 					{this.props.children}
 
-					{text.text ?
-						<RichText text={text.text} style={styles.text} /> :
+					{body ?
+						<RichText text={body} style={styles.text} /> :
 						null
 					}
 				</View>

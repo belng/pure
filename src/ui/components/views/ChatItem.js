@@ -1,5 +1,8 @@
+/* @flow */
+
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AvatarRound from './AvatarRound';
 import ChatBubble from './ChatBubble';
@@ -86,56 +89,97 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class ChatItem extends Component {
-	shouldComponentUpdate(nextProps) {
-		if (this.props.text && nextProps.text && this.props.previousText && nextProps.previousText) {
-			return (
-					this.props.hidden !== nextProps.hidden ||
-					this.props.text.text !== nextProps.text.text ||
-					this.props.text.from !== nextProps.text.from ||
-					this.props.text.time !== nextProps.text.time ||
-					this.props.previousText.from !== nextProps.previousText.from ||
-					this.props.previousText.time !== nextProps.previousText.time
-				);
-		} else {
-			return true;
-		}
+type Props = {
+	text: {
+		body: string,
+		creator: string,
+		createTime: number,
+		meta: ?Object,
+	},
+	previousText: {
+		body: string,
+		creator: string,
+		createTime: number,
+	},
+	user: string,
+	quoteMessage: Function,
+	replyToMessage: Function,
+	hidden: boolean,
+	isUserAdmin: boolean,
+	isCreatorBanned: boolean,
+	hideText: Function,
+	unhideText: Function,
+	banUser: Function,
+	unbanUser: Function,
+	style?: any,
+};
+
+export default class ChatItem extends Component<void, Props, void> {
+	static propTypes = {
+		text: PropTypes.shape({
+			body: PropTypes.string.isRequired,
+			creator: PropTypes.string.isRequired,
+			createTime: PropTypes.number.isRequired,
+			meta: PropTypes.object,
+		}).isRequired,
+		previousText: PropTypes.shape({
+			body: PropTypes.string.isRequired,
+			creator: PropTypes.string.isRequired,
+			createTime: PropTypes.number.isRequired,
+		}),
+		user: PropTypes.string.isRequired,
+		quoteMessage: PropTypes.func.isRequired,
+		replyToMessage: PropTypes.func.isRequired,
+		hidden: PropTypes.bool.isRequired,
+		isUserAdmin: PropTypes.bool.isRequired,
+		isCreatorBanned: PropTypes.bool.isRequired,
+		hideText: PropTypes.func.isRequired,
+		unhideText: PropTypes.func.isRequired,
+		banUser: PropTypes.func.isRequired,
+		unbanUser: PropTypes.func.isRequired,
+		style: View.propTypes.style
+	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
 	}
 
-	_copyToClipboard = text => {
+	_copyToClipboard: Function = text => {
 		Clipboard.setString(text);
 		ToastAndroid.show('Copied to clipboard', ToastAndroid.SHORT);
 	};
 
-	_handleShowMenu = () => {
-		const { text, metadata, currentUser } = this.props;
+	_handleShowMenu: Function = () => {
+		const { text, user } = this.props;
 
 		const menu = {};
 
-		if (metadata && metadata.type === 'photo') {
-			menu['Open image in browser'] = () => Linking.openURL(metadata.url.toLowerCase());
-			menu['Copy image link'] = () => this._copyToClipboard(metadata.url);
+		if (text.meta && text.meta.photo) {
+			const { photo } = text.meta;
+
+			menu['Open image in browser'] = () => Linking.openURL(photo.url.toLowerCase());
+			menu['Copy image link'] = () => this._copyToClipboard(photo.url);
 		} else {
-			menu['Copy text'] = () => this._copyToClipboard(text.text);
+			menu['Copy text'] = () => this._copyToClipboard(text.body);
 			menu['Quote message'] = () => this.props.quoteMessage(text);
 		}
 
-		if (currentUser !== text.from) {
-			menu['Reply to @' + text.from] = () => this.props.replyToMessage(text);
+		if (user !== text.creator) {
+			menu['Reply to @' + text.creator] = () => this.props.replyToMessage(text);
 		}
 
-		if (this.props.isCurrentUserAdmin()) {
+		if (this.props.isUserAdmin) {
 			if (this.props.hidden) {
 				menu['Unhide message'] = () => this.props.unhideText();
 			} else {
 				menu['Hide message'] = () => this.props.hideText();
 			}
 
-			if (text.from !== this.props.currentUser) {
-				if (this.props.isUserBanned()) {
-					menu['Unban ' + text.from] = () => this.props.unbanUser();
+			if (text.creator !== this.props.user) {
+				if (this.props.isCreatorBanned) {
+					menu['Unban ' + text.body] = () => this.props.unbanUser();
 				} else {
-					menu['Ban ' + text.from] = () => this.props.banUser();
+					menu['Ban ' + text.body] = () => this.props.banUser();
 				}
 			}
 		}
@@ -144,18 +188,20 @@ export default class ChatItem extends Component {
 	};
 
 	render() {
-		const { text, hidden, metadata, previousText, currentUser } = this.props;
+		const { text, hidden, previousText, user } = this.props;
 
-		const received = text.from !== currentUser;
-		const links = parseURLs(text.text, 1);
+		const received = text.creator !== user;
+		const links = parseURLs(text.body, 1);
 
 		let cover;
 
-		if (metadata && metadata.type === 'photo') {
+		if (text.meta && text.meta.photo) {
+			const { photo } = text.meta;
+
 			cover = (
 				<Embed
-					url={metadata.url}
-					data={metadata}
+					url={photo.url}
+					data={photo}
 					showTitle={false}
 					thumbnailStyle={styles.thumbnail}
 					openOnPress={false}
@@ -176,10 +222,10 @@ export default class ChatItem extends Component {
 
 		if (previousText) {
 			if (received) {
-				showAuthor = text.from !== previousText.from;
+				showAuthor = text.creator !== previousText.creator;
 			}
 
-			showTime = (text.time - previousText.time) > 300000;
+			showTime = (text.createTime - previousText.createTime) > 300000;
 		}
 
 		return (
@@ -189,14 +235,15 @@ export default class ChatItem extends Component {
 						<AvatarRound
 							style={styles.avatar}
 							size={36}
-							nick={text.from}
+							user={text.creator}
 						/> :
 						null
 					}
 
 					<TouchableOpacity activeOpacity={0.5} onPress={this._handleShowMenu}>
 						<ChatBubble
-							text={metadata && metadata.type === 'photo' ? { from: text.from } : text}
+							body={text.meta && text.meta.photo ? null : text.body}
+							creator={text.creator}
 							type={received ? 'left' : 'right'}
 							showAuthor={showAuthor}
 							showArrow={received ? showAuthor : true}
@@ -216,7 +263,7 @@ export default class ChatItem extends Component {
 					 />
 					 <Time
 						type='long'
-						time={text.time}
+						time={text.createTime}
 						style={styles.timestampText}
 					 />
 					</View>) :
@@ -226,27 +273,3 @@ export default class ChatItem extends Component {
 		);
 	}
 }
-
-ChatItem.propTypes = {
-	text: PropTypes.shape({
-		text: PropTypes.string.isRequired,
-		from: PropTypes.string.isRequired,
-		time: PropTypes.number.isRequired
-	}).isRequired,
-	metadata: PropTypes.object,
-	previousText: PropTypes.shape({
-		from: PropTypes.string.isRequired,
-		time: PropTypes.number.isRequired
-	}),
-	currentUser: PropTypes.string.isRequired,
-	quoteMessage: PropTypes.func.isRequired,
-	replyToMessage: PropTypes.func.isRequired,
-	hidden: PropTypes.bool.isRequired,
-	isCurrentUserAdmin: PropTypes.func.isRequired,
-	isUserBanned: PropTypes.func.isRequired,
-	hideText: PropTypes.func.isRequired,
-	unhideText: PropTypes.func.isRequired,
-	banUser: PropTypes.func.isRequired,
-	unbanUser: PropTypes.func.isRequired,
-	style: View.propTypes.style
-};

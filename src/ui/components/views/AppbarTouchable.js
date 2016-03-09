@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import TouchFeedback from './TouchFeedback';
 
 const {
@@ -20,6 +21,10 @@ export default class AppbarTouchable extends Component<void, Props, void> {
 		onPress: PropTypes.func.isRequired,
 		children: PropTypes.node.isRequired
 	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	_handlePress: Function = () => {
 		global.requestAnimationFrame(() => this.props.onPress());

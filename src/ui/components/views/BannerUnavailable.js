@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import AppText from './AppText';
 import Colors from '../../Colors';
 import { config } from '../../../core-client';
@@ -23,6 +24,10 @@ const styles = StyleSheet.create({
 });
 
 export default class extends Component<void, any, void> {
+	shouldComponentUpdate(nextProps: any): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
+
 	render() {
 		return (
 			<View style={styles.banner}>

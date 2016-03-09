@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import ChatItemContainer from '../containers/ChatItemContainer';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
@@ -64,6 +65,10 @@ export default class ChatMessages extends Component {
 		this.setState({
 			dataSource: this.state.dataSource.cloneWithRows(nextProps.data)
 		});
+	}
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
 
 	_loadMore: Function = () => {
