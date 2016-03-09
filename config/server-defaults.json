@@ -3,6 +3,7 @@
 	"app_id": "heyneighbor",
 
 	"session": {
+		"private_key": "put_your_private_key_here"
 	},
 
 	"server": {
