@@ -16,6 +16,10 @@ export default class ChatSuggestionsContainer extends Component<void, any, { pre
 	};
 
 	render() {
+		if (!this.state.prefix) {
+			return null;
+		}
+
 		return (
 			<Connect
 				mapSubscriptionToProps={{
