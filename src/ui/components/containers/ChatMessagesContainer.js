@@ -39,7 +39,7 @@ export default class ChatMessagesContainer extends Component<void, any, Subscrip
 							slice: {
 								type: 'text',
 								filter: {
-									thread: this.props.thread
+									parent_cts: [ this.props.thread ]
 								},
 								order: 'createTime'
 							},
