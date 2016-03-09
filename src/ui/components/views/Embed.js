@@ -29,7 +29,7 @@ type EmbedData = {
 
 type Props = {
 	url?: string;
-	data: ?EmbedData;
+	data?: EmbedData;
 	showThumbnail?: boolean;
 	showTitle?: boolean;
 	showSummary?: boolean;

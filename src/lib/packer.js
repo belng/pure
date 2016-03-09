@@ -1,9 +1,9 @@
 import Know from 'know';
 import EnhancedError from './EnhancedError';
-import * as models from './../models/models';
+import * as Models from './../models/Models';
 import stringPack from 'stringpack';
 
-const packerArg = Object.keys(models).sort().map(key => models[key]);
+const packerArg = Object.keys(Models).sort().map(key => Models[key]);
 
 packerArg.push(EnhancedError);
 packerArg.push(Know.RangeArray);

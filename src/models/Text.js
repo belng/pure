@@ -1,4 +1,4 @@
-import Item from './item';
+import Item from './Item';
 import { TYPE_ITEM, TYPE_TEXT } from '../lib/Constants';
 
 export default class Text extends Item {

@@ -4,7 +4,6 @@ import * as core from '../../core-server';
 import uid from '../../lib/uid-server';
 import notify from './../../lib/dispatch';
 import packer from './../../lib/packer';
-
 const sockets = {}, bus = core.bus;
 
 function sendError(socket, code, reason, event) {
@@ -82,6 +81,7 @@ bus.on('http/init', app => {
 							user: message.auth.user
 						});
 					}
+
 					socket.send(packer.encode({
 						type: 'change',
 						message: message.response

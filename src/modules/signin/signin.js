@@ -3,7 +3,7 @@ import { bus, cache, Constants, config } from '../../core-server';
 import winston from 'winston';
 import * as pg from '../../lib/pg';
 import EnhancedError from '../../lib/EnhancedError';
-import { user } from '../../models/models';
+import User from '../../models/User';
 
 function getEntityByIdentity(identities, callback) {
 	pg.read(config.connStr, {
@@ -14,7 +14,7 @@ function getEntityByIdentity(identities, callback) {
 			winston.error(err.message);
 			callback(err);
 		} else {
-			callback(null, results.map(u => new user(u)));
+			callback(null, results.map(u => new User(u)));
 		}
 	});
 }

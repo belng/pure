@@ -1,5 +1,8 @@
+/* @flow */
+
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import NotificationBadgeContainer from '../containers/NotificationBadgeContainer';
 import Card from './Card';
@@ -10,9 +13,9 @@ import TouchFeedback from './TouchFeedback';
 import Modal from './Modal';
 import Icon from './Icon';
 import Share from '../../modules/Share';
-import textUtils from '../../../lib/text-utils';
 import { convertRouteToURL } from '../../../lib/Route';
 import { config } from '../../../core-client';
+import type { Item } from '../../../lib/schemaTypes';
 
 const {
 	Clipboard,
@@ -51,74 +54,94 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default class DiscussionItem extends Component {
-	shouldComponentUpdate(nextProps) {
-		return (
-				this.props.hidden !== nextProps.hidden ||
-				this.props.thread.title !== nextProps.thread.title ||
-				this.props.thread.text !== nextProps.thread.text ||
-				this.props.thread.from !== nextProps.thread.from
-			);
+type Props = {
+	thread: Item;
+	hidden: boolean;
+	onNavigation: Function;
+}
+
+export default class DiscussionItem extends Component<void, Props, void> {
+	static propTypes = {
+		thread: PropTypes.shape({
+			id: PropTypes.string.isRequired,
+			name: PropTypes.string.isRequired,
+			body: PropTypes.string.isRequired,
+			creator: PropTypes.string.isRequired,
+			parents: PropTypes.arrayOf(PropTypes.string).isRequired
+		}).isRequired,
+		hidden: PropTypes.bool.isRequired,
+		onNavigation: PropTypes.func.isRequired,
+		// user: PropTypes.string.isRequired,
+		// isUserAdmin: PropTypes.bool.isRequired,
+		// isCreatorBanned: PropTypes.bool.isRequired,
+		// hideText: PropTypes.func.isRequired,
+		// unhideText: PropTypes.func.isRequired,
+		// banUser: PropTypes.func.isRequired,
+		// unbanUser: PropTypes.func.isRequired
+	};
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
 	}
 
-	_copyToClipboard = text => {
+	_copyToClipboard: Function = text => {
 		Clipboard.setString(text);
 		ToastAndroid.show('Copied to clipboard', ToastAndroid.SHORT);
 	};
 
-	_handleShowMenu = () => {
+	_handleShowMenu: Function = () => {
 		const { thread } = this.props;
 		const menu = {};
 
-		menu['Copy title'] = () => this._copyToClipboard(thread.title);
+		menu['Copy title'] = () => this._copyToClipboard(thread.name);
 
-		const metadata = textUtils.getMetadata(thread.text);
+		const { meta } = thread;
 
-		if (metadata && metadata.type === 'photo') {
-			menu['Open image in browser'] = () => Linking.openURL(metadata.url);
-			menu['Copy image link'] = () => this._copyToClipboard(metadata.url);
+		if (meta && meta.type === 'photo') {
+			menu['Open image in browser'] = () => Linking.openURL(meta.url);
+			menu['Copy image link'] = () => this._copyToClipboard(meta.url);
 		} else {
-			menu['Copy summary'] = () => this._copyToClipboard(thread.text);
+			menu['Copy summary'] = () => this._copyToClipboard(thread.body);
 		}
 
 		menu['Share discussion'] = () => {
 			Share.shareItem('Share discussion', config.server.protocol + '//' + config.server.host + convertRouteToURL({
 				name: 'chat',
 				props: {
-					room: thread.to,
+					room: thread.parents[0],
 					thread: thread.id,
-					title: thread.title
+					title: thread.name
 				}
 			}));
 		};
 
-		if (this.props.isCurrentUserAdmin()) {
-			if (this.props.hidden) {
-				menu['Unhide discussion'] = () => this.props.unhideText();
-			} else {
-				menu['Hide discussion'] = () => this.props.hideText();
-			}
-
-			if (thread.from !== this.props.currentUser) {
-				if (this.props.isUserBanned()) {
-					menu['Unban ' + thread.from] = () => this.props.unbanUser();
-				} else {
-					menu['Ban ' + thread.from] = () => this.props.banUser();
-				}
-			}
-		}
+		// if (this.props.isUserAdmin) {
+		// 	if (this.props.hidden) {
+		// 		menu['Unhide discussion'] = () => this.props.unhideText();
+		// 	} else {
+		// 		menu['Hide discussion'] = () => this.props.hideText();
+		// 	}
+		//
+		// 	if (thread.creator !== this.props.user) {
+		// 		if (this.props.isCreatorBanned) {
+		// 			menu['Unban ' + thread.from] = () => this.props.unbanUser();
+		// 		} else {
+		// 			menu['Ban ' + thread.from] = () => this.props.banUser();
+		// 		}
+		// 	}
+		// }
 
 		Modal.showActionSheetWithItems(menu);
 	};
 
-	_handlePress = () => {
+	_handlePress: Function = () => {
 		const { thread } = this.props;
 
 		this.props.onNavigation(new NavigationActions.Push({
 			name: 'chat',
 			props: {
 				thread: thread.id,
-				room: thread.to
+				room: thread.parents[0]
 			}
 		}));
 	};
@@ -135,7 +158,7 @@ export default class DiscussionItem extends Component {
 					<View style={hidden ? styles.hidden : null}>
 						<View style={styles.topArea}>
 							<CardTitle style={[ styles.item, styles.title ]}>
-								{this.props.thread.title}
+								{this.props.thread.name}
 							</CardTitle>
 
 							<NotificationBadgeContainer thread={this.props.thread.id} style={styles.badge} />
@@ -149,7 +172,7 @@ export default class DiscussionItem extends Component {
 							</TouchableOpacity>
 						</View>
 
-						<DiscussionSummary text={thread.text} />
+						<DiscussionSummary text={thread.body} meta={thread.meta} />
 						<DiscussionFooter style={[ styles.item, styles.footer ]} thread={thread} />
 					</View>
 				</TouchFeedback>
@@ -157,22 +180,3 @@ export default class DiscussionItem extends Component {
 		);
 	}
 }
-
-DiscussionItem.propTypes = {
-	thread: PropTypes.shape({
-		id: PropTypes.string.isRequired,
-		title: PropTypes.string.isRequired,
-		text: PropTypes.string.isRequired,
-		from: PropTypes.string.isRequired,
-		to: PropTypes.string.isRequired
-	}).isRequired,
-	onNavigation: PropTypes.func.isRequired,
-	currentUser: PropTypes.string.isRequired,
-	hidden: PropTypes.bool.isRequired,
-	isCurrentUserAdmin: PropTypes.func.isRequired,
-	isUserBanned: PropTypes.func.isRequired,
-	hideText: PropTypes.func.isRequired,
-	unhideText: PropTypes.func.isRequired,
-	banUser: PropTypes.func.isRequired,
-	unbanUser: PropTypes.func.isRequired
-};

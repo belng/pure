@@ -1,4 +1,4 @@
-import Relation from './rel';
+import Relation from './Rel';
 import { TYPE_REL, TYPE_TOPICREL } from '../lib/Constants';
 
 export default class TopicRel extends Relation {

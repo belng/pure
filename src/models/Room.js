@@ -1,4 +1,4 @@
-import Item from './item';
+import Item from './Item';
 import { TYPE_ITEM, TYPE_ROOM } from '../lib/Constants';
 
 export default class Room extends Item {

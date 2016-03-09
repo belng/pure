@@ -1,9 +1,10 @@
+/* @flow */
+
 import React, { PropTypes } from 'react';
 import ReactNative from 'react-native';
 import CardSummary from './CardSummary';
 import Embed from './Embed';
 import { parseURLs } from '../../../lib/URL';
-import textUtils from '../../../lib/text-utils';
 
 const {
 	StyleSheet,
@@ -21,19 +22,30 @@ const styles = StyleSheet.create({
 	}
 });
 
-const DiscussionSummary = props => {
-	const trimmedText = props.text.trim();
+type Props = {
+	text: string;
+	meta: ?{
+		photo?: Object
+	};
+}
+
+const DiscussionSummary = (props: Props) => {
+	const {
+		text,
+		meta
+	} = props;
+
+	const trimmedText = text.trim();
 
 	const links = parseURLs(trimmedText, 1);
-	const metadata = textUtils.getMetadata(trimmedText);
 
 	let cover, hideSummary;
 
-	if (metadata && metadata.type === 'photo') {
+	if (meta && meta.photo) {
 		cover = (
 			<Embed
-				url={metadata.url}
-				data={metadata}
+				url={meta.photo.url}
+				data={meta.photo}
 				thumbnailStyle={styles.image}
 				showTitle={false}
 				showSummary={false}
@@ -65,7 +77,8 @@ const DiscussionSummary = props => {
 };
 
 DiscussionSummary.propTypes = {
-	text: PropTypes.string.isRequired
+	text: PropTypes.string.isRequired,
+	meta: PropTypes.object
 };
 
 export default DiscussionSummary;
