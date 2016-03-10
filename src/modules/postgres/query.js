@@ -95,11 +95,11 @@ function wherePart (f) {
 	}
 }
 
-function orderPart(order, limit) {
+function orderPart(type, order, limit) {
 	if (limit < 0) {
-		return `ORDER BY "${order.toLowerCase()}" DESC LIMIT ${-limit}`;
+		return `ORDER BY "${type}"."${order.toLowerCase()}" DESC LIMIT ${-limit}`;
 	} else {
-		return `ORDER BY "${order.toLowerCase()}" ASC LIMIT ${limit}`;
+		return `ORDER BY "${type}"."${order.toLowerCase()}" ASC LIMIT ${limit}`;
 	}
 }
 
@@ -107,7 +107,7 @@ function simpleQuery(slice, limit) {
 	return pg.cat([
 		fromPart(slice),
 		wherePart(slice.filter),
-		orderPart(slice.order, limit)
+		orderPart(slice.type, slice.order, limit)
 	], ' ');
 }
 
