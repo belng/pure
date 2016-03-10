@@ -63,16 +63,16 @@ function connect() {
 }
 
 bus.on('postchange', changes => {
+	const frame = {};
+
 	if (changes.source === 'server') return;
 
-	const { queries, entities, auth } = changes;
+	[ 'queries', 'entities', 'auth' ].forEach(e => {
+		if (e in changes) frame[e] = changes[e];
+	});
 
-	if (queries || entities || auth) {
-		client.send(packer.encode({
-			queries,
-			entities,
-			auth
-		}));
+	if (Object.keys(frame).length) {
+		client.send(packer.encode(frame));
 	}
 });
 
