@@ -38,10 +38,15 @@ export default function (entity) {
 				switch (name) {
 				case 'terms':
 					return {
-						$: "to_tsvector(&{locale}, &{name} || ' ' || &{body})",
+						$: 'to_tsvector(&{locale}, &{name} || \' \' || &{body})',
 						locale: 'english',
 						name: entity.name,
 						body: entity.body
+					};
+				case 'presence':
+					return {
+						$: 'presence = max(presence, &{presence})',
+						presence: entity.presence
 					};
 				case 'createtime':
 				case 'updatetime':

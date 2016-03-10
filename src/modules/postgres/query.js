@@ -71,7 +71,7 @@ function wherePart (f) {
 		}
 		switch (op) {
 		case 'mts':
-			filter[prop] = filter[prop].replace(/\*$/, '');
+			filter[prop] = filter[prop].replace(/\*$/, ''); /* eslint-disable no-fallthrough */
 		case 'gt':
 		case 'lt':
 		case 'neq':
@@ -98,9 +98,9 @@ function wherePart (f) {
 
 function orderPart(type, order, limit) {
 	if (limit < 0) {
-		return `ORDER BY "${type}"."${order.toLowerCase()}" DESC LIMIT ${-limit}`;
+		return `ORDER BY "${TABLES[TYPES[type]]}".${order.toLowerCase()} DESC LIMIT ${-limit}`;
 	} else {
-		return `ORDER BY "${type}"."${order.toLowerCase()}" ASC LIMIT ${limit}`;
+		return `ORDER BY "${TABLES[TYPES[type]]}".${order.toLowerCase()} ASC LIMIT ${limit}`;
 	}
 }
 
