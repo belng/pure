@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	thread: ?Item;
+	thread: ?Item | { type: 'loading' };
 	onNavigation: Function;
 }
 
@@ -67,11 +67,13 @@ export default class ChatTitle extends Component<void, Props, void> {
 
 		let title, concerns = 1;
 
-		if (thread && thread.name) {
+		if (thread && thread.type === 'loading') {
+			title = 'Loading…';
+		} else if (thread && thread.name) {
 			title = thread.name;
 			concerns = thread.concerns && thread.concerns.length ? thread.concerns.length : 1;
 		} else {
-			title = 'Loading…';
+			title = '…';
 		}
 
 		return (

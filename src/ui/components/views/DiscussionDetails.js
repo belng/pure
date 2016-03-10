@@ -7,13 +7,14 @@ import PageLoading from './PageLoading';
 import PageEmpty from './PageEmpty';
 import DiscussionDetailsCard from './DiscussionDetailsCard';
 import PeopleListContainer from '../containers/PeopleListContainer';
+import type { Item } from '../../../lib/schemaTypes';
 
 const {
 	ScrollView
 } = ReactNative;
 
 type Props = {
-	thread: ?Object
+	thread: ?Item | { type: 'loading' }
 }
 
 export default class DiscussionDetails extends Component<void, Props, void> {
