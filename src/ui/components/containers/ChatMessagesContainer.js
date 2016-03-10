@@ -53,6 +53,8 @@ export default class ChatMessagesContainer extends Component<void, any, Subscrip
 									data.push({
 										text: texts[i],
 										previousText: texts[i - 1],
+										isFirst: i === 0,
+										isLast: i === l - 1,
 									});
 								}
 							}
