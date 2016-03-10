@@ -62,14 +62,20 @@ function connect() {
 	client.on('message', onMessage);
 }
 
-bus.on('postchange', changes => {
-	const frame = {};
+const props = [ 'queries', 'entities', 'auth' ];
 
+bus.on('postchange', changes => {
 	if (changes.source === 'server') return;
 
-	[ 'queries', 'entities', 'auth' ].forEach(e => {
-		if (e in changes) frame[e] = changes[e];
-	});
+	const frame = {};
+
+	for (let i = 0, l = props.length; i < l; i++) {
+		const prop = props[i];
+
+		if (changes[prop]) {
+			frame[prop] = changes[prop];
+		}
+	}
 
 	if (Object.keys(frame).length) {
 		client.send(packer.encode(frame));
