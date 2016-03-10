@@ -13,7 +13,7 @@ const operators = {
 	lte: '<=',
 	cts: '@>',
 	ctd: '<@',
-	mts: '@@'
+	mts: 'like'
 };
 
 function getPropOp(prop) {
@@ -70,6 +70,8 @@ function wherePart (f) {
 			continue;
 		}
 		switch (op) {
+		case 'mts':
+			filter[prop] = filter[prop].replace(/\*$/, '');
 		case 'gt':
 		case 'lt':
 		case 'neq':
@@ -78,7 +80,6 @@ function wherePart (f) {
 		case 'in':
 		case 'cts':
 		case 'ctd':
-		case 'mts':
 			sql.push(`"${name.toLowerCase()}" ${operators[op]} &{${prop}}`);
 			break;
 		default:
@@ -95,11 +96,11 @@ function wherePart (f) {
 	}
 }
 
-function orderPart(order, limit) {
+function orderPart(type, order, limit) {
 	if (limit < 0) {
-		return `ORDER BY "${order.toLowerCase()}" DESC LIMIT ${-limit}`;
+		return `ORDER BY "${type}"."${order.toLowerCase()}" DESC LIMIT ${-limit}`;
 	} else {
-		return `ORDER BY "${order.toLowerCase()}" ASC LIMIT ${limit}`;
+		return `ORDER BY "${type}"."${order.toLowerCase()}" ASC LIMIT ${limit}`;
 	}
 }
 
@@ -107,7 +108,7 @@ function simpleQuery(slice, limit) {
 	return pg.cat([
 		fromPart(slice),
 		wherePart(slice.filter),
-		orderPart(slice.order, limit)
+		orderPart(slice.type, slice.order, limit)
 	], ' ');
 }
 
