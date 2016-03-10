@@ -325,35 +325,39 @@ const mapActionsToProps = {
 	},
 };
 
+const mapSubscriptionToProps = {
+	error: {
+		key: {
+			type: 'state',
+			path: [ 'errors', 'signup' ],
+		},
+	},
+	pendingUser: {
+		key: {
+			type: 'state',
+			path: 'signup',
+		}
+	},
+	location: {
+		key: {
+			type: 'state',
+			path: 'location'
+		}
+	}
+};
+
 const OnboardContainerOuter = (props: any) => (
 	<Connect
 		mapActionsToProps={mapActionsToProps}
-		mapSubscriptionToProps={{
-			error: {
-				key: {
-					type: 'state',
-					path: [ 'errors', 'signup' ],
-				},
-			},
+		mapSubscriptionToProps={props.user ? {
+			...mapSubscriptionToProps,
 			user: {
 				key: {
 					type: 'entity',
 					id: props.user,
 				},
 			},
-			pendingUser: {
-				key: {
-					type: 'state',
-					path: 'signup',
-				}
-			},
-			location: {
-				key: {
-					type: 'state',
-					path: 'location'
-				}
-			}
-		}}
+		} : mapSubscriptionToProps}
 		component={OnboardContainer}
 	/>
 );
