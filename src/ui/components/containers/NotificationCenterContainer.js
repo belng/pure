@@ -12,7 +12,7 @@ const mapActionsToProps = {
 const NotificationCenterContainer = (props: any) => (
 	<Connect
 		mapSubscriptionToProps={{
-			count: {
+			data: {
 				key: {
 					slice: {
 						type: 'note',
@@ -22,7 +22,7 @@ const NotificationCenterContainer = (props: any) => (
 						order: 'eventTime'
 					},
 					range: {
-						start: null,
+						start: Infinity,
 						before: 100,
 						after: 0
 					}
