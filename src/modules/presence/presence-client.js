@@ -1,21 +1,14 @@
 /* @flow */
 
-import { bus } from '../../core-client';
+import { bus, cache } from '../../core-client';
 import { subscribe, on } from '../store/store';
 import { setPresence, setItemPresence } from '../store/actions';
 
-let subscription;
-
 subscribe({ type: 'state', path: 'connectionStatus', source: 'presence' }, status => {
 	if (status === 'online') {
-		if (subscription) {
-			subscription.remove();
-		}
-
-		subscription = subscribe({ type: 'state', path: 'user', source: 'presence' }, id => {
+		cache.getState([ 'user' ], id => {
 			if (id) {
 				bus.emit('change', setPresence(id, 'online'));
-				subscription.remove();
 			}
 		});
 	}
@@ -25,7 +18,7 @@ on('subscribe', options => {
 	if (options.slice) {
 		const { slice } = options;
 
-		subscription = subscribe({ type: 'state', path: 'user', source: 'presence' }, id => {
+		cache.getState([ 'user' ], id => {
 			if (id) {
 				switch (slice.type) {
 				case 'thread':
@@ -35,7 +28,6 @@ on('subscribe', options => {
 					setItemPresence('thread', slice.filter.parents_cts[0], id, 'online');
 					break;
 				}
-				subscription.remove();
 			}
 		});
 	}
@@ -45,17 +37,16 @@ on('unsubscribe', options => {
 	if (options.slice) {
 		const { slice } = options;
 
-		subscription = subscribe({ type: 'state', path: 'user', source: 'presence' }, id => {
+		cache.getState([ 'user' ], id => {
 			if (id) {
 				switch (slice.type) {
 				case 'thread':
-					setItemPresence('room', slice.filter.parents_cts[0], id, 'offline');
+					setItemPresence('room', slice.filter.parents_cts[0], id, 'online');
 					break;
 				case 'text':
-					setItemPresence('thread', slice.filter.parents_cts[0], id, 'offline');
+					setItemPresence('thread', slice.filter.parents_cts[0], id, 'online');
 					break;
 				}
-				subscription.remove();
 			}
 		});
 	}
