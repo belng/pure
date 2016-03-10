@@ -4,6 +4,8 @@ import type { User } from '../../lib/schemaTypes';
 import UserModel from '../../models/user';
 import ThreadModel from '../../models/thread';
 import TextModel from '../../models/text';
+import RoomRelModel from '../../models/roomrel';
+import ThreadRelModel from '../../models/threadrel';
 import uuid from 'uuid';
 import { PRESENCE_FOREGROUND, PRESENCE_BACKGROUND } from '../../lib/Constants';
 
@@ -139,3 +141,35 @@ export const setPresence = (id: string, status: 'online' | 'offline'): Object =>
 		})
 	}
 });
+
+
+export const setItemPresence = (
+	type: string, item: string, user: string, status: 'online' | 'offline'
+): Object => {
+	const rel = {
+		item,
+		user,
+		presence: status === 'online' ? PRESENCE_FOREGROUND : PRESENCE_BACKGROUND
+	};
+
+	switch (type) {
+	case 'room':
+		return {
+			entities: {
+				[`${user}_${item}`]: new RoomRelModel(rel)
+			}
+		};
+	case 'thread':
+		return {
+			entities: {
+				[`${user}_${item}`]: new ThreadRelModel(rel)
+			}
+		};
+	}
+
+	return {};
+};
+
+export const setThreadPresence = (
+	id: string, user: string, status: 'online' | 'offline'
+): Object => setPresence(`${user}_${id}`, status);

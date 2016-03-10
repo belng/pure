@@ -2,7 +2,7 @@
 
 import { bus } from '../../core-client';
 import { subscribe, on } from '../store/store';
-import { setPresence } from '../store/actions';
+import { setPresence, setItemPresence } from '../store/actions';
 
 let subscription;
 
@@ -25,19 +25,19 @@ on('subscribe', options => {
 	if (options.slice) {
 		const { slice } = options;
 
-		switch (slice.type) {
-		case 'thread':
-			// TODO
-			break;
-		case 'text':
-			// TODO
-			break;
-		case 'rel':
-			if (slice.link === 'item') {
-				// TODO
+		subscription = subscribe({ type: 'state', path: 'user', source: 'presence' }, id => {
+			if (id) {
+				switch (slice.type) {
+				case 'thread':
+					setItemPresence('room', slice.filter.parents_cts[0], id, 'online');
+					break;
+				case 'text':
+					setItemPresence('thread', slice.filter.parents_cts[0], id, 'online');
+					break;
+				}
+				subscription.remove();
 			}
-			break;
-		}
+		});
 	}
 });
 
@@ -45,18 +45,18 @@ on('unsubscribe', options => {
 	if (options.slice) {
 		const { slice } = options;
 
-		switch (slice.type) {
-		case 'thread':
-			// TODO
-			break;
-		case 'text':
-			// TODO
-			break;
-		case 'rel':
-			if (slice.link === 'item') {
-				// TODO
+		subscription = subscribe({ type: 'state', path: 'user', source: 'presence' }, id => {
+			if (id) {
+				switch (slice.type) {
+				case 'thread':
+					setItemPresence('room', slice.filter.parents_cts[0], id, 'offline');
+					break;
+				case 'text':
+					setItemPresence('thread', slice.filter.parents_cts[0], id, 'offline');
+					break;
+				}
+				subscription.remove();
 			}
-			break;
-		}
+		});
 	}
 });
