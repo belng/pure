@@ -11,7 +11,6 @@ import ChatSuggestionsContainer from '../containers/ChatSuggestionsContainer';
 import ImageUploadContainer from '../containers/ImageUploadContainer';
 import ImageUploadChat from './ImageUploadChat';
 import ImageChooser from '../../modules/ImageChooser';
-import textUtils from '../../../lib/text-utils';
 
 const {
 	StyleSheet,
@@ -58,11 +57,17 @@ type Props = {
 type State = {
 	text: string;
 	query: string;
-	imageData: ?{
+	upload: ?{
+		originalUrl: string;
+		thumbnailUrl: string;
+	};
+	photo: ?{
+		uri: string;
+		size: number;
+		name: string;
 		height: number;
 		width: number;
-		name: string;
-	}
+	};
 }
 
 export default class ChatInput extends Component<void, Props, State> {
@@ -76,7 +81,8 @@ export default class ChatInput extends Component<void, Props, State> {
 	state: State = {
 		text: '',
 		query: '',
-		imageData: null
+		photo: null,
+		upload: null,
 	};
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
@@ -106,44 +112,53 @@ export default class ChatInput extends Component<void, Props, State> {
 		});
 	};
 
-	_uploadImage: Function = async () => {
+	_handleUploadImage: Function = async () => {
 		try {
-			const imageData = await ImageChooser.pickImage();
+			this.setState({
+				photo: null
+			});
+
+			const photo = await ImageChooser.pickImage();
 
 			this.setState({
-				imageData
+				photo
 			});
 		} catch (e) {
 			// Do nothing
 		}
 	};
 
-	_handleUploadFinish: Function = result => {
-		if (!this.state.imageData) {
+	_handleUploadFinish: Function = upload => {
+		const {
+			photo,
+		} = this.state;
+
+		if (!upload || !photo) {
 			return;
 		}
 
-		const { height, width, name } = this.state.imageData;
-
+		const { height, width, name } = photo;
 		const aspectRatio = height / width;
 
-		this.props.sendMessage(textUtils.getTextFromMetadata({
-			type: 'photo',
-			title: name,
-			url: result.originalUrl,
-			height,
-			width,
-			thumbnail_height: Math.min(480, width) * aspectRatio,
-			thumbnail_width: Math.min(480, width),
-			thumbnail_url: result.thumbnailUrl
-		}), result.textId);
+		this.props.sendMessage(`${photo.name}: ${upload.originalUrl}`, {
+			photo: {
+				height,
+				width,
+				title: name,
+				url: upload.originalUrl,
+				thumbnail_height: Math.min(480, width) * aspectRatio,
+				thumbnail_width: Math.min(480, width),
+				thumbnail_url: upload.thumbnailUrl
+			}
+		});
 
 		setTimeout(() => this._handleUploadClose(), 500);
 	};
 
 	_handleUploadClose: Function = () => {
 		this.setState({
-			imageData: null
+			photo: null,
+			upload: null,
 		});
 	};
 
@@ -214,7 +229,7 @@ export default class ChatInput extends Component<void, Props, State> {
 
 					<TouchFeedback
 						borderless
-						onPress={this.state.text ? this._sendMessage : this._uploadImage}
+						onPress={this.state.text ? this._sendMessage : this._handleUploadImage}
 					>
 						<View style={styles.iconContainer}>
 							<Icon
@@ -226,10 +241,10 @@ export default class ChatInput extends Component<void, Props, State> {
 					</TouchFeedback>
 				</View>
 
-				{this.state.imageData ?
+				{this.state.photo ?
 					<ImageUploadContainer
 						component={ImageUploadChat}
-						imageData={this.state.imageData}
+						photo={this.state.photo}
 						onUploadClose={this._handleUploadClose}
 						onUploadFinish={this._handleUploadFinish}
 					/> : null

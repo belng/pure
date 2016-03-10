@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	imageData: {
+	photo: {
 		name: string;
 		uri: string;
 		height: number;
@@ -56,7 +56,7 @@ type Props = {
 
 export default class ChatInput extends Component<void, Props, void> {
 	static propTypes = {
-		imageData: PropTypes.shape({
+		photo: PropTypes.shape({
 			name: PropTypes.string.isRequired,
 			uri: PropTypes.string.isRequired,
 			height: PropTypes.number.isRequired,
@@ -87,7 +87,7 @@ export default class ChatInput extends Component<void, Props, void> {
 	};
 
 	render() {
-		const { uri, height, width } = this.props.imageData;
+		const { uri, height, width } = this.props.photo;
 
 		return (
 			<View {...this.props} style={[ styles.container, this.props.style ]}>

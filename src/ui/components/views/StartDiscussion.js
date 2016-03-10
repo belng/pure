@@ -136,9 +136,7 @@ const FACEBOOK_SHARE_CHECKED_KEY = 'start_discussion_facebook_share_checked';
 
 type Props = {
 	user: string;
-	room: {
-		id: string
-	};
+	room: string;
 	dismiss: Function;
 	startThread: Function;
 	onNavigation: Function;
@@ -166,9 +164,7 @@ type State = {
 export default class StartDiscussionButton extends Component<void, Props, State> {
 	static propTypes = {
 		user: PropTypes.string.isRequired,
-		room: PropTypes.shape({
-			id: PropTypes.string.isRequired
-		}).isRequired,
+		room: PropTypes.string.isRequired,
 		dismiss: PropTypes.func.isRequired,
 		startThread: PropTypes.func.isRequired,
 		onNavigation: PropTypes.func.isRequired
@@ -246,7 +242,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 			name: 'chat',
 			props: {
 				thread: thread.id,
-				room: this.props.room.id
+				room: this.props.room
 			}
 		}));
 	};
@@ -362,7 +358,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 		this.setState({
 			photo: null,
 			upload: null,
-			error: null
+			error: null,
 		});
 	};
 
@@ -402,7 +398,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 					{this.state.photo ?
 						<ImageUploadContainer
 							component={ImageUploadDiscussion}
-							imageData={this.state.photo}
+							photo={this.state.photo}
 							onUploadClose={this._handleUploadClose}
 							onUploadFinish={this._handleUploadFinish}
 							autoStart

@@ -3,6 +3,7 @@
 import type { User } from '../../lib/schemaTypes';
 import UserModel from '../../models/user';
 import ThreadModel from '../../models/thread';
+import TextModel from '../../models/text';
 import uuid from 'uuid';
 import { PRESENCE_FOREGROUND, PRESENCE_BACKGROUND } from '../../lib/Constants';
 
@@ -79,11 +80,21 @@ export const unbanUser = (): Object => ({
 /*
  * Text related actions
  */
-export const sendMessage = (): Object => ({
+export const sendMessage = (
+	data: { body: string; meta?: ?Object; parents: Array<string>; creator: string; }
+): Object => {
+	const id = uuid.v4();
 
-});
+	return {
+		entities: {
+			[id]: new TextModel({ id, ...data, create: true })
+		}
+	};
+};
 
-export const startThread = (data: { name: string; body: string; meta?: ?Object; parents: Array<string>; creator: string; }): Object => {
+export const startThread = (
+	data: { name: string; body: string; meta?: ?Object; parents: Array<string>; creator: string; }
+): Object => {
 	const id = uuid.v4();
 
 	return {

@@ -7,21 +7,28 @@ import { sendMessage } from '../../../modules/store/actions';
 
 const ChatContainer = (props: any) => (
 	<Connect
-		mapActionsToProps={{
-			sendMessage: (store, result) => (body, meta) => store.dispatch(sendMessage({
-				body,
-				meta,
-				parents: [ result.thread.id ].concat(result.thread.parents),
-				creator: result.user
-			})),
-		}}
 		mapSubscriptionToProps={{
 			user: {
 				key: {
 					type: 'state',
 					path: 'user'
 				}
+			},
+			parents: {
+				key: {
+					type: 'entity',
+					id: props.thread
+				},
+				transform: thread => thread && thread.parents ? thread.parents : []
 			}
+		}}
+		mapActionsToProps={{
+			sendMessage: (store, result) => (body, meta) => store.dispatch(sendMessage({
+				body,
+				meta,
+				parents: [ props.thread ].concat(result.parents),
+				creator: result.user
+			})),
 		}}
 		passProps={props}
 		component={Chat}

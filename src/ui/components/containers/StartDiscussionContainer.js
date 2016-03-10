@@ -25,29 +25,35 @@ class StartDiscussionContainer extends Component<void, Props, State> {
 	};
 
 	render() {
+		const parents = {
+			key: {
+				type: 'entity',
+				id: this.props.room
+			},
+			transform: room => room && room.parents ? room.parents : []
+		};
+
+		let thread;
+
+		if (this.state.thread) {
+			thread = {
+				key: {
+					type: 'entity',
+					id: this.state.thread
+				}
+			};
+		}
+
 		return (
 			<Connect
-				mapSubscriptionToProps={{
-					room: {
-						key: {
-							type: 'entity',
-							id: this.props.room
-						}
-					},
-					thread: {
-						key: {
-							type: 'entity',
-							id: this.state.thread
-						}
-					}
-				}}
+				mapSubscriptionToProps={thread ? { parents, thread } : { parents }}
 				mapActionsToProps={{
 					startThread: (store, result) => (name, body, meta) => {
 						const changes = startThread({
 							name,
 							body,
 							meta,
-							parents: [ result.room.id ].concat(result.room.parents),
+							parents: [ this.props.room ].concat(result.parents),
 							creator: this.props.user
 						});
 
