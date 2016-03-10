@@ -144,11 +144,12 @@ export const setPresence = (id: string, status: 'online' | 'offline'): Object =>
 
 
 export const setItemPresence = (
-	type: string, item: string, user: string, status: 'online' | 'offline'
+	type: string, item: string, user: string, status: 'online' | 'offline', create: boolean
 ): Object => {
 	const rel = {
 		item,
 		user,
+		create,
 		presence: status === 'online' ? PRESENCE_FOREGROUND : PRESENCE_BACKGROUND
 	};
 

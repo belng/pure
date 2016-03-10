@@ -18,18 +18,26 @@ on('subscribe', options => {
 	if (options.slice) {
 		const { slice } = options;
 
-		cache.getState([ 'user' ], id => {
-			if (id) {
-				switch (slice.type) {
-				case 'thread':
-					setItemPresence('room', slice.filter.parents_cts[0], id, 'online');
-					break;
-				case 'text':
-					setItemPresence('thread', slice.filter.parents_cts[0], id, 'online');
-					break;
-				}
+		const id = cache.getState([ 'user' ]);
+
+		if (id) {
+			switch (slice.type) {
+			case 'thread':
+				const room = slice.filter.parents_cts[0];
+
+				cache.getEnity(`${id}_${room}`, (err, result) => {
+					setItemPresence('room', room, id, 'online', !!result);
+				});
+				break;
+			case 'text':
+				const thread = slice.filter.parents_cts[0];
+
+				cache.getEnity(`${id}_${thread}`, (err, result) => {
+					setItemPresence('thread', thread, id, 'online', !!result);
+				});
+				break;
 			}
-		});
+		}
 	}
 });
 
@@ -37,17 +45,25 @@ on('unsubscribe', options => {
 	if (options.slice) {
 		const { slice } = options;
 
-		cache.getState([ 'user' ], id => {
-			if (id) {
-				switch (slice.type) {
-				case 'thread':
-					setItemPresence('room', slice.filter.parents_cts[0], id, 'online');
-					break;
-				case 'text':
-					setItemPresence('thread', slice.filter.parents_cts[0], id, 'online');
-					break;
-				}
+		const id = cache.getState([ 'user' ]);
+
+		if (id) {
+			switch (slice.type) {
+			case 'thread':
+				const room = slice.filter.parents_cts[0];
+
+				cache.getEnity(`${id}_${room}`, (err, result) => {
+					setItemPresence('room', room, id, 'offline', !!result);
+				});
+				break;
+			case 'text':
+				const thread = slice.filter.parents_cts[0];
+
+				cache.getEnity(`${id}_${thread}`, (err, result) => {
+					setItemPresence('thread', thread, id, 'offline', !!result);
+				});
+				break;
 			}
-		});
+		}
 	}
 });
