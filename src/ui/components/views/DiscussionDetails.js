@@ -36,7 +36,7 @@ export default class DiscussionDetails extends Component<void, Props, void> {
 			return (
 				<ScrollView {...this.props}>
 					<DiscussionDetailsCard thread={thread} />
-					<PeopleListContainer thread={thread} />
+					<PeopleListContainer thread={thread.id} />
 				</ScrollView>
 			);
 		} else {

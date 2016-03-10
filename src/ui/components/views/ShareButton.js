@@ -5,24 +5,14 @@ import shallowEqual from 'shallowequal';
 import AppbarTouchable from './AppbarTouchable';
 import AppbarIcon from './AppbarIcon';
 import Share from '../../modules/Share';
-import { convertRouteToURL } from '../../../lib/Route';
-import { config } from '../../../core-client';
 
 type Props = {
-	thread: {
-		id: string;
-		parents: Array<string>;
-		name: string;
-	};
+	url: string;
 }
 
 export default class ShareButton extends Component<void, Props, void> {
 	static propTypes = {
-		thread: PropTypes.shape({
-			id: PropTypes.string.isRequired,
-			parents: PropTypes.arrayOf(PropTypes.string).isRequired,
-			name: PropTypes.string.isRequired
-		})
+		url: PropTypes.string,
 	};
 
 	shouldComponentUpdate(nextProps: Props): boolean {
@@ -30,17 +20,10 @@ export default class ShareButton extends Component<void, Props, void> {
 	}
 
 	_handlePress: Function = () => {
-		const { thread } = this.props;
+		const { url } = this.props;
 
-		if (thread) {
-			Share.shareItem('Share discussion', config.server.protocol + '//' + config.server.host + convertRouteToURL({
-				name: 'chat',
-				props: {
-					room: thread.parents[0],
-					thread: thread.id,
-					title: thread.name
-				}
-			}));
+		if (url) {
+			Share.shareItem('Share discussion', url);
 		}
 	};
 

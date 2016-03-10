@@ -15,12 +15,12 @@ const PeopleListContainer = (props: any) => (
 							user: 'user'
 						},
 						filter: {
-							thread: props.thread
+							item: props.thread
 						},
 						order: 'presenceTime'
 					},
 					range: {
-						start: -Infinity,
+						start: Infinity,
 						before: 100,
 						after: 0
 					}

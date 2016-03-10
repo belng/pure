@@ -3,7 +3,7 @@
 import React, { PropTypes } from 'react';
 import { config } from '../../../core-client';
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
+import ShareButton from '../views/ShareButton';
 import { convertRouteToURL } from '../../../lib/Route';
 
 const { host, protocol } = config.server;
@@ -16,17 +16,17 @@ const ShareButtonContainer = (props: any) => (
 					type: 'entity',
 					id: props.thread
 				},
-				transform: threadObj => threadObj ? protocol + '//' + host + '/' + convertRouteToURL({
+				transform: thread => thread && thread.type !== 'loading' ? protocol + '//' + host + convertRouteToURL({
 					name: 'chat',
 					props: {
-						room: threadObj.parents[0],
-						thread: threadObj.id
+						room: thread.parents[0],
+						thread: thread.id
 					}
 				}) : null
 			}
 		}}
 		passProps={props}
-		component={Dummy}
+		component={ShareButton}
 	/>
 );
 
