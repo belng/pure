@@ -169,7 +169,3 @@ export const setItemPresence = (
 
 	return {};
 };
-
-export const setThreadPresence = (
-	id: string, user: string, status: 'online' | 'offline'
-): Object => setPresence(`${user}_${id}`, status);
