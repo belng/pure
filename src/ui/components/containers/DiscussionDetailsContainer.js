@@ -4,7 +4,11 @@ import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import DiscussionDetails from '../views/DiscussionDetails';
 
-const DiscussionDetailsContainer = (props: any) => (
+type Props = {
+	thread: string;
+}
+
+const DiscussionDetailsContainer = (props: Props) => (
 	<Connect
 		mapSubscriptionToProps={{
 			thread: {

@@ -7,7 +7,7 @@ import ChatTitle from '../views/ChatTitle';
 const ChatTitleContainer = (props: any) => (
 	<Connect
 		mapSubscriptionToProps={{
-			title: {
+			thread: {
 				key: {
 					type: 'entity',
 					id: props.thread

@@ -4,6 +4,7 @@ import React, { PropTypes, Component } from 'react';
 import ReactNative from 'react-native';
 import shallowEqual from 'shallowequal';
 import PageLoading from './PageLoading';
+import PageEmpty from './PageEmpty';
 import DiscussionDetailsCard from './DiscussionDetailsCard';
 import PeopleListContainer from '../containers/PeopleListContainer';
 
@@ -28,6 +29,10 @@ export default class DiscussionDetails extends Component<void, Props, void> {
 		const { thread } = this.props;
 
 		if (thread) {
+			if (thread.type === 'loading') {
+				return <PageLoading />;
+			}
+
 			return (
 				<ScrollView {...this.props}>
 					<DiscussionDetailsCard thread={thread} />
@@ -35,7 +40,7 @@ export default class DiscussionDetails extends Component<void, Props, void> {
 				</ScrollView>
 			);
 		} else {
-			return <PageLoading />;
+			return <PageEmpty label='Discussion not found' image='sad' />;
 		}
 	}
 }

@@ -65,8 +65,7 @@ export default class ChatTitle extends Component<void, Props, void> {
 	render() {
 		const { thread } = this.props;
 
-		let title = '…',
-			concerns = 1;
+		let title, concerns = 1;
 
 		if (thread && thread.name) {
 			title = thread.name;
