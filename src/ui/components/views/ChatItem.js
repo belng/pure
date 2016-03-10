@@ -11,6 +11,7 @@ import Modal from './Modal';
 import Icon from './Icon';
 import Time from './Time';
 import { parseURLs } from '../../../lib/URL';
+import { TAG_POST_HIDDEN } from '../../../lib/Constants';
 
 const {
 	Clipboard,
@@ -104,9 +105,8 @@ type Props = {
 	user: string,
 	quoteMessage: Function,
 	replyToMessage: Function,
-	hidden: boolean,
-	isUserAdmin: boolean,
-	isCreatorBanned: boolean,
+	// isUserAdmin: boolean,
+	// isCreatorBanned: boolean,
 	hideText: Function,
 	unhideText: Function,
 	banUser: Function,
@@ -130,9 +130,8 @@ export default class ChatItem extends Component<void, Props, void> {
 		user: PropTypes.string.isRequired,
 		quoteMessage: PropTypes.func.isRequired,
 		replyToMessage: PropTypes.func.isRequired,
-		hidden: PropTypes.bool.isRequired,
-		isUserAdmin: PropTypes.bool.isRequired,
-		isCreatorBanned: PropTypes.bool.isRequired,
+		// isUserAdmin: PropTypes.bool.isRequired,
+		// isCreatorBanned: PropTypes.bool.isRequired,
 		hideText: PropTypes.func.isRequired,
 		unhideText: PropTypes.func.isRequired,
 		banUser: PropTypes.func.isRequired,
@@ -188,8 +187,9 @@ export default class ChatItem extends Component<void, Props, void> {
 	};
 
 	render() {
-		const { text, hidden, previousText, user } = this.props;
+		const { text, previousText, user } = this.props;
 
+		const hidden = text.tags && text.tags.indexOf(TAG_POST_HIDDEN) > -1;
 		const received = text.creator !== user;
 		const links = parseURLs(text.body, 1);
 

@@ -15,6 +15,7 @@ import Icon from './Icon';
 import Share from '../../modules/Share';
 import { convertRouteToURL } from '../../../lib/Route';
 import { config } from '../../../core-client';
+import { TAG_POST_HIDDEN } from '../../../lib/Constants';
 import type { Item } from '../../../lib/schemaTypes';
 
 const {
@@ -148,9 +149,10 @@ export default class DiscussionItem extends Component<void, Props, void> {
 
 	render() {
 		const {
-			thread,
-			hidden
+			thread
 		} = this.props;
+
+		const hidden = thread.tags && thread.tags.indexOf(TAG_POST_HIDDEN) > -1;
 
 		return (
 			<Card {...this.props}>

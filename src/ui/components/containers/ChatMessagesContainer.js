@@ -43,6 +43,22 @@ export default class ChatMessagesContainer extends Component<void, any, Subscrip
 								after
 							}
 						},
+						transform: texts => {
+							const data = [];
+
+							for (let i = 0, l = texts.length; i < l; i++) {
+								if (texts[i].type === 'loading') {
+									data.push(texts[i]);
+								} else {
+									data.push({
+										text: texts[i],
+										previousText: texts[i - 1],
+									});
+								}
+							}
+
+							return data;
+						}
 					}
 				}}
 				passProps={{ ...this.props, loadMore: this._loadMore }}

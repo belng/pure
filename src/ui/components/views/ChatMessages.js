@@ -80,15 +80,16 @@ export default class ChatMessages extends Component {
 			return <LoadingItem />;
 		}
 
+		const { text, previousText } = item;
+
 		return (
 			<ChatItemContainer
-				key={item.text.id}
-				text={item.text}
-				metadata={item.metadata}
-				previousText={item.previousText}
-				currentUser={this.props.user}
+				key={text.id}
+				text={text}
+				previousText={previousText}
 				replyToMessage={this.props.replyToMessage}
 				quoteMessage={this.props.quoteMessage}
+				user={this.props.user}
 				style={[ styles.item, styles.inverted ]}
 			/>
 		);
@@ -105,7 +106,7 @@ export default class ChatMessages extends Component {
 				placeHolder = <PageLoading />;
 				break;
 			case 'banned':
-				placeHolder = <PageEmpty label="You\'re banned in this community" image='meh' />;
+				placeHolder = <PageEmpty label="You're banned in this community" image='meh' />;
 				break;
 			case 'nonexistent':
 				placeHolder = <PageEmpty label="This discussion doesn't exist" image='sad' />;

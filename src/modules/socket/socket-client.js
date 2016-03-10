@@ -39,6 +39,8 @@ function disconnected() {
 function onMessage(message) {
 	const frame = packer.decode(message);
 
+	console.log('-->', frame);
+
 	frame.message.source = 'server';
 	bus.emit(frame.type, frame.message);
 }
@@ -78,6 +80,7 @@ bus.on('postchange', changes => {
 	}
 
 	if (Object.keys(frame).length) {
+		console.log('<--', frame);
 		client.send(packer.encode(frame));
 	}
 });
