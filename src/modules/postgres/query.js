@@ -70,6 +70,8 @@ function wherePart (f) {
 			continue;
 		}
 		switch (op) {
+		case 'mts':
+			filter[prop] = filter[prop].replace(/\*$/, '');
 		case 'gt':
 		case 'lt':
 		case 'neq':
@@ -78,7 +80,6 @@ function wherePart (f) {
 		case 'in':
 		case 'cts':
 		case 'ctd':
-		case 'mts':
 			sql.push(`"${name.toLowerCase()}" ${operators[op]} &{${prop}}`);
 			break;
 		default:
