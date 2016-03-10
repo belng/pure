@@ -13,7 +13,7 @@ const operators = {
 	lte: '<=',
 	cts: '@>',
 	ctd: '<@',
-	mts: '@@'
+	mts: 'like'
 };
 
 function getPropOp(prop) {
