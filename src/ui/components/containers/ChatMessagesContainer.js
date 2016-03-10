@@ -46,15 +46,15 @@ export default class ChatMessagesContainer extends Component<void, any, Subscrip
 						transform: texts => {
 							const data = [];
 
-							for (let i = 0, l = texts.length; i < l; i++) {
+							for (let l = texts.length - 1, i = l; i >= 0; i--) {
 								if (texts[i].type === 'loading') {
 									data.push(texts[i]);
 								} else {
 									data.push({
 										text: texts[i],
-										previousText: texts[i - 1],
+										previousText: texts[i + 1],
 										isFirst: i === 0,
-										isLast: i === l - 1,
+										isLast: i === l,
 									});
 								}
 							}
