@@ -2,12 +2,12 @@
 
 import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
+import NotificationBadge from '../views/NotificationBadge';
 
 const NotificationBadgeContainer = (props: any) => (
 	<Connect
 		passProps={props}
-		component={Dummy}
+		component={NotificationBadge}
 	/>
 );
 

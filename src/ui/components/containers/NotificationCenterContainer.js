@@ -2,7 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
+import NotificationCenter from '../views/NotificationCenter';
 import { dismissNote } from '../../../modules/store/actions';
 
 const mapActionsToProps = {
@@ -31,7 +31,7 @@ const NotificationCenterContainer = (props: any) => (
 		}}
 		mapActionsToProps={mapActionsToProps}
 		passProps={props}
-		component={Dummy}
+		component={NotificationCenter}
 	/>
 );
 

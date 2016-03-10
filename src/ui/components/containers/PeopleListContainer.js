@@ -2,7 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
+import PeopleList from '../views/PeopleList';
 
 const PeopleListContainer = (props: any) => (
 	<Connect
@@ -28,7 +28,7 @@ const PeopleListContainer = (props: any) => (
 			}
 		}}
 		passProps={props}
-		component={Dummy}
+		component={PeopleList}
 	/>
 );
 
