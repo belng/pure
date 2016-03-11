@@ -30,7 +30,7 @@ export default class App extends Component<void, Props, void> {
 			user
 		} = this.props;
 
-		const loading = session === '@@loading' || session && !user;
+		const loading = session === '@@loading' || !session && !user;
 
 		if (loading) {
 			switch (connection) {

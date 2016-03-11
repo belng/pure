@@ -58,8 +58,9 @@ export default function (entity) {
 				}
 			}), ', '),
 			{
-				$: ') RETURNING *, &{type}::smallint as "type"',
-				type: entity.type
+				$: ') RETURNING &{id}::text as "id"',
+				type: entity.type,
+				id: isRel? entity.user + '_' + entity.item : entity.id
 			}
 		], ' ');
 	} else { // UPDATE
