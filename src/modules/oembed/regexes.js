@@ -6,12 +6,4 @@ export default {
 	description: /<meta[^>]*name[ ]*=[ ]*['|"]description['|"][^>]*[>]/i,
 	title: /<title.*>[^>]*/i,
 	image: /<meta[^>]*property[ ]*=[ ]*['|"]og:image['|"][^>]*[>]/i,
-	matchHTTP: /http[s]?:\/\/[^"']*/i,
-	propertyRegex(prop: string, type: string): RegExp {
-		if (typeof type !== 'undefined') {
-			return new RegExp("<meta[^>]*property[ ]*=[ ]*['|\"]og:" + type + ':' + prop + "['|\"][^>]*[>]", 'i');
-		}
-
-		return new RegExp("<meta[^>]*property[ ]*=[ ]*['|\"]og:" + prop + "['|\"][^>]*[>]", 'i');
-	}
 };
