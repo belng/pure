@@ -25,14 +25,14 @@ on('subscribe', options => {
 			case 'thread':
 				const room = slice.filter.parents_cts[0];
 
-				cache.getEnity(`${id}_${room}`, (err, result) => {
+				cache.getEntity(`${id}_${room}`, (err, result) => {
 					bus.emit('change', setItemPresence('room', room, id, 'online', !!result));
 				});
 				break;
 			case 'text':
 				const thread = slice.filter.parents_cts[0];
 
-				cache.getEnity(`${id}_${thread}`, (err, result) => {
+				cache.getEntity(`${id}_${thread}`, (err, result) => {
 					bus.emit('change', setItemPresence('thread', thread, id, 'online', !!result));
 				});
 				break;
@@ -51,14 +51,14 @@ on('unsubscribe', options => {
 			case 'thread':
 				const room = slice.filter.parents_cts[0];
 
-				cache.getEnity(`${id}_${room}`, (err, result) => {
+				cache.getEntity(`${id}_${room}`, (err, result) => {
 					bus.emit('change', setItemPresence('room', room, id, 'offline', !!result));
 				});
 				break;
 			case 'text':
 				const thread = slice.filter.parents_cts[0];
 
-				cache.getEnity(`${id}_${thread}`, (err, result) => {
+				cache.getEntity(`${id}_${thread}`, (err, result) => {
 					bus.emit('change', setItemPresence('thread', thread, id, 'offline', !!result));
 				});
 				break;
