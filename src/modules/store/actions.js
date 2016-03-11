@@ -7,7 +7,7 @@ import TextModel from '../../models/text';
 import RoomRelModel from '../../models/roomrel';
 import ThreadRelModel from '../../models/threadrel';
 import uuid from 'uuid';
-import { PRESENCE_FOREGROUND, PRESENCE_BACKGROUND } from '../../lib/Constants';
+import { PRESENCE_FOREGROUND } from '../../lib/Constants';
 
 /*
  * User related actions
@@ -22,7 +22,7 @@ export const signIn = (provider: string, accessToken: string): Object => ({
 
 export const signUp = (user: User): Object => ({
 	auth: {
-		signup: new UserModel(user)
+		signup: new UserModel({ ...user, presence: PRESENCE_FOREGROUND })
 	}
 });
 
@@ -38,7 +38,7 @@ export const signOut = (): Object => ({
 
 export const saveUser = (user: User): Object => ({
 	entities: {
-		[user.id]: new UserModel(user)
+		[user.id]: new UserModel({ ...user, presence: PRESENCE_FOREGROUND })
 	}
 });
 
@@ -50,7 +50,8 @@ export const addPlace = (user: string, type: string, place: Object): Object => (
 				places: {
 					[type]: place
 				}
-			}
+			},
+			presence: PRESENCE_FOREGROUND
 		})
 	}
 });
@@ -65,7 +66,8 @@ export const removePlace = (user: string, type: string): Object => ({
 						[type]: 'delete'
 					}
 				}
-			}
+			},
+			presence: PRESENCE_FOREGROUND
 		})
 	}
 });
@@ -137,7 +139,7 @@ export const setPresence = (id: string, status: 'online' | 'offline'): Object =>
 	entities: {
 		[id]: new UserModel({
 			id,
-			presence: status === 'online' ? PRESENCE_FOREGROUND : PRESENCE_BACKGROUND
+			presence: status === 'online' ? PRESENCE_FOREGROUND : 'none'
 		})
 	}
 });
@@ -150,7 +152,7 @@ export const setItemPresence = (
 		item,
 		user,
 		create,
-		presence: status === 'online' ? PRESENCE_FOREGROUND : PRESENCE_BACKGROUND
+		presence: status === 'online' ? PRESENCE_FOREGROUND : 'none'
 	};
 
 	switch (type) {
