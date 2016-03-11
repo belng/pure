@@ -1,6 +1,9 @@
 import * as pg from './pg';
 import { EventEmitter } from 'events';
 import * as Constants from './Constants';
+import util from 'util';
+import winston from 'winston';
+
 export default function(changes, config) {
 	const stream = new EventEmitter();
 
@@ -11,19 +14,21 @@ export default function(changes, config) {
 			switch (entity.type) {
 			case Constants.TYPE_NOTE:
 			case Constants.TYPE_USER:
+				winston.debug('UPDATING: TYPE_NOTE or TYPE_USER');
 				return pg.cat([ {
 					$: 'SELECT resources FROM users WHERE id = &{user}',
-					user: entity.user
+					user: entity.id || entity.user
 				} ]);
 			case Constants.TYPE_ROOM:
 			case Constants.TYPE_TEXT:
 			case Constants.TYPE_THREAD:
 			case Constants.TYPE_TOPIC:
 			case Constants.TYPE_PRIV:
+				winston.debug('DISPATCHING ITEMS');
 				return pg.cat([ {
 					id: key,
 					$: 'SELECT resources FROM rels WHERE item = &{id} or item = &{parent} and NOT(roles <@ &{excludeRoles}) and presence > &{presence}',
-					parent: entity.parent && entity.parent[0],
+					parent: entity.parents && entity.parents[0],
 					excludeRoles: [ Constants.ROLE_BANNED ],
 					presence: Constants.STATUS_NONE
 				} ]);
@@ -32,6 +37,7 @@ export default function(changes, config) {
 			case Constants.TYPE_THREADREL:
 			case Constants.TYPE_TOPICREL:
 			case Constants.TYPE_PRIVREL:
+				winston.debug('DISPATCHING RELS');
 				return pg.cat([ {
 					$: 'SELECT resources FROM users WHERE id = &{user} UNION ' +
 					'SELECT resources FROM rels WHERE item = &{item}' +
@@ -47,8 +53,10 @@ export default function(changes, config) {
 		})(e);
 
 		if (query) {
-			console.log("Hello,  here!! trying to make a query here...", config.connstr);
-			pg.readStream(config.connStr, query).on('data', (res) => {
+			winston.debug('Hello,  here!! trying to make a query here...', config.connStr);
+			pg.readStream(config.connStr, query).on('row', (res) => {
+				winston.debug('Res from the user:', res);
+				winston.debug('EMITTING:', key, util.inspect(e, {depth: null}));
 				stream.emit('data', {
 					entities: {
 						[key]: e
