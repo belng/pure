@@ -22,7 +22,17 @@ const NotificationBadgeContainer = (props: any) => (
 						after: 0
 					}
 				},
-				transform: data => data && data.length ? data.length : 0
+				transform: data => {
+					if (data && data.length) {
+						if (data.length === 1 && data[0] && data[0].type === 'loading') {
+							return 0;
+						} else {
+							return data.length;
+						}
+					} else {
+						return 0;
+					}
+				}
 			}
 		}}
 		passProps={props}
