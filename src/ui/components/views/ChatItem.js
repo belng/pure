@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
 	},
 	avatar: {
 		position: 'absolute',
-		top: 0,
+		bottom: 0,
 		left: -36,
 		alignSelf: 'flex-end'
 	},

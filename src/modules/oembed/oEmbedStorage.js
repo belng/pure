@@ -1,6 +1,7 @@
 /* @flow */
 
 import React from 'react-native';
+import type { Embed } from './oEmbedTypes';
 
 const {
 	AsyncStorage
@@ -9,7 +10,7 @@ const {
 let data;
 
 export default {
-	async _readData(): any {
+	async _readData(): Promise<void> {
 		const dataString = await AsyncStorage.getItem('oembed_storage');
 
 		if (dataString) {
@@ -19,7 +20,7 @@ export default {
 		}
 	},
 
-	_findItem(key: string): ?string {
+	_findItem(key: string): ?Embed {
 		for (let i = 0, l = data.length; i < l; i++) {
 			if (data[i] && data[i].url === key) {
 				return data[i].json;
@@ -29,7 +30,7 @@ export default {
 		return null;
 	},
 
-	async set(url: string, json: string): Promise {
+	async set(url: string, json: Embed): Promise<void> {
 		const item = await this.get(url);
 
 		if (item) {
@@ -48,7 +49,7 @@ export default {
 		return AsyncStorage.setItem('oembed_storage', JSON.stringify(data));
 	},
 
-	async get(url: string): Promise<string> {
+	async get(url: string): Promise<?Embed> {
 		if (!data) {
 			await this._readData();
 		}

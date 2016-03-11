@@ -2,12 +2,31 @@
 
 import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
+import NotificationBadge from '../views/NotificationBadge';
 
 const NotificationBadgeContainer = (props: any) => (
 	<Connect
+		mapSubscriptionToProps={{
+			count: {
+				key: {
+					slice: {
+						type: 'note',
+						filter: {
+							user: props.user
+						},
+						order: 'eventTime'
+					},
+					range: {
+						start: Infinity,
+						before: 100,
+						after: 0
+					}
+				},
+				transform: data => data && data.length ? data.length : 0
+			}
+		}}
 		passProps={props}
-		component={Dummy}
+		component={NotificationBadge}
 	/>
 );
 

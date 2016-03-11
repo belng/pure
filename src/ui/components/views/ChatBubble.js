@@ -10,7 +10,6 @@ import RichText from './RichText';
 const {
 	StyleSheet,
 	View,
-	Image
 } = ReactNative;
 
 const styles = StyleSheet.create({
@@ -38,24 +37,45 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 4
 	},
 	triangle: {
-		position: 'absolute',
-		height: 12,
-		width: 10
+		width: 0,
+		height: 0,
+		backgroundColor: 'transparent',
+		borderStyle: 'solid',
+		borderLeftWidth: 8,
+		borderRightWidth: 12,
+		borderBottomWidth: 14,
+		borderLeftColor: 'transparent',
+		borderRightColor: 'transparent',
 	},
 	triangleLeft: {
-		top: 0,
-		left: 0
+		left: 1,
+		borderBottomColor: '#fff',
+		transform: [
+			{ rotate: '12deg' }
+		]
 	},
 	triangleRight: {
-		right: 0,
-		bottom: 0
+		right: 8,
+		borderBottomColor: '#ddd',
+	},
+	triangleContainer: {
+		position: 'absolute',
+		height: 12,
+		width: 10,
+		bottom: 0,
+	},
+	triangleContainerLeft: {
+		left: 0,
+	},
+	triangleContainerRight: {
+		right: 0
 	},
 	author: {
 		fontSize: 12,
 		lineHeight: 18,
 		paddingBottom: 4,
 		paddingHorizontal: 4,
-		opacity: 0.5
+		opacity: 0.5,
 	}
 });
 
@@ -109,8 +129,10 @@ export default class ChatBubble extends Component<DefaultProps, Props, void> {
 
 		return (
 			<View style={[ right ? styles.containerRight : styles.containerLeft, this.props.style ]} ref={c => (this._root = c)}>
-				{right || !showArrow ? null :
-					<Image style={[ styles.triangle, styles.triangleLeft ]} source={require('../../../../assets/triangle_left.png')} />
+				{right && !showArrow ? null :
+					<View style={[ styles.triangleContainer, styles.triangleContainerLeft ]}>
+						<View style={[ styles.triangle, styles.triangleLeft ]} />
+					</View>
 				}
 
 				<View style={[ styles.bubble, right ? styles.bubbleRight : styles.bubbleLeft ]}>
@@ -128,7 +150,9 @@ export default class ChatBubble extends Component<DefaultProps, Props, void> {
 				</View>
 
 				{right && showArrow ?
-					<Image style={[ styles.triangle, styles.triangleRight ]} source={require('../../../../assets/triangle_right.png')} /> :
+					<View style={[ styles.triangleContainer, styles.triangleContainerRight ]}>
+						<View style={[ styles.triangle, styles.triangleRight ]} />
+					</View> :
 					null
 				}
 			</View>
