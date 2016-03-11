@@ -1,7 +1,7 @@
 /* @flow */
 
 import Ebus from 'ebus';
-import Know from 'know';
+import Know from './submodules/know/lib/Cache';
 import * as Constants from './lib/Constants';
 
 export type Bus = {

@@ -10,7 +10,7 @@ import {
 	roomrel as RoomRel,
 	room as Room
 } from '../../../models/models';
-import Cache from 'know';
+import Cache from '../../../submodules/know/lib/Cache';
 import * as Constants from '../../../lib/Constants';
 
 cache.onChange(change => {

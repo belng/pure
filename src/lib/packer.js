@@ -1,4 +1,6 @@
-import Know from 'know';
+/* @flow */
+
+import Know from '../submodules/know/lib/Cache';
 import EnhancedError from './EnhancedError';
 import * as models from './../models/models';
 import stringPack from 'stringpack';

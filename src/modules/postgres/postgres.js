@@ -1,6 +1,6 @@
 import jsonop from 'jsonop';
 import EnhancedError from '../../lib/EnhancedError';
-import Know from 'know';
+import Know from '../../submodules/know/lib/Cache';
 import winston from 'winston';
 import Counter from '../../lib/counter';
 import * as pg from '../../lib/pg';
