@@ -132,6 +132,7 @@ cache.onChange((changes) => {
 
 						r.map((entity) => {
 							state.entities[entity.id] = new Types[TYPE_NAMES[entity.type]](entity);
+							console.log(util.inspect(entity, {depth: null}));
 						});
 
 						const missingIds = ids.filter(itemID => !state.entities[itemID]);
@@ -182,9 +183,11 @@ bus.on('change', (changes, next) => {
 
 		winston.info('sql', sql);
 		counter.inc();
+		console.log("Inspecting the object to be inserted:", util.inspect(changes.entities, { depth: null }));
 		pg.write(config.connStr, sql, (err, results) => {
 			let i = 0;
 
+			console.log("Inspecting the results that was inserted:", util.inspect(results, { depth: null }));
 			if (err) {
 				counter.err(err);
 				return;
@@ -194,7 +197,6 @@ bus.on('change', (changes, next) => {
 				winston.info(`Response for entity: ${ids[i]}`, JSON.stringify(result.rowCount));
 
 				if (result.rowCount) {
-					// response.entities[result.rows[0].id] = result.rows[0];
 					broadcast(changes.entities[result.rows[0].id]);
 				} else {
 					const c = response.entities[ids[i]] = changes.entities[ids[i]];

@@ -43,11 +43,6 @@ export default function (entity) {
 						name: entity.name,
 						body: entity.body
 					};
-				case 'presence':
-					return {
-						$: 'presence = max(presence, &{presence})',
-						presence: entity.presence
-					};
 				case 'createtime':
 				case 'updatetime':
 				case 'roletime':
@@ -88,6 +83,11 @@ export default function (entity) {
 					};
 				case 'updatetime':
 					return `${name} = ${Date.now()}`;
+				case 'presence':
+					return {
+						$: 'presence = max(presence, &{presence})',
+						presence: entity.presence
+					};
 				case 'meta':
 				case 'params':
 				case 'data':
