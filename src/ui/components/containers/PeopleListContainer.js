@@ -7,7 +7,7 @@ import PeopleList from '../views/PeopleList';
 const PeopleListContainer = (props: any) => (
 	<Connect
 		mapSubscriptionToProps={{
-			count: {
+			data: {
 				key: {
 					slice: {
 						type: 'rel',

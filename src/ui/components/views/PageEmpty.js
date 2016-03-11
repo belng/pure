@@ -8,10 +8,15 @@ import Page from './Page';
 
 const {
 	StyleSheet,
+	View,
 	Image
 } = ReactNative;
 
 const styles = StyleSheet.create({
+	content: {
+		alignItems: 'center',
+		margin: 32
+	},
 	missing: {
 		margin: 16,
 		textAlign: 'center',
@@ -58,14 +63,16 @@ export default class PageEmpty extends Component<void, Props, void> {
 
 		return (
 			<Page {...this.props}>
-				{image ?
-					<Image source={this._getImageSource(image)} /> :
-					null
-				}
-				{label ?
-					<AppText style={styles.missing}>{label}</AppText> :
-					null
-				}
+				<View style={styles.content}>
+					{image ?
+						<Image source={this._getImageSource(image)} /> :
+						null
+					}
+					{label ?
+						<AppText style={styles.missing}>{label}</AppText> :
+						null
+					}
+				</View>
 			</Page>
 		);
 	}
