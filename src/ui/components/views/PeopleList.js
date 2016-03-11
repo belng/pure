@@ -67,7 +67,7 @@ export default class PeopleList extends Component<void, Props, State> {
 		if (data.length === 0) {
 			return <PageEmpty label='Nobody here' image='sad' />;
 		} else if (data.length === 1) {
-			switch (data[0] && data[0].type || null) {
+			switch (data[0] && data[0].type) {
 			case 'loading':
 				return <PageLoading />;
 			case 'failed':
