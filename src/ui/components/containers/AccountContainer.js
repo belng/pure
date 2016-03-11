@@ -11,13 +11,15 @@ const mapActionsToProps = {
 	signOut: store => () => store.dispatch(signOut()),
 };
 
+const mapSubscriptionToProps = {
+	user: {
+		key: 'me'
+	}
+};
+
 const AccountContainer = (props: any) => (
 	<Connect
-		mapSubscriptionToProps={{
-			user: {
-				key: 'me'
-			}
-		}}
+		mapSubscriptionToProps={mapSubscriptionToProps}
 		mapActionsToProps={mapActionsToProps}
 		passProps={props}
 		component={Account}

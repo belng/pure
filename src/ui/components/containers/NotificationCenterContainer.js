@@ -2,6 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
+import PassUserProp from '../../../modules/store/PassUserProp';
 import NotificationCenter from '../views/NotificationCenter';
 import { dismissNote } from '../../../modules/store/actions';
 
@@ -39,4 +40,4 @@ NotificationCenterContainer.propTypes = {
 	user: PropTypes.string
 };
 
-export default NotificationCenterContainer;
+export default PassUserProp(NotificationCenterContainer);

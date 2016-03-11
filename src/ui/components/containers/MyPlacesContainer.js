@@ -2,16 +2,11 @@
 
 import React from 'react';
 import Connect from '../../../modules/store/Connect';
+import PassUserProp from '../../../modules/store/PassUserProp';
 import MyPlaces from '../views/Account/MyPlaces';
 import { addPlace, removePlace } from '../../../modules/store/actions';
 
 const mapSubscriptionToProps = {
-	user: {
-		key: {
-			type: 'state',
-			path: 'user'
-		},
-	},
 	places: {
 		key: 'me',
 		transform: user => user.params && user.params.places ? user.params.places : {},
@@ -38,4 +33,4 @@ const MyPlacesContainer = (props: any) => (
 	/>
 );
 
-export default MyPlacesContainer;
+export default PassUserProp(MyPlacesContainer);

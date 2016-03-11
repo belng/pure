@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
+import PassUserProp from '../../../modules/store/PassUserProp';
 import StartDiscussion from '../views/StartDiscussion';
 import { startThread } from '../../../modules/store/actions';
 
@@ -72,25 +73,4 @@ class StartDiscussionContainer extends Component<void, Props, State> {
 	}
 }
 
-export default class StartDiscussionContainerOuter extends Component<void, { room: string }, void> {
-	static propTypes = {
-		room: PropTypes.string.isRequired,
-	};
-
-	render() {
-		return (
-			<Connect
-				mapSubscriptionToProps={{
-					user: {
-						key: {
-							type: 'state',
-							path: 'user'
-						}
-					}
-				}}
-				passProps={this.props}
-				component={StartDiscussionContainer}
-			/>
-		);
-	}
-}
+export default PassUserProp(StartDiscussionContainer);
