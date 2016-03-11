@@ -48,15 +48,16 @@ export default class GrowingTextInput extends Component<void, Props, State> {
 		style: View.propTypes.style,
 	};
 
-	constructor(props: Props) {
-		super(props);
+	state: State = {
+		value: '',
+		height: 58
+	};
 
-		this.state = {
+	componentWillMount() {
+		this.setState({
 			value: this.props.value || this.props.defaultValue || ''
-		};
+		});
 	}
-
-	state: State;
 
 	componentWillReceiveProps(nextProps: Props) {
 		this.setState({
