@@ -10,10 +10,9 @@ import { signIn, signUp, cancelSignUp, saveUser } from '../../../modules/store/a
 import type { User } from '../../../lib/schemaTypes';
 
 type Props = {
-	error: ?Error;
 	user: User;
 	pendingUser: {
-		error?: Error,
+		error?: { message: string },
 		signedIdentities: string;
 		params: {
 			[key: string]: {
@@ -80,14 +79,13 @@ class OnboardContainer extends Component<void, Props, State> {
 		const {
 			user,
 			pendingUser,
-			error,
 		} = props;
 
 		if (!pendingUser) {
 			return;
 		}
 
-		const { params } = pendingUser;
+		const { params, error } = pendingUser;
 
 		for (const provider in params) {
 			const data = params[provider];
@@ -291,9 +289,11 @@ OnboardContainer.propTypes = {
 		id: PropTypes.string
 	}),
 	pendingUser: PropTypes.shape({
-		params: PropTypes.object
+		params: PropTypes.object,
+		error: PropTypes.shape({
+			message: PropTypes.string
+		}),
 	}),
-	error: PropTypes.instanceOf(Error),
 	signIn: PropTypes.func.isRequired,
 	signUp: PropTypes.func.isRequired,
 	cancelSignUp: PropTypes.func.isRequired,
@@ -303,7 +303,11 @@ OnboardContainer.propTypes = {
 const mapActionsToProps = {
 	signIn: (store) => (provider: string, token: string) => store.dispatch(signIn(provider, token)),
 	cancelSignUp: (store) => () => store.dispatch(cancelSignUp()),
-	signUp: (store, result) => (id: string, name: string) => store.dispatch(signUp({ ...result.pendingUser, id, name })),
+	signUp: (store, result) => (id: string, name: string) => {
+		const { error, ...user } = result.pendingUser; // eslint-disable-line no-use-before-define
+
+		store.dispatch(signUp({ ...user, id, name }));
+	},
 	savePlaces: (store, result) => results => {
 		const {
 			user
@@ -333,12 +337,6 @@ const mapActionsToProps = {
 };
 
 const mapSubscriptionToProps = {
-	error: {
-		key: {
-			type: 'state',
-			path: [ 'errors', 'signup' ],
-		},
-	},
 	pendingUser: {
 		key: {
 			type: 'state',

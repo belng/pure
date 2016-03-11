@@ -97,7 +97,7 @@ export default class UserDetails extends Component<void, Props, void> {
 	};
 
 	_handleChangeNick: Function = (nick: string): void => {
-		this.props.onChangeField('nick', nick);
+		this.props.onChangeField('nick', nick.toLowerCase());
 	};
 
 	_handleChangeName: Function = (name: string): void => {
