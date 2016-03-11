@@ -72,8 +72,8 @@ type Props = {
 	submitUserDetails: Function;
 	onChangeField: Function;
 	fields: {
-		nick: { value: string; error: ?Error };
-		name: { value: string; error: ?Error };
+		nick: { value: string; error: ?string };
+		name: { value: string; error: ?string };
 		picture: { value: string; error: void };
 	};
 };
@@ -155,7 +155,7 @@ export default class UserDetails extends Component<void, Props, void> {
 
 					<OnboardError
 						hint='People on Hey, Neighbor! will know you by your username.'
-						message={nick.error ? `Username ${nick.error.message}` : name.error ? `Name ${name.error.message}` : null}
+						message={nick.error || name.error || null}
 					/>
 
 					<KeyboardSpacer />

@@ -5,6 +5,7 @@ import ReactNative from 'react-native';
 import PlacesSelectorContainer from '../../containers/PlaceSelectorContainer';
 import PlaceItem from './PlaceItem';
 import PlaceButton from './PlaceButton';
+import PlacesSelectorTip from './PlacesSelectorTip';
 import Modal from '../Modal';
 
 const {
@@ -80,6 +81,7 @@ export default class PlaceManager extends Component<void, Props, void> {
 			<PlacesSelectorContainer
 				onCancel={this._handleDismissModal}
 				onSelectPlace={place => this._handleSelectItem(type, place)}
+				renderBlankslate={() => <PlacesSelectorTip type={type} />}
 				searchHint={TYPES.filter(c => c.type === type)[0].search}
 			/>
 		);

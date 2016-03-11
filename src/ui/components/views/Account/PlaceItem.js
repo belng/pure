@@ -62,9 +62,9 @@ const styles = StyleSheet.create({
 });
 
 const ICONS = {
-	home: 'home',
+	home: 'location-city',
 	work: 'work',
-	hometown: 'location-city',
+	hometown: 'home',
 };
 
 type Props = {
