@@ -29,10 +29,10 @@ on('subscribe', options => {
 			if (id) {
 				switch (slice.type) {
 				case 'thread':
-					setItemPresence('room', slice.filter.parents_cts[0], id, 'online');
+					bus.emit('change', setItemPresence('room', slice.filter.parents_cts[0], id, 'online'));
 					break;
 				case 'text':
-					setItemPresence('thread', slice.filter.parents_cts[0], id, 'online');
+					bus.emit('change', setItemPresence('thread', slice.filter.parents_cts[0], id, 'online'));
 					break;
 				}
 				subscription.remove();
@@ -49,10 +49,10 @@ on('unsubscribe', options => {
 			if (id) {
 				switch (slice.type) {
 				case 'thread':
-					setItemPresence('room', slice.filter.parents_cts[0], id, 'offline');
+					bus.emit('change', setItemPresence('room', slice.filter.parents_cts[0], id, 'offline'));
 					break;
 				case 'text':
-					setItemPresence('thread', slice.filter.parents_cts[0], id, 'offline');
+					bus.emit('change', setItemPresence('thread', slice.filter.parents_cts[0], id, 'offline'));
 					break;
 				}
 				subscription.remove();

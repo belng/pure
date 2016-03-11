@@ -144,7 +144,6 @@ cache.onChange((changes) => {
 					});
 				}
 			} else {
-				console.log(changes.queries[key]);
 				for (const range of changes.queries[key]) {
 					pg.read(
 						config.connStr,
@@ -196,7 +195,7 @@ bus.on('change', (changes, next) => {
 
 				if (result.rowCount) {
 					// response.entities[result.rows[0].id] = result.rows[0];
-					broadcast(result.rows[0]);
+					broadcast(changes.entities[result.rows[0].id]);
 				} else {
 					const c = response.entities[ids[i]] = changes.entities[ids[i]];
 

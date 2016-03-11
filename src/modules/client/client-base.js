@@ -1,7 +1,7 @@
 /* @flow */
 
 import './polyfills/requestIdleCallback';
-// import '../presence/presence-client';
+import '../presence/presence-client';
 import '../session/session-client';
 import '../socket/socket-client';
 import '../location/location-client';
