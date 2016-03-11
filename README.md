@@ -77,4 +77,3 @@ Allows display of:
 
 ### Item/user tombstones
   - User/Room delete/rename
-
