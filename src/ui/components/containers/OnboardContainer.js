@@ -31,7 +31,7 @@ type Props = {
 type Fields = {
 	[key: string]: {
 		value: any;
-		error: ?Error
+		error: ?string
 	};
 }
 
@@ -47,6 +47,13 @@ const PAGE_USER_DETAILS = 'PAGE_USER_DETAILS';
 const PAGE_PLACES = 'PAGE_PLACES';
 const PAGE_GET_STARTED = 'PAGE_GET_STARTED';
 const PAGE_HOME = 'PAGE_HOME';
+
+const FIELD_NAMES = {
+	nick: 'Username',
+	name: 'Fullname',
+	picture: 'Profile picture',
+	places: 'Places',
+};
 
 class OnboardContainer extends Component<void, Props, State> {
 	state: State = {
@@ -104,7 +111,7 @@ class OnboardContainer extends Component<void, Props, State> {
 
 				this.setState({
 					fields: {
-						nick: { value: fields.nick.value, error },
+						nick: { value: fields.nick.value, error: error ? error.message : null },
 						name: { value: fields.name.value || data.name, error: null },
 						picture: { value: fields.picture.value || data.picture, error: null },
 						places: { value: isEmpty(fields.places) ? places : fields.places, error: null },
@@ -190,7 +197,7 @@ class OnboardContainer extends Component<void, Props, State> {
 			if (this._isFieldRequired(field) && isEmpty(item.value)) {
 				fields[field] = {
 					...item,
-					error: new Error('must be specified'),
+					error: FIELD_NAMES[field] + ' must be specified',
 				};
 			}
 		}
@@ -210,7 +217,7 @@ class OnboardContainer extends Component<void, Props, State> {
 					} catch (e) {
 						fields[field] = {
 							...item,
-							error: e,
+							error: FIELD_NAMES.nick + ' ' + e.message,
 						};
 					}
 				}
