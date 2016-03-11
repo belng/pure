@@ -194,11 +194,11 @@ export default class Account extends Component<void, Props, State> {
 		const { user } = this.props;
 
 		if (!user) {
-			return <PageLoading />;
+			return <PageEmpty label='Failed to load account' image='sad' />;
 		}
 
-		if (user === 'failed') {
-			return <PageEmpty label='Failed to load account' image='sad' />;
+		if (user && user.type === 'loading') {
+			return <PageLoading />;
 		}
 
 		return (

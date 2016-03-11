@@ -351,24 +351,28 @@ const mapSubscriptionToProps = {
 	}
 };
 
-const OnboardContainerOuter = (props: any) => (
-	<Connect
-		mapActionsToProps={mapActionsToProps}
-		mapSubscriptionToProps={props.user ? {
-			...mapSubscriptionToProps,
-			user: {
-				key: {
-					type: 'entity',
-					id: props.user,
-				},
-			},
-		} : mapSubscriptionToProps}
-		component={OnboardContainer}
-	/>
-);
+export default class OnboardContainerOuter extends Component<void, { user: ?string }, void> {
+	static propTypes = {
+		user: PropTypes.string,
+	};
 
-OnboardContainerOuter.propTypes = {
-	user: PropTypes.string,
-};
+	render() {
+		const { user } = this.props;
 
-export default OnboardContainerOuter;
+		return (
+			<Connect
+				mapActionsToProps={mapActionsToProps}
+				mapSubscriptionToProps={typeof user === 'string' ? {
+					...mapSubscriptionToProps,
+					user: {
+						key: {
+							type: 'entity',
+							id: user,
+						},
+					},
+				} : mapSubscriptionToProps}
+				component={OnboardContainer}
+			/>
+		);
+	}
+}
