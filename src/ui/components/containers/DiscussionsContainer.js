@@ -47,7 +47,8 @@ class DiscussionsContainer extends Component<void, any, SubscriptionRange> {
 								before,
 								after
 							}
-						}
+						},
+						transform: data => data.reverse(),
 					}
 				}}
 				passProps={{ ...this.props, loadMore: this._loadMore }}
