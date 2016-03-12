@@ -69,27 +69,25 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 
 			callback(LOADING_ITEMS);
 
-			let handles = [];
+			let unWatchInner;
 
-			const unWatchInner = cache.watch(options.slice, range, results => {
-				if (results.length === 1 && results[0] && results[0].type === 'loading') {
-					callback(LOADING_ITEMS);
-				} else {
-					handles.push(
-						global.requestIdleCallback(() => callback(results.arr))
-					);
-				}
+			const handle = global.requestIdleCallback(() => {
+				unWatchInner = cache.watch(options.slice, range, result => {
+					if (result.length === 1 && result[0] && result[0].type === 'loading') {
+						callback(LOADING_ITEMS);
+					} else {
+						callback(result.arr);
+					}
+				});
 			});
 
 			unWatch = () => {
-				unWatchInner();
+				if (unWatchInner) {
+					unWatchInner();
+				}
 
-				if (handles.length) {
-					for (let i = 0, l = handles.length; i < l; i++) {
-						global.cancelIdleCallback(handles[i]);
-					}
-
-					handles = [];
+				if (handle) {
+					global.cancelIdleCallback(handle);
 				}
 			};
 		} else {
