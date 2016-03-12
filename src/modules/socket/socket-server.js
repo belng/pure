@@ -61,7 +61,7 @@ bus.on('http/init', app => {
 
 						if (message.entities[id].type !== Constants.TYPE_USER) message.entities[id].presenceTime = Date.now();
 					}
-					console.log(message.entities[id].resources, message.entities[id]);
+					console.log('Adding presence: ', message.entities[id].resources, message.entities[id]);
 				}
 			}
 			function handleSetState(err) {

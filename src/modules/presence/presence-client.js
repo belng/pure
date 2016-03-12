@@ -26,14 +26,14 @@ on('subscribe', options => {
 				const room = slice.filter.parents_cts[0];
 
 				cache.getEntity(`${id}_${room}`, (err, result) => {
-					bus.emit('change', setItemPresence('room', room, id, 'online', !!result));
+					bus.emit('change', setItemPresence('room', room, id, 'online', !result));
 				});
 				break;
 			case 'text':
 				const thread = slice.filter.parents_cts[0];
 
 				cache.getEntity(`${id}_${thread}`, (err, result) => {
-					bus.emit('change', setItemPresence('thread', thread, id, 'online', !!result));
+					bus.emit('change', setItemPresence('thread', thread, id, 'online', !result));
 				});
 				break;
 			}
@@ -52,14 +52,14 @@ on('unsubscribe', options => {
 				const room = slice.filter.parents_cts[0];
 
 				cache.getEntity(`${id}_${room}`, (err, result) => {
-					bus.emit('change', setItemPresence('room', room, id, 'offline', !!result));
+					bus.emit('change', setItemPresence('room', room, id, 'offline', !result));
 				});
 				break;
 			case 'text':
 				const thread = slice.filter.parents_cts[0];
 
 				cache.getEntity(`${id}_${thread}`, (err, result) => {
-					bus.emit('change', setItemPresence('thread', thread, id, 'offline', !!result));
+					bus.emit('change', setItemPresence('thread', thread, id, 'offline', !result));
 				});
 				break;
 			}

@@ -19,6 +19,7 @@ export default function (entity) {
 		names.push('terms');
 	}
 
+	console.log("NAMES: ", names);
 	if (isRel) names.push('roletime');
 
 	// Default properties that has to be set at all times.
