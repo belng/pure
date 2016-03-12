@@ -5,7 +5,7 @@ import uid from '../../lib/uid-server';
 import notify from './../../lib/dispatch';
 import packer from './../../lib/packer';
 import * as Constants from './../../lib/Constants';
-import util from 'util';
+// import util from 'util';
 const sockets = {}, bus = core.bus;
 
 function sendError(socket, code, reason, event) {
@@ -61,13 +61,11 @@ bus.on('http/init', app => {
 
 						if (message.entities[id].type !== Constants.TYPE_USER) message.entities[id].presenceTime = Date.now();
 					}
-					console.log('Adding presence: ', message.entities[id].resources, message.entities[id]);
 				}
 			}
 			function handleSetState(err) {
 				if (err) {
 					if (message.response) {
-						winston.info(util.inspect(message, { depth: null }));
 						socket.send(packer.encode({
 							type: 'error',
 							message: message.response

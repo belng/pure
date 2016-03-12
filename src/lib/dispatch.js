@@ -1,8 +1,8 @@
 import * as pg from './pg';
 import { EventEmitter } from 'events';
 import * as Constants from './Constants';
-import util from 'util';
 import winston from 'winston';
+// import util from 'util';
 
 export default function(changes, config) {
 	const stream = new EventEmitter();
@@ -55,8 +55,6 @@ export default function(changes, config) {
 		if (query) {
 			winston.debug('Hello,  here!! trying to make a query here...', config.connStr);
 			pg.readStream(config.connStr, query).on('row', (res) => {
-				winston.debug('Res from the user:', res);
-				winston.debug('EMITTING:', key, util.inspect(e, {depth: null}));
 				stream.emit('data', {
 					entities: {
 						[key]: e
