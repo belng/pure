@@ -1,48 +1,58 @@
+/* eslint no-use-before-define: 0 */
+/* @flow */
 import { connect } from './xmpp';
 import log from 'winston';
 import { config, bus } from '../../core-server';
+// import util from 'util';
 let client;
 
-function handleUpstreamMessage (upStanza, cb) {
+
+function sendUpstreamMessage (upStanza, type, cb) {
 	const stnza =
 	`<message>
 		<gcm xmlns="google:mobile:data">
 			{
 					"to":"${upStanza.from}",
 					"message_id":"${upStanza.message_id}"
-					"message_type":"ack"
+					"message_type": "${type}"
 			}
 		</gcm>
 	</message>`;
 
-	log.info('Sending ACK message: ', stnza);
+	log.info('Sending ' + type + ' message: ', stnza);
 	client.send(stnza);
-	cb(upStanza);
+	if (cb) cb();
 }
-
 function updateUser(u) {
+	if (!u.data.sessionId && !u.data.tken) return;
 	bus.emit('change', {
 		auth: {
-			session: u.session
+			session: u.data.sessionId
 		}
 	}, (err, changes) => {
 		if (err) {
-			log.e(err);
-			return;
-		}
-		const userId = changes.response.state.user;
+			log.error('error on auth user to save token: ', err);
+			sendUpstreamMessage(u, 'NACK', connectToXMPP);
+		} else {
+			log.info('update user with token');
+			const user = changes.response.entities[changes.response.state.user];
 
-		bus.emit('change', {
-			entities: {
-				[userId]: {	params: { gcm: { [u.device]: u.token } } }
-			}
-		}, (e, c) => {
-			log.info(e, c);
-		});
+			(user.params.gcm = user.params.gcm || {})[u.data.uuid] = u.data.token;
+			bus.emit('change', {
+				entities: {
+					[user.id]: user
+				}
+			}, (e) => {
+				if (e) log.debug(e);
+				else {
+					sendUpstreamMessage(u, 'ACK');
+				}
+			});
+		}
 	});
 }
-
 function handleStanza(stanza) {
+	log.info('stanza received');
 	const st = stanza.toJSON();
 	let x;
 
@@ -53,14 +63,20 @@ function handleStanza(stanza) {
 	}
 	if (x && x.category === config.gcm.packageName) {
 		log.info('Handle upstream message: ', x);
-		handleUpstreamMessage(x, updateUser);
+		updateUser(x);
 	}
+}
+function connectToXMPP() {
+	connect((e, c) => {
+		if (e) log.debug(e);
+		else {
+			client = c;
+			log.info('XMPP client connected');
+			c.on('stanza', handleStanza);
+		}
+	});
 }
 
 if (config.gcm.senderId) {
-	connect(c => {
-		client = c;
-		log.info('XMPP client connected');
-		c.on('stanza', handleStanza);
-	});
+	connectToXMPP();
 }

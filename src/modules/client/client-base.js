@@ -7,6 +7,7 @@ import '../socket/socket-client';
 import '../location/location-client';
 import '../store/stateManager';
 import '../store/storeHelpers';
+import '../gcm/gcm-client';
 
 if (process.env.NODE_ENV !== 'production') {
 	require('../client-test/client-test');
