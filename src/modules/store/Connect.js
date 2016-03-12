@@ -135,7 +135,7 @@ export default class Connect extends Component<void, Props, State> {
 		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
 
-	render(): ?React$Element<any> {
+	render(): ?React.Element<any> {
 		const {
 			state,
 		} = this;

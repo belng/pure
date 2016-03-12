@@ -68,7 +68,7 @@ export default class KeyboardSpacer extends Component<Props, Props, State> {
 		}).start();
 	};
 
-	render(): React$Element {
+	render(): React.Element {
 		return <Animated.View style={{ height: this.state.keyboardHeightAnim }} />;
 	}
 }
