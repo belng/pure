@@ -8,7 +8,7 @@ import * as constants from '../../lib/Constants';
 import uuid from 'uuid';
 import * as pg from '../../lib/pg';
 import type { User } from './../../lib/schemaTypes';
-
+import util from 'util';
 
 // postgres mock, because jest is acting up.
 
@@ -68,6 +68,7 @@ function sendInvitations (resources, user, relRooms, ...stubsets) {
 		all = [], addable = [], removable = [],
 		change = {};
 
+	console.log("SendInvitiations:", util.inspect({user, relRooms, stubsets}, {depth: null}));
 	for (const stubset of stubsets) {
 		changedRels[stubset.rel] = true;
 
@@ -115,7 +116,7 @@ function sendInvitations (resources, user, relRooms, ...stubsets) {
 
 	pg.read(config.connStr, {
 		$: 'SELECT * FROM "rooms" WHERE identities && &{idents}',
-		idents: addable.map(a => a.iddentity)
+		idents: addable.map(a => a.identity)
 	}, (err, rooms) => {
 		if (err) { winston.error(err); return; }
 		for (let room of rooms) {

@@ -7,6 +7,8 @@ import * as pg from '../../lib/pg';
 import * as Constants from '../../lib/Constants';
 import { TABLES, TYPES, TYPE_NAMES } from '../../lib/schema';
 import queryHandler from './query';
+import presenceHandler from './presence';
+
 import entityHandler from './entity';
 import { bus, cache, config } from '../../core-server';
 import * as Types from './../../models/models';
@@ -168,7 +170,7 @@ pg.listen(config.connStr, channel, (payload) => {
 bus.on('change', (changes, next) => {
 	const counter = new Counter(), response = changes.response = changes.response || {}, ids = [];
 
-	console.log('Yo postgres, put this the db: ', util.inspect(changes, {depth: null}));
+	console.log('Yo postgres, put this in the db: ', util.inspect(changes, {depth: null}));
 	if (!response.entities) response.entities = {};
 	if (changes.source === 'postgres') {
 		next();
@@ -181,6 +183,10 @@ bus.on('change', (changes, next) => {
 		for (const id in changes.entities) {
 			ids.push(id);
 			sql.push(entityHandler(changes.entities[id]));
+			if ('presence' in changes.entities[id]) {
+				ids.push(id);
+				sql.push(presenceHandler(changes.entities[id]));
+			}
 		}
 
 		winston.info('sql', sql);
