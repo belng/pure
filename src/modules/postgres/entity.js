@@ -58,8 +58,9 @@ export default function (entity) {
 				}
 			}), ', '),
 			{
-				$: ') RETURNING *, &{type}::smallint as "type"',
-				type: entity.type
+				$: ') RETURNING &{id}::text as "id"',
+				type: entity.type,
+				id: isRel ? entity.user + '_' + entity.item : entity.id
 			}
 		], ' ');
 	} else { // UPDATE
@@ -85,7 +86,7 @@ export default function (entity) {
 					return `${name} = ${Date.now()}`;
 				case 'presence':
 					return {
-						$: 'presence = max(presence, &{presence})',
+						$: 'presence = GREATEST(presence, &{presence}::smallint)',
 						presence: entity.presence
 					};
 				case 'meta':

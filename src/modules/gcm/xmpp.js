@@ -27,17 +27,21 @@ function onStanza (s) {
 		x = JSON.parse(st.children[0].children[0]);
 	}
 
-	if (x.message_type === 'nack') {
+	if (x && x.message_type === 'nack') {
 		setTimeout(gcm, backOff * 1000);
 		backOff *= 2;
 		if (backOff > 128) backOff = 128;
 	}
 }
 
-export function connect (cb) {
+export function connect (cb: Function) {
 	log.info('connecting.....');
-	client = new Client(options);
-	cb(client);
+	try {
+		client = new Client(options);
+		cb(null, client);
+	} catch (e) {
+		cb(e, null);
+	}
 }
 
 function onOnline (d) {
@@ -51,10 +55,13 @@ function onError(e) {
 	log.error('error: ', e);
 }
 
-export default function gcm (note) {
+export default function gcm (note: Object) {
 	stanza = note;
-	connect(() => {
-		log.info('XMPP client connetced.');
+	connect((err) => {
+		if (err) log.debug(err);
+		else {
+			log.info('XMPP client connetced.');
+		}
 	});
 
 	client.on('online', onOnline);

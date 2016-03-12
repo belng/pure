@@ -7,6 +7,7 @@ import * as place from './place';
 import * as constants from '../../lib/Constants';
 import uuid from 'uuid';
 import * as pg from '../../lib/pg';
+import type { User } from './../../lib/schemaTypes';
 
 
 // postgres mock, because jest is acting up.
@@ -42,13 +43,14 @@ function addRooms(change, addable) {
 	}
 }
 
-function addRels(change, user, addable) {
+function addRels(change, user:any, resources, addable) {
 	for (const stub of addable) {
 		const rel = new RoomRel({
 			user: user.id,
 			item: stub.id,
 			roles: [ ...stub.rels, constants.ROLE_FOLLOWER ],
-			create: true
+			create: true,
+			resources
 		});
 
 		change[rel.id] = rel;
@@ -61,7 +63,7 @@ function removeRels(change, removable) {
 	}
 }
 
-function sendInvitations ([ user, relRooms, ...stubsets ]) {
+function sendInvitations (resources, user, relRooms, ...stubsets) {
 	const stubs = {}, changedRels = {},
 		all = [], addable = [], removable = [],
 		change = {};
@@ -127,10 +129,10 @@ function sendInvitations ([ user, relRooms, ...stubsets ]) {
 		}
 
 		addRooms(change, addable);
-		addRels(change, user, addable);
+		addRels(change, user, resources, addable);
 		removeRels(change, removable);
 
-		winston.debug("BELONG", change);
+		winston.debug('BELONG', change);
 
 		bus.emit('change', { entities: change, source: 'belong' });
 	});
@@ -142,53 +144,59 @@ bus.on('change', change => {
 	the change to continue immediately and emit a new change when the
 	work is complete. */
 
-	if (change.entities) { for (const id in change.entities) {
-		const user = change.entities[id],
-			promises = [ user ];
+	if (change.entities) {
+		for (const id in change.entities) {
+			const user:User = change.entities[id],
+				promises = [];
 
-		if (
-			user.type !== constants.TYPE_USER ||
-			!user.params || !user.params.places
-		) { continue; }
+			if (
+				user.type !== constants.TYPE_USER ||
+				!user.params || !user.params.places
+			) { continue; }
 
-		let needsInvitations = false;
+			let needsInvitations = false;
 
-		if (user.params.places) {
-			const { home, work, hometown } = user.params.places;
+			if (user.params.places) {
+				const { home, work, hometown } = user.params.places;
 
-			if (home && home.id) {
-				promises.push(place.getStubset(home.id, constants.ROLE_HOME));
-				needsInvitations = true;
+				if (home && home.id) {
+					promises.push(place.getStubset(home.id, constants.ROLE_HOME));
+					needsInvitations = true;
+				}
+
+				if (work && work.id) {
+					promises.push(place.getStubset(work.id, constants.ROLE_HOME));
+					needsInvitations = true;
+				}
+
+				if (hometown && hometown.id) {
+					promises.push(place.getStubset(hometown.id, constants.ROLE_HOME));
+					needsInvitations = true;
+				}
 			}
 
-			if (work && work.id) {
-				promises.push(place.getStubset(work.id, constants.ROLE_HOME));
-				needsInvitations = true;
-			}
+			if (!needsInvitations) { return; }
 
-			if (hometown && hometown.id) {
-				promises.push(place.getStubset(hometown.id, constants.ROLE_HOME));
-				needsInvitations = true;
-			}
-		}
-
-		if (!needsInvitations) { return; }
-
-		/* Fetch the current rooms of this user. */
-		promises.splice(1, 0, new Promise((resolve, reject) => {
-			cache.query({
-				type: 'rel',
-				link: { room: 'item' },
-				filter: { user: id, roles_cts: [ constants.ROLE_FOLLOWER ] },
-				order: 'roleTime'
-			}, [ -Infinity, Infinity ], (err, results) => {
-				if (err) { reject(err); return; }
-				resolve(results);
+			/* Fetch the current rooms of this user. */
+			const currentRels = new Promise((resolve, reject) => {
+				cache.query({
+					type: 'rel',
+					link: { room: 'item' },
+					filter: { user: id, roles_cts: [ constants.ROLE_FOLLOWER ] },
+					order: 'roleTime'
+				}, [ -Infinity, Infinity ], (err, results) => {
+					if (err) { reject(err); return; }
+					resolve(results);
+				});
 			});
-		}));
 
-		Promise.all(promises)
-		.then(sendInvitations)
-		.catch(err => winston.error(err));
-	} }
+			const resource = change && change.auth && change.auth.resource;
+
+			Promise.all([ currentRels, ...promises ])
+			.then((res) => sendInvitations({
+				[resource]: constants.PRESENCE_FOREGROUND
+			}, user, ...res))
+			.catch(err => winston.error(err));
+		}
+	}
 });

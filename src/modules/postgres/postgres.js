@@ -30,6 +30,7 @@ when tableoid = 'users'::regclass then ${Constants.TYPE_USER} \
 end as type`;
 
 function broadcast (entity) {
+	console.log('broadcasting entity: ', util.inspect(entity));
 	pg.notify(config.connStr, channel, entity);
 }
 
@@ -167,6 +168,7 @@ pg.listen(config.connStr, channel, (payload) => {
 bus.on('change', (changes, next) => {
 	const counter = new Counter(), response = changes.response = changes.response || {}, ids = [];
 
+	console.log('Yo postgres, put this the db: ', util.inspect(changes, {depth: null}));
 	if (!response.entities) response.entities = {};
 	if (changes.source === 'postgres') {
 		next();
@@ -183,11 +185,11 @@ bus.on('change', (changes, next) => {
 
 		winston.info('sql', sql);
 		counter.inc();
-		console.log("Inspecting the object to be inserted:", util.inspect(changes.entities, { depth: null }));
+		// console.log("Inspecting the object to be inserted:", util.inspect(changes.entities, { depth: null }));
 		pg.write(config.connStr, sql, (err, results) => {
 			let i = 0;
 
-			console.log("Inspecting the results that was inserted:", util.inspect(results, { depth: null }));
+			// console.log("Inspecting the results that was inserted:", util.inspect(results, { depth: null }));
 			if (err) {
 				counter.err(err);
 				return;
@@ -197,6 +199,7 @@ bus.on('change', (changes, next) => {
 				winston.info(`Response for entity: ${ids[i]}`, JSON.stringify(result.rowCount));
 
 				if (result.rowCount) {
+					if (changes.entities[result.rows[0].id]) delete changes.entities[result.rows[0].id].create;
 					broadcast(changes.entities[result.rows[0].id]);
 				} else {
 					const c = response.entities[ids[i]] = changes.entities[ids[i]];

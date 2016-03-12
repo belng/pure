@@ -1,5 +1,4 @@
 package io.scrollback.neighborhoods.modules.gcm;
-
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
