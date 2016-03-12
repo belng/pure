@@ -19,8 +19,6 @@ export default function (entity) {
 		names.push('terms');
 	}
 
-	console.log("NAMES: ", names);
-
 	// Default properties that has to be set at all times.
 	if (ITEM_TYPES.indexOf(entity.type) >= 0 || TYPES.TYPE_USER) {
 		if (entity.create) names.push('createtime');
@@ -95,7 +93,7 @@ export default function (entity) {
 					return {
 						$: `"${name}" = jsonop("${name}"::jsonb, &{${name}}::jsonb, &{${name}_op}::jsonb)`,
 						[name]: entity[name],
-						[name + '_op']: ops[name] || {}
+						[name + '_op']: ops[name] || null
 					};
 				default:
 					return {

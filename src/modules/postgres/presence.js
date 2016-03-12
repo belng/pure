@@ -28,8 +28,6 @@ function selectSubQuery(entity, isRel) {
 export default function(entity) {
 	const isRel = (RELATION_TYPES.indexOf(entity.type) >= 0);
 
-	console.log("Updating user presence:");
-
 	if (!entity.id && !isRel) return '';
 
 	return pg.cat([

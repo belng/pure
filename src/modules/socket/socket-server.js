@@ -28,7 +28,7 @@ bus.on('http/init', app => {
 		sockets[resourceId] = socket;
 		socket.on('close', () => {
 			bus.emit('presence/offline', {
-				resourceId
+				resource: resourceId
 			});
 			delete sockets[resourceId];
 		});
