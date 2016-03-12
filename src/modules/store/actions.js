@@ -26,6 +26,14 @@ export const signUp = (user: User): Object => ({
 	}
 });
 
+export const clearSignUpError = (): Object => ({
+	state: {
+		signup: {
+			error: null,
+		},
+	}
+});
+
 export const cancelSignUp = (): Object => ({
 	state: {
 		signup: { __op__: 'delete' },
