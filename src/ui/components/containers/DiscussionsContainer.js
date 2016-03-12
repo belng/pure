@@ -2,8 +2,11 @@
 
 import React, { Component, PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
+import PassUserProp from '../../../modules/store/PassUserProp';
 import Discussions from '../views/Discussions';
 import type { SubscriptionRange } from '../../../modules/store/ConnectTypes';
+
+const transformThreads = data => data.reverse();
 
 class DiscussionsContainer extends Component<void, any, SubscriptionRange> {
 	static propTypes = {
@@ -47,7 +50,8 @@ class DiscussionsContainer extends Component<void, any, SubscriptionRange> {
 								before,
 								after
 							}
-						}
+						},
+						transform: transformThreads,
 					}
 				}}
 				passProps={{ ...this.props, loadMore: this._loadMore }}
@@ -57,25 +61,4 @@ class DiscussionsContainer extends Component<void, any, SubscriptionRange> {
 	}
 }
 
-export default class DiscussionsContainerOuter extends Component<void, { room: string }, void> {
-	static propTypes = {
-		room: PropTypes.string.isRequired,
-	};
-
-	render() {
-		return (
-			<Connect
-				mapSubscriptionToProps={{
-					user: {
-						key: {
-							type: 'state',
-							path: 'user'
-						}
-					}
-				}}
-				passProps={this.props}
-				component={DiscussionsContainer}
-			/>
-		);
-	}
-}
+export default PassUserProp(DiscussionsContainer);

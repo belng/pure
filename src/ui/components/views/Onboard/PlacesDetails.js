@@ -1,19 +1,8 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import ReactNative from 'react-native';
+import PlacesSelectorTip from '../Account/PlacesSelectorTip';
 import PlacesSelectorContainer from '../../containers/PlaceSelectorContainer';
-
-const {
-	StyleSheet,
-	View,
-} = ReactNative;
-
-const styles = StyleSheet.create({
-	blankslate: {
-		flex: 1,
-	}
-});
 
 type Props = {
 	onChangeField: (type: string, value: { [key: string]: string }) => void;
@@ -32,7 +21,7 @@ export default class PlacesDetails extends Component<void, Props, void> {
 		setTimeout(() => this.props.submitPlaceDetails(), 100);
 	};
 
-	_renderBlankslate: Function = () => <View style={styles.blankslate} />;
+	_renderBlankslate: Function = () => <PlacesSelectorTip type='home' />;
 
 	render() {
 		return (

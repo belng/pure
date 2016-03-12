@@ -2,7 +2,8 @@
 
 import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
-import Dummy from '../views/Dummy';
+import PassUserProp from '../../../modules/store/PassUserProp';
+import NotificationCenter from '../views/NotificationCenter';
 import { dismissNote } from '../../../modules/store/actions';
 
 const mapActionsToProps = {
@@ -12,7 +13,7 @@ const mapActionsToProps = {
 const NotificationCenterContainer = (props: any) => (
 	<Connect
 		mapSubscriptionToProps={{
-			count: {
+			data: {
 				key: {
 					slice: {
 						type: 'note',
@@ -22,7 +23,7 @@ const NotificationCenterContainer = (props: any) => (
 						order: 'eventTime'
 					},
 					range: {
-						start: null,
+						start: Infinity,
 						before: 100,
 						after: 0
 					}
@@ -31,7 +32,7 @@ const NotificationCenterContainer = (props: any) => (
 		}}
 		mapActionsToProps={mapActionsToProps}
 		passProps={props}
-		component={Dummy}
+		component={NotificationCenter}
 	/>
 );
 
@@ -39,4 +40,4 @@ NotificationCenterContainer.propTypes = {
 	user: PropTypes.string
 };
 
-export default NotificationCenterContainer;
+export default PassUserProp(NotificationCenterContainer);

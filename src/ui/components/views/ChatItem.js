@@ -12,6 +12,7 @@ import Icon from './Icon';
 import Time from './Time';
 import { parseURLs } from '../../../lib/URL';
 import { TAG_POST_HIDDEN } from '../../../lib/Constants';
+import type { Item } from '../../../lib/schemaTypes';
 
 const {
 	Clipboard,
@@ -62,7 +63,7 @@ const styles = StyleSheet.create({
 	},
 	avatar: {
 		position: 'absolute',
-		top: 0,
+		bottom: 0,
 		left: -36,
 		alignSelf: 'flex-end'
 	},
@@ -91,27 +92,20 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	text: {
-		body: string,
-		creator: string,
-		createTime: number,
-		meta: ?Object,
-	},
-	previousText: {
-		body: string,
-		creator: string,
-		createTime: number,
-	},
-	user: string,
-	quoteMessage: Function,
-	replyToMessage: Function,
-	// isUserAdmin: boolean,
-	// isCreatorBanned: boolean,
-	hideText: Function,
-	unhideText: Function,
-	banUser: Function,
-	unbanUser: Function,
-	style?: any,
+	text: Item;
+	previousText: Item;
+	isFirst: boolean;
+	isLast: boolean;
+	user: string;
+	quoteMessage: Function;
+	replyToMessage: Function;
+	// isUserAdmin: boolean;
+	// isCreatorBanned: boolean;
+	hideText: Function;
+	unhideText: Function;
+	banUser: Function;
+	unbanUser: Function;
+	style?: any;
 };
 
 export default class ChatItem extends Component<void, Props, void> {
@@ -127,6 +121,8 @@ export default class ChatItem extends Component<void, Props, void> {
 			creator: PropTypes.string.isRequired,
 			createTime: PropTypes.number.isRequired,
 		}),
+		isFirst: PropTypes.bool,
+		isLast: PropTypes.bool,
 		user: PropTypes.string.isRequired,
 		quoteMessage: PropTypes.func.isRequired,
 		replyToMessage: PropTypes.func.isRequired,
@@ -168,7 +164,7 @@ export default class ChatItem extends Component<void, Props, void> {
 		}
 
 		if (this.props.isUserAdmin) {
-			if (this.props.hidden) {
+			if (text.tags && text.tags.indexOf(TAG_POST_HIDDEN) > -1) {
 				menu['Unhide message'] = () => this.props.unhideText();
 			} else {
 				menu['Hide message'] = () => this.props.hideText();
@@ -187,7 +183,12 @@ export default class ChatItem extends Component<void, Props, void> {
 	};
 
 	render() {
-		const { text, previousText, user } = this.props;
+		const {
+			text,
+			previousText,
+			isLast,
+			user
+		} = this.props;
 
 		const hidden = text.tags && text.tags.indexOf(TAG_POST_HIDDEN) > -1;
 		const received = text.creator !== user;
@@ -218,9 +219,9 @@ export default class ChatItem extends Component<void, Props, void> {
 		}
 
 		let showAuthor = received,
-			showTime = false;
+			showTime = isLast;
 
-		if (previousText) {
+		if (!showTime && previousText) {
 			if (received) {
 				showAuthor = text.creator !== previousText.creator;
 			}

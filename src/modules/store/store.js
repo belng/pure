@@ -3,11 +3,16 @@
 import { bus, cache } from '../../core-client';
 import type { SubscriptionOptions, Subscription } from './ConnectTypes';
 
+const LOADING = Object.freeze({ type: 'loading' });
+const LOADING_ITEMS = Object.freeze([ LOADING ]);
+
 export const subscribe = (options: SubscriptionOptions, callback: Function): Subscription => {
 	let unWatch;
 
 	switch (options.type) {
 	case 'entity':
+		callback(LOADING);
+
 		if (typeof options.id !== 'string') {
 			throw new TypeError(`Invalid 'id' passed to store.subscribe::entity in ${options.source}`);
 		}
@@ -19,9 +24,14 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 			throw new TypeError(`Invalid 'path' passed to store.subscribe::state in ${options.source}`);
 		}
 
-		unWatch = cache.watchState(typeof options.path === 'string' ? [ options.path ] : options.path, callback);
+		unWatch = cache.watchState(
+			typeof options.path === 'string' ? [ options.path ] : options.path,
+			data => callback(data && data.__op__ === 'delete' ? null : data)
+		);
 		break;
 	case 'me':
+		callback(LOADING);
+
 		let unWatchMe;
 
 		const unWatchUser = cache.watchState([ 'user' ], id => {
@@ -57,7 +67,21 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 				throw new TypeError(`Range was not passed to store.subscribe in ${options.source}`);
 			}
 
-			unWatch = cache.watch(options.slice, range, results => callback(results.arr));
+			callback(LOADING_ITEMS);
+
+			let handle;
+
+			const unWatchInner = cache.watch(options.slice, range, results => (
+				handle = global.requestIdleCallback(() => callback(results.arr)))
+			);
+
+			unWatch = () => {
+				unWatchInner();
+
+				if (handle) {
+					global.cancelIdleCallback(handle);
+				}
+			};
 		} else {
 			throw new TypeError(`Invalid options passed to store.subscribe in ${options.source}`);
 		}

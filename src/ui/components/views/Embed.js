@@ -3,10 +3,11 @@
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import shallowEqual from 'shallowequal';
-import oembed from '../../../modules/oembed/oembed';
 import EmbedThumbnail from './EmbedThumbnail';
 import EmbedTitle from './EmbedTitle';
 import EmbedSummary from './EmbedSummary';
+import oEmbed from '../../../modules/oembed/oEmbed';
+import type { Embed as EmbedData } from '../../../modules/oembed/oEmbedTypes';
 
 const {
 	Linking,
@@ -16,17 +17,6 @@ const {
 
 type DefaultProps = {
 	openOnPress: boolean;
-}
-
-type EmbedData = {
-	title?: string;
-	description?: string;
-	height?: number;
-	width?: number;
-	thumbnail_height?: number;
-	thumbnail_width?: number;
-	thumbnail_url?: string;
-	type: string;
 }
 
 type Props = {
@@ -102,7 +92,7 @@ export default class Embed extends Component<DefaultProps, Props, State> {
 
 	_fetchEmbedData: Function = async url => {
 		try {
-			const embed = await oembed(url);
+			const embed = await oEmbed(url);
 
 			if (this._mounted) {
 				this.setState({

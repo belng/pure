@@ -4,6 +4,7 @@ import * as core from '../../core-server';
 import uid from '../../lib/uid-server';
 import notify from './../../lib/dispatch';
 import packer from './../../lib/packer';
+import * as Constants from './../../lib/Constants';
 const sockets = {}, bus = core.bus;
 
 function sendError(socket, code, reason, event) {
@@ -53,10 +54,13 @@ bus.on('http/init', app => {
 
 			if (message.entities) {
 				for (const id in message.entities) {
-					if (message.entities[id].presence) {
+					if (typeof message.entities[id].presence === 'number') {
 						message.entities[id].resources = message.entities[id].resources || {};
 						message.entities[id].resources[resourceId] = message.entities[id].presence;
+
+						if (message.entities[id].type !== Constants.TYPE_USER) message.entities[id].presenceTime = Date.now();
 					}
+					console.log(message.entities[id].resources, message.entities[id]);
 				}
 			}
 			function handleSetState(err) {
@@ -97,9 +101,17 @@ bus.on('http/init', app => {
 
 bus.on('postchange', changes => {
 	notify(changes, core.config).on('data', (change, rel) => {
+		if (!rel || !rel.resources || typeof rel.resources !== 'object') return;
 		Object.keys(rel.resources).forEach(e => {
 			if (!sockets[e]) return;
-			sockets[e].send(packer.encode(change));
+
+			if (rel.resources[e] > Constants.PRESENCE_NONE) {
+				sockets[e].send(packer.encode({
+					type: 'change',
+					message: change,
+					fun: 'WOOOW, Hoooo... dispatch module is working :-p'
+				}));
+			}
 		});
 	});
 });

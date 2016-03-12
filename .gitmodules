@@ -1,0 +1,3 @@
+[submodule "src/submodules/know"]
+	path = src/submodules/know
+	url = git@github.com:scrollback/know.git

@@ -4,8 +4,10 @@ import type { User } from '../../lib/schemaTypes';
 import UserModel from '../../models/user';
 import ThreadModel from '../../models/thread';
 import TextModel from '../../models/text';
+import RoomRelModel from '../../models/roomrel';
+import ThreadRelModel from '../../models/threadrel';
 import uuid from 'uuid';
-import { PRESENCE_FOREGROUND, PRESENCE_BACKGROUND } from '../../lib/Constants';
+import { PRESENCE_FOREGROUND } from '../../lib/Constants';
 
 /*
  * User related actions
@@ -20,23 +22,26 @@ export const signIn = (provider: string, accessToken: string): Object => ({
 
 export const signUp = (user: User): Object => ({
 	auth: {
-		signup: new UserModel(user)
+		signup: new UserModel({ ...user, presence: PRESENCE_FOREGROUND })
 	}
 });
 
 export const cancelSignUp = (): Object => ({
 	state: {
-		signup: null
+		signup: { __op__: 'delete' },
 	}
 });
 
 export const signOut = (): Object => ({
-
+	state: {
+		session: { __op__: 'delete' },
+		user: { __op__: 'delete' },
+	}
 });
 
 export const saveUser = (user: User): Object => ({
 	entities: {
-		[user.id]: new UserModel(user)
+		[user.id]: new UserModel({ ...user, presence: PRESENCE_FOREGROUND })
 	}
 });
 
@@ -48,7 +53,8 @@ export const addPlace = (user: string, type: string, place: Object): Object => (
 				places: {
 					[type]: place
 				}
-			}
+			},
+			presence: PRESENCE_FOREGROUND
 		})
 	}
 });
@@ -63,7 +69,8 @@ export const removePlace = (user: string, type: string): Object => ({
 						[type]: 'delete'
 					}
 				}
-			}
+			},
+			presence: PRESENCE_FOREGROUND
 		})
 	}
 });
@@ -135,7 +142,36 @@ export const setPresence = (id: string, status: 'online' | 'offline'): Object =>
 	entities: {
 		[id]: new UserModel({
 			id,
-			presence: status === 'online' ? PRESENCE_FOREGROUND : PRESENCE_BACKGROUND
+			presence: status === 'online' ? PRESENCE_FOREGROUND : 'none'
 		})
 	}
 });
+
+
+export const setItemPresence = (
+	type: string, item: string, user: string, status: 'online' | 'offline', create: boolean
+): Object => {
+	const rel = {
+		item,
+		user,
+		create,
+		presence: status === 'online' ? PRESENCE_FOREGROUND : 'none'
+	};
+
+	switch (type) {
+	case 'room':
+		return {
+			entities: {
+				[`${user}_${item}`]: new RoomRelModel(rel)
+			}
+		};
+	case 'thread':
+		return {
+			entities: {
+				[`${user}_${item}`]: new ThreadRelModel(rel)
+			}
+		};
+	}
+
+	return {};
+};

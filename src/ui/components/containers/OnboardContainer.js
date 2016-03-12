@@ -10,10 +10,9 @@ import { signIn, signUp, cancelSignUp, saveUser } from '../../../modules/store/a
 import type { User } from '../../../lib/schemaTypes';
 
 type Props = {
-	error: ?Error;
 	user: User;
 	pendingUser: {
-		error?: Error,
+		error?: { message: string },
 		signedIdentities: string;
 		params: {
 			[key: string]: {
@@ -31,7 +30,7 @@ type Props = {
 type Fields = {
 	[key: string]: {
 		value: any;
-		error: ?Error
+		error: ?string
 	};
 }
 
@@ -47,6 +46,13 @@ const PAGE_USER_DETAILS = 'PAGE_USER_DETAILS';
 const PAGE_PLACES = 'PAGE_PLACES';
 const PAGE_GET_STARTED = 'PAGE_GET_STARTED';
 const PAGE_HOME = 'PAGE_HOME';
+
+const FIELD_NAMES = {
+	nick: 'Username',
+	name: 'Fullname',
+	picture: 'Profile picture',
+	places: 'Places',
+};
 
 class OnboardContainer extends Component<void, Props, State> {
 	state: State = {
@@ -73,14 +79,13 @@ class OnboardContainer extends Component<void, Props, State> {
 		const {
 			user,
 			pendingUser,
-			error,
 		} = props;
 
 		if (!pendingUser) {
 			return;
 		}
 
-		const { params } = pendingUser;
+		const { params, error } = pendingUser;
 
 		for (const provider in params) {
 			const data = params[provider];
@@ -104,7 +109,7 @@ class OnboardContainer extends Component<void, Props, State> {
 
 				this.setState({
 					fields: {
-						nick: { value: fields.nick.value, error },
+						nick: { value: fields.nick.value, error: error ? error.message : null },
 						name: { value: fields.name.value || data.name, error: null },
 						picture: { value: fields.picture.value || data.picture, error: null },
 						places: { value: isEmpty(fields.places) ? places : fields.places, error: null },
@@ -190,7 +195,7 @@ class OnboardContainer extends Component<void, Props, State> {
 			if (this._isFieldRequired(field) && isEmpty(item.value)) {
 				fields[field] = {
 					...item,
-					error: new Error('must be specified'),
+					error: FIELD_NAMES[field] + ' must be specified',
 				};
 			}
 		}
@@ -210,7 +215,7 @@ class OnboardContainer extends Component<void, Props, State> {
 					} catch (e) {
 						fields[field] = {
 							...item,
-							error: e,
+							error: FIELD_NAMES.nick + ' ' + e.message,
 						};
 					}
 				}
@@ -284,9 +289,11 @@ OnboardContainer.propTypes = {
 		id: PropTypes.string
 	}),
 	pendingUser: PropTypes.shape({
-		params: PropTypes.object
+		params: PropTypes.object,
+		error: PropTypes.shape({
+			message: PropTypes.string
+		}),
 	}),
-	error: PropTypes.instanceOf(Error),
 	signIn: PropTypes.func.isRequired,
 	signUp: PropTypes.func.isRequired,
 	cancelSignUp: PropTypes.func.isRequired,
@@ -296,7 +303,11 @@ OnboardContainer.propTypes = {
 const mapActionsToProps = {
 	signIn: (store) => (provider: string, token: string) => store.dispatch(signIn(provider, token)),
 	cancelSignUp: (store) => () => store.dispatch(cancelSignUp()),
-	signUp: (store, result) => (id: string, name: string) => store.dispatch(signUp({ ...result.pendingUser, id, name })),
+	signUp: (store, result) => (id: string, name: string) => {
+		const { error, ...user } = result.pendingUser; // eslint-disable-line no-use-before-define
+
+		store.dispatch(signUp({ ...user, id, name }));
+	},
 	savePlaces: (store, result) => results => {
 		const {
 			user
@@ -326,12 +337,6 @@ const mapActionsToProps = {
 };
 
 const mapSubscriptionToProps = {
-	error: {
-		key: {
-			type: 'state',
-			path: [ 'errors', 'signup' ],
-		},
-	},
 	pendingUser: {
 		key: {
 			type: 'state',
@@ -346,24 +351,28 @@ const mapSubscriptionToProps = {
 	}
 };
 
-const OnboardContainerOuter = (props: any) => (
-	<Connect
-		mapActionsToProps={mapActionsToProps}
-		mapSubscriptionToProps={props.user ? {
-			...mapSubscriptionToProps,
-			user: {
-				key: {
-					type: 'entity',
-					id: props.user,
-				},
-			},
-		} : mapSubscriptionToProps}
-		component={OnboardContainer}
-	/>
-);
+export default class OnboardContainerOuter extends Component<void, { user: ?string }, void> {
+	static propTypes = {
+		user: PropTypes.string,
+	};
 
-OnboardContainerOuter.propTypes = {
-	user: PropTypes.string,
-};
+	render() {
+		const { user } = this.props;
 
-export default OnboardContainerOuter;
+		return (
+			<Connect
+				mapActionsToProps={mapActionsToProps}
+				mapSubscriptionToProps={typeof user === 'string' ? {
+					...mapSubscriptionToProps,
+					user: {
+						key: {
+							type: 'entity',
+							id: user,
+						},
+					},
+				} : mapSubscriptionToProps}
+				component={OnboardContainer}
+			/>
+		);
+	}
+}

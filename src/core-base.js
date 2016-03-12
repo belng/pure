@@ -1,7 +1,7 @@
 /* @flow */
 
 import Ebus from 'ebus';
-import Know from 'know';
+import Know from './submodules/know/lib/Cache';
 import * as Constants from './lib/Constants';
 
 export type Bus = {
@@ -16,6 +16,7 @@ export { Constants };
 export const bus: Bus = new Ebus();
 export const cache = new Know({
 	is: (entity, type) => {
+		if (!entity) return false;
 		switch (type) {
 		case 'thread':
 			return entity.type === Constants.TYPE_THREAD;

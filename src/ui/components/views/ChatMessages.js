@@ -30,7 +30,12 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	data: Array<Item | { type: 'loading' } | { type: 'failed' }>;
+	data: Array<{
+		text: Item;
+		previousText: Item;
+		isFirst: boolean;
+		isLast: boolean;
+	} | { type: 'loading' } | { type: 'failed' }>;
 	user: string;
 	loadMore: (count: number) => void;
 }
@@ -86,6 +91,8 @@ export default class ChatMessages extends Component {
 			<ChatItemContainer
 				key={text.id}
 				text={text}
+				isFirst={item.isFirst}
+				isLast={item.isLast}
 				previousText={previousText}
 				replyToMessage={this.props.replyToMessage}
 				quoteMessage={this.props.quoteMessage}

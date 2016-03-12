@@ -5,6 +5,7 @@ import ReactNative from 'react-native';
 import shallowEqual from 'shallowequal';
 import Icon from './Icon';
 import Colors from '../../Colors';
+import type { Embed } from '../../../modules/oembed/oEmbedTypes';
 
 const {
 	StyleSheet,
@@ -34,14 +35,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	embed: {
-		type: string;
-		height?: number;
-		width?: number;
-		thumbnail_height?: number;
-		thumbnail_width?: number;
-		thumbnail_url?: string;
-	};
+	embed: Embed;
 	style?: any;
 }
 

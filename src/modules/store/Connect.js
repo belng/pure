@@ -3,6 +3,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import shallowEqual from 'shallowequal';
+import isEqual from 'lodash/isEqual';
 import storeShape from './storeShape';
 
 import type {
@@ -20,7 +21,6 @@ type Props = {
 
 type State = {
 	[key: string]: any;
-	__defer: boolean;
 }
 
 export default class Connect extends Component<void, Props, State> {
@@ -35,9 +35,7 @@ export default class Connect extends Component<void, Props, State> {
 		component: PropTypes.any.isRequired
 	};
 
-	state: State = {
-		__defer: true
-	};
+	state: State = {};
 
 	_mounted: boolean = false;
 	_subscriptions: Array<Subscription> = [];
@@ -106,34 +104,14 @@ export default class Connect extends Component<void, Props, State> {
 	};
 
 	_updateListener: Function = (name, transform) => {
-		const {
-			mapSubscriptionToProps
-		} = this.props;
-
-		const len = mapSubscriptionToProps ? Object.keys(mapSubscriptionToProps).length : 0;
-
 		return data => {
 			if (this._mounted) {
 				this.setState({
-					[name]: transform ? transform(data) : data,
-					__defer: this.state.__defer ? (Object.keys(this.state).length - 1) === len : false
+					[name]: transform ? transform(data) : data
 				});
 			}
 		};
 	};
-
-	_setInitialState: Function = () => {
-		const {
-			mapSubscriptionToProps
-		} = this.props;
-
-
-		this.setState({ __defer: !!mapSubscriptionToProps });
-	};
-
-	componentWillMount() {
-		this._setInitialState();
-	}
 
 	componentDidMount() {
 		this._mounted = true;
@@ -141,7 +119,7 @@ export default class Connect extends Component<void, Props, State> {
 	}
 
 	componentWillReceiveProps(nextProps: Props) {
-		if (shallowEqual(this.props, nextProps)) {
+		if (isEqual(this.props.mapSubscriptionToProps, nextProps.mapSubscriptionToProps)) {
 			return;
 		}
 
@@ -158,23 +136,24 @@ export default class Connect extends Component<void, Props, State> {
 	}
 
 	render(): ?React$Element<any> {
-		if (this.state.__defer) {
-			return null;
-		}
-
-		const {
-			store
-		} = this.context;
-
 		const {
 			state
 		} = this;
 
 		const {
 			mapActionsToProps,
+			mapSubscriptionToProps,
 			passProps,
 			component: ChildComponent,
 		} = this.props;
+
+		if (state && mapSubscriptionToProps && Object.keys(state).length !== Object.keys(mapSubscriptionToProps).length) {
+			return null;
+		}
+
+		const {
+			store
+		} = this.context;
 
 		const actions = {};
 

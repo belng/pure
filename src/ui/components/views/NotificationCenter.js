@@ -65,23 +65,15 @@ export default class NotificationCenter extends Component<void, Props, State> {
 
 		if (data.length === 0) {
 			return <PageEmpty label='No new notifications' image='cool' />;
+		} else if (data.length === 1 && data[0].type === 'loading') {
+			return <PageLoading />;
+		} else {
+			return (
+				<ListView
+					dataSource={this.state.dataSource}
+					renderRow={this._renderRow}
+				/>
+			);
 		}
-
-		if (data.length === 1) {
-			if (this.props.data[0] === 'missing') {
-				return <PageLoading />;
-			}
-
-			if (data[0] === 'failed') {
-				return <PageEmpty label='Failed to load notifications' image='sad' />;
-			}
-		}
-
-		return (
-			<ListView
-				dataSource={this.state.dataSource}
-				renderRow={this._renderRow}
-			/>
-		);
 	}
 }
