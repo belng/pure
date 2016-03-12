@@ -4,14 +4,16 @@ import { bus, cache } from '../../core-client';
 import { subscribe, on } from '../store/store';
 import { setPresence, setItemPresence } from '../store/actions';
 
-subscribe({ type: 'state', path: 'connectionStatus', source: 'presence' }, status => {
-	if (status === 'online') {
-		cache.getState([ 'user' ], id => {
-			if (id) {
-				bus.emit('change', setPresence(id, 'online'));
-			}
-		});
-	}
+subscribe({ type: 'state', path: 'session', source: 'presence' }, () => {
+	cache.getState([ 'user' ], id => {
+		if (id) {
+			bus.emit('change', setPresence(id, 'online'));
+		}
+	});
+});
+
+subscribe({ type: 'state', path: 'user', source: 'presence' }, id => {
+	if (id) bus.emit('change', setPresence(id, 'online'));
 });
 
 on('subscribe', options => {
