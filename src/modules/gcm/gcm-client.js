@@ -5,12 +5,11 @@ bus.on('postchange', changes => {
 	if (changes.state && 'session' in changes.state) {
 		const { session } = changes.state;
 
+		if (session === '@@loading') {
+			return;
+		}
 
-		if (session) {
-			if (session === '@@loading') {
-				return;
-			}
-			// console.log("session: ", session);
+		if (session && typeof changes.state.session === 'string') {
 			GCM.saveSession(changes.state.session);
 		} else {
 			GCM.saveSession('');

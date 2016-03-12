@@ -44,11 +44,11 @@ bus.on('postchange', changes => {
 	if (changes.state && 'session' in changes.state) {
 		const { session } = changes.state;
 
-		if (session) {
-			if (session === '@@loading') {
-				return;
-			}
+		if (session === '@@loading') {
+			return;
+		}
 
+		if (session && typeof changes.state.session === 'string') {
 			sessionStorage.setItem('id', changes.state.session);
 		} else {
 			sessionStorage.removeItem('id');

@@ -3,6 +3,10 @@
 import { bus } from '../../core-client';
 import * as store from '../../modules/store/store';
 
+const BANGALORE = { latitude: 12.9667, longitude: 77.5667 };
+
+bus.on('state:init', state => (state.location = BANGALORE));
+
 const { geolocation } = navigator;
 
 let watch, subscriptions = 0;

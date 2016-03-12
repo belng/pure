@@ -171,7 +171,7 @@ export default class Modal extends Component<void, any, State> {
 		return !!this.state.element;
 	};
 
-	render(): ?React$Element {
+	render(): ?React.Element {
 		if (!this.state.element) {
 			return null;
 		}
