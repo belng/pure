@@ -55,8 +55,8 @@ export const TAG_ROOM_CITY = 21;
 export const TAG_ROOM_AREA = 22;
 export const TAG_ROOM_SPOT = 23;
 
-export const PRESENCE_FOREGROUND = 1;
-export const PRESENCE_BACKGROUND = 2;
+export const PRESENCE_FOREGROUND = 2;
+export const PRESENCE_BACKGROUND = 1;
 export const PRESENCE_NONE = 0;
 
 export const NOTE_MENTION = 1;
