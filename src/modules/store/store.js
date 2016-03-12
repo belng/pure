@@ -11,13 +11,13 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 
 	switch (options.type) {
 	case 'entity':
-		callback(LOADING);
-
 		if (typeof options.id !== 'string') {
 			throw new TypeError(`Invalid 'id' passed to store.subscribe::entity in ${options.source}`);
 		}
 
-		unWatch = cache.watchEntity(options.id, callback);
+		callback(LOADING);
+
+		unWatch = cache.watchEntity(options.id, data => data && data.type === 'loading' ? callback(LOADING) : callback(data));
 		break;
 	case 'state':
 		if (typeof options.path !== 'string' && !Array.isArray(options.path)) {
@@ -69,17 +69,27 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 
 			callback(LOADING_ITEMS);
 
-			let handle;
+			let handles = [];
 
-			const unWatchInner = cache.watch(options.slice, range, results => (
-				handle = global.requestIdleCallback(() => callback(results.arr)))
-			);
+			const unWatchInner = cache.watch(options.slice, range, results => {
+				if (results.length === 1 && results[0] && results[0].type === 'loading') {
+					callback(LOADING_ITEMS);
+				} else {
+					handles.push(
+						global.requestIdleCallback(() => callback(results.arr))
+					);
+				}
+			});
 
 			unWatch = () => {
 				unWatchInner();
 
-				if (handle) {
-					global.cancelIdleCallback(handle);
+				if (handles.length) {
+					for (let i = 0, l = handles.length; i < l; i++) {
+						global.cancelIdleCallback(handles[i]);
+					}
+
+					handles = [];
 				}
 			};
 		} else {
