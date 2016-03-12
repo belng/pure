@@ -49,13 +49,13 @@ class StartDiscussionContainer extends Component<void, Props, State> {
 			<Connect
 				mapSubscriptionToProps={thread ? { parents, thread } : { parents }}
 				mapActionsToProps={{
-					startThread: (store, result) => (name, body, meta) => {
+					startThread: (store, result, props) => (name, body, meta) => {
 						const changes = startThread({
 							name,
 							body,
 							meta,
-							parents: [ this.props.room ].concat(result.parents),
-							creator: this.props.user
+							parents: [ props.room ].concat(result.parents),
+							creator: props.user
 						});
 
 						store.dispatch(changes);

@@ -107,7 +107,7 @@ export default class Connect extends Component<void, Props, State> {
 		return data => {
 			if (this._mounted) {
 				this.setState({
-					[name]: transform ? transform(data) : data
+					[name]: transform ? transform(data, this.props) : data
 				});
 			}
 		};
@@ -137,7 +137,7 @@ export default class Connect extends Component<void, Props, State> {
 
 	render(): ?React$Element<any> {
 		const {
-			state
+			state,
 		} = this;
 
 		const {
@@ -158,7 +158,7 @@ export default class Connect extends Component<void, Props, State> {
 		const actions = {};
 
 		for (const key in mapActionsToProps) {
-			actions[key] = mapActionsToProps[key](store, state);
+			actions[key] = mapActionsToProps[key](store, state, passProps);
 		}
 
 		return (

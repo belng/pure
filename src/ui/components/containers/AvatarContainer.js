@@ -16,6 +16,8 @@ const extractAvatarURL = (user, size = 48) => {
 	}
 };
 
+const transformUserToUri = (user, props) => extractAvatarURL(user && user.id ? user : { id: props.user }, props.size);
+
 const AvatarContainer = (props: any) => (
 	<Connect
 		mapSubscriptionToProps={{
@@ -24,7 +26,7 @@ const AvatarContainer = (props: any) => (
 					type: 'entity',
 					id: props.user,
 				},
-				transform: user => extractAvatarURL(user && user.id ? user : { id: props.user }, props.size)
+				transform: transformUserToUri
 			}
 		}}
 		passProps={props}
