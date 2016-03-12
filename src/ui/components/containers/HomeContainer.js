@@ -4,16 +4,18 @@ import React from 'react';
 import Connect from '../../../modules/store/Connect';
 import Home from '../views/Home';
 
+const mapSubscriptionToProps = {
+	initialURL: {
+		key: {
+			type: 'state',
+			path: 'initialURL',
+		}
+	}
+};
+
 const HomeContainer = (props: any) => (
 	<Connect
-		mapSubscriptionToProps={{
-			initialURL: {
-				key: {
-					type: 'state',
-					path: 'initialURL',
-				}
-			}
-		}}
+		mapSubscriptionToProps={mapSubscriptionToProps}
 		passProps={props}
 		component={Home}
 	/>

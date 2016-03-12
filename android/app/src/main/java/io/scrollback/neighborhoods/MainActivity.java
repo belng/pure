@@ -21,11 +21,10 @@ import io.scrollback.neighborhoods.bundle.JSBundleManager;
 import io.scrollback.neighborhoods.modules.analytics.AnalyticsPackage;
 import io.scrollback.neighborhoods.modules.core.CorePackage;
 import io.scrollback.neighborhoods.modules.facebook.FacebookPackage;
-import io.scrollback.neighborhoods.modules.gcm.GCMRegistrationManager;
 import io.scrollback.neighborhoods.modules.gcm.GCMPackage;
+import io.scrollback.neighborhoods.modules.gcm.GCMRegistrationManager;
 import io.scrollback.neighborhoods.modules.google.GoogleLoginPackage;
 import io.scrollback.neighborhoods.modules.places.GooglePlacesPackage;
-
 public class MainActivity extends ReactActivity {
 
     GCMRegistrationManager mRegistrationManager = new GCMRegistrationManager(this);

@@ -2,15 +2,10 @@
 
 import React from 'react';
 import Connect from '../../../modules/store/Connect';
+import PassUserProp from '../../../modules/store/PassUserProp';
 import App from '../views/App';
 
 const mapSubscriptionToProps = {
-	user: {
-		key: {
-			type: 'state',
-			path: 'user'
-		},
-	},
 	connection: {
 		key: {
 			type: 'state',
@@ -33,4 +28,4 @@ const AppContainer = (props: any) => (
 	/>
 );
 
-export default AppContainer;
+export default PassUserProp(AppContainer);

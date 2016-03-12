@@ -28,12 +28,15 @@ export const signUp = (user: User): Object => ({
 
 export const cancelSignUp = (): Object => ({
 	state: {
-		signup: null
+		signup: { __op__: 'delete' },
 	}
 });
 
 export const signOut = (): Object => ({
-
+	state: {
+		session: { __op__: 'delete' },
+		user: { __op__: 'delete' },
+	}
 });
 
 export const saveUser = (user: User): Object => ({

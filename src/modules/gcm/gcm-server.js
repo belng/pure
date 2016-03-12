@@ -3,6 +3,7 @@ import xmpp from './xmpp';
 import { bus, Constants } from '../../core-server';
 import log from 'winston';
 import './handleUpstreamMessage';
+import './subscribeTopics';
 
 bus.on('change', (changes, next) => {
 	if (!changes.entities) {

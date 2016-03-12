@@ -5,6 +5,25 @@ import Connect from '../../../modules/store/Connect';
 import ChatMessages from '../views/ChatMessages';
 import type { SubscriptionRange } from '../../../modules/store/ConnectTypes';
 
+const transformTexts = texts => {
+	const data = [];
+
+	for (let l = texts.length - 1, i = l; i >= 0; i--) {
+		if (texts[i].type === 'loading') {
+			data.push(texts[i]);
+		} else {
+			data.push({
+				text: texts[i],
+				previousText: texts[i + 1],
+				isFirst: i === 0,
+				isLast: i === l,
+			});
+		}
+	}
+
+	return data;
+};
+
 export default class ChatMessagesContainer extends Component<void, any, SubscriptionRange> {
 	state: SubscriptionRange = {
 		start: Infinity,
@@ -43,24 +62,7 @@ export default class ChatMessagesContainer extends Component<void, any, Subscrip
 								after
 							}
 						},
-						transform: texts => {
-							const data = [];
-
-							for (let l = texts.length - 1, i = l; i >= 0; i--) {
-								if (texts[i].type === 'loading') {
-									data.push(texts[i]);
-								} else {
-									data.push({
-										text: texts[i],
-										previousText: texts[i + 1],
-										isFirst: i === 0,
-										isLast: i === l,
-									});
-								}
-							}
-
-							return data;
-						}
+						transform: transformTexts
 					}
 				}}
 				passProps={{ ...this.props, loadMore: this._loadMore }}

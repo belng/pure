@@ -8,6 +8,14 @@ import { convertRouteToURL } from '../../../lib/Route';
 
 const { host, protocol } = config.server;
 
+const transformThreadToUrl = thread => thread && thread.type !== 'loading' ? protocol + '//' + host + convertRouteToURL({
+	name: 'chat',
+	props: {
+		room: thread.parents[0],
+		thread: thread.id
+	}
+}) : null;
+
 const ShareButtonContainer = (props: any) => (
 	<Connect
 		mapSubscriptionToProps={{
@@ -16,13 +24,7 @@ const ShareButtonContainer = (props: any) => (
 					type: 'entity',
 					id: props.thread
 				},
-				transform: thread => thread && thread.type !== 'loading' ? protocol + '//' + host + convertRouteToURL({
-					name: 'chat',
-					props: {
-						room: thread.parents[0],
-						thread: thread.id
-					}
-				}) : null
+				transform: transformThreadToUrl
 			}
 		}}
 		passProps={props}

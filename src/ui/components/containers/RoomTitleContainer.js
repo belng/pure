@@ -4,6 +4,16 @@ import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import AppbarTitle from '../views/AppbarTitle';
 
+const transformTitle = room => {
+	if (room && room.type === 'loading') {
+		return 'Loading…';
+	} else if (room && room.name) {
+		return room.name;
+	} else {
+		return '…';
+	}
+};
+
 const RoomTitleContainer = (props: any) => (
 	<Connect
 		mapSubscriptionToProps={{
@@ -12,15 +22,7 @@ const RoomTitleContainer = (props: any) => (
 					type: 'entity',
 					id: props.room
 				},
-				transform: room => {
-					if (room && room.type === 'loading') {
-						return 'Loading…';
-					} else if (room && room.name) {
-						return room.name;
-					} else {
-						return '…';
-					}
-				}
+				transform: transformTitle
 			}
 		}}
 		passProps={props}

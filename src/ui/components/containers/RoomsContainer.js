@@ -2,9 +2,14 @@
 
 import React, { Component, PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
+import PassUserProp from '../../../modules/store/PassUserProp';
 import Rooms from '../views/Rooms';
 
 class RoomsContainer extends Component {
+	static propTypes = {
+		user: PropTypes.string.isRequired
+	};
+
 	render() {
 		const { user } = this.props;
 
@@ -37,25 +42,4 @@ class RoomsContainer extends Component {
 	}
 }
 
-RoomsContainer.propTypes = {
-	user: PropTypes.string.isRequired
-};
-
-const mapSubscriptionToProps = {
-	user: {
-		key: {
-			type: 'state',
-			path: 'user'
-		},
-	},
-};
-
-const RoomsContainerOuter = (props: any) => (
-	<Connect
-		mapSubscriptionToProps={mapSubscriptionToProps}
-		passProps={props}
-		component={RoomsContainer}
-	/>
-);
-
-export default RoomsContainerOuter;
+export default PassUserProp(RoomsContainer);

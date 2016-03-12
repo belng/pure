@@ -4,67 +4,86 @@ import Counter from '../../lib/counter';
 import log from 'winston';
 import values from 'lodash/values';
 import request from 'request';
+const authKey = 'key=' + config.gcm.apiKey;
+const options = {
+	url: 'https://iid.googleapis.com/iid/v1:batchAdd',
+	json: true,
+	method: 'POST',
+	headers: {
+		Authorization: authKey
+	},
+	body: {}
+};
 
-function unsubscribeTopics (iid, cb) {
-	const opts = {
+function getIIDInfo(iid, cb) {
+	request({
 		url: `https://iid.googleapis.com/iid/info/${iid}?details=true`,
 		method: 'GET',
 		headers: {
-			Authorozation: config.gcm.apiKey
-		}
-	};
+			Authorization: authKey
+		},
+	}, cb);
+}
 
-	request(opts, (e, r, b) => {
+function unsubscribeTopics (iid, cb) {
+	getIIDInfo(iid, async (e, r, b) => {
 		if (e) {
 			log.error(e);
 			return;
 		}
-		const topicsSubscribed = b.rel.topics;
-
-		opts.method = 'POST';
-		opts.url = 'https://iid.googleapis.com/iid/v1:batchRemove';
-		// unsubscribe thread topics
-		for (const topic in topicsSubscribed) {
-			if (!/thread-/.test(topic)) {
-				continue;
-			}
-			request({
-				...opts,
-				to: '/topics/' + topic,
-				registration_tokens: [ iid ]
-			}, (err, rspns, bdy) => {
-				if (!err) {
-					log.info('unsubscribed from ', topic);
-					log.info(bdy);
-				} else {
-					log.error(err);
+		try {
+			// unsubscribe thread topics
+			await Object.keys(JSON.parse(b).rel.topics).map(topic => {
+				if (!/thread-/.test(topic)) {
+					log.debug('does not match thread');
+					return null;
 				}
+
+				return new Promise((resolve, reject) => {
+					request({
+						...options,
+						url: 'https://iid.googleapis.com/iid/v1:batchRemove',
+						body: {
+							registration_tokens: [ iid ],
+							to: '/topics/' + topic
+						}
+					}, (err, rspns, bdy) => {
+						if (!err) {
+							log.info('unsubscribed from ', topic);
+							log.info(bdy);
+							resolve();
+						} else {
+							log.error(err);
+							reject(err);
+						}
+					});
+				});
 			});
+		} catch (err) {
+			// ignore
 		}
 		cb();
 	});
 }
 
 function subscribe (userRel: Object) {
-	// console.log(userRel);
-	const gcm = userRel.user.params.gcm,
-		tokens = values(gcm),
-		options = {
-			url: 'https://iid.googleapis.com/iid/v1:batchAdd',
-			json: true,
-			method: 'POST',
-			headers: {
-				Authorization: 'key=AIzaSyC3SD_4R3oXy7vXKd-3nNCgpRRW-0dYA9M'
-			},
+	const gcm = userRel.params.gcm;
+
+	if (!gcm) {
+		log.info('No gcm found for user');
+		return;
+	}
+	const	tokens = values(gcm);
+
+	log.info('tokens: ', tokens);
+	tokens.forEach(token => {
+		request({
+			...options,
 			body: {
-				registration_tokens: [],
+				registration_tokens: [ token ],
 				to: '/topics/' + userRel.topic
 			}
-		};
-
-	tokens.forEach(token => {
-		options.body.registration_tokens = [ token ];
-		request(options, (error, response, body) => {
+		}, (error, response, body) => {
 			if (error) {
 				log.error(error);
 				if (error.type === 'TOO_MANY_TOPICS') {
@@ -81,25 +100,28 @@ function subscribe (userRel: Object) {
 				// console.log(options);
 			} else {
 				log.info('succefully subscribed to: ' + userRel.topic, body);
+				getIIDInfo(token, (e, r, b) => {
+					log.info(b);
+				});
 			}
 		});
 	});
 
 }
-
-bus.on('change', (changes, next) => {
+function handleSubscription(changes) {
 	const counter = new Counter();
 
 	if (!changes.entities) {
-		next();
+		// next();
 		return;
 	}
-
 	for (const i in changes.entities) {
 		const entity = changes.entities[i];
 
-		if (entity.type === Constants.TYPE_THREADREL ||
-		entity.type === Constants.TYPE_ROOMREL) {
+		if (
+				entity.type === Constants.TYPE_THREADREL ||
+				entity.type === Constants.TYPE_ROOMREL
+			) {
 			let user = changes.entities[entity.user];
 
 			if (!user) {
@@ -115,18 +137,21 @@ bus.on('change', (changes, next) => {
 					user,
 					topic: entity.type === Constants.TYPE_ROOMREL ? 'room-' + entity.item : 'thread-' + entity.item
 				});
-				next();
+				// next();
 			});
 		}
 		if (entity.type === Constants.TYPE_USER) {
-			if (entity.createtime) {
+			// console.log("entity: ", entity)
+			if (entity.createTime) {
 				// subscribe for mention when user is created
+				log.info('subscribing user: ', entity.id, 'for mention');
 				subscribe({
-					entity,
-					topic: 'note-' + entity.id
+					params: entity.params,
+					topic: 'mention-' + entity.id
 				});
-				next();
+				// next();
 			}
 		}
 	}
-});
+}
+bus.on('change', handleSubscription);
