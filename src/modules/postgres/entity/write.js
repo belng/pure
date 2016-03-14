@@ -1,8 +1,8 @@
-import * as pg from '../../lib/pg';
-import { TABLES, COLUMNS, RELATION_TYPES, ITEM_TYPES, TYPES } from '../../lib/schema';
-import * as Constants from '../../lib/Constants';
+import * as pg from '../../../lib/pg';
+import { TABLES, COLUMNS, RELATION_TYPES, ITEM_TYPES, TYPES } from '../../../lib/schema';
+import * as Constants from '../../../lib/Constants';
 import jsonop from 'jsonop';
-import defaultOps from './../../lib/defaultOps';
+import defaultOps from './../../../lib/defaultOps';
 
 export default function (entity) {
 	// TODO: add validation for type else this code crashes.

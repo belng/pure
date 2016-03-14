@@ -7,7 +7,7 @@ import TextModel from '../../models/text';
 import RoomRelModel from '../../models/roomrel';
 import ThreadRelModel from '../../models/threadrel';
 import uuid from 'uuid';
-import { PRESENCE_FOREGROUND } from '../../lib/Constants';
+import { PRESENCE_FOREGROUND, PRESENCE_NONE } from '../../lib/Constants';
 
 /*
  * User related actions
@@ -150,7 +150,7 @@ export const setPresence = (id: string, status: 'online' | 'offline'): Object =>
 	entities: {
 		[id]: new UserModel({
 			id,
-			presence: status === 'online' ? PRESENCE_FOREGROUND : 'none'
+			presence: status === 'online' ? PRESENCE_FOREGROUND : PRESENCE_NONE
 		})
 	}
 });
@@ -163,7 +163,7 @@ export const setItemPresence = (
 		item,
 		user,
 		create,
-		presence: status === 'online' ? PRESENCE_FOREGROUND : 'none'
+		presence: status === 'online' ? PRESENCE_FOREGROUND : PRESENCE_NONE
 	};
 
 	switch (type) {
