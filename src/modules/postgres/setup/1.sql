@@ -100,7 +100,7 @@ CREATE TABLE jobs (
 	id smallint,
 	lastrun bigint
 );
-
+INSERT INTO jobs VALUES (1, 0), (2, 0), (3, 0);
 CREATE EXTENSION plv8;
 
 CREATE FUNCTION jsonop(oa jsonb, ob jsonb, oop jsonb) RETURNS jsonb AS $$
