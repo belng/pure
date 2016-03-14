@@ -9,7 +9,11 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -17,70 +21,48 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import io.scrollback.neighborhoods.R;
-
 public class AppNotification {
 
     private static final String TAG = "AppNotification";
 
+    private static final String PROP_COUNT = "count";
+    private static final String PROP_TIME = "updateTime";
+    private static final String PROP_DATA = "data";
+    private static final String PROP_TITLE = "title";
+    private static final String PROP_BODY = "body";
+    private static final String PROP_AUTHOR = "creator";
+    private static final String PROP_LINK = "link";
+    private static final String PROP_PICTURE = "picture";
+
     private final Context mContext;
 
-    private String mTitle;
-    private String mText;
-    private String mPath;
-    private String mGroup;
-    private String mPicture;
+    public final long count;
+    public final long time;
+    public final String title;
+    public final String summary;
+    public final String author;
+    public final String link;
+    @Nullable
+    public final Bitmap picture;
 
-    AppNotification(Context c) {
-        mContext = c;
-    }
+    public AppNotification(Context context, JSONObject note) throws JSONException {
+        mContext = context;
 
-    public static AppNotification fromBundle(Context c, Bundle extras) {
-        AppNotification note = new AppNotification(c);
+        count = note.getLong(PROP_COUNT);
+        time = note.getLong(PROP_TIME);
 
-        note.setTitle(extras.getString("title"));
-        note.setText(extras.getString("text"));
-        note.setPath(extras.getString("path"));
-        note.setGroup(extras.getString("group"));
-        note.setPicture(extras.getString("picture"));
+        JSONObject data = note.getJSONObject(PROP_DATA);
 
-        return note;
-    }
+        title = data.getString(PROP_TITLE);
+        summary = data.getString(PROP_BODY);
+        author = data.getString(PROP_AUTHOR);
+        link = data.getString(PROP_LINK);
 
-    public String getTitle() {
-        return mTitle;
-    }
-
-    public void setTitle(String title) {
-        mTitle = title;
-    }
-
-    public String getText() {
-        return mText;
-    }
-
-    public void setText(String text) {
-        mText = text;
-    }
-
-    public String getPath() {
-        return mPath;
-    }
-
-    public void setPath(String path) {
-        mPath = path;
-    }
-
-    public String getGroup() {
-        return mGroup;
-    }
-
-    public void setGroup(String group) {
-        mGroup = group;
-    }
-
-    public void setPicture(String picture) {
-        mPicture = picture;
+        if (data.has(PROP_PICTURE)) {
+            picture = getBitmap(data.getString(PROP_PICTURE));
+        } else {
+            picture = null;
+        }
     }
 
     private Bitmap decodeStreamToBitmap(InputStream stream, int imageSize) {
@@ -124,38 +106,30 @@ public class AppNotification {
         return null;
     }
 
-    private Bitmap getScaledBitmap(String protocol, String host, int imageSize) {
+    private Bitmap getScaledBitmap(String link, int imageSize) {
         URL url = null;
 
-        if (protocol == null) {
-            protocol = mContext.getString(R.string.app_protocol);
-        }
-
-        if (host == null) {
-            host = mContext.getString(R.string.app_host);
-        }
-
         try {
-            url = new URL(protocol + "//" + host + mPicture);
+            url = new URL(link);
         } catch (MalformedURLException e) {
-            Log.e(TAG, "Malformed URL: " + mPicture, e);
+            Log.e(TAG, "Malformed URL: " + picture, e);
         }
 
         if (url != null) {
             try {
                 return decodeStreamToBitmap(url.openConnection().getInputStream(), imageSize);
             } catch (IOException e) {
-                Log.e(TAG, "Couldn't fetch image: " + mPicture, e);
+                Log.e(TAG, "Couldn't fetch image: " + picture, e);
             }
         }
 
         return null;
     }
 
-    public Bitmap getBitmap(String protocol, String host) {
+    private Bitmap getBitmap(String link) {
         final int IMAGE_SIZE = (int) (48 * (mContext.getResources().getDisplayMetrics().density));
 
-        Bitmap bitmap = getScaledBitmap(protocol, host, IMAGE_SIZE);
+        Bitmap bitmap = getScaledBitmap(link, IMAGE_SIZE);
 
         if (bitmap != null) {
             Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
@@ -185,5 +159,8 @@ public class AppNotification {
 
         return null;
     }
-}
 
+    public static AppNotification fromBundle(Context context, Bundle bundle) throws JSONException {
+        return new AppNotification(context, new JSONObject(bundle.getString("message")));
+    }
+}

@@ -104,6 +104,7 @@ export default class NotificationCenterItem extends Component<void, Props, void>
 			dismissTime: PropTypes.number,
 			event: PropTypes.number.isRequired,
 			createTime: PropTypes.number,
+			updateTime: PropTypes.number,
 			group: PropTypes.string.isRequired,
 			id: PropTypes.string.isRequired,
 			readTime: PropTypes.number.isRequired,
