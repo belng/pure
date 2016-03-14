@@ -70,11 +70,13 @@ bus.on('change', (changes, next) => {
 				});
 			}
 
-			entity.roles.forEach((role) => {
-				if (ROLES[role]) {
-					item.counts[ROLES[role]] = 1;
-				}
-			});
+			if (entity.roles) {
+				entity.roles.forEach((role) => {
+					if (ROLES[role]) {
+						item.counts[ROLES[role]] = 1;
+					}
+				});
+			}
 
 			item.id = entity.item;
 

@@ -14,9 +14,8 @@ import winston from 'winston';
 const channel = 'heyneighbor';
 
 function getTypeFromId(id) {
-	const _split = id.split();
+	const _split = id.split('_');
 
-	console.log("_split", _split);
 	if (_split.length === 3) return 'rest';
 	else if (_split.length === 2) return 'rel';
 	else if (id.length >= 36) return 'item';
@@ -98,9 +97,10 @@ function onEntityQuery(ids, err, r) {
 		entities[row.id] = new Types[TYPE_NAMES[row.type]](row);
 	});
 
-	const missingIds = ids.filter(id => !!entities[id]);
+	const missingIds = ids.filter(id => !(id in entities));
 
 	missingIds.forEach(id => { entities[id] = false; });
+
 	cache.put({
 		entities,
 		source: 'postgres'
@@ -130,7 +130,7 @@ cache.onChange((changes) => {
 				for (const i in typeToId) {
 					// FIXME: Notes only for now
 					if (i === 'rest' || i === 'note' || !typeToId[i].length) continue;
-					console.log("Type:", i);
+
 					pg.read(config.connStr,
 						PgEntity.read[i](typeToId[i]),
 						onEntityQuery.bind(null, typeToId[i])

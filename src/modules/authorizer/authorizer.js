@@ -38,6 +38,8 @@ bus.on('change', (changes, next) => {
 	}, (reason) => {
 		next(new Error(reason));
 	});
+
+	return null;
 }, 900);
 
 console.log('authorizer module ready...');

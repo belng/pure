@@ -42,6 +42,7 @@ function generateSignedIdentities(identities) {
 function signuphandler(changes, n) {
 	let signup = {};
 
+	winston.info('Change reached signup module');
 	function next(e) {
 		if (e) {
 			(changes.response = changes.response || {}).state = changes.auth;

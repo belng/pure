@@ -40,7 +40,7 @@ function sessionHandler(changes, n) {
 	const signin = {};
 
 	function next(e) {
-		winston.info(e);
+		winston.info('session callback', e);
 		if (e) {
 			(changes.response = changes.response || {}).state = {
 				signin: {

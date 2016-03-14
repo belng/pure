@@ -22,23 +22,22 @@ export default {
 };
 
 function item(ids) {
-	return pg.cat([ {
+	return  {
 		$: `SELECT *, ${TYPE_SEGMENT} FROM items WHERE id IN (&(ids))`,
 		ids
-	} ]);
+	};
 }
 
 function user(ids) {
-	return pg.cat([ {
+	return {
 		$: `SELECT *, ${TYPE_SEGMENT} FROM users WHERE id IN (&(ids))`,
 		ids
-	} ]);
+	};
 }
 function rel(ids) {
 	const q = [];
 
 	ids.map(id => id.split('_')).forEach(([ u, i ]) => {
-		console.log("After split:",u, i);
 		q.push({
 			$: `SELECT *, ${TYPE_SEGMENT} FROM rels WHERE "user" = &{user} AND "item" = &{item}`,
 			item: i,
@@ -46,5 +45,5 @@ function rel(ids) {
 		});
 	});
 
-	return pg.cat([ q ], ' UNION ');
+	return pg.cat(q, ' UNION ');
 }

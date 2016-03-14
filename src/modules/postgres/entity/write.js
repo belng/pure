@@ -1,5 +1,5 @@
 import * as pg from '../../../lib/pg';
-import { TABLES, COLUMNS, RELATION_TYPES, ITEM_TYPES, TYPES } from '../../../lib/schema';
+import { TABLES, COLUMNS, RELATION_TYPES } from '../../../lib/schema';
 import * as Constants from '../../../lib/Constants';
 import jsonop from 'jsonop';
 import defaultOps from './../../../lib/defaultOps';
@@ -7,8 +7,19 @@ import defaultOps from './../../../lib/defaultOps';
 export default function (entity) {
 	// TODO: add validation for type else this code crashes.
 
-	const isRel = (RELATION_TYPES.indexOf(entity.type) >= 0),
-		names = Object.keys(entity).filter(
+	const isRel = (RELATION_TYPES.indexOf(entity.type) >= 0), now = Date.now();
+
+
+	// Adding defaults:
+	entity.updateTime = now;
+	if (entity.create) entity.createTime = now;
+
+	if (entity.presence) entity.presenceTime = now;
+	if (isRel) {
+		if (entity.create) entity.roles = [];
+	}
+
+	const names = Object.keys(entity).filter(
 			name => COLUMNS[entity.type].indexOf(name) >= 0 &&
 			typeof entity[name] !== 'undefined'
 		);
@@ -17,12 +28,6 @@ export default function (entity) {
 
 	if (entity.type === Constants.TYPE_ROOM) {
 		names.push('terms');
-	}
-
-	// Default properties that has to be set at all times.
-	if (ITEM_TYPES.indexOf(entity.type) >= 0 || TYPES.TYPE_USER) {
-		if (entity.create) names.push('createtime');
-		names.push('updatetime');
 	}
 
 	names.splice(names.indexOf('type'), 1);
@@ -40,6 +45,11 @@ export default function (entity) {
 						locale: 'english',
 						name: entity.name,
 						body: entity.body
+					};
+				case 'roles':
+					return {
+						$: `&{${name}}`,
+						[name]: entity[name] || []
 					};
 				case 'createtime':
 				case 'updatetime':

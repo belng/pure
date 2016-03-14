@@ -27,7 +27,7 @@ export default function(changes, config) {
 				winston.debug('DISPATCHING ITEMS');
 				return pg.cat([ {
 					id: key,
-					$: 'SELECT resources FROM rels WHERE item = &{id} or item = &{parent} and NOT(roles <@ &{excludeRoles}) and presence > &{presence}',
+					$: 'SELECT resources FROM rels WHERE item = &{id} or item = &{parent} and NOT(roles && &{excludeRoles}) and presence > &{presence}',
 					parent: entity.parents && entity.parents[0],
 					excludeRoles: [ Constants.ROLE_BANNED ],
 					presence: Constants.STATUS_NONE
@@ -55,6 +55,7 @@ export default function(changes, config) {
 		if (query) {
 			winston.debug('Hello,  here!! trying to make a query here...', config.connStr);
 			pg.readStream(config.connStr, query).on('row', (res) => {
+				console.log(e);
 				stream.emit('data', {
 					entities: {
 						[key]: e
