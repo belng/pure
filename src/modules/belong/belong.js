@@ -44,6 +44,7 @@ function addRooms(change, addable) {
 
 function addRels(change, user:any, resources, addable) {
 	for (const stub of addable) {
+		if (stub.exists) continue;
 		const rel = new RoomRel({
 			user: user.id,
 			item: stub.id,
@@ -80,14 +81,13 @@ function sendInvitations (resources, user, relRooms, ...stubsets) {
 		}
 	}
 
-
 	for (const relRoom of relRooms) {
 		const identity = relRoom.room.identities.filter(
 			ident => ident.substr(0, 6) === 'place:'
 		)[0];
 
 		if (stubs[identity]) {
-			stubs[identity].exits = true;
+			stubs[identity].exists = true;
 		} else {
 			const type = relRoom.rel.roles.filter(role =>
 				role >= constants.ROLE_HOME &&
@@ -166,12 +166,12 @@ bus.on('change', change => {
 				}
 
 				if (work && work.id) {
-					promises.push(place.getStubset(work.id, constants.ROLE_HOME));
+					promises.push(place.getStubset(work.id, constants.ROLE_WORK));
 					needsInvitations = true;
 				}
 
 				if (hometown && hometown.id) {
-					promises.push(place.getStubset(hometown.id, constants.ROLE_HOME));
+					promises.push(place.getStubset(hometown.id, constants.ROLE_HOMETOWN));
 					needsInvitations = true;
 				}
 			}

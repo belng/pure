@@ -16,7 +16,7 @@ export default function (entity) {
 
 	if (entity.presence) entity.presenceTime = now;
 	if (isRel) {
-		if (entity.create) entity.roles = [];
+		if (entity.create && !entity.roles) entity.roles = [];
 	}
 
 	const names = Object.keys(entity).filter(
