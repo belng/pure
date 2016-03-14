@@ -4,6 +4,7 @@ import Counter from '../../lib/counter';
 import log from 'winston';
 import values from 'lodash/values';
 import request from 'request';
+import { getTokenAndSession, updateUser } from './handleUpstreamMessage';
 const authKey = 'key=' + config.gcm.apiKey;
 const options = {
 	url: 'https://iid.googleapis.com/iid/v1:batchAdd',
@@ -66,47 +67,59 @@ function unsubscribeTopics (iid, cb) {
 	});
 }
 
-function subscribe (userRel: Object) {
+export function subscribe (userRel: Object) {
 	const gcm = userRel.params.gcm;
 
-	if (!gcm) {
-		log.info('No gcm found for user');
-		return;
-	}
-	const	tokens = values(gcm);
+	function register () {
+		const	tokens = values(gcm);
 
-	log.info('tokens: ', tokens);
-	tokens.forEach(token => {
-		request({
-			...options,
-			body: {
-				registration_tokens: [ token ],
-				to: '/topics/' + userRel.topic
-			}
-		}, (error, response, body) => {
-			if (error) {
-				log.error(error);
-				if (error.type === 'TOO_MANY_TOPICS') {
-					log.info('unsubscribe few old topics');
-					unsubscribeTopics(token, () => {
-						subscribe(userRel);
-					});
-				} else {
-					log.error('can not subscribe to topic', error);
+		log.info('tokens: ', tokens);
+		tokens.forEach(token => {
+			request({
+				...options,
+				body: {
+					registration_tokens: [ token ],
+					to: '/topics/' + userRel.topic
 				}
-			}
-			if (body.error) {
-				log.error(body);
-				// console.log(options);
+			}, (error, response, body) => {
+				if (error) {
+					log.error(error);
+					if (error.type === 'TOO_MANY_TOPICS') {
+						log.info('unsubscribe few old topics');
+						unsubscribeTopics(token, () => {
+							subscribe(userRel);
+						});
+					} else {
+						log.error('can not subscribe to topic', error);
+					}
+				}
+				if (body.error) {
+					log.error(body);
+					// console.log(options);
+				} else {
+					log.info('succefully subscribed to: ' + userRel.topic, body);
+					getIIDInfo(token, (e, r, b) => {
+						log.info(b);
+						return;
+					});
+				}
+			});
+		});
+	}
+	if (!gcm) {
+		log.debug('No gcm found for user retrying saving token...');
+		const data = getTokenAndSession();
+		if (data.error) log.info(data.error);
+		updateUser({ data }, (error) => {
+			if (!error) {
+				register();
+				return;
 			} else {
-				log.info('succefully subscribed to: ' + userRel.topic, body);
-				getIIDInfo(token, (e, r, b) => {
-					log.info(b);
-				});
+				log.info('No gcm found for user');
 			}
 		});
-	});
-
+	}
+	register();
 }
 function handleSubscription(changes) {
 	const counter = new Counter();
@@ -122,6 +135,9 @@ function handleSubscription(changes) {
 				entity.type === Constants.TYPE_THREADREL ||
 				entity.type === Constants.TYPE_ROOMREL
 			) {
+				// console.log("subscribe to thread/room")
+				// TODO: subscribe to topics only when relation is created
+				// console.log("entity: ", entity)
 			let user = changes.entities[entity.user];
 
 			if (!user) {
@@ -134,23 +150,15 @@ function handleSubscription(changes) {
 			counter.then(() => {
 				log.info('subscribe ' + user.id + ' to ' + entity.item);
 				subscribe({
-					user,
+					params: user.params || {},
 					topic: entity.type === Constants.TYPE_ROOMREL ? 'room-' + entity.item : 'thread-' + entity.item
 				});
 				// next();
+				return;
 			});
-		}
-		if (entity.type === Constants.TYPE_USER) {
-			// console.log("entity: ", entity)
-			if (entity.createTime) {
-				// subscribe for mention when user is created
-				log.info('subscribing user: ', entity.id, 'for mention');
-				subscribe({
-					params: entity.params,
-					topic: 'mention-' + entity.id
-				});
-				// next();
-			}
+		} else {
+			// next();
+			return;
 		}
 	}
 }

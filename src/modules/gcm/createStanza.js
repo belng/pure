@@ -1,6 +1,7 @@
 import uid from '../../lib/uid-server';
 import { Constants } from '../../core-server';
 export default function (data) {
+	let stanza;
 	let topic = data.parents && data.parents[0] || data.user;
 
 	if (data.type === Constants.TYPE_THREAD) {
@@ -10,19 +11,18 @@ export default function (data) {
 		topic = 'thread-' + topic;
 	}
 	if (data.type === Constants.TYPE_NOTE) {
-		topic = 'note-' + topic;
+		topic = 'mention-' + topic;
 	}
-
-	return (
-		`<message>
-		<gcm xmlns="google:mobile:data">
-		{
-			"to": "/topics/${topic}",
-			"message_id": "${uid()}",
-			"data": ${JSON.stringify(data)},
-			"notification": ${JSON.stringify(data)}
-		}
-		</gcm>
-		</message>`
-	);
+	stanza = `<message>
+	<gcm xmlns="google:mobile:data">
+	{
+		"to": "/topics/${topic}",
+		"message_id": "${uid()}",
+		"data": ${JSON.stringify(data)},
+		"notification": ${JSON.stringify(data)}
+	}
+	</gcm>
+	</message>`;
+	console.log("stanza created: ", stanza);
+	return (stanza);
 }

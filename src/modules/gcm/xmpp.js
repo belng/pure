@@ -3,8 +3,7 @@
 import Client from 'node-xmpp-client';
 import log from 'winston';
 import { config } from '../../core-server';
-import createStanza from './createStanza';
-let client, stanza, backOff = 1;
+let backOff = 1, client;
 const options = {
 	type: 'client',
 	jid: config.gcm.senderId + '@gcm.googleapis.com',
@@ -28,43 +27,29 @@ function onStanza (s) {
 	}
 
 	if (x && x.message_type === 'nack') {
-		setTimeout(gcm, backOff * 1000);
+		setTimeout(connect, backOff * 1000);
 		backOff *= 2;
 		if (backOff > 128) backOff = 128;
 	}
 }
-
-export function connect (cb: Function) {
-	log.info('connecting.....');
-	try {
-		client = new Client(options);
-		cb(null, client);
-	} catch (e) {
-		cb(e, null);
-	}
-}
-
 function onOnline (d) {
 	log.info('client online');
 	log.info('data: ', d);
-
-	client.send(createStanza(stanza));
 }
 
 function onError(e) {
 	log.error('error: ', e);
 }
 
-export default function gcm (note: Object) {
-	stanza = note;
-	connect((err) => {
-		if (err) log.debug(err);
-		else {
-			log.info('XMPP client connetced.');
-		}
-	});
-
-	client.on('online', onOnline);
-	client.on('error', onError);
-	client.on('stanza', onStanza);
+export function connect (cb) {
+	log.info('connecting.....');
+	try {
+		client = new Client(options);
+		client.on('online', onOnline);
+		client.on('error', onError);
+		client.on('stanza', onStanza);
+		if (cb) cb(null, client);
+	} catch (e) {
+		if (cb) cb(e, null);
+	}
 }

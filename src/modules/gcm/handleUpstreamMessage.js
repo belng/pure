@@ -1,11 +1,27 @@
 /* eslint no-use-before-define: 0 */
 /* @flow */
-import { connect } from './xmpp';
 import log from 'winston';
 import { config, bus } from '../../core-server';
+import { subscribe } from './subscribeTopics';
 // import util from 'util';
-let client;
+let client, userToken, userSession;
 
+export function getTokenAndSession() {
+	if (!userToken && !userSession) {
+		log.info('no token or session found');
+		return { error: 'NO_TOKEN_AND_SESSION' };
+	}
+	return {
+		token: userToken,
+		sessionId: userSession
+	};
+}
+
+function saveTokenAndSession(token, sessionId) {
+	log.debug('token and session saved');
+	userToken = token;
+	userSession = sessionId;
+}
 
 function sendUpstreamMessage (upStanza, type, cb) {
 	const stnza =
@@ -23,16 +39,21 @@ function sendUpstreamMessage (upStanza, type, cb) {
 	client.send(stnza);
 	if (cb) cb();
 }
-function updateUser(u) {
-	if (!u.data.sessionId && !u.data.tken) return;
+export function updateUser(u, cb) {
+	if (!u.data.sessionId && !u.data.token) {
+		console.log('no data token and session found to update user');
+		return;
+	}
 	bus.emit('change', {
 		auth: {
 			session: u.data.sessionId
 		}
 	}, (err, changes) => {
 		if (err) {
-			log.error('error on auth user to save token: ', err);
-			sendUpstreamMessage(u, 'NACK', connectToXMPP);
+			log.error('error on auth user: ', err, u.data.sessionId);
+			saveTokenAndSession(u.data.token, u.data.sessionId);
+			sendUpstreamMessage(u, 'NACK');
+			if (cb) cb(err);
 		} else {
 			log.info('update user with token');
 			const user = changes.response.entities[changes.response.state.user];
@@ -43,9 +64,18 @@ function updateUser(u) {
 					[user.id]: user
 				}
 			}, (e) => {
-				if (e) log.debug(e);
-				else {
-					sendUpstreamMessage(u, 'ACK');
+				if (e) {
+					log.debug('error on saving token: ', e);
+					if (cb) cb(e);
+				} else {
+					sendUpstreamMessage(u, 'ACK', () => {
+						log.info('subscribing user: ', user.id, 'for mention');
+						subscribe({
+							params: user.params || {},
+							topic: 'mention-' + user.id
+						});
+						if (cb) cb(null);
+					});
 				}
 			});
 		}
@@ -61,22 +91,14 @@ function handleStanza(stanza) {
 	if (st.children && st.children[0] && st.children[0].children) {
 		x = JSON.parse(st.children[0].children[0]);
 	}
+	// console.log("x: ", x)
 	if (x && x.category === config.gcm.packageName) {
 		log.info('Handle upstream message: ', x);
 		updateUser(x);
 	}
 }
-function connectToXMPP() {
-	connect((e, c) => {
-		if (e) log.debug(e);
-		else {
-			client = c;
-			log.info('XMPP client connected');
-			c.on('stanza', handleStanza);
-		}
-	});
-}
 
-if (config.gcm.senderId) {
-	connectToXMPP();
+export default function(c) {
+	client = c;
+	client.on('stanza', handleStanza);
 }
