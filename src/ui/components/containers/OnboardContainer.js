@@ -3,16 +3,18 @@
 
 import React, { PropTypes, Component } from 'react';
 import isEmpty from 'lodash/isEmpty';
+import shallowEqual from 'shallowequal';
 import Connect from '../../../modules/store/Connect';
 import Onboard from '../views/Onboard/Onboard';
 import Validator from '../../../lib/Validator';
-import { signIn, signUp, cancelSignUp, saveUser } from '../../../modules/store/actions';
+import { signIn, signUp, cancelSignUp, clearSignUpError, saveUser } from '../../../modules/store/actions';
+import { ERRORS } from '../../../lib/Constants';
 import type { User } from '../../../lib/schemaTypes';
 
 type Props = {
 	user: User;
+	error?: { message: string, code: string },
 	pendingUser: {
-		error?: { message: string },
 		signedIdentities: string;
 		params: {
 			[key: string]: {
@@ -25,6 +27,7 @@ type Props = {
 	signUp: Function;
 	cancelSignUp: Function;
 	savePlaces: Function;
+	clearSignUpError: Function;
 }
 
 type Fields = {
@@ -55,6 +58,24 @@ const FIELD_NAMES = {
 };
 
 class OnboardContainer extends Component<void, Props, State> {
+	static propTypes = {
+		user: PropTypes.shape({
+			id: PropTypes.string
+		}),
+		error: PropTypes.shape({
+			message: PropTypes.string,
+			code: PropTypes.string,
+		}),
+		pendingUser: PropTypes.shape({
+			params: PropTypes.object,
+		}),
+		signIn: PropTypes.func.isRequired,
+		signUp: PropTypes.func.isRequired,
+		cancelSignUp: PropTypes.func.isRequired,
+		savePlaces: PropTypes.func.isRequired,
+		clearSignUpError: PropTypes.func.isRequired,
+	};
+
 	state: State = {
 		fields: {
 			nick: { value: '', error: null },
@@ -71,13 +92,18 @@ class OnboardContainer extends Component<void, Props, State> {
 	}
 
 	componentWillReceiveProps(nextProps: Props) {
-		this._setUserDetails(nextProps);
 		this._setCurrentPage(nextProps);
+		this._setUserDetails(nextProps);
+	}
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
 
 	_setUserDetails: Function = (props: Props) => {
 		const {
 			user,
+			error,
 			pendingUser,
 		} = props;
 
@@ -85,7 +111,7 @@ class OnboardContainer extends Component<void, Props, State> {
 			return;
 		}
 
-		const { params, error } = pendingUser;
+		const { params } = pendingUser;
 
 		for (const provider in params) {
 			const data = params[provider];
@@ -107,9 +133,21 @@ class OnboardContainer extends Component<void, Props, State> {
 					}
 				}
 
+				let message;
+
+				if (error) {
+					if (error.message) {
+						message = error.message;
+					} else {
+						message = ERRORS[error.code] || 'An unknown error occured!';
+					}
+				} else {
+					message = null;
+				}
+
 				this.setState({
 					fields: {
-						nick: { value: fields.nick.value, error: error ? error.message : null },
+						nick: { value: fields.nick.value, error: message },
 						name: { value: fields.name.value || data.name, error: null },
 						picture: { value: fields.picture.value || data.picture, error: null },
 						places: { value: isEmpty(fields.places) ? places : fields.places, error: null },
@@ -227,6 +265,10 @@ class OnboardContainer extends Component<void, Props, State> {
 	};
 
 	_onChangeField: Function = (type: string, value: any) => {
+		if (type === 'nick' && this.state.fields.nick.error) {
+			this.props.clearSignUpError();
+		}
+
 		const fields = this._validateFields({ ...this.state.fields, [type]: { value, error: null } });
 
 		this.setState({
@@ -284,23 +326,8 @@ class OnboardContainer extends Component<void, Props, State> {
 	}
 }
 
-OnboardContainer.propTypes = {
-	user: PropTypes.shape({
-		id: PropTypes.string
-	}),
-	pendingUser: PropTypes.shape({
-		params: PropTypes.object,
-		error: PropTypes.shape({
-			message: PropTypes.string
-		}),
-	}),
-	signIn: PropTypes.func.isRequired,
-	signUp: PropTypes.func.isRequired,
-	cancelSignUp: PropTypes.func.isRequired,
-	savePlaces: PropTypes.func.isRequired,
-};
-
 const mapActionsToProps = {
+	clearSignUpError: (store) => () => store.dispatch(clearSignUpError()),
 	signIn: (store) => (provider: string, token: string) => store.dispatch(signIn(provider, token)),
 	cancelSignUp: (store) => () => store.dispatch(cancelSignUp()),
 	signUp: (store, result) => (id: string, name: string) => {
@@ -341,6 +368,12 @@ const mapSubscriptionToProps = {
 		key: {
 			type: 'state',
 			path: 'signup',
+		}
+	},
+	error: {
+		key: {
+			type: 'state',
+			path: [ 'signup', 'error' ],
 		}
 	},
 	location: {

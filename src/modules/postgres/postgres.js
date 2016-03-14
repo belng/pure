@@ -7,10 +7,12 @@ import * as pg from '../../lib/pg';
 import * as Constants from '../../lib/Constants';
 import { TABLES, TYPES, TYPE_NAMES } from '../../lib/schema';
 import queryHandler from './query';
+import presenceHandler from './presence';
+
 import entityHandler from './entity';
 import { bus, cache, config } from '../../core-server';
 import * as Types from './../../models/models';
-import util from 'util';
+// import util from 'util';
 
 const channel = 'heyneighbor';
 
@@ -30,7 +32,6 @@ when tableoid = 'users'::regclass then ${Constants.TYPE_USER} \
 end as type`;
 
 function broadcast (entity) {
-	console.log('broadcasting entity: ', util.inspect(entity));
 	pg.notify(config.connStr, channel, entity);
 }
 
@@ -133,7 +134,6 @@ cache.onChange((changes) => {
 
 						r.map((entity) => {
 							state.entities[entity.id] = new Types[TYPE_NAMES[entity.type]](entity);
-							console.log(util.inspect(entity, {depth: null}));
 						});
 
 						const missingIds = ids.filter(itemID => !state.entities[itemID]);
@@ -168,7 +168,6 @@ pg.listen(config.connStr, channel, (payload) => {
 bus.on('change', (changes, next) => {
 	const counter = new Counter(), response = changes.response = changes.response || {}, ids = [];
 
-	console.log('Yo postgres, put this the db: ', util.inspect(changes, {depth: null}));
 	if (!response.entities) response.entities = {};
 	if (changes.source === 'postgres') {
 		next();
@@ -181,6 +180,10 @@ bus.on('change', (changes, next) => {
 		for (const id in changes.entities) {
 			ids.push(id);
 			sql.push(entityHandler(changes.entities[id]));
+			if ('presence' in changes.entities[id]) {
+				ids.push(id);
+				sql.push(presenceHandler(changes.entities[id]));
+			}
 		}
 
 		winston.info('sql', sql);
@@ -214,7 +217,6 @@ bus.on('change', (changes, next) => {
 
 
 	if (changes.queries) {
-		winston.debug('Got queries: ', util.inspect(changes.queries, { depth: null }));
 		const cb = (key, range, err, results) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
 				counter.dec();

@@ -25,27 +25,11 @@
   "globals": {
     "__DEV__": false,
 
-    // Flow global types.
-    "ReactComponent": false,
     "ReactClass": false,
     "ReactPropsCheckType": false,
     "ReactPropsChainableTypeChecker": false,
     "ReactPropTypes": false,
     "SyntheticEvent": false,
-    "React$Element": false,
-    "$Either": false,
-    "$All": false,
-    "$Tuple": false,
-    "$Supertype": false,
-    "$Subtype": false,
-    "$Shape": false,
-    "$Diff": false,
-    "$Keys": false,
-    "$Enum": false,
-    "$Exports": false,
-    "$FlowIssue": false,
-    "$FlowFixMe": false,
-    "$FixMe": false
   },
 
   "rules": {

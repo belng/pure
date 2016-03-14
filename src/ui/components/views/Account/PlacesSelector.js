@@ -52,7 +52,7 @@ export default class PlacesSelector extends Component<void, Props, void> {
 	};
 
 	_getResults: Function = (query: string) => GooglePlaces.getAutoCompletePredictions(
-		query, [ this.props.location || { latitude: 12.9667, longitude: 77.5667 } ], [ GooglePlaces.TYPE_FILTER_GEOCODE ]
+		query, [ this.props.location ], [ GooglePlaces.TYPE_FILTER_GEOCODE ]
 	);
 
 	_renderRow: Function = place => <LocationItem place={place} onPress={() => this.props.onSelectPlace(place)} />;

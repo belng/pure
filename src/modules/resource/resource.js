@@ -1,35 +1,38 @@
-import { bus, Constants } from '../../core-server';
+import { bus, Constants, cache } from '../../core-server';
 
 const resourceMap = {};
 
-bus.on('presence/offline', resourceID => {
-	const user = resourceMap[resourceID];
+bus.on('presence/offline', presence => {
+	const user = resourceMap[presence.resource];
 
 	if (user) {
-		bus.emit('change', {
-			auth: {
-				resource: resourceID
-			},
-			entities: {
-				[user]: {
-					resources: {
-						__op__: {
-							[resourceID]: 'delete'
-						}
-					}
-				}
+		cache.getEntity(user, (err, u) => {
+			if (err) {
+				return;
 			}
+
+			u.resources = u.resources || {};
+			u.resources.__op__ = {
+				[presence.resource]: 'delete'
+			};
+
+			bus.emit('change', {
+				entities: {
+					[user]: u
+				}
+			});
 		});
 	}
 
-	delete resourceMap[resourceID];
+	delete resourceMap[presence.resource];
 });
 
 bus.on('presence/online', presence => {
-	resourceMap[presence.resourceId] = presence.user;
+	resourceMap[presence.resource] = presence.user;
 });
 
 function resourceHandler(changes) {
+
 	if (changes.state && changes.state.user) {
 		resourceMap[changes.auth.resource] = changes.state.user;
 	} else if (changes.auth && changes.auth.resource) {
@@ -42,6 +45,8 @@ function resourceHandler(changes) {
 			state.user = state.user || changes.state.user;
 		}
 	}
+
+
 }
 
 bus.on('change', resourceHandler, Constants.APP_PRIORITIES.AUTHENTICATION_RESOURCE);

@@ -135,7 +135,7 @@ export default class Connect extends Component<void, Props, State> {
 		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
 
-	render(): ?React$Element<any> {
+	render(): ?React.Element<any> {
 		const {
 			state,
 		} = this;
@@ -147,8 +147,14 @@ export default class Connect extends Component<void, Props, State> {
 			component: ChildComponent,
 		} = this.props;
 
-		if (state && mapSubscriptionToProps && Object.keys(state).length !== Object.keys(mapSubscriptionToProps).length) {
-			return null;
+		if (state && mapSubscriptionToProps) {
+			const stateKeys = Object.keys(state);
+
+			for (const key in mapSubscriptionToProps) {
+				if (stateKeys.indexOf(key) === -1) {
+					return null;
+				}
+			}
 		}
 
 		const {

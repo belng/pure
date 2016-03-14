@@ -96,7 +96,7 @@ export default class NotificationBadge extends Component<void, Props, State> {
 		}).start();
 	};
 
-	render(): ?React$Element {
+	render(): ?React.Element {
 		const { count } = this.props;
 
 		if (!count) {

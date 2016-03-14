@@ -9,7 +9,6 @@ import uuid from 'uuid';
 import * as pg from '../../lib/pg';
 import type { User } from './../../lib/schemaTypes';
 
-
 // postgres mock, because jest is acting up.
 
 // const pg = {
@@ -81,6 +80,7 @@ function sendInvitations (resources, user, relRooms, ...stubsets) {
 		}
 	}
 
+
 	for (const relRoom of relRooms) {
 		const identity = relRoom.room.identities.filter(
 			ident => ident.substr(0, 6) === 'place:'
@@ -115,7 +115,7 @@ function sendInvitations (resources, user, relRooms, ...stubsets) {
 
 	pg.read(config.connStr, {
 		$: 'SELECT * FROM "rooms" WHERE identities && &{idents}',
-		idents: addable.map(a => a.iddentity)
+		idents: addable.map(a => a.identity)
 	}, (err, rooms) => {
 		if (err) { winston.error(err); return; }
 		for (let room of rooms) {

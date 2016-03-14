@@ -73,10 +73,10 @@ export function cat (parts, delim) {
 
 export function nameValues (record, delim) {
 	const parts = [];
-	let column, part;
 
-	for (column in record) {
-		part = { $: '"' + column + '"=&{' + column + '}' };
+	for (const column in record) {
+		const part = { $: '"' + column + '"=&{' + column + '}' };
+
 		part[column] = record[column];
 		parts.push(part);
 	}
@@ -157,7 +157,6 @@ export function upsert (tableName, insertObject, keyColumns) {
 
 export function paramize (query) {
 	const ixs = {}, vals = [];
-	let sql;
 
 	function getIndex(p, v) {
 		if (!(p in ixs)) {
@@ -188,11 +187,12 @@ export function paramize (query) {
 		throw Error('INVALID_QUERY');
 	}
 
-	sql = query.$.replace(/\&\{(\w+)\}/g, (m, p) => {
+	const sql = query.$.replace(/\&\{(\w+)\}/g, (m, p) => {
 		return '$' + (getIndex(p, query[p]) + 1);
 	}).replace(/\&\((\w+)\)/g, (m, p) => {
 		return paren(p, query[p]);
 	});
+
 	logger.log(sql, vals);
 	return { q: sql, v: vals };
 }
@@ -202,15 +202,14 @@ export const read = function (connStr, query, cb) {
 
 	logger.info('PgRead start', query);
 	pg.connect(connStr, (error, client, done) => {
-		let qv;
-
 		if (error) {
 			logger.error('Unable to connect to ' + connStr, error, query);
 			done();
 			return cb(error);
 		}
 
-		qv = paramize(query);
+		const qv = paramize(query);
+
 		logger.log('Querying', qv);
 		client.query(qv.q, qv.v, (queryErr, result) => {
 			done();
@@ -219,8 +218,10 @@ export const read = function (connStr, query, cb) {
 				return cb(queryErr);
 			}
 			logger.info('PgRead ', query, 'result', result.rows.length, ' rows in ', Date.now() - start, 'ms');
-			cb(null, result.rows);
+			return cb(null, result.rows);
 		});
+
+		return null;
 	});
 };
 
@@ -229,17 +230,16 @@ export const readStream = function (connStr, query) {
 
 	logger.info('PgReadStream ', query);
 	pg.connect(connStr, (error, client, done) => {
-		let stream, qv;
-
 		if (error) {
 			logger.error('Unable to connect to ' + connStr, error, query);
 			done();
 			return rstream.emit('error', error);
 		}
 
-		qv = paramize(query);
+		const qv = paramize(query);
+
 		logger.log('Querying', qv);
-		stream = client.query(qv.q, qv.v);
+		const stream = client.query(qv.q, qv.v);
 
 		stream.on('row', (row, result) => {
 			rstream.emit('row', row, result);
@@ -250,6 +250,7 @@ export const readStream = function (connStr, query) {
 		stream.on('error', (err) => {
 			done(); rstream.emit('error', err);
 		});
+		return null;
 	});
 
 	return rstream;
@@ -316,10 +317,15 @@ export const write = function (connStr, queries, cb) {
 						callback(commitErr, results);
 					});
 				}
+
+				return null;
 			}
 			run(0);
 		});
+
+		return null;
 	});
+	return null;
 };
 
 export function listen (connStr, channel, callback) {
@@ -334,6 +340,7 @@ export function listen (connStr, channel, callback) {
 			callback(packer.decode(data.payload));
 		});
 		client.query('LISTEN ' + channel);
+		return null;
 	});
 }
 
@@ -346,6 +353,8 @@ export function notify (connStr, channel, data, callback) {
 		}
 		logger.log("PgNotify '" + JSON.stringify(data));
 		client.query('SELECT pg_notify($1, $2)', [ channel, packer.encode(data) ]);
+
+		return null;
 	});
 }
 

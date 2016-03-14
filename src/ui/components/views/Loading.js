@@ -1,6 +1,6 @@
 /* @flow */
 
-import { Component } from 'react';
+import React, { Component } from 'react';
 import shallowEqual from 'shallowequal';
 
 type Props = {
@@ -12,7 +12,7 @@ export default class Loading extends Component<void, Props, void> {
 		return !shallowEqual(this.props, nextProps);
 	}
 
-	render(): ?React$Element {
+	render(): ?React.Element {
 		return null;
 	}
 }

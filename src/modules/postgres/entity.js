@@ -19,8 +19,6 @@ export default function (entity) {
 		names.push('terms');
 	}
 
-	if (isRel) names.push('roletime');
-
 	// Default properties that has to be set at all times.
 	if (ITEM_TYPES.indexOf(entity.type) >= 0 || TYPES.TYPE_USER) {
 		if (entity.create) names.push('createtime');
@@ -59,7 +57,6 @@ export default function (entity) {
 			}), ', '),
 			{
 				$: ') RETURNING &{id}::text as "id"',
-				type: entity.type,
 				id: isRel ? entity.user + '_' + entity.item : entity.id
 			}
 		], ' ');
@@ -96,7 +93,7 @@ export default function (entity) {
 					return {
 						$: `"${name}" = jsonop("${name}"::jsonb, &{${name}}::jsonb, &{${name}_op}::jsonb)`,
 						[name]: entity[name],
-						[name + '_op']: ops[name] || {}
+						[name + '_op']: ops[name] || null
 					};
 				default:
 					return {
@@ -111,7 +108,7 @@ export default function (entity) {
 				$: '"id" = &{id}',
 				id: entity.id
 			} :
-			entity.user && entity.item ? {
+			isRel ? {
 				$: '"user" = &{user} AND "item" = &{item}',
 				user: entity.user,
 				item: entity.item
@@ -124,8 +121,8 @@ export default function (entity) {
 				group: entity.group
 			} : 'FALSE',
 			{
-				$: 'RETURNING *, &{type}::smallint as "type"',
-				type: entity.type
+				$: ' RETURNING &{id}::text as "id"',
+				id: isRel ? entity.user + '_' + entity.item : entity.id
 			}
 		], ' ');
 	}

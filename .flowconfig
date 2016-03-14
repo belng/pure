@@ -12,7 +12,6 @@
 .*/node_modules/babel.*
 .*/node_modules/babylon.*
 .*/node_modules/invariant.*
-.*/node_modules/react-native-vector-icons/lib.*
 
 # Ignore react and fbjs where there are overlaps, but don't ignore
 # anything that react-native relies on
@@ -36,17 +35,6 @@
 
 # Lots of Flow errors from React Native, ignore for now
 .*/node_modules/react-native/.*
-
-# This should not be needed
-.*/node_modules/binary-extensions/.*.json
-.*/node_modules/builtin-modules/.*.json
-.*/node_modules/iconv-lite/.*.json
-.*/node_modules/jsonparse/.*.json
-.*/node_modules/resolve/.*.json
-.*/node_modules/spdx-exceptions/.*.json
-.*/node_modules/spdx-license-ids/.*.json
-.*/node_modules/tr46/.*.json
-.*/node_modules/url-regex/.*.json
 
 [include]
 
