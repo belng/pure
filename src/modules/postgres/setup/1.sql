@@ -66,7 +66,8 @@ CREATE TABLE rels (
 	item uuid,
 	"user" text,
 	roles smallint[], -- mute, upvote, home, work
-	roletime bigint,
+	createtime bigint,
+	updatetime bigint,
 	admin text,
 	expiretime bigint,
 	interest float(24),
@@ -93,7 +94,8 @@ CREATE TABLE notes (
 	count integer, -- this event in this group id
 	data jsonb, -- information like
 	event smallint, -- e.g. mention, invite, request
-	eventtime bigint
+	createtime bigint,
+	updatetime bigint
 );
 
 CREATE TABLE jobs (
@@ -102,6 +104,8 @@ CREATE TABLE jobs (
 );
 INSERT INTO jobs VALUES (1, 0), (2, 0), (3, 0);
 CREATE EXTENSION plv8;
+
+DROP FUNCTION IF EXISTS jsonop(jsonb, jsonb,jsonb);
 CREATE FUNCTION jsonop(oa jsonb, ob jsonb, oop jsonb) RETURNS jsonb AS $$
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
