@@ -29,7 +29,7 @@
     "lodash": "^4.6.1",
     "node-uuid": "^1.4.7",
     "node-xmpp-client": "^3.0.0",
-    "nodemailer": "2.3.0",
+    "nodemailer": "0.7.1",
     "opn": "^4.0.1",
     "pg": "^4.5.1",
     "radium": "^0.16.6",
