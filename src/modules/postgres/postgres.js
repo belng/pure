@@ -180,7 +180,7 @@ bus.on('change', (changes, next) => {
 		for (const id in changes.entities) {
 			ids.push(id);
 			sql.push(entityHandler(changes.entities[id]));
-			if ('presence' in changes.entities[id]) {
+			if ('presence' in changes.entities[id] && !('create' in changes.entities[id])) {
 				ids.push(id);
 				sql.push(presenceHandler(changes.entities[id]));
 			}
