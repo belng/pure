@@ -183,7 +183,7 @@ bus.on('change', change => {
 					type: 'rel',
 					link: { room: 'item' },
 					filter: { user: id, roles_cts: [ constants.ROLE_FOLLOWER ] },
-					order: 'roleTime'
+					order: 'createTime'
 				}, [ -Infinity, Infinity ], (err, results) => {
 					if (err) { reject(err); return; }
 					resolve(results);

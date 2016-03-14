@@ -108,7 +108,7 @@ function insertText(done) {
 function insertRoomrel(usr, room, cb) {
 	pg.write(connstr, [ {
 		$: `INSERT INTO roomrels (
-			"user", item, roles, roletime, interest
+			"user", item, roles, createtime, interest
 		) VALUES (
 			&{user}, &{item}, ARRAY[&{role}]::smallint[],
 			extract(epoch from now())*1000, &{interest}
@@ -125,7 +125,7 @@ function insertThreadrel(usr, thread, cb) {
 
 	pg.write(connstr, [ {
 		$: `INSERT INTO threadrels (
-			"user", item, roles, roletime, interest, presencetime
+			"user", item, roles, createtime, interest, presencetime
 		) VALUES (
 			&{user}, &{item}, ARRAY[&{role}]::smallint[],
 			extract(epoch from now())*1000, &{interest}, &{ptime}
@@ -141,7 +141,7 @@ function insertThreadrel(usr, thread, cb) {
 function insertTextrel(usr, text, cb) {
 	pg.write(connstr, [ {
 		$: `INSERT INTO textrels (
-			"user", item, roles, roletime, interest
+			"user", item, roles, createtime, interest
 		) VALUES (
 			&{user}, &{item}, ARRAY[&{role}]::smallint[],
 			extract(epoch from now())*1000, &{interest}
@@ -184,9 +184,9 @@ function repeat(fn, repeatEl) {
 				}
 				rptl--;
 				if (rptl > 0) {
-					next();
+					return next();
 				}	else {
-					resolve();
+					return resolve();
 				}
 			});
 		}

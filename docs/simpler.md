@@ -84,7 +84,8 @@ that may be used for prioritizing notifications.
 - userId
 - itemId
 - role
-- roleTime
+- createTime
+- updateTime
 - status [overall/higest]
 - statuses [map of resource to status]
 - statusTime [of overall status change]

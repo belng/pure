@@ -55,7 +55,7 @@ function sendMentionEmail() {
 	end = Date.now() - MENTION_DELAY;
 
 	pg.readStream(connStr, {
-		$: `with textrel as (select * from textrels join users on "user"=id where roletime>users.presencetime and roles @> '{2}' and roletime >= &{start} and roletime < &{end}) select * from textrel join texts on textrel.item=texts.id order by textrel.user`,
+		$: `with textrel as (select * from textrels join users on "user"=id where createtime>users.presencetime and roles @> '{2}' and createtime >= &{start} and createtime < &{end}) select * from textrel join texts on textrel.item=texts.id order by textrel.user`,
 		mention: Constants.ROLE_MENTIONED,
 		start,
 		end,

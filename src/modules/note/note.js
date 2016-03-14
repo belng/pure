@@ -20,11 +20,12 @@ bus.on('change', (changes, next) => {
 			entity.type === Constants.TYPE_THREADREL) &&
 			entity.role === Constants.ROLE_MENTIONED
 		) {
-			const item = changes.entities[entity.item],
+			const item = changes.entities[entity.item], now = Date.now(),
 				noteObj = {
 					user: entity.user,
 					event: Constants.NOTE_MENTION,
-					eventTime: Date.now(),
+					createTime: now,
+					updateTime: now,
 					count: 1,
 					score: 50,
 					type: Constants.TYPE_NOTE

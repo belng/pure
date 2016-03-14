@@ -27,7 +27,7 @@ const NotificationBadgeContainer = (props: any) => (
 						filter: {
 							user: props.user
 						},
-						order: 'eventTime'
+						order: 'updateTime'
 					},
 					range: {
 						start: Infinity,

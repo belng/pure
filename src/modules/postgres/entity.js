@@ -43,7 +43,6 @@ export default function (entity) {
 					};
 				case 'createtime':
 				case 'updatetime':
-				case 'roletime':
 					return {
 						$: `&{${name}}`,
 						[name]: Date.now()
