@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
+import org.json.JSONException;
+
 public class GCMListenerService extends GcmListenerService {
 
     private static final String TAG = "GCMListenerService";
@@ -12,11 +14,9 @@ public class GCMListenerService extends GcmListenerService {
 
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        String message = data.getString("message");
 
-        Log.d(TAG, "From: " + from);
-        Log.d(TAG, "Message: " + data);
+        Log.d(TAG, "Got notification: " + data);
 
-        GCMNotificationHandler.send(this, NOTIFICATION_ID, AppNotification.fromBundle(this, data));
+        GCMNotificationHandler.send(this, NOTIFICATION_ID, data);
     }
 }
