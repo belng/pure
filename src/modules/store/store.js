@@ -10,6 +10,13 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 	let unWatch;
 
 	switch (options.type) {
+	case 'state':
+		if (typeof options.path !== 'string') {
+			throw new TypeError(`Invalid 'path' passed to store.subscribe::state in ${options.source}`);
+		}
+
+		unWatch = cache.watchState(options.path, callback);
+		break;
 	case 'entity':
 		if (typeof options.id !== 'string') {
 			throw new TypeError(`Invalid 'id' passed to store.subscribe::entity in ${options.source}`);
@@ -19,27 +26,17 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 
 		unWatch = cache.watchEntity(options.id, data => data && data.type === 'loading' ? callback(LOADING) : callback(data));
 		break;
-	case 'state':
-		if (typeof options.path !== 'string' && !Array.isArray(options.path)) {
-			throw new TypeError(`Invalid 'path' passed to store.subscribe::state in ${options.source}`);
-		}
-
-		unWatch = cache.watchState(
-			typeof options.path === 'string' ? [ options.path ] : options.path,
-			data => callback(data && data.__op__ === 'delete' ? null : data)
-		);
-		break;
 	case 'me':
 		callback(LOADING);
 
 		let unWatchMe;
 
-		const unWatchUser = cache.watchState([ 'user' ], id => {
+		const unWatchUser = cache.watchState('user', user => {
 			if (unWatchMe) {
 				unWatchMe();
 			}
 
-			unWatchMe = cache.watchEntity(id, callback);
+			unWatchMe = cache.watchEntity(user, callback);
 		});
 
 		unWatch = () => {

@@ -23,7 +23,7 @@ export type SubscriptionOptions = {
 	range?: SubscriptionRange;
 	order?: string;
 	id?: string;
-	path?: string|Array<string>;
+	path?: string;
 	source: string;
 }
 
