@@ -67,12 +67,16 @@ export type Note = {
 		creator: string;
 		id: string;
 		room?: string;
-		title?: string;
+		title: string;
 		thread?: string;
+		type: string;
+		link: string;
+		picture: string;
 	};
 	dismissTime: number;
 	event: number;
-	eventTime: number;
+	createTime: number;
+	updateTime: number;
 	group: string;
 	id: string;
 	readTime: number;
