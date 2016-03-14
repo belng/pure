@@ -18,7 +18,7 @@ end as type`;
 export default {
 	item,
 	user,
-	rels
+	rel
 };
 
 function item(ids) {
@@ -34,12 +34,13 @@ function user(ids) {
 		ids
 	} ]);
 }
-function rels(ids) {
+function rel(ids) {
 	const q = [];
 
 	ids.map(id => id.split('_')).forEach(([ u, i ]) => {
+		console.log("After split:",u, i);
 		q.push({
-			$: `SELECT *, ${TYPE_SEGMENT} FROM rels WHERE "user" = &{user} AND "item" = &{item})`,
+			$: `SELECT *, ${TYPE_SEGMENT} FROM rels WHERE "user" = &{user} AND "item" = &{item}`,
 			item: i,
 			user: u
 		});
