@@ -14,7 +14,7 @@ export type Bus = {
 
 export { Constants };
 export const bus: Bus = new Ebus();
-bus.setDebug(10);
+
 export const cache = new Know({
 	is: (entity, type) => {
 		if (!entity) return false;

@@ -66,7 +66,7 @@ function signuphandler(changes, n) {
 				changes.response = changes.response || {};
 				changes.response.state = changes.response.state || {};
 				changes.response.state.user = changes.auth.signup.id;
-				changes.response.state.__op__ = { signup: 'delete' };
+				changes.response.state.signup = null;
 				const user = (changes.entities = changes.entities || {})[changes.auth.signup.id] = changes.auth.signup;
 
 				user.type = Constants.TYPE_USER;
