@@ -160,7 +160,13 @@ public class Note {
         return null;
     }
 
-    public static Note fromBundle(Context context, Bundle bundle) throws JSONException {
-        return new Note(context, new JSONObject(bundle.getString("message")));
+    public static Note fromBundle(Context context, Bundle bundle) throws JSONException, NoSuchFieldException {
+        String message = bundle.getString("message");
+
+        if (message != null) {
+            return new Note(context, new JSONObject(message));
+        } else {
+            throw new NoSuchFieldException("Property 'message' not found in bundle");
+        }
     }
 }
