@@ -23,10 +23,10 @@ export default function send (from, to, sub, html, cb) {
 			setTimeout(() => {
 				send(email.from, email.to, email.subject, email.html);
 			}, 300000);
-			cb(e);
+			if (cb) cb(e);
 		} else {
 			log.info('Email sent successfully to ', email.to);
-			cb(null);
+			if (cb) cb(null);
 		}
 	});
 }

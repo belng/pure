@@ -26,9 +26,10 @@ export const signUp = (user: User): Object => ({
 	}
 });
 
-export const clearSignUpError = (): Object => ({
+export const clearSignUpError = (signup: Object): Object => ({
 	state: {
 		signup: {
+			...signup,
 			error: null,
 		},
 	}
