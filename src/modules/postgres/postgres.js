@@ -14,8 +14,9 @@ import winston from 'winston';
 const channel = 'heyneighbor';
 
 function getTypeFromId(id) {
-	const _split = id.split;
+	const _split = id.split();
 
+	console.log("_split", _split);
 	if (_split.length === 3) return 'rest';
 	else if (_split.length === 2) return 'rel';
 	else if (id.length >= 36) return 'item';
@@ -112,7 +113,8 @@ cache.onChange((changes) => {
 			if (key === 'entities') {
 				const ids = Object.keys(changes.queries.entities),
 					typeToId = ids.reduce((map, id) => {
-						return map[getTypeFromId(id)].push(id);
+						map[getTypeFromId(id)].push(id);
+						return map;
 					}, {
 						item: [],
 						user: [],
@@ -128,6 +130,7 @@ cache.onChange((changes) => {
 				for (const i in typeToId) {
 					// FIXME: Notes only for now
 					if (i === 'rest' || i === 'note' || !typeToId[i].length) continue;
+					console.log("Type:", i);
 					pg.read(config.connStr,
 						PgEntity.read[i](typeToId[i]),
 						onEntityQuery.bind(null, typeToId[i])

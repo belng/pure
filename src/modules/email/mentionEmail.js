@@ -10,7 +10,8 @@ import send from './sendEmail';
 import handlebars from 'handlebars';
 import getMailObj from './buildMailObj';
 const MENTION_INTERVAL = 10 * 60 * 1000, MENTION_DELAY = 10 * 60 * 1000,
-	template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' + config.app_id + '.digest.hbs', 'utf-8').toString()),
+	template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' +
+	config.app_id + '.digest.hbs', 'utf-8').toString()),
 	connStr = config.connStr, conf = config.email, counter1 = new Counter();
 
 let lastEmailSent, end;
@@ -55,8 +56,7 @@ function sendMentionEmail() {
 	end = Date.now() - MENTION_DELAY;
 
 	pg.readStream(connStr, {
-		$: `with textrel as (select * from textrels join users on "user"=id where createtime>users.presencetime and roles @> '{2}' and createtime >= &{start} and createtime < &{end}) select * from textrel join texts on textrel.item=texts.id order by textrel.user`,
-		mention: Constants.ROLE_MENTIONED,
+		$: `with textrel as (select * from textrels join users on "user"=id where roletime>users.presencetime and roles @> '{${Constants.ROLE_MENTIONED}}' and roletime >= &{start} and roletime < &{end}) select * from textrel join texts on textrel.item=texts.id order by textrel.user`,
 		start,
 		end,
 	}).on('row', (urel) => {
@@ -90,7 +90,7 @@ function sendMentionEmail() {
 
 }
 
-export default function (row) {
+export default function (row: Object) {
 	lastEmailSent = row.lastrun;
 	sendMentionEmail();
 	setInterval(sendMentionEmail, MENTION_INTERVAL);
