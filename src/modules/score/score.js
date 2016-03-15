@@ -4,9 +4,9 @@ import log from 'winston';
 function getScore(params) {
 	return Math.log(params);
 }
-bus.on('change', (changes, next) => {
+bus.on('postchange', (changes) => {
 	if (!changes.entities) {
-		next();
+		// next();
 		return;
 	}
 
@@ -14,7 +14,9 @@ bus.on('change', (changes, next) => {
 		const entity = changes.entities[id];
 
 		if (entity.type === Constants.TYPE_THREAD) {
-			entity.score = getScore(entity.updateTime);
+			console.log("score module", entity);
+			entity.score = getScore(entity.updateTime || Date.now());
+			console.log("score module", entity);
 			changes.entities[id] = entity;
 		}
 
@@ -26,6 +28,6 @@ bus.on('change', (changes, next) => {
 //		}
 	}
 
-	next();
+	// next();
 });
 log.info('Score module ready.');
