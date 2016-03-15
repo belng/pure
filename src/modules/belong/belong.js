@@ -132,8 +132,6 @@ function sendInvitations (resources, user, relRooms, ...stubsets) {
 		addRels(change, user, resources, addable);
 		removeRels(change, removable);
 
-		winston.debug('BELONG', change);
-
 		bus.emit('change', { entities: change, source: 'belong' });
 	});
 }
