@@ -19,7 +19,7 @@ class RoomsContainer extends Component {
 					data: {
 						key: {
 							slice: {
-								type: 'rel',
+								type: 'roomrel',
 								link: {
 									room: 'item',
 								},

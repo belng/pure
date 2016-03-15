@@ -181,7 +181,7 @@ bus.on('change', change => {
 			/* Fetch the current rooms of this user. */
 			const currentRels = new Promise((resolve, reject) => {
 				cache.query({
-					type: 'rel',
+					type: 'roomrel',
 					link: { room: 'item' },
 					filter: { user: id, roles_cts: [ constants.ROLE_FOLLOWER ] },
 					order: 'createTime'
