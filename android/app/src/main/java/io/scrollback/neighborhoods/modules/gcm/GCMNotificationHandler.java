@@ -27,10 +27,10 @@ public class GCMNotificationHandler {
             return;
         }
 
-        AppNotification note = null;
+        Note note = null;
 
         try {
-            note = AppNotification.fromBundle(context, bundle);
+            note = Note.fromBundle(context, bundle);
         } catch (JSONException e) {
             Log.e(TAG, "Failed to show notification", e);
         }

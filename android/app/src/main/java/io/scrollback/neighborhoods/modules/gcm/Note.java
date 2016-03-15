@@ -21,9 +21,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class AppNotification {
+public class Note {
 
-    private static final String TAG = "AppNotification";
+    private static final String TAG = "Note";
 
     private static final String PROP_COUNT = "count";
     private static final String PROP_TIME = "updateTime";
@@ -45,7 +45,7 @@ public class AppNotification {
     @Nullable
     public final Bitmap picture;
 
-    public AppNotification(Context context, JSONObject note) throws JSONException {
+    public Note(Context context, JSONObject note) throws JSONException {
         mContext = context;
 
         count = note.getLong(PROP_COUNT);
@@ -160,7 +160,7 @@ public class AppNotification {
         return null;
     }
 
-    public static AppNotification fromBundle(Context context, Bundle bundle) throws JSONException {
-        return new AppNotification(context, new JSONObject(bundle.getString("message")));
+    public static Note fromBundle(Context context, Bundle bundle) throws JSONException {
+        return new Note(context, new JSONObject(bundle.getString("message")));
     }
 }
