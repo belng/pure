@@ -327,7 +327,7 @@ class OnboardContainer extends Component<void, Props, State> {
 }
 
 const mapActionsToProps = {
-	clearSignUpError: (store, result, props) => () => store.dispatch(clearSignUpError(props.pendingUser)),
+	clearSignUpError: (store, result) => () => store.dispatch(clearSignUpError(result.pendingUser)),
 	signIn: (store) => (provider: string, token: string) => store.dispatch(signIn(provider, token)),
 	cancelSignUp: (store) => () => store.dispatch(cancelSignUp()),
 	signUp: (store, result) => (id: string, name: string) => {
