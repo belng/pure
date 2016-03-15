@@ -115,7 +115,7 @@ export const startThread = (
 
 	return {
 		entities: {
-			[id]: new ThreadModel({ id, ...data, create: true })
+			[id]: new ThreadModel({ id, ...data, create: true, createTime: Date.now()})
 		}
 	};
 };

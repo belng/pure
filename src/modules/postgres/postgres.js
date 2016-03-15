@@ -152,6 +152,8 @@ cache.onChange((changes) => {
 pg.listen(config.connStr, channel, (payload) => {
 	const change = { entities: { [payload.id]: payload } };
 
+	console.log("GOT: entity back:", change, Object.keys(cache.indexes));
+
 	bus.emit('postchange', change);
 	cache.put(change);
 });
