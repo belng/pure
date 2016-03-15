@@ -19,6 +19,7 @@ import java.util.List;
 
 import io.scrollback.neighborhoods.bundle.JSBundleManager;
 import io.scrollback.neighborhoods.modules.analytics.AnalyticsPackage;
+import io.scrollback.neighborhoods.modules.contacts.ContactsPackage;
 import io.scrollback.neighborhoods.modules.core.CorePackage;
 import io.scrollback.neighborhoods.modules.facebook.FacebookPackage;
 import io.scrollback.neighborhoods.modules.gcm.GCMPackage;
@@ -85,6 +86,7 @@ public class MainActivity extends ReactActivity {
                 new MainReactPackage(),
                 new CorePackage(),
                 new GCMPackage(),
+                new ContactsPackage(),
                 new GooglePlacesPackage(),
                 new AnalyticsPackage(),
                 new GoogleLoginPackage(),
