@@ -51,7 +51,8 @@ export type Relation = {
 	presenceTime: number;
 	resources: { [key: string]: number };
 	roles: Array<number>;
-	roleTime: string;
+	createTime: number;
+	updateTime: number;
 	tags: Array<string>;
 	transitRole: number;
 	transitType: number;
@@ -67,12 +68,16 @@ export type Note = {
 		creator: string;
 		id: string;
 		room?: string;
-		title?: string;
+		title: string;
 		thread?: string;
+		type: string;
+		link: string;
+		picture: string;
 	};
 	dismissTime: number;
 	event: number;
-	eventTime: number;
+	createTime: number;
+	updateTime: number;
 	group: string;
 	id: string;
 	readTime: number;

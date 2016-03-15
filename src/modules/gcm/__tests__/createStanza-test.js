@@ -11,7 +11,8 @@ describe('test creating stanza', () => {
 		const data = {
 			user: 'testinguser',
 			event: 1,
-			eventTime: 1457003330852,
+			createTime: 1457003330852,
+			updateTime: 1457003330852,
 			type: 40,
 			group: 'shagf7-sdfhg834-dskfg834',
 			data: {

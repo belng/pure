@@ -4,6 +4,9 @@ import { bus, cache } from '../../core-client';
 import { subscribe, on } from '../store/store';
 import { setPresence, setItemPresence } from '../store/actions';
 
+// TODO: remove this when cache bug is fixed.
+let lastUser;
+
 subscribe({ type: 'state', path: 'session', source: 'presence' }, () => {
 	cache.getState([ 'user' ], id => {
 		if (id) {
@@ -13,6 +16,8 @@ subscribe({ type: 'state', path: 'session', source: 'presence' }, () => {
 });
 
 subscribe({ type: 'state', path: 'user', source: 'presence' }, id => {
+	if (lastUser === id) return;
+	lastUser = id;
 	if (id) bus.emit('change', setPresence(id, 'online'));
 });
 
@@ -34,7 +39,6 @@ on('subscribe', options => {
 				break;
 			case 'text':
 				const thread = slice.filter.parents_cts[0];
-
 				cache.getEntity(`${id}_${thread}`, (err, result) => {
 					if (err) return;
 					bus.emit('change', setItemPresence('thread', thread, id, 'online', !result));

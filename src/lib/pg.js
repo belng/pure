@@ -354,7 +354,7 @@ export function notify (connStr, channel, data, callback) {
 		logger.log("PgNotify '" + JSON.stringify(data));
 		client.query('SELECT pg_notify($1, $2)', [ channel, packer.encode(data) ]);
 
-		return null;
+		return done();
 	});
 }
 

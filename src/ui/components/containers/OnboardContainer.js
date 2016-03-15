@@ -373,8 +373,9 @@ const mapSubscriptionToProps = {
 	error: {
 		key: {
 			type: 'state',
-			path: [ 'signup', 'error' ],
-		}
+			path: 'signup',
+		},
+		transform: signup => signup ? signup.error : null
 	},
 	location: {
 		key: {

@@ -73,7 +73,7 @@ cache.getRelatedEntity = function(type, id, f) {
 	q.filter = filter;
 	filter.room = entityId;
 
-	q.order = 'roleTime';
+	q.order = 'createTime';
 	key = this.cache.sliceToKey(q);
 	items = this.cache.query(key, range);
 

@@ -25,6 +25,8 @@ import io.scrollback.neighborhoods.modules.gcm.GCMPackage;
 import io.scrollback.neighborhoods.modules.gcm.GCMRegistrationManager;
 import io.scrollback.neighborhoods.modules.google.GoogleLoginPackage;
 import io.scrollback.neighborhoods.modules.places.GooglePlacesPackage;
+
+
 public class MainActivity extends ReactActivity {
 
     GCMRegistrationManager mRegistrationManager = new GCMRegistrationManager(this);
