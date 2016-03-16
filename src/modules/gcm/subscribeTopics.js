@@ -159,8 +159,11 @@ function handleSubscription(changes) {
 				entity.type === Constants.TYPE_THREADREL ||
 				entity.type === Constants.TYPE_ROOMREL
 			) {
-			// console.log("ksdfhjhadf : ", entity)
-			if (entity.createTime !== entity.updateTime) return;
+			console.log("ksdfhjhadf : ", entity);
+			if (
+				!entity.createTime || entity.updateTime ||
+				 entity.createTime !== entity.updateTime
+			 ) return;
 			let user = changes.entities[entity.user];
 
 			if (!user) {
@@ -171,25 +174,25 @@ function handleSubscription(changes) {
 				});
 			}
 			counter.then(() => {
-				if (entity.roles.length === 0) {
-					const gcm = user.params && user.params.gcm;
-					const	tokens = values(gcm);
-					const topic = entity.type === Constants.TYPE_ROOMREL ? 'room-' +
-					 entity.item : 'thread-' + entity.item;
-
-					tokens.forEach((token) => {
-						unsubscribeTopics({ iid: token, topic }, () => {
-							log.info('Unsubscribed from topic: ', topic);
-						});
-					});
-				} else {
-					log.info('subscribe ' + user.id + ' to ' + entity.item);
-					subscribe({
-						params: user.params || {},
-						topic: entity.type === Constants.TYPE_ROOMREL ? 'room-' + entity.item :
-						'thread-' + entity.item
-					});
-				}
+				// if (entity.roles.length === 0) {
+				// 	const gcm = user.params && user.params.gcm;
+				// 	const	tokens = values(gcm);
+				// 	const topic = entity.type === Constants.TYPE_ROOMREL ? 'room-' +
+				// 	 entity.item : 'thread-' + entity.item;
+				//
+				// 	tokens.forEach((token) => {
+				// 		unsubscribeTopics({ iid: token, topic }, () => {
+				// 			log.info('Unsubscribed from topic: ', topic);
+				// 		});
+				// 	});
+				// } else {
+				log.info('subscribe ' + user.id + ' to ' + entity.item);
+				subscribe({
+					params: user.params || {},
+					topic: entity.type === Constants.TYPE_ROOMREL ? 'room-' + entity.item :
+					'thread-' + entity.item
+				});
+				// }
 			});
 		}
 	}
