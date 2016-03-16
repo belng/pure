@@ -2,7 +2,7 @@ import { Constants, bus } from '../../core-server';
 import log from 'winston';
 
 function getScore(params) {
-	return Math.log(params);
+	return 1;
 }
 bus.on('postchange', (changes) => {
 	if (!changes.entities) {
