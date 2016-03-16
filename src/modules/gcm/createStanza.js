@@ -1,25 +1,23 @@
 import uid from '../../lib/uid-server';
 import { Constants } from '../../core-server';
-export default function (data) {
-	let stanza;
-	let topic = data.parents && data.parents[0] || data.user;
+export default function (pushData) {
+	let topic;
 
-	if (data.type === Constants.TYPE_THREAD) {
-		topic = 'room-' + topic;
+	if (pushData.type === Constants.TYPE_THREAD) {
+		topic = 'room-' + pushData.data.room;
 	}
-	if (data.type === Constants.TYPE_TEXT) {
-		topic = 'thread-' + topic;
+	if (pushData.type === Constants.TYPE_TEXT) {
+		topic = 'thread-' + pushData.data.thread;
 	}
-	if (data.type === Constants.TYPE_NOTE) {
-		topic = 'mention-' + topic;
+	if (pushData.type === Constants.TYPE_NOTE) {
+		topic = 'user-' + pushData.user;
 	}
-	stanza = `<message>
+	const stanza = `<message>
 	<gcm xmlns="google:mobile:data">
 	{
 		"to": "/topics/${topic}",
 		"message_id": "${uid()}",
-		"data": ${JSON.stringify(data)},
-		"notification": ${JSON.stringify(data)}
+		"data": ${JSON.stringify(pushData)}
 	}
 	</gcm>
 	</message>`;

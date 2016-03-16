@@ -8,7 +8,7 @@ import client from '../client/middleware';
 import { config, bus } from '../../core-server';
 
 const app = koa();
-const httpServer = http.createServer(app.callback()).listen(config.server.port);
+const httpServer = http.createServer(app.callback()).listen(config.server.host.split(':')[1]);
 
 app.use(logger());
 app.use(client());
@@ -20,7 +20,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Open the URL in browser
 if (config.open_in_browser) {
-	opn(`${config.server.protocol}//${config.server.host}:${config.server.port}`);
+	opn(`${config.server.protocol}//${config.server.host}`);
 }
 
 app.httpServer = httpServer;

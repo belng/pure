@@ -12,13 +12,13 @@ import '../modules/resource/resource';
 import '../modules/belong/belong';
 
 /* ########### */
-// import '../modules/relations/relations';
+import '../modules/relations/relations';
 
 import './../modules/count/count';
 import './../modules/note/note';
 import './../modules/upload/upload';
 import '../modules/score/score';
-// import '../modules/gcm/gcm-server';
+import '../modules/gcm/gcm-server';
 import '../modules/postgres/postgres';
 
 // import "./../modules/ui/ui-server";
