@@ -238,6 +238,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 	};
 
 	_handlePosted: Function = thread => {
+		this.props.dismiss();
 		this.props.onNavigation(new NavigationActions.Push({
 			name: 'chat',
 			props: {
