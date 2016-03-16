@@ -30,8 +30,8 @@ public class GCMNotificationHandler {
         Note note = null;
 
         try {
-            note = Note.fromBundle(context, bundle);
-        } catch (JSONException | NoSuchFieldException e) {
+            note = new Note(context, bundle);
+        } catch (JSONException e) {
             Log.e(TAG, "Failed to show notification", e);
         }
 

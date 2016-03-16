@@ -73,6 +73,7 @@ function sendWelcomeEmail () {
 
 export default function (row) {
 	lastEmailSent = row.lastrun;
+	log.info('starting welcome email');
 	sendWelcomeEmail();
 	setInterval(sendWelcomeEmail, /*10000*/ WELCOME_INTERVAL);
 }

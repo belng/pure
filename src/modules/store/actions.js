@@ -103,7 +103,12 @@ export const sendMessage = (
 
 	return {
 		entities: {
-			[id]: new TextModel({ id, ...data, create: true })
+			[id]: new TextModel({
+				id,
+				...data,
+				create: true,
+				createTime: Date.now()
+			})
 		}
 	};
 };
@@ -115,7 +120,12 @@ export const startThread = (
 
 	return {
 		entities: {
-			[id]: new ThreadModel({ id, ...data, create: true, createTime: Date.now()})
+			[id]: new ThreadModel({
+				id,
+				...data,
+				create: true,
+				createTime: Date.now()
+			})
 		}
 	};
 };

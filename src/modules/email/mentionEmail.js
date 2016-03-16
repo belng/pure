@@ -56,7 +56,7 @@ function sendMentionEmail() {
 	end = Date.now() - MENTION_DELAY;
 
 	pg.readStream(connStr, {
-		$: `with textrel as (select * from textrels join users on "user"=id where roletime>users.presencetime and roles @> '{${Constants.ROLE_MENTIONED}}' and roletime >= &{start} and roletime < &{end}) select * from textrel join texts on textrel.item=texts.id order by textrel.user`,
+		$: `with textrel as (select * from textrels join users on "user"=id where textrels.createtime>users.presencetime and roles @> '{${Constants.ROLE_MENTIONED}}' and textrels.createtime >= &{start} and textrels.createtime < &{end}) select * from textrel join texts on textrel.item=texts.id order by textrel.user`,
 		start,
 		end,
 	}).on('row', (urel) => {
@@ -90,8 +90,9 @@ function sendMentionEmail() {
 
 }
 
-export default function (row: Object) {
+export default function (row) {
 	lastEmailSent = row.lastrun;
+	log.info('starting mention email');
 	sendMentionEmail();
 	setInterval(sendMentionEmail, MENTION_INTERVAL);
 }

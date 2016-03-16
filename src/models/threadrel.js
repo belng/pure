@@ -10,4 +10,5 @@ export default class ThreadRel extends Relation {
 		}
 		super(data);
 	}
+
 }

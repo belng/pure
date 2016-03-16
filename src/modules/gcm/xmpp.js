@@ -33,7 +33,7 @@ function onStanza (s) {
 	}
 }
 function onOnline (d) {
-	log.info('client online');
+	log.info('XMPP client online');
 	log.info('data: ', d);
 }
 

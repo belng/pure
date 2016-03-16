@@ -36,8 +36,6 @@ public class Note {
 
     private final Context mContext;
 
-    public final long count;
-    public final long time;
     public final String title;
     public final String summary;
     public final String author;
@@ -45,18 +43,18 @@ public class Note {
     @Nullable
     public final Bitmap picture;
 
-    public Note(Context context, JSONObject note) throws JSONException {
+    public Note(Context context, Bundle bundle) throws JSONException {
         mContext = context;
 
-        count = note.getLong(PROP_COUNT);
-        time = note.getLong(PROP_TIME);
-
-        JSONObject data = note.getJSONObject(PROP_DATA);
+        JSONObject data = new JSONObject(bundle.getString(PROP_DATA));
 
         title = data.getString(PROP_TITLE);
         summary = data.getString(PROP_BODY);
         author = data.getString(PROP_AUTHOR);
         link = data.getString(PROP_LINK);
+
+
+
 
         if (data.has(PROP_PICTURE)) {
             picture = getBitmap(data.getString(PROP_PICTURE));
@@ -158,15 +156,5 @@ public class Note {
         }
 
         return null;
-    }
-
-    public static Note fromBundle(Context context, Bundle bundle) throws JSONException, NoSuchFieldException {
-        String message = bundle.getString("message");
-
-        if (message != null) {
-            return new Note(context, new JSONObject(message));
-        } else {
-            throw new NoSuchFieldException("Property 'message' not found in bundle");
-        }
     }
 }

@@ -35,7 +35,7 @@ function unsubscribeTopics (iid, cb) {
 		try {
 			// unsubscribe thread topics
 			await Object.keys(JSON.parse(b).rel.topics).map(topic => {
-				if (!/thread-/.test(topic)) {
+				if (!/thread:/.test(topic)) {
 					log.debug('does not match thread');
 					return null;
 				}
@@ -83,7 +83,7 @@ export function subscribe (userRel: Object) {
 				}
 			}, (error, response, body) => {
 				if (error) {
-					log.error(error);
+					log.error('error subscribing to topic: ', userRel.topic, token, error);
 					if (error.type === 'TOO_MANY_TOPICS') {
 						log.info('unsubscribe few old topics');
 						unsubscribeTopics(token, () => {
@@ -94,13 +94,13 @@ export function subscribe (userRel: Object) {
 					}
 				}
 				if (body.error) {
-					log.error(body);
+					log.error(body, userRel.topic);
 					// console.log(options);
 				} else {
 					log.info('succefully subscribed to: ' + userRel.topic, body);
 					getIIDInfo(token, (e, r, b) => {
 						log.info(b);
-						return;
+						// return;
 					});
 				}
 			});
@@ -111,6 +111,7 @@ export function subscribe (userRel: Object) {
 		const data = getTokenAndSession();
 		if (data.error) log.info(data.error);
 		updateUser({ data }, (error) => {
+			console.log("dta: ", data);
 			if (!error) {
 				register();
 				return;
@@ -118,8 +119,10 @@ export function subscribe (userRel: Object) {
 				log.info('No gcm found for user');
 			}
 		});
+	} else {
+		register();
 	}
-	register();
+
 }
 function handleSubscription(changes) {
 	const counter = new Counter();
