@@ -6,7 +6,7 @@ import ThreadModel from '../../models/thread';
 import TextModel from '../../models/text';
 import RoomRelModel from '../../models/roomrel';
 import ThreadRelModel from '../../models/threadrel';
-import uuid from 'uuid';
+import uuid from 'node-uuid';
 import { PRESENCE_FOREGROUND, PRESENCE_NONE } from '../../lib/Constants';
 
 /*
