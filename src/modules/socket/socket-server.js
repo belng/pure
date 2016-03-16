@@ -66,10 +66,14 @@ bus.on('http/init', app => {
 			function handleSetState(err) {
 				if (err) {
 					if (message.response) {
-						socket.send(packer.encode({
-							type: 'error',
-							message: message.response
-						}));
+
+						const errorToSend = {
+								type: 'error',
+								message: message.response
+							}, encoded = packer.encode(errorToSend);
+
+						winston.debug('Sending Error:', errorToSend);
+						socket.send(encoded);
 					} else {
 						sendError(
 							socket, err.code || 'ERR_UNKNOWN', err.message, message
@@ -85,11 +89,14 @@ bus.on('http/init', app => {
 							user: message.auth.user
 						});
 					}
+					const toSend = {
+							type: 'change',
+							message: message.response
+						}, encoded = packer.encode(toSend);
 
-					socket.send(packer.encode({
-						type: 'change',
-						message: message.response
-					}));
+					winston.debug('To send:', JSON.stringify(toSend));
+					winston.debug('Encoded string: ', encoded);
+					socket.send(encoded);
 				}
 			}
 
@@ -106,11 +113,15 @@ bus.on('postchange', changes => {
 			if (!sockets[e]) return;
 
 			if (rel.resources[e] > Constants.PRESENCE_NONE) {
-				sockets[e].send(packer.encode({
-					type: 'change',
-					message: change,
-					fun: 'WOOOW, Hoooo... dispatch module is working :-p'
-				}));
+				const toDispatch = {
+						type: 'change',
+						message: change,
+						info: 'sent by dispatch'
+					}, encoded = packer.encode(toDispatch);
+
+				winston.debug('Dispatching:', JSON.stringify(toDispatch));
+				winston.debug('Encoded string: ', encoded);
+				sockets[e].send(encoded);
 			}
 		});
 	});
