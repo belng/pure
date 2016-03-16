@@ -8,29 +8,48 @@ import type { SubscriptionRange } from '../../../modules/store/ConnectTypes';
 
 const transformThreads = data => data.reverse();
 
-class DiscussionsContainer extends Component<void, any, SubscriptionRange> {
+type State = {
+	range: SubscriptionRange;
+	defer: boolean;
+}
+
+class DiscussionsContainer extends Component<void, any, State> {
 	static propTypes = {
 		room: PropTypes.string.isRequired,
 		user: PropTypes.string.isRequired,
 	};
 
-	state: SubscriptionRange = {
-		start: Infinity,
-		before: 20,
-		after: 0,
+	state: State = {
+		range: {
+			start: Infinity,
+			before: 20,
+			after: 0,
+		},
+		defer: true,
 	};
 
+	componentWillUpdate() {
+		if (this.state.defer) {
+			this.setState({ defer: false });
+		}
+	}
+
 	_loadMore: Function = (count: number) => {
+		const { range } = this.state;
+		const { before } = range;
+
 		this.setState({
-			before: count + 20,
+			range: {
+				...range,
+				before: before && before > (count + 20) ? before : count + 20,
+			}
 		});
 	};
 
 	render() {
 		const {
-			start,
-			before,
-			after
+			range,
+			defer
 		} = this.state;
 
 		return (
@@ -45,16 +64,13 @@ class DiscussionsContainer extends Component<void, any, SubscriptionRange> {
 								},
 								order: 'createTime'
 							},
-							range: {
-								start,
-								before,
-								after
-							}
+							range
 						},
 						transform: transformThreads,
+						defer,
 					}
 				}}
-				passProps={{ ...this.props, loadMore: this._loadMore }}
+				passProps={{ ...this.props, loadMore: count => this._loadMore(count) }}
 				component={Discussions}
 			/>
 		);

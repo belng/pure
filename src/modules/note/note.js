@@ -5,9 +5,8 @@ import Note from '../../models/note';
 import { Constants, bus, cache } from '../../core-server';
 import { convertRouteToURL } from '../../lib/Route';
 
-bus.on('change', (changes, next) => {
+bus.on('change', (changes) => {
 	if (!changes.entities) {
-		next();
 		return;
 	}
 	const counter = new Counter();
@@ -68,7 +67,6 @@ bus.on('change', (changes, next) => {
 				};
 				const	note = new Note(noteObj);
 				changes.entities[note.getId()] = note;
-				next();
 			});
 		}
 	}

@@ -43,18 +43,21 @@ public class Note {
     @Nullable
     public final Bitmap picture;
 
-    public Note(Context context, Bundle bundle) throws JSONException {
+    public Note(Context context, Bundle bundle) throws JSONException, NoSuchFieldException {
         mContext = context;
 
-        JSONObject data = new JSONObject(bundle.getString(PROP_DATA));
+        String item = bundle.getString(PROP_DATA);
+
+        if (item == null || item.isEmpty()) {
+            throw new NoSuchFieldException("Bundle doesn't contain data");
+        }
+
+        JSONObject data = new JSONObject(item);
 
         title = data.getString(PROP_TITLE);
         summary = data.getString(PROP_BODY);
         author = data.getString(PROP_AUTHOR);
         link = data.getString(PROP_LINK);
-
-
-
 
         if (data.has(PROP_PICTURE)) {
             picture = getBitmap(data.getString(PROP_PICTURE));
