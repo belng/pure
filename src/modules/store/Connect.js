@@ -17,6 +17,7 @@ type Props = {
 	mapActionsToProps?: MapActionsToProps;
 	passProps?: any;
 	component: ReactClass;
+	defer?: boolean;
 }
 
 type State = {
@@ -32,7 +33,7 @@ export default class Connect extends Component<void, Props, State> {
 		mapSubscriptionToProps: PropTypes.object,
 		mapActionsToProps: PropTypes.object,
 		passProps: PropTypes.any,
-		component: PropTypes.any.isRequired
+		component: PropTypes.any.isRequired,
 	};
 
 	state: State = {};
@@ -47,7 +48,7 @@ export default class Connect extends Component<void, Props, State> {
 
 		const {
 			mapSubscriptionToProps,
-			component
+			component,
 		} = props;
 
 		if (typeof store !== 'object') {
@@ -57,6 +58,7 @@ export default class Connect extends Component<void, Props, State> {
 		if (mapSubscriptionToProps) {
 			for (const item in mapSubscriptionToProps) {
 				const sub = mapSubscriptionToProps[item];
+				const defer = sub.defer;
 				const source = component.displayName || component.name;
 
 				let listener;
@@ -66,14 +68,15 @@ export default class Connect extends Component<void, Props, State> {
 					listener = store.subscribe(
 						{
 							type: sub,
-							source
+							source,
+							defer
 						},
 						this._updateListener(item)
 					);
 					break;
 				case 'object':
 					listener = store.subscribe(
-						typeof sub.key === 'string' ? { type: sub.key, source } : { ...sub.key, source },
+						typeof sub.key === 'string' ? { type: sub.key, source, defer } : { ...sub.key, source, defer },
 						this._updateListener(item, sub.transform)
 					);
 					break;

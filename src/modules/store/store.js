@@ -22,13 +22,9 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 			throw new TypeError(`Invalid 'id' passed to store.subscribe::entity in ${options.source}`);
 		}
 
-		callback(LOADING);
-
 		unWatch = cache.watchEntity(options.id, data => data && data.type === 'loading' ? callback(LOADING) : callback(data));
 		break;
 	case 'me':
-		callback(LOADING);
-
 		let unWatchMe;
 
 		const unWatchUser = cache.watchState('user', user => {
@@ -64,19 +60,25 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 				throw new TypeError(`Range was not passed to store.subscribe in ${options.source}`);
 			}
 
-			callback(LOADING_ITEMS);
+			let unWatchInner, handle;
 
-			let unWatchInner;
-
-			const handle = global.requestIdleCallback(() => {
-				unWatchInner = cache.watch(options.slice, range, result => {
-					if (result.length === 1 && result[0] && result[0].type === 'loading') {
+			const watchItems = () => {
+				unWatchInner = cache.watch(options.slice, range, ({ arr }) => {
+					if (arr.length === 1 && arr[0] && arr[0].type === 'loading') {
 						callback(LOADING_ITEMS);
 					} else {
-						callback(result.arr);
+						callback(arr);
 					}
 				});
-			});
+			};
+
+			if (options.defer) {
+				callback(LOADING_ITEMS);
+
+				handle = global.requestIdleCallback(watchItems);
+			} else {
+				watchItems();
+			}
 
 			unWatch = () => {
 				if (unWatchInner) {

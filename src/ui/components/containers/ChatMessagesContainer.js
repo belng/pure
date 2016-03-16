@@ -24,24 +24,43 @@ const transformTexts = texts => {
 	return data;
 };
 
-export default class ChatMessagesContainer extends Component<void, any, SubscriptionRange> {
-	state: SubscriptionRange = {
-		start: Infinity,
-		before: 20,
-		after: 0,
+type State = {
+	range: SubscriptionRange;
+	defer: boolean;
+}
+
+export default class ChatMessagesContainer extends Component<void, any, State> {
+	state: State = {
+		range: {
+			start: Infinity,
+			before: 20,
+			after: 0,
+		},
+		defer: true,
 	};
 
+	componentWillUpdate() {
+		if (this.state.defer) {
+			this.setState({ defer: false });
+		}
+	}
+
 	_loadMore: Function = (count: number) => {
+		const { range } = this.state;
+		const { before } = range;
+
 		this.setState({
-			before: count + 20,
+			range: {
+				...range,
+				before: before && before > (count + 20) ? before : count + 20,
+			}
 		});
 	};
 
 	render() {
 		const {
-			start,
-			before,
-			after
+			range,
+			defer
 		} = this.state;
 
 		return (
@@ -56,16 +75,13 @@ export default class ChatMessagesContainer extends Component<void, any, Subscrip
 								},
 								order: 'createTime'
 							},
-							range: {
-								start,
-								before,
-								after
-							}
+							range,
 						},
-						transform: transformTexts
+						transform: transformTexts,
+						defer,
 					}
 				}}
-				passProps={{ ...this.props, loadMore: this._loadMore }}
+				passProps={{ ...this.props, loadMore: count => this._loadMore(count) }}
 				component={ChatMessages}
 			/>
 		);

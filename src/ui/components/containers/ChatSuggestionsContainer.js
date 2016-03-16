@@ -22,6 +22,7 @@ export default class ChatSuggestionsContainer extends Component<void, any, { pre
 
 		return (
 			<Connect
+
 				mapSubscriptionToProps={{
 					users: {
 						key: {
@@ -42,7 +43,7 @@ export default class ChatSuggestionsContainer extends Component<void, any, { pre
 						transform: results => results.filter(item => item.id !== this.props.user)
 					}
 				}}
-				passProps={{ ...this.props, getMatchingUsers: this._getMatchingUsers }}
+				passProps={{ ...this.props, getMatchingUsers: prefix => this._getMatchingUsers(prefix) }}
 				component={ChatSuggestions}
 			/>
 		);
