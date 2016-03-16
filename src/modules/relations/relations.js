@@ -2,10 +2,13 @@
 
 import { Constants, bus, cache } from '../../core-server';
 import Counter from '../../lib/counter';
-import {threadrel as ThreadRel} from './../../models/models';
+import ThreadRel from '../../models/note';
 
 bus.on('change', (changes, next) => {
-	if (!changes.entities) return next();
+	if (!changes.entities) {
+		next();
+		return;
+	}
 	const counter = new Counter();
 
 	for (const id in changes.entities) {
@@ -19,21 +22,30 @@ bus.on('change', (changes, next) => {
 			if (!text) {
 				counter.inc();
 				cache.getEntity(entity.item, (err, item) => {
-					if (err) return next(err);
-					text = item;
+					if (!err) text = item;
 					counter.dec();
-					return null;
 				});
+				counter.then(() => {
+					const threadRel = {
+						item: text.parents[0],
+						user,
+						type: Constants.TYPE_THREADREL,
+						roles: role
+					};
+					const relation = new ThreadRel(threadRel);
+
+					relation.create = true;
+					changes.entities[relation.id] = relation;
+					console.log('All Relations created:', relation);
+					next();
+				});
+
 			}
 		}
-
 		if (entity.type === Constants.TYPE_TEXT) {
 			text = entity;
 			role = [ Constants.ROLE_FOLLOWER ];
 			user = entity.creator;
-		}
-
-		counter.then(() => {
 			const threadRel = {
 				item: text.parents[0],
 				user,
@@ -44,10 +56,10 @@ bus.on('change', (changes, next) => {
 
 			relation.create = true;
 			changes.entities[relation.id] = relation;
-			console.log('All Relations created:', JSON.stringify(changes));
+			console.log('All Relations created:', relation);
 			next();
-		});
+		} else {
+			next();
+		}
 	}
-
-	return null;
 });

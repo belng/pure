@@ -72,7 +72,12 @@ export function updateUser(u, cb) {
 						log.info('subscribing user: ', user.id, 'for mention');
 						subscribe({
 							params: user.params || {},
-							topic: 'mention-' + user.id
+							topic: 'user-' + user.id
+						});
+						log.info('subscribe to global topic');
+						subscribe({
+							params: user.params || {},
+							topic: 'global'
 						});
 						if (cb) cb(null);
 					});

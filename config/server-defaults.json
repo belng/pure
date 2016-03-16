@@ -8,8 +8,7 @@
 
 	"server": {
 		"protocol": "http:",
-		"host": "localhost",
-		"port": 7528
+		"host": "localhost:7528"
 	},
 
 	"email": {

@@ -3,6 +3,7 @@ import log from 'winston';
 import Counter from '../../lib/counter';
 import Note from '../../models/note';
 import { Constants, bus, cache } from '../../core-server';
+import { convertRouteToURL } from '../../lib/Route';
 
 bus.on('change', (changes, next) => {
 	if (!changes.entities) {
@@ -10,62 +11,67 @@ bus.on('change', (changes, next) => {
 		return;
 	}
 	const counter = new Counter();
-	let note;
 
 	for (const id in changes.entities) {
 		const entity = changes.entities[id];
 
 		if (
-			(entity.type === Constants.TYPE_TEXTREL ||
-			entity.type === Constants.TYPE_THREADREL) &&
+			entity.type === Constants.TYPE_TEXTREL &&
 			entity.role === Constants.ROLE_MENTIONED
 		) {
-			const item = changes.entities[entity.item], now = Date.now(),
+			let item = changes.entities[entity.item], user;
+			const now = Date.now(),
 				noteObj = {
+					group: '',
 					user: entity.user,
 					event: Constants.NOTE_MENTION,
 					createTime: now,
 					updateTime: now,
 					count: 1,
 					score: 50,
-					type: Constants.TYPE_NOTE
+					data: {},
+					type: 'mention'
 				};
 
 			if (!item) {
 				counter.inc();
 				cache.getEntity(entity.item, (err, text) => {
-					if (err) log.error(err);
-					noteObj.group = text.parents[0][0];
-					noteObj.data = {
-						id: text.id,
-						creator: text.creator,
-						body: text.body,
-						title: text.name,
-						createTime: text.createTime,
-						thread: entity.type === Constants.TYPE_TEXTREL ? text.parents[0][0] : null,
-						room: entity.type === Constants.TYPE_TEXTREL ? text.parents[0][1] : text.parents[0][0]
-					};
-					note = new Note(noteObj);
-					changes.entities[note.getId()] = note;
-					counter.dec();
+					if (!err) item = text;
 				});
-			} else {
-				noteObj.group = item.parents[0][0];
+			}
+			counter.then(() => {
+				user = changes.entities[item.creator];
+				if (!user) {
+					cache.getEntity(item.creator, (er, u) => {
+						if (!er) user = u;
+					});
+				}
+				const title = item.creator + 'mentioned you';
+				const urlLink = convertRouteToURL({
+					name: 'chat',
+					props: {
+						room: item.parents[1],
+						thread: item.parents[0]
+					}
+				});
+				noteObj.group = item.parents[0];
 				noteObj.data = {
 					id: item.id,
 					creator: item.creator,
 					body: item.body,
-					title: item.name,
-					createTime: item.createTime,
-					thread: entity.type === Constants.TYPE_TEXTREL ? item.parents[0][0] : null,
-					room: entity.type === Constants.TYPE_TEXTREL ? item.parents[0][1] : item.parents[0][0]
+					title,
+					type: Constants.NOTE_MENTION,
+					thread: entity.type === Constants.TYPE_TEXTREL ? item.parents[0] : null,
+					room: entity.type === Constants.TYPE_TEXTREL ? item.parents[1] : item.parents[0],
+					link: urlLink,
+					picture: user && user.meat && user.meta.picture
 				};
-				note = new Note(noteObj);
+				const	note = new Note(noteObj);
 				changes.entities[note.getId()] = note;
-			}
+				next();
+			});
 		}
 	}
-	counter.then(next);
 }, Constants.APP_PRIORITIES.CACHE_UPDATER);
 
 log.info('Note module ready.');

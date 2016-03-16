@@ -55,7 +55,7 @@ export function initMailSending (userRel) {
 }
 
 function sendDigestEmail () {
-	const startPoint = Date().now - 2 * DIGEST_DELAY,
+	const startPoint = Date.now() - 2 * DIGEST_DELAY,
 		counter = new Counter();
 
 	end = Date.now() - DIGEST_DELAY;
@@ -74,7 +74,7 @@ function sendDigestEmail () {
 
 	const tz = getTimezone(conf.digestEmailTime);
 
-//	console.log(tz);
+	console.log("timezone: ", tz);
 	if (conf.debug) {
 		start = 0; end = Date.now(); tz.min = 0; tz.max = 1000;
 	}
@@ -121,6 +121,7 @@ export default function (row) {
 		delay = UtcMnts < 30 ? 30 : 90,
 		after = conf.debug ? 0 : (delay - UtcMnts) * 60000;
 
+	log.info('Digest email will be sent after ', after, 'ms');
 	setTimeout(() => {
 		sendDigestEmail();
 		setInterval(sendDigestEmail, DIGEST_INTERVAL);
