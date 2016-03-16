@@ -42,7 +42,6 @@
     "shallowequal": "^0.2.2",
     "source-map-support": "^0.4.0",
     "stringpack": "^1.2.1",
-    "uuid": "^2.0.1",
     "winston": "^2.2.0"
   },
   "devDependencies": {
@@ -76,7 +75,7 @@
     "xmlhttprequest": "^1.8.0"
   },
   "scripts": {
-    "start": "if [[ $NODE_ENV == 'production' ]]; then npm run start:prod; else npm run start:dev; fi",
+    "start": "if [ \"$NODE_ENV\" = \"production\" ]; then npm run start:prod; else npm run start:dev; fi",
     "start:dev": "node_modules/babel-cli/bin/babel-node.js src/start/heyneighbor-server.dev",
     "start:prod": "npm run clean:server && npm run build:server && node build/start/heyneighbor-server.prod",
     "packager": "node node_modules/react-native/local-cli/cli.js start --ignore-babelrc",
@@ -85,7 +84,7 @@
     "lint": "eslint .",
     "lint:changed": "git diff HEAD --name-only --diff-filter=ACM | grep '.js$' | xargs eslint",
     "build:android": "./android/gradlew -p android assembleRelease --stacktrace",
-    "build:server": "babel --source-maps --ignore **/__tests__/** --out-dir build/ src/",
+    "build:server": "babel --source-maps --ignore **/node_modules/** --out-dir build/ src/",
     "build:client": "webpack",
     "build": "npm run clean:client && npm run build:client",
     "clean:server": "rm -rf build",

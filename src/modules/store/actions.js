@@ -6,7 +6,7 @@ import ThreadModel from '../../models/thread';
 import TextModel from '../../models/text';
 import RoomRelModel from '../../models/roomrel';
 import ThreadRelModel from '../../models/threadrel';
-import uuid from 'uuid';
+import uuid from 'node-uuid';
 import { PRESENCE_FOREGROUND, PRESENCE_NONE } from '../../lib/Constants';
 
 /*
@@ -103,7 +103,12 @@ export const sendMessage = (
 
 	return {
 		entities: {
-			[id]: new TextModel({ id, ...data, create: true })
+			[id]: new TextModel({
+				id,
+				...data,
+				create: true,
+				createTime: Date.now()
+			})
 		}
 	};
 };
@@ -115,7 +120,12 @@ export const startThread = (
 
 	return {
 		entities: {
-			[id]: new ThreadModel({ id, ...data, create: true, createTime: Date.now()})
+			[id]: new ThreadModel({
+				id,
+				...data,
+				create: true,
+				createTime: Date.now()
+			})
 		}
 	};
 };

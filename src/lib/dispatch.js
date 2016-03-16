@@ -53,9 +53,7 @@ export default function(changes, config) {
 		})(e);
 
 		if (query) {
-			winston.debug('Hello,  here!! trying to make a query here...', config.connStr);
 			pg.readStream(config.connStr, query).on('row', (res) => {
-				console.log(e);
 				stream.emit('data', {
 					entities: {
 						[key]: e

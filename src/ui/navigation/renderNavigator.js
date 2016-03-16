@@ -43,11 +43,6 @@ const renderNavigator = (): Function => {
 			return null;
 		}
 
-		// Hide modal on navigate
-		if (Modal.isShown()) {
-			Modal.renderChild(null);
-		}
-
 		_navState = navState;
 		_onNavigation = onNavigation;
 

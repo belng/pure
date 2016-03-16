@@ -37,6 +37,7 @@ function disconnected() {
 }
 
 function onMessage(message) {
+	console.log('frame: -->', message);
 	const frame = packer.decode(message);
 
 	console.log('-->', frame);
