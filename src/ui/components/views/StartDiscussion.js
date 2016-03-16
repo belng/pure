@@ -16,6 +16,7 @@ import TouchFeedback from './TouchFeedback';
 import Icon from './Icon';
 import AvatarContainer from '../containers/AvatarContainer';
 import ImageUploadContainer from '../containers/ImageUploadContainer';
+import StartDiscussionDone from '../containers/StartDiscussionDoneContainer';
 import Banner from './Banner';
 import ImageUploadDiscussion from './ImageUploadDiscussion';
 import KeyboardSpacer from './KeyboardSpacer';
@@ -141,6 +142,7 @@ const FACEBOOK_SHARE_CHECKED_KEY = 'start_discussion_facebook_share_checked';
 type Props = {
 	user: string;
 	room: string;
+	thread: string;
 	dismiss: Function;
 	startThread: Function;
 	onNavigation: Function;
@@ -173,6 +175,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 		user: PropTypes.string.isRequired,
 		room: PropTypes.string.isRequired,
 		dismiss: PropTypes.func.isRequired,
+		thread: PropTypes.string,
 		startThread: PropTypes.func.isRequired,
 		onNavigation: PropTypes.func.isRequired
 	};
@@ -184,6 +187,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 		upload: null,
 		status: null,
 		error: null,
+		thread: null,
 		shareOnFacebook: false
 	};
 
@@ -295,12 +299,6 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 		});
 	};
 
-	_handleLoading: Function = () => {
-		this.setState({
-			status: 'loading'
-		});
-	};
-
 	_handlePosted: Function = thread => {
 		const route = {
 			name: 'chat',
@@ -374,13 +372,15 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 			};
 		}
 
-		this._handleLoading();
-
-		this.props.startThread(
-			this.state.name,
-			this.state.body,
-			meta
-		);
+		this.setState({
+			status: 'loading'
+		}, () => {
+			this.props.startThread(
+				this.state.name,
+				this.state.body,
+				meta
+			);
+		});
 	};
 
 	_handlePress: Function = () => {
@@ -532,6 +532,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 					</View>
 				</View>
 				<KeyboardSpacer />
+				<StartDiscussionDone thread={this.props.thread} onPosted={this._handlePosted} />
 			</View>
 		);
 	}
