@@ -11,6 +11,7 @@ import Colors from '../../../Colors';
 const {
 	StyleSheet,
 	View,
+	ToastAndroid,
 	Image
 } = ReactNative;
 
@@ -92,6 +93,15 @@ export default class SignIn extends Component<void, Props, State> {
 	};
 
 	_onSignInSuccess: Function = (provider: string, token: string) => {
+		switch (provider) {
+		case PROVIDER_GOOGLE:
+			ToastAndroid.show('Signing in with Google', ToastAndroid.SHORT);
+			break;
+		case PROVIDER_FACEBOOK:
+			ToastAndroid.show('Signing in with Facebook', ToastAndroid.SHORT);
+			break;
+		}
+
 		this.props.signIn(provider, token);
 	};
 
