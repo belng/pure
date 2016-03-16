@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
-import org.json.JSONException;
 
 public class GCMListenerService extends GcmListenerService {
 
