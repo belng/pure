@@ -20,6 +20,9 @@ import Banner from './Banner';
 import ImageUploadDiscussion from './ImageUploadDiscussion';
 import KeyboardSpacer from './KeyboardSpacer';
 import ImageChooser from '../../modules/ImageChooser';
+import Facebook from '../../modules/Facebook';
+import { convertRouteToURL } from '../../../lib/Route';
+import { config } from '../../../core-client';
 
 const {
 	AsyncStorage,
@@ -27,6 +30,7 @@ const {
 	StyleSheet,
 	NavigationActions,
 	ScrollView,
+	ToastAndroid,
 	View
 } = ReactNative;
 
@@ -161,6 +165,9 @@ type State = {
 	shareOnFacebook: boolean;
 }
 
+const PERMISSION_PUBLISH_ACTIONS = 'publish_actions';
+const PERMISSION_PUBLISH_ERROR = 'ERR_REQUEST_PERMISSION';
+
 export default class StartDiscussionButton extends Component<void, Props, State> {
 	static propTypes = {
 		user: PropTypes.string.isRequired,
@@ -188,13 +195,71 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
 
+	_getPublishPermissions: Function = async () => {
+		try {
+			const result = await Facebook.logInWithPublishPermissions([ PERMISSION_PUBLISH_ACTIONS ]);
+
+			if (result.permissions_granted.indexOf(PERMISSION_PUBLISH_ACTIONS) === -1) {
+				throw new Error(PERMISSION_PUBLISH_ERROR);
+			}
+
+			return result;
+		} catch (err) {
+			ToastAndroid.show('Failed to get permission to post on Facebook', ToastAndroid.SHORT);
+			throw err;
+		}
+	};
+
+	_isFacebookPermissionGranted: Function = async (): Promise<boolean> => {
+		try {
+			const token = await Facebook.getCurrentAccessToken();
+
+			return token.permissions_granted.indexOf(PERMISSION_PUBLISH_ACTIONS) > -1;
+		} catch (err) {
+			return false;
+		}
+	};
+
+	_requestFacebookPermissions: Function = async () => {
+		let requested;
+
+		try {
+			const granted = await this._isFacebookPermissionGranted();
+
+			if (!granted) {
+				requested = true;
+				await this._getPublishPermissions();
+			}
+		} catch (err) {
+			if (requested) {
+				throw err;
+			} else {
+				await this._getPublishPermissions();
+			}
+		}
+	};
+
+	_shareOnFacebook: Function = async content => {
+		try {
+			const token = await Facebook.getCurrentAccessToken();
+
+			if (token && token.user_id) {
+				await Facebook.sendGraphRequest('POST', `/${token.user_id}/feed`, content);
+			}
+
+			ToastAndroid.show('Post shared on Facebook', ToastAndroid.SHORT);
+		} catch (err) {
+			ToastAndroid.show('Failed to share post on Facebook', ToastAndroid.SHORT);
+		}
+	};
+
 	_handleSharePress: Function = () => {
 		global.requestAnimationFrame(async () => {
 			let shareOnFacebook = !this.state.shareOnFacebook;
 
 			if (shareOnFacebook) {
 				try {
-					// await this.props.requestFacebookPermissions();
+					await this._requestFacebookPermissions();
 				} catch (err) {
 					shareOnFacebook = false;
 				}
@@ -215,8 +280,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 			const isEnabled = JSON.parse(await AsyncStorage.getItem(FACEBOOK_SHARE_CHECKED_KEY));
 
 			if (isEnabled) {
-				// const granted = await this.props.isFacebookPermissionGranted();
-				const granted = false;
+				const granted = await this._isFacebookPermissionGranted();
 
 				shareOnFacebook = granted;
 			} else {
@@ -238,14 +302,23 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 	};
 
 	_handlePosted: Function = thread => {
-		this.props.dismiss();
-		this.props.onNavigation(new NavigationActions.Push({
+		const route = {
 			name: 'chat',
 			props: {
 				thread: thread.id,
-				room: this.props.room
+				room: this.props.room,
+				title: this.state.name,
 			}
-		}));
+		};
+
+		if (this.state.shareOnFacebook) {
+			this._shareOnFacebook({
+				link: config.server.protocol + '//' + config.server.host + convertRouteToURL(route)
+			});
+		}
+
+		this.props.onNavigation(new NavigationActions.Push(route));
+		this.props.dismiss();
 	};
 
 	_handleError: Function = message => {
