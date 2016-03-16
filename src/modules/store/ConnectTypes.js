@@ -25,6 +25,7 @@ export type SubscriptionOptions = {
 	id?: string;
 	path?: string;
 	source: string;
+	defer?: ?boolean;
 }
 
 export type Store = {
