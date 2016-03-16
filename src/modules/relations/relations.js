@@ -41,8 +41,7 @@ bus.on('change', (changes, next) => {
 				});
 
 			}
-		}
-		if (entity.type === Constants.TYPE_TEXT) {
+		} else if (entity.type === Constants.TYPE_TEXT) {
 			text = entity;
 			role = [ Constants.ROLE_FOLLOWER ];
 			user = entity.creator;
