@@ -85,7 +85,7 @@
     "lint": "eslint .",
     "lint:changed": "git diff HEAD --name-only --diff-filter=ACM | grep '.js$' | xargs eslint",
     "build:android": "./android/gradlew -p android assembleRelease --stacktrace",
-    "build:server": "babel --source-maps --ignore **/__tests__/** --out-dir build/ src/",
+    "build:server": "babel --source-maps --ignore **/node_modules/** --out-dir build/ src/",
     "build:client": "webpack",
     "build": "npm run clean:client && npm run build:client",
     "clean:server": "rm -rf build",
