@@ -10,7 +10,7 @@ import queryHandler from './query';
 import { TYPE_NAMES } from '../../lib/schema';
 import * as Types from './../../models/models';
 import winston from 'winston';
-
+import packer from './../../lib/packer';
 const channel = 'heyneighbor';
 
 function getTypeFromId(id) {
@@ -23,7 +23,7 @@ function getTypeFromId(id) {
 }
 
 function broadcast (entity) {
-	pg.notify(config.connStr, channel, entity);
+	pg.notify(config.connStr, channel, packer.encode(entity));
 }
 
 // TODO: use the function in Cache and delete this.
@@ -150,9 +150,8 @@ cache.onChange((changes) => {
 });
 
 pg.listen(config.connStr, channel, (payload) => {
-	const change = { entities: { [payload.id]: payload } };
-
-	console.log("GOT: entity back:", change, Object.keys(cache.indexes));
+	const entity = packer.decode(payload);
+	const change = { entities: { [entity.id]: entity } };
 
 	bus.emit('postchange', change);
 	cache.put(change);

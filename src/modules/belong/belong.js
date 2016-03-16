@@ -5,7 +5,7 @@ import winston from 'winston';
 import { room as Room, roomrel as RoomRel } from '../../models/models';
 import * as place from './place';
 import * as constants from '../../lib/Constants';
-import uuid from 'uuid';
+import uuid from 'node-uuid';
 import * as pg from '../../lib/pg';
 import type { User } from './../../lib/schemaTypes';
 
