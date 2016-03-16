@@ -46,7 +46,10 @@ bus.on('change', (changes) => {
 			if (!user) {
 				counter.inc();
 				cache.getEntity(entity.creator, (err, u) => {
-					if (!err)	user = u;
+					// console.log("asjkhdgj ag: ", u)
+					if (!err)	{
+						user = u;
+					}
 					counter.dec();
 				});
 			}
@@ -63,7 +66,7 @@ bus.on('change', (changes) => {
 						thread: entity.id,
 						type: 'thread',
 						link: urlLink,
-						picture: user.meta.picture
+						picture: user.meta && user.meta.picture
 					},
 					updateTime: Date.now(),
 					type: entity.type
