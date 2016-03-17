@@ -127,7 +127,7 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
     public void getCurrentPlace(@Nullable final ReadableMap filter, final Promise promise) {
         GoogleApiClient googleApiClient = mGoogleApiManager.getGoogleApiClient();
 
-        if (googleApiClient == null) {
+        if (googleApiClient == null || !googleApiClient.isConnected()) {
             promise.reject(GOOGLE_API_NOT_INITIALIZED_ERROR);
             return;
         }
@@ -243,7 +243,7 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
     ) {
         GoogleApiClient googleApiClient = mGoogleApiManager.getGoogleApiClient();
 
-        if (googleApiClient != null && googleApiClient.isConnected()) {
+        if (googleApiClient == null || !googleApiClient.isConnected()) {
             promise.reject(GOOGLE_API_NOT_INITIALIZED_ERROR);
             return;
         }
