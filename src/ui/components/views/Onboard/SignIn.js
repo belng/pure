@@ -4,9 +4,11 @@ import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import AppText from '../AppText';
 import LargeButton from './LargeButton';
-import GoogleLogin from '../../../modules/GoogleLogin';
+import GoogleSignIn from '../../../modules/GoogleSignIn';
 import Facebook from '../../../modules/Facebook';
 import Colors from '../../../Colors';
+
+global.GoogleSignIn = GoogleSignIn;
 
 const {
 	StyleSheet,
@@ -106,6 +108,8 @@ export default class SignIn extends Component<void, Props, State> {
 	};
 
 	_onSignInFailure: Function = (provider: string) => {
+		ToastAndroid.show('Failed to sign in', ToastAndroid.SHORT);
+
 		switch (provider) {
 		case PROVIDER_GOOGLE:
 			this.setState({
@@ -152,7 +156,7 @@ export default class SignIn extends Component<void, Props, State> {
 
 	_signInWithGoogle: Function = async (): Promise => {
 		try {
-			const result = await GoogleLogin.logIn();
+			const result = await GoogleSignIn.signIn();
 
 			if (result.token) {
 				this._onSignInSuccess(PROVIDER_GOOGLE, result.token);

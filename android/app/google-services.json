@@ -15,14 +15,35 @@
           "certificate_hash": []
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "949615022713-71pbh16crv526j0hmc4der6oefnkf616.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.scrollback.neighborhoods",
+            "certificate_hash": "5BD5425F5BADDCAE50FC718E9C09AAB94DAB48AF"
+          }
+        },
+        {
+          "client_id": "949615022713-lej7459cdjrsof4insccr0fbuvvnb2nt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.scrollback.neighborhoods",
+            "certificate_hash": "A79B322EF656B440DC64E77054A28BF273F49C86"
+          }
+        },
+        {
+          "client_id": "949615022713-430dq6ctus4qc54chti27nlgpbt70je8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [],
       "services": {
         "analytics_service": {
           "status": 1
         },
         "cloud_messaging_service": {
-          "status": 2,
+          "status": 1,
           "apns_config": []
         },
         "appinvite_service": {
@@ -30,7 +51,7 @@
           "other_platform_oauth_client": []
         },
         "google_signin_service": {
-          "status": 1
+          "status": 2
         },
         "ads_service": {
           "status": 1

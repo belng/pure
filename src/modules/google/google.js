@@ -17,7 +17,7 @@ import queryString from 'querystring';
 import { bus, config, Constants } from './../../core-server';
 import encodeURITemplate from '../../lib/encodeURITemplate';
 
-const redirectURL = `https://${config.host}${config.facebook.redirect_path}`;
+const redirectURL = `https://${config.host}${config.google.redirect_path}`;
 
 const SCRIPT_REDIRECT = `\
 location.href = 'https://accounts.google.com/o/oauth2/auth?\

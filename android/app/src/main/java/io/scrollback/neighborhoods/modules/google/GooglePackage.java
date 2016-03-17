@@ -10,11 +10,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class GoogleLoginPackage implements ReactPackage {
+
+public class GooglePackage implements ReactPackage {
 
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-        return Arrays.<NativeModule>asList(new GoogleLoginModule(reactContext));
+        GoogleApiManagerModule apiManager = new GoogleApiManagerModule(reactContext);
+
+        return Arrays.<NativeModule>asList(
+                new GoogleSignInModule(reactContext, apiManager),
+                new GooglePlacesModule(reactContext, apiManager)
+        );
     }
 
     @Override
