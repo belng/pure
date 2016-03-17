@@ -5,19 +5,19 @@ import { subscribe, on } from '../store/store';
 import { setPresence, setItemPresence } from '../store/actions';
 
 function getRelationAndSetPresence(slice: Object, status: 'online' | 'offline') {
+	let type;
+
+	if (slice.type === 'text') {
+		type = 'thread';
+	} else if (slice.type === 'thread') {
+		type = 'room';
+	} else {
+		return;
+	}
+
 	const user = cache.getState('user');
 
 	if (slice.filter && slice.filter.parents_cts) {
-		let type;
-
-		if (slice.type === 'text') {
-			type = 'thread';
-		} else if (slice.type === 'thread') {
-			type = 'room';
-		} else {
-			return;
-		}
-
 		const item = slice.filter.parents_cts[0];
 
 		cache.getEntity(`${user}_${item}`, (err, result) => {
