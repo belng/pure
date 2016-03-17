@@ -1,4 +1,4 @@
-package io.scrollback.neighborhoods.modules.places;
+package io.scrollback.neighborhoods.modules.google;
 
 import android.Manifest;
 import android.app.Activity;
@@ -11,7 +11,6 @@ import android.support.v4.content.ContextCompat;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -47,7 +46,7 @@ import java.util.Locale;
 import java.util.Map;
 
 
-public class GooglePlacesModule extends ReactContextBaseJavaModule implements ActivityEventListener, LifecycleEventListener {
+public class GooglePlacesModule extends ReactContextBaseJavaModule implements ActivityEventListener {
 
     private static final String ACTIVITY_DOES_NOT_EXIST_ERROR = "Activity doesn't exist";
     private static final String GOOGLE_API_NOT_INITIALIZED_ERROR = "Google API client not initialized";
@@ -59,13 +58,14 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
 
     private Promise mPermissionPromise;
     private Promise mRetrievePromise;
-    private GoogleApiClient mGoogleApiClient;
+    private GoogleApiManagerModule mGoogleApiManager;
 
-    public GooglePlacesModule(ReactApplicationContext reactContext) {
+    public GooglePlacesModule(ReactApplicationContext reactContext, GoogleApiManagerModule apiManagerModule) {
         super(reactContext);
 
         reactContext.addActivityEventListener(this);
-        reactContext.addLifecycleEventListener(this);
+
+        mGoogleApiManager = apiManagerModule;
     }
 
     @Override
@@ -125,7 +125,9 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
 
     @ReactMethod
     public void getCurrentPlace(@Nullable final ReadableMap filter, final Promise promise) {
-        if (mGoogleApiClient == null) {
+        GoogleApiClient googleApiClient = mGoogleApiManager.getGoogleApiClient();
+
+        if (googleApiClient == null) {
             promise.reject(GOOGLE_API_NOT_INITIALIZED_ERROR);
             return;
         }
@@ -163,7 +165,7 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
             placeFilter = new PlaceFilter(requireOpenNow, restrictToPlaceIds);
         }
 
-        PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mGoogleApiClient, placeFilter);
+        PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(googleApiClient, placeFilter);
 
         result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
             @Override
@@ -187,12 +189,14 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
 
     @ReactMethod
     public void getPlaceById(final String id, final Promise promise) {
-        if (mGoogleApiClient == null) {
+        GoogleApiClient googleApiClient = mGoogleApiManager.getGoogleApiClient();
+
+        if (googleApiClient == null || !googleApiClient.isConnected()) {
             promise.reject(GOOGLE_API_NOT_INITIALIZED_ERROR);
             return;
         }
 
-        PendingResult<PlaceBuffer> result = Places.GeoDataApi.getPlaceById(mGoogleApiClient, id);
+        PendingResult<PlaceBuffer> result = Places.GeoDataApi.getPlaceById(googleApiClient, id);
 
         result.setResultCallback(new ResultCallback<PlaceBuffer>() {
             @Override
@@ -205,7 +209,9 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
 
     @ReactMethod
     public void findPlace(final Promise promise) {
-        if (mGoogleApiClient == null) {
+        GoogleApiClient googleApiClient = mGoogleApiManager.getGoogleApiClient();
+
+        if (googleApiClient == null || !googleApiClient.isConnected()) {
             promise.reject(GOOGLE_API_NOT_INITIALIZED_ERROR);
             return;
         }
@@ -235,7 +241,9 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
             final String query, final ReadableArray bounds, @Nullable final ReadableArray filter,
             final Promise promise
     ) {
-        if (mGoogleApiClient == null) {
+        GoogleApiClient googleApiClient = mGoogleApiManager.getGoogleApiClient();
+
+        if (googleApiClient != null && googleApiClient.isConnected()) {
             promise.reject(GOOGLE_API_NOT_INITIALIZED_ERROR);
             return;
         }
@@ -263,7 +271,7 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
         }
 
         PendingResult<AutocompletePredictionBuffer> result =
-                Places.GeoDataApi.getAutocompletePredictions(mGoogleApiClient, query, latLngBounds, autoCompleteFilter);
+                Places.GeoDataApi.getAutocompletePredictions(googleApiClient, query, latLngBounds, autoCompleteFilter);
 
         result.setResultCallback(new ResultCallback<AutocompletePredictionBuffer>() {
             @Override
@@ -398,35 +406,5 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
 
             }
         }
-    }
-
-    private void initializeGoogleApi() {
-        Activity currentActivity = getCurrentActivity();
-
-        if (currentActivity != null) {
-            mGoogleApiClient = new GoogleApiClient
-                    .Builder(currentActivity)
-                    .addApi(Places.GEO_DATA_API)
-                    .addApi(Places.PLACE_DETECTION_API)
-                    .build();
-        }
-    }
-
-    @Override
-    public void onHostResume() {
-        if (mGoogleApiClient == null) {
-            initializeGoogleApi();
-        }
-
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onHostPause() {
-        mGoogleApiClient.disconnect();
-    }
-
-    @Override
-    public void onHostDestroy() {
     }
 }

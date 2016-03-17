@@ -24,8 +24,7 @@ import io.scrollback.neighborhoods.modules.core.CorePackage;
 import io.scrollback.neighborhoods.modules.facebook.FacebookPackage;
 import io.scrollback.neighborhoods.modules.gcm.GCMPackage;
 import io.scrollback.neighborhoods.modules.gcm.GCMRegistrationManager;
-import io.scrollback.neighborhoods.modules.google.GoogleLoginPackage;
-import io.scrollback.neighborhoods.modules.places.GooglePlacesPackage;
+import io.scrollback.neighborhoods.modules.google.GooglePackage;
 
 
 public class MainActivity extends ReactActivity {
@@ -87,9 +86,8 @@ public class MainActivity extends ReactActivity {
                 new CorePackage(),
                 new GCMPackage(),
                 new ContactsPackage(),
-                new GooglePlacesPackage(),
+                new GooglePackage(),
                 new AnalyticsPackage(),
-                new GoogleLoginPackage(),
                 new FacebookPackage(),
                 new ImageChooserPackage()
         );

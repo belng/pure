@@ -3,4 +3,5 @@
     <string name="app_protocol">https:</string>
     <string name="app_name">Hey, Neighbor!</string>
     <string name="fb_app_id">1389363534614084</string>
+    <string name="server_client_id">949615022713-430dq6ctus4qc54chti27nlgpbt70je8.apps.googleusercontent.com</string>
 </resources>
