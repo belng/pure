@@ -8,6 +8,16 @@ function getRelationAndSetPresence(slice: Object, status: 'online' | 'offline') 
 	const user = cache.getState('user');
 
 	if (slice.filter && slice.filter.parents_cts) {
+		let type;
+
+		if (slice.type === 'text') {
+			type = 'thread';
+		} else if (slice.type === 'thread') {
+			type = 'room';
+		} else {
+			return;
+		}
+
 		const item = slice.filter.parents_cts[0];
 
 		cache.getEntity(`${user}_${item}`, (err, result) => {
@@ -16,14 +26,14 @@ function getRelationAndSetPresence(slice: Object, status: 'online' | 'offline') 
 			}
 
 			if (result) {
-				bus.emit('change', setItemPresence(result, slice.type, status));
+				bus.emit('change', setItemPresence(result, type, status));
 			} else {
 				bus.emit('change', setItemPresence({
 					item,
 					user,
 					role: [ 'visitor' ],
 					create: true,
-				}, slice.type, status));
+				}, type, status));
 			}
 		});
 	}
