@@ -3,7 +3,8 @@
 
 	"server": {
 		"protocol": "http:",
-		"host": "localhost:7528"
+		"host": "localhost",
+		"port": 7528,
 	},
 
 	"gcm": {

@@ -2,11 +2,12 @@
 
 import { Constants, bus, cache } from '../../core-server';
 import Counter from '../../lib/counter';
-import ThreadRel from '../../models/note';
+import ThreadRel from '../../models/threadrel';
+import log from 'winston';
 
-bus.on('change', (changes, next) => {
+bus.on('change', (changes) => {
 	if (!changes.entities) {
-		next();
+		// next();
 		return;
 	}
 	const counter = new Counter();
@@ -15,7 +16,10 @@ bus.on('change', (changes, next) => {
 		const entity = changes.entities[id];
 		let text, role, user;
 
-		if (entity.type === Constants.TYPE_TEXTREL && entity.roles.indexOf(Constants.ROLE_MENTIONED) > -1) {
+		if (
+			entity.type === Constants.TYPE_TEXTREL &&
+			entity.roles.indexOf(Constants.ROLE_MENTIONED) > -1
+		) {
 			text = changes.entities[entity.item];
 			role = [ Constants.ROLE_MENTIONED ];
 			user = entity.user;
@@ -36,29 +40,34 @@ bus.on('change', (changes, next) => {
 
 					relation.create = true;
 					changes.entities[relation.id] = relation;
-					console.log('All Relations created:', relation);
-					next();
+					log.info('All Relations created:', relation);
+					// next();
 				});
 
 			}
 		} else if (entity.type === Constants.TYPE_TEXT) {
-			text = entity;
-			role = [ Constants.ROLE_FOLLOWER ];
-			user = entity.creator;
-			const threadRel = {
-				item: text.parents[0],
-				user,
-				type: Constants.TYPE_THREADREL,
-				roles: role
-			};
-			const relation = new ThreadRel(threadRel);
+			const relationId = entity.creator + '_' + entity.parents[0];
 
-			relation.create = true;
-			changes.entities[relation.id] = relation;
-			console.log('All Relations created:', relation);
-			next();
-		} else {
-			next();
+			cache.getEntity(relationId, (err, r) => {
+				console.log("dlfhksjdfh: ", err, r, relationId);
+				if (err) return;
+				if (!r) {
+					text = entity;
+					role = [ Constants.ROLE_FOLLOWER ];
+					user = entity.creator;
+					const threadRel = {
+						item: text.parents[0],
+						user,
+						type: Constants.TYPE_THREADREL,
+						roles: role
+					};
+					const relation = new ThreadRel(threadRel);
+
+					relation.create = true;
+					log.info('create relation on text: ', r);
+					changes.entities[relation.id] = relation;
+				}
+			});
 		}
 	}
 });

@@ -26,45 +26,66 @@ function getIIDInfo(iid, cb) {
 	}, cb);
 }
 
-function unsubscribeTopics (iid, cb) {
-	getIIDInfo(iid, async (e, r, b) => {
-		if (e) {
-			log.error(e);
-			return;
-		}
-		try {
-			// unsubscribe thread topics
-			await Object.keys(JSON.parse(b).rel.topics).map(topic => {
-				if (!/thread:/.test(topic)) {
-					log.debug('does not match thread');
-					return null;
-				}
+function unsubscribeTopics (data, cb) {
+	const iid = data.iid;
 
-				return new Promise((resolve, reject) => {
-					request({
-						...options,
-						url: 'https://iid.googleapis.com/iid/v1:batchRemove',
-						body: {
-							registration_tokens: [ iid ],
-							to: '/topics/' + topic
-						}
-					}, (err, rspns, bdy) => {
-						if (!err) {
-							log.info('unsubscribed from ', topic);
-							log.info(bdy);
-							resolve();
-						} else {
-							log.error(err);
-							reject(err);
-						}
+	if (data.topic) {
+		request({
+			...options,
+			url: 'https://iid.googleapis.com/iid/v1:batchRemove',
+			body: {
+				registration_tokens: [ iid ],
+				to: '/topics/' + data.topic
+			}
+		}, (err, rspns, bdy) => {
+			if (!err) {
+				log.info('unsubscribed from ', data.topic || '');
+				log.info(bdy);
+			} else {
+				log.error(err);
+			}
+		});
+	} else {
+		getIIDInfo(iid, async (e, r, b) => {
+			if (e) {
+				log.error(e);
+				return;
+			}
+			try {
+				// unsubscribe thread topics
+				await Object.keys(JSON.parse(b).rel.topics).map(topic => {
+					if (!/thread-/.test(topic)) {
+						log.debug('does not match thread');
+						return null;
+					}
+
+					return new Promise((resolve, reject) => {
+						request({
+							...options,
+							url: 'https://iid.googleapis.com/iid/v1:batchRemove',
+							body: {
+								registration_tokens: [ iid ],
+								to: '/topics/' + topic
+							}
+						}, (err, rspns, bdy) => {
+							if (!err) {
+								log.info('unsubscribed from ', topic);
+								log.info(bdy);
+								resolve();
+							} else {
+								log.error(err);
+								reject(err);
+							}
+						});
 					});
 				});
-			});
-		} catch (err) {
-			// ignore
-		}
-		cb();
-	});
+			} catch (err) {
+				// ignore
+			}
+			cb();
+		});
+	}
+
 }
 
 export function subscribe (userRel: Object) {
@@ -86,7 +107,7 @@ export function subscribe (userRel: Object) {
 					log.error('error subscribing to topic: ', userRel.topic, token, error);
 					if (error.type === 'TOO_MANY_TOPICS') {
 						log.info('unsubscribe few old topics');
-						unsubscribeTopics(token, () => {
+						unsubscribeTopics({ iid: token }, () => {
 							subscribe(userRel);
 						});
 					} else {
@@ -98,10 +119,10 @@ export function subscribe (userRel: Object) {
 					// console.log(options);
 				} else {
 					log.info('succefully subscribed to: ' + userRel.topic, body);
-					getIIDInfo(token, (e, r, b) => {
-						log.info(b);
-						// return;
-					});
+					// getIIDInfo(token, (e, r, b) => {
+					// 	log.info(b);
+					// 	// return;
+					// });
 				}
 			});
 		});
@@ -138,9 +159,11 @@ function handleSubscription(changes) {
 				entity.type === Constants.TYPE_THREADREL ||
 				entity.type === Constants.TYPE_ROOMREL
 			) {
-				// console.log("subscribe to thread/room")
-				// TODO: subscribe to topics only when relation is created
-				// console.log("entity: ", entity)
+			console.log("ksdfhjhadf : ", entity);
+			if (
+				!entity.createTime || entity.updateTime ||
+				 entity.createTime !== entity.updateTime
+			 ) return;
 			let user = changes.entities[entity.user];
 
 			if (!user) {
@@ -151,17 +174,26 @@ function handleSubscription(changes) {
 				});
 			}
 			counter.then(() => {
+				// if (entity.roles.length === 0) {
+				// 	const gcm = user.params && user.params.gcm;
+				// 	const	tokens = values(gcm);
+				// 	const topic = entity.type === Constants.TYPE_ROOMREL ? 'room-' +
+				// 	 entity.item : 'thread-' + entity.item;
+				//
+				// 	tokens.forEach((token) => {
+				// 		unsubscribeTopics({ iid: token, topic }, () => {
+				// 			log.info('Unsubscribed from topic: ', topic);
+				// 		});
+				// 	});
+				// } else {
 				log.info('subscribe ' + user.id + ' to ' + entity.item);
 				subscribe({
 					params: user.params || {},
-					topic: entity.type === Constants.TYPE_ROOMREL ? 'room-' + entity.item : 'thread-' + entity.item
+					topic: entity.type === Constants.TYPE_ROOMREL ? 'room-' + entity.item :
+					'thread-' + entity.item
 				});
-				// next();
-				return;
+				// }
 			});
-		} else {
-			// next();
-			return;
 		}
 	}
 }

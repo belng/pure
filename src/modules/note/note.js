@@ -70,6 +70,6 @@ bus.on('change', (changes) => {
 			});
 		}
 	}
-}, Constants.APP_PRIORITIES.CACHE_UPDATER);
+});
 
 log.info('Note module ready.');
