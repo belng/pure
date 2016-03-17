@@ -24,18 +24,21 @@ if (config.gcm.senderId) {
 
 function sendStanza(changes, entity) {
 	if (entity.type === Constants.TYPE_THREAD) {
-		if (!entity.createTime || (entity.createTime !== entity.updateTime)) return;
+		if (/*entity.createTime !== entity.updateTime*/ !entity.create) {
+			log.info('not new thread: ', entity);
+			return;
+		}
 		// console.log("sdjkfhjd g: ", entity)
 		const counter = new Counter();
 		const title = entity.creator + ' created a thread',
-			urlLink = convertRouteToURL({
+			urlLink = config.server.protocol + '//' + config.server.host + convertRouteToURL({
 				name: 'room',
 				props: {
 					room: entity && entity.parents[0]
 				}
 			});
 
-		log.info('sending pushnotification for thread', entity);
+		log.info('sending pushnotification for thread', entity, urlLink);
 		let user = changes.entities[entity.creator];
 		if (!user) {
 			counter.inc();
@@ -71,10 +74,13 @@ function sendStanza(changes, entity) {
 		});
 	}
 	if (entity.type === Constants.TYPE_TEXT) {
-		if (!entity.createTime || (entity.createTime !== entity.updateTime)) return;
+		if (/*entity.createTime !== entity.updateTime &&*/ !entity.create) {
+			log.info('not new text: ', entity);
+			return;
+		}
 		const counter = new Counter();
 		const title = entity.creator + ' replied',
-			urlLink = convertRouteToURL({
+			urlLink = config.server.protocol + '//' + config.server.host + convertRouteToURL({
 				name: 'chat',
 				props: {
 					room: entity && entity.parents[1],
@@ -82,7 +88,7 @@ function sendStanza(changes, entity) {
 				}
 			});
 
-		log.info('sending pushnotification for text', entity);
+		log.info('sending pushnotification for text', entity, urlLink);
 		let user = changes.entities[entity.creator];
 		if (!user) {
 			counter.inc();

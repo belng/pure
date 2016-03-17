@@ -119,7 +119,7 @@ bus.on('postchange', changes => {
 						info: 'sent by dispatch'
 					}, encoded = packer.encode(toDispatch);
 
-				winston.debug('Dispatching:', JSON.stringify(toDispatch));
+				winston.debug('Dispatching:' + e, JSON.stringify(toDispatch));
 				winston.debug('Encoded string: ', encoded);
 				sockets[e].send(encoded);
 			}
