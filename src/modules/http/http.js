@@ -8,7 +8,7 @@ import client from '../client/middleware';
 import { config, bus } from '../../core-server';
 
 const app = koa();
-const httpServer = http.createServer(app.callback()).listen(config.server.host.split(':')[1]);
+const httpServer = http.createServer(app.callback()).listen(config.server.port);
 
 app.use(logger());
 app.use(client());
