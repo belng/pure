@@ -47,9 +47,9 @@ bus.on('change', (changes) => {
 			}
 		} else if (entity.type === Constants.TYPE_TEXT) {
 			const relationId = entity.creator + '_' + entity.parents[0];
-
+			// console.log("got text for relation with thread: ", entity)
 			cache.getEntity(relationId, (err, r) => {
-				console.log("dlfhksjdfh: ", err, r, relationId);
+				// console.log("Got previous relation: ", err, r, relationId);
 				if (err) return;
 				if (!r) {
 					text = entity;
@@ -63,7 +63,7 @@ bus.on('change', (changes) => {
 					};
 					const relation = new ThreadRel(threadRel);
 
-					relation.create = true;
+					// relation.create = true;
 					log.info('create relation on text: ', r);
 					changes.entities[relation.id] = relation;
 				}

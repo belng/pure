@@ -166,14 +166,12 @@ export const setPresence = (id: string, status: 'online' | 'offline'): Object =>
 	}
 });
 
-
 export const setItemPresence = (
-	type: string, item: string, user: string, status: 'online' | 'offline', create: boolean
+	presence: { item: string, user: string, role: Array<string>, create?: boolean },
+	type: 'room' | 'thread', status: 'online' | 'offline'
 ): Object => {
 	const rel = {
-		item,
-		user,
-		create,
+		...presence,
 		presence: status === 'online' ? PRESENCE_FOREGROUND : PRESENCE_NONE
 	};
 
@@ -181,16 +179,16 @@ export const setItemPresence = (
 	case 'room':
 		return {
 			entities: {
-				[`${user}_${item}`]: new RoomRelModel(rel)
+				[`${presence.user}_${presence.item}`]: new RoomRelModel(rel)
 			}
 		};
 	case 'thread':
 		return {
 			entities: {
-				[`${user}_${item}`]: new ThreadRelModel(rel)
+				[`${presence.user}_${presence.item}`]: new ThreadRelModel(rel)
 			}
 		};
+	default:
+		return {};
 	}
-
-	return {};
 };
