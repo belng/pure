@@ -19,6 +19,8 @@ export default function (entity) {
 		if (entity.create && !entity.roles) entity.roles = [];
 	}
 
+
+console.log(entity);
 	const names = Object.keys(entity).filter(
 			name => COLUMNS[entity.type].indexOf(name) >= 0 &&
 			typeof entity[name] !== 'undefined'

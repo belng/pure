@@ -83,7 +83,7 @@ function sendMentionEmail() {
 		});
 	}).on('end', () => {
 		if (!row) {
-			log.info('Did not get eny user');
+			log.info('Did not get any user for mention email');
 		}
 		log.info('ended');
 	});

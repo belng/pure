@@ -63,11 +63,11 @@ bus.on('change', (changes) => {
 					};
 					const relation = new ThreadRel(threadRel);
 
-					// relation.create = true;
-					log.info('create relation on text: ', r);
+					relation.create = true;
+					log.info('create relation on text: ', relation, relation.id);
 					changes.entities[relation.id] = relation;
 				}
 			});
 		}
 	}
-});
+}, Constants.APP_PRIORITIES.RELATIONS);
