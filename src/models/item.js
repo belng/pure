@@ -12,7 +12,6 @@ export default class Item {
 		}
 
 		if (data.error) this.error = data.error;
-		if (data.create) this.create = data.create;
 	}
 
 	packArguments(): Object {
@@ -26,7 +25,6 @@ export default class Item {
 
 		data.type = this.type;
 		if (this.error) data.error = this.error;
-		if (this.create) data.create = this.create;
 		return [ data ];
 	}
 

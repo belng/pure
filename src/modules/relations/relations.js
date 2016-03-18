@@ -38,7 +38,6 @@ bus.on('change', (changes) => {
 					};
 					const relation = new ThreadRel(threadRel);
 
-					relation.create = true;
 					changes.entities[relation.id] = relation;
 					log.info('All Relations created:', relation);
 					// next();
@@ -63,7 +62,6 @@ bus.on('change', (changes) => {
 					};
 					const relation = new ThreadRel(threadRel);
 
-					relation.create = true;
 					log.info('create relation on text: ', relation, relation.id);
 					changes.entities[relation.id] = relation;
 				}

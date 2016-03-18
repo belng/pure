@@ -78,7 +78,8 @@ CREATE TABLE rels (
 	resources jsonb, -- { resource: writing/reading }
 	transitrole smallint,
 	transittype smallint,
-	type smallint
+	type smallint,
+	PRIMARY KEY("user","item")
 );
 
 CREATE TABLE roomrels   () INHERITS (rels);
@@ -330,6 +331,5 @@ CREATE FUNCTION jsonop(oa jsonb, ob jsonb, oop jsonb) RETURNS jsonb AS $$
 	if(typeof oa !== 'object') oa = JSON.parse(oa);
 	if(typeof ob !== 'object') ob = JSON.parse(ob);
 	if(typeof oop !== 'object') oop = JSON.parse(oop);
-	plv8.elog(NOTICE,(new Error).stack);
 	return j(oa, ob, oop);
 $$ LANGUAGE plv8 IMMUTABLE;

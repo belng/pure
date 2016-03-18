@@ -9,18 +9,8 @@ export default function (entity) {
 
 	const isRel = (RELATION_TYPES.indexOf(entity.type) >= 0), now = Date.now();
 
-
-	// Adding defaults:
-	entity.updateTime = now;
-	if (entity.create) entity.createTime = now;
-
 	if (entity.presence) entity.presenceTime = now;
-	if (isRel) {
-		if (entity.create && !entity.roles) entity.roles = [];
-	}
 
-
-console.log(entity);
 	const names = Object.keys(entity).filter(
 			name => COLUMNS[entity.type].indexOf(name) >= 0 &&
 			typeof entity[name] !== 'undefined'
@@ -33,7 +23,11 @@ console.log(entity);
 	}
 
 	names.splice(names.indexOf('type'), 1);
-	if (entity.create) { // INSERT
+
+	if (entity.createTime === entity.updateTime) { // INSERT
+		if (isRel) {
+			if (!entity.roles) entity.roles = [];
+		}
 
 		return pg.cat([
 			`INSERT INTO "${TABLES[entity.type]}" (`,

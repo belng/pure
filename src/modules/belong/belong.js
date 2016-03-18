@@ -36,8 +36,7 @@ function addRooms(change, addable) {
 			id: stub.id,
 			name: stub.name,
 			tags: [ stub.type ],
-			identities: [ stub.identity ],
-			create: true
+			identities: [ stub.identity ]
 		});
 	}
 }
@@ -49,7 +48,6 @@ function addRels(change, user:any, resources, addable) {
 			user: user.id,
 			item: stub.id,
 			roles: [ ...stub.rels, constants.ROLE_FOLLOWER ],
-			create: true,
 			resources
 		});
 

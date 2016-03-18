@@ -23,7 +23,7 @@ bus.on('change', (changes, next) => {
 		) {
 			let inc;
 			log.info('Count module reached: ', entity);
-			if (entity.create) {
+			if (entity.createTime === entity.updateTime) {
 				log.info('increase count');
 				inc = 1;
 			} else if (entity.deleteTime) {

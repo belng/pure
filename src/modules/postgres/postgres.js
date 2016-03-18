@@ -172,7 +172,7 @@ bus.on('change', (changes, next) => {
 		for (const id in changes.entities) {
 			ids.push(id);
 			sql.push(PgEntity.write(changes.entities[id]));
-			if ('presence' in changes.entities[id] && !('create' in changes.entities[id])) {
+			if ('presence' in changes.entities[id] && changes.entities[id].createTime === changes.entities[id].updateTime) {
 				ids.push(id);
 				sql.push(presenceHandler(changes.entities[id]));
 			}
@@ -194,12 +194,7 @@ bus.on('change', (changes, next) => {
 				winston.info(`Response for entity: ${ids[i]}`, JSON.stringify(result.rowCount));
 
 				if (result.rowCount) {
-					if (changes.entities[result.rows[0].id]) delete changes.entities[result.rows[0].id].create;
 					broadcast(changes.entities[result.rows[0].id]);
-				} else {
-					const c = response.entities[ids[i]] = changes.entities[ids[i]];
-
-					c.error = new EnhancedError('INVALID_ENTITY', 'INVALID_ENTITY');
 				}
 				i++;
 			});
