@@ -4,6 +4,12 @@ import * as Constants from '../../../lib/Constants';
 import jsonop from 'jsonop';
 import defaultOps from './../../../lib/defaultOps';
 
+function shouldInsert(entity) {
+	if (!('createTime' in entity)) return false;
+	if (entity.createTime === entity.updateTime) return true;
+	return false;
+}
+
 export default function (entity) {
 	// TODO: add validation for type else this code crashes.
 
@@ -24,7 +30,7 @@ export default function (entity) {
 
 	names.splice(names.indexOf('type'), 1);
 
-	if (entity.createTime === entity.updateTime) { // INSERT
+	if (shouldInsert(entity)) { // INSERT
 		if (isRel) {
 			if (!entity.roles) entity.roles = [];
 		}

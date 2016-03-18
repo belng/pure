@@ -82,11 +82,11 @@ CREATE TABLE rels (
 	PRIMARY KEY("user","item")
 );
 
-CREATE TABLE roomrels   () INHERITS (rels);
-CREATE TABLE threadrels () INHERITS (rels);
-CREATE TABLE textrels   () INHERITS (rels);
-CREATE TABLE topicrels  () INHERITS (rels);
-CREATE TABLE privrels   () INHERITS (rels);
+CREATE TABLE roomrels   (PRIMARY KEY("user","item")) INHERITS (rels);
+CREATE TABLE threadrels (PRIMARY KEY("user","item")) INHERITS (rels);
+CREATE TABLE textrels   (PRIMARY KEY("user","item")) INHERITS (rels);
+CREATE TABLE topicrels  (PRIMARY KEY("user","item")) INHERITS (rels);
+CREATE TABLE privrels   (PRIMARY KEY("user","item")) INHERITS (rels);
 
 CREATE TABLE notes (
 	"user" text,

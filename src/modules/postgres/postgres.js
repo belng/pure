@@ -1,6 +1,5 @@
 import { bus, cache, config } from '../../core-server';
 import Counter from '../../lib/counter';
-import EnhancedError from '../../lib/EnhancedError';
 import * as PgEntity from './entity/entity';
 import jsonop from 'jsonop';
 import Know from '../../submodules/know/lib/Cache';
