@@ -13,7 +13,6 @@ export default class Note {
 			}
 		}
 		if (data.error) this.error = data.error;
-		if (data.create) this.create = data.create;
 	}
 
 	packArguments() {
@@ -26,7 +25,6 @@ export default class Note {
 		}
 
 		if (this.error) data.error = this.error;
-		if (this.create) data.create = this.create;
 		return [ data ];
 	}
 

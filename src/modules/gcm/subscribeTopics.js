@@ -159,9 +159,9 @@ function handleSubscription(changes) {
 				entity.type === Constants.TYPE_THREADREL ||
 				entity.type === Constants.TYPE_ROOMREL
 			) {
-			console.log("ksdfhjhadf : ", entity);
-			if (entity.createTime && entity.createTime !== entity.updateTime) {
-				log.info('Not created now, return');
+			// console.log("ksdfhjhadf : ", entity);
+			if (entity.createTime !== entity.updateTime) {
+				log.info('Not created now, return', entity);
 				return;
 			}
 			let user = changes.entities[entity.user];
@@ -175,17 +175,18 @@ function handleSubscription(changes) {
 			}
 			counter.then(() => {
 				if (entity.roles && entity.roles.length === 0) {
-					log.info('Got unfollow, unsubscribe from topics');
-					const gcm = user.params && user.params.gcm;
-					const	tokens = values(gcm);
-					const topic = entity.type === Constants.TYPE_ROOMREL ? 'room-' +
-					 entity.item : 'thread-' + entity.item;
-					tokens.forEach((token) => {
-						unsubscribeTopics({ iid: token, topic }, () => {
-							log.info('Unsubscribed from topic: ', topic);
-						});
-					});
-				} else {
+					// log.info('Got unfollow, unsubscribe from topics');
+					// const gcm = user.params && user.params.gcm;
+					// const	tokens = values(gcm);
+					// const topic = entity.type === Constants.TYPE_ROOMREL ? 'room-' +
+					//  entity.item : 'thread-' + entity.item;
+					// tokens.forEach((token) => {
+					// 	unsubscribeTopics({ iid: token, topic }, () => {
+					// 		log.info('Unsubscribed from topic: ', topic);
+					// 	});
+					// });
+					return;
+				} else if (entity.roles && entity.roles.length > 0) {
 					log.info('subscribe ' + user.id + ' to ' + entity.item);
 					subscribe({
 						params: user.params || {},
@@ -197,4 +198,4 @@ function handleSubscription(changes) {
 		}
 	}
 }
-bus.on('change', handleSubscription);
+bus.on('change', handleSubscription, Constants.APP_PRIORITIES.SUBSCRIBE_TO_TOPICS);

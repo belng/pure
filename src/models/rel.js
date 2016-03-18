@@ -15,7 +15,6 @@ export default class Relation {
 		}
 
 		if (data.error) this.error = data.error;
-		if (data.create) this.create = data.create;
 
 		Object.defineProperty(this, 'id', {
 			get: () => this.user + '_' + this.item,
@@ -34,7 +33,6 @@ export default class Relation {
 
 		data.type = this.type;
 		if (this.error) data.error = this.error;
-		if (this.create) data.create = this.create;
 		return [ data ];
 	}
 }

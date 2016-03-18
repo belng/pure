@@ -37,10 +37,10 @@ function disconnected() {
 }
 
 function onMessage(message) {
-	console.log('frame: -->', message);
+	// console.log('frame: -->', message);
 	const frame = packer.decode(message);
 
-	console.log('-->', frame);
+	// console.log('-->', frame);
 
 	frame.message.source = 'server';
 	bus.emit(frame.type, frame.message);

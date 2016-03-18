@@ -55,7 +55,7 @@ function sendStanza(changes, entity) {
 			const pushData = {
 				count: 1,
 				data: {
-					body: entity.body,
+					body: entity.name,
 					creator: entity.creator,
 					id: entity.id,
 					room: entity && entity.parents[0],
@@ -74,6 +74,7 @@ function sendStanza(changes, entity) {
 		});
 	}
 	if (entity.type === Constants.TYPE_TEXT) {
+		log.info('push notification for text: ', entity);
 		if (/*entity.createTime !== entity.updateTime &&*/ !entity.create) {
 			log.info('not new text: ', entity);
 			return;
@@ -88,9 +89,9 @@ function sendStanza(changes, entity) {
 				}
 			});
 
-		log.info('sending pushnotification for text', entity, urlLink);
+		log.info('pushnotification: ', entity, urlLink);
 		let user = changes.entities[entity.creator];
-		if (!user) {
+		if (!user || !user.meta) {
 			counter.inc();
 			cache.getEntity(entity.creator, (err, u) => {
 				if (!err)	user = u;
@@ -116,7 +117,7 @@ function sendStanza(changes, entity) {
 				type: entity.type
 			};
 
-			// console.log("gcm entity:", pushData)
+			log.info('sending pushnotification for text', pushData);
 			client.send(createStanza(pushData));
 		});
 	}

@@ -70,7 +70,6 @@ function signuphandler(changes, n) {
 				const user = (changes.entities = changes.entities || {})[changes.auth.signup.id] = changes.auth.signup;
 
 				user.type = Constants.TYPE_USER;
-				user.create = true;
 				user.createTime = Date.now();
 				user.resources = changes.auth.signup.resources || {};
 				user.presence = changes.auth.signup.resources[changes.auth.resource] = 1;

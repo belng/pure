@@ -3,6 +3,9 @@
 import { TABLES, ROLES } from '../../lib/schema';
 import { Constants, bus } from '../../core-server';
 import log from 'winston';
+import User from '../../models/user';
+// import ThreadRel from '../../models/threadrel';
+// import RoomRel from '../../models/roomrel';
 
 bus.on('change', (changes, next) => {
 	if (!changes.entities) {
@@ -19,27 +22,32 @@ bus.on('change', (changes, next) => {
 			entity.type === Constants.TYPE_THREAD
 		) {
 			let inc;
-
-			if (entity.createtime) {
+			log.info('Count module reached: ', entity);
+			if (entity.createTime === entity.updateTime) {
+				log.info('increase count');
 				inc = 1;
-			} else if (entity.deletetime) {
+			} else if (entity.deleteTime) {
 				inc = -1;
-			} else {
-				continue;
 			}
 
-			const parent = changes.entities[entity.parents[0][0]] || {};
-
-			parent.counts = parent.counts || {};
-			parent.counts.children = inc;
-			parent.id = entity.parents[0][0];
+			const parent = changes.entities[entity.parents[0]] || {};
+			parent.counts = parent.counts ? parent.counts : {};
+			parent.counts = {
+				children: inc
+			};
+			parent.id = entity.parents[0];
 			parent.type = (entity.type === Constants.TYPE_TEXT) ?
 				Constants.TYPE_THREAD : Constants.TYPE_ROOM;
-			changes.entities[entity.parents[0][0]] = parent;
+
+			// if (entity.type === Constants.TYPE_TEXT) {
+			//
+			// }
+			// console.log("parents count module: ", parent);
+			changes.entities[entity.parents[0]] = parent;
 
 			// 2. Increment text/thread count of user
 
-			const user = changes.entities[entity.creator] || {};
+			const user = changes.entities[entity.creator] || new User({ id: entity.creator });
 
 			user.counts = user.counts || {};
 			user.counts[TABLES[entity.type]] = inc;
@@ -101,5 +109,5 @@ bus.on('change', (changes, next) => {
 		}
 	}
 	next();
-}, Constants.APP_PRIORITIES.CACHE_UPDATER);
+});
 log.info('Count module ready.');

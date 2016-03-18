@@ -13,7 +13,7 @@ import '../modules/belong/belong';
 
 /* ########### */
 import '../modules/relations/relations';
-
+import '../modules/guard/guard-server';
 import './../modules/count/count';
 import './../modules/note/note';
 import './../modules/upload/upload';

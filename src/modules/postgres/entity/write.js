@@ -4,20 +4,18 @@ import * as Constants from '../../../lib/Constants';
 import jsonop from 'jsonop';
 import defaultOps from './../../../lib/defaultOps';
 
+function shouldInsert(entity) {
+	if (!('createTime' in entity)) return false;
+	if (entity.createTime === entity.updateTime) return true;
+	return false;
+}
+
 export default function (entity) {
 	// TODO: add validation for type else this code crashes.
 
 	const isRel = (RELATION_TYPES.indexOf(entity.type) >= 0), now = Date.now();
 
-
-	// Adding defaults:
-	entity.updateTime = now;
-	if (entity.create) entity.createTime = now;
-
 	if (entity.presence) entity.presenceTime = now;
-	if (isRel) {
-		if (entity.create && !entity.roles) entity.roles = [];
-	}
 
 	const names = Object.keys(entity).filter(
 			name => COLUMNS[entity.type].indexOf(name) >= 0 &&
@@ -31,7 +29,11 @@ export default function (entity) {
 	}
 
 	names.splice(names.indexOf('type'), 1);
-	if (entity.create) { // INSERT
+
+	if (shouldInsert(entity)) { // INSERT
+		if (isRel) {
+			if (!entity.roles) entity.roles = [];
+		}
 
 		return pg.cat([
 			`INSERT INTO "${TABLES[entity.type]}" (`,

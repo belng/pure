@@ -6,7 +6,7 @@ import * as pg from '../../lib/pg';
 import Counter from '../../lib/counter';
 import send from './sendEmail.js';
 import { Constants, config } from '../../core-server';
-const WELCOME_INTERVAL = 1 * 60 * 1000, WELCOME_DELAY = 1 * 60 * 1000, connStr = config.connStr, conf = config.email,
+const WELCOME_INTERVAL = 5 * 60 * 1000, WELCOME_DELAY = 5 * 60 * 1000, connStr = config.connStr, conf = config.email,
 	template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' +
 	config.app_id + '.welcome.hbs', 'utf-8').toString());
 
@@ -23,7 +23,7 @@ function initMailSending(cUserRel) {
 	mailIds.forEach((mailId) => {
 		counter.inc();
 		const emailAdd = mailId.slice(7);
-
+		log.info('Sending email to:', emailAdd);
 		const emailHtml = template({
 			user: user.id,
 			rels,
@@ -61,8 +61,8 @@ function sendWelcomeEmail () {
 	}
 	pg.readStream(connStr, {
 		$: 'SELECT * FROM users WHERE createtime >&{start} AND createtime <= &{end}',
-		start: (!config.debug && lastEmailSent === 0) ? end : lastEmailSent,
-		end: lastEmailSent === 0 ? Date.now() : end
+		start: lastEmailSent,
+		end
 	}).on('row', (user) => {
 		log.info('Got a new user: ', user.id);
 		const userRel = {}, rels = [];
@@ -86,7 +86,7 @@ function sendWelcomeEmail () {
 
 export default function (row) {
 	lastEmailSent = row.lastrun;
-	log.info('starting welcome email');
+	log.info('starting welcome email', 'last sent: ', lastEmailSent);
 	sendWelcomeEmail();
 	setInterval(sendWelcomeEmail, /*10000*/ WELCOME_INTERVAL);
 }

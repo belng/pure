@@ -1,3 +1,5 @@
+import { short } from '../../lib/Time';
+
 let currentU = false,
 	currentR = false;
 
@@ -13,18 +15,23 @@ function userFromUserRel(user) {
 }
 
 function relFromUserRel(rel) {
+	// console.log("rel: ", rel)
 	return {
 		user: rel.user, // id or identity
 		topics: rel.topics,
+		threadTitle: rel.name,
 		threadId: rel.threadid, // room display name or thread title
-		text: rel.teext,
-		parents: rel.textparents || [],
-		item: rel.titem,
-		role: rel.trole,
+		text: rel.teext || rel.body,
+		parents: rel.textparents || rel.parents,
+		item: rel.titem || rel.item,
+		roles: rel.trole || rel.roles,
 		status: rel.status,
 		interest: rel.interest,
 		reputation: rel.reputation,
-		room: rel.roomName
+		room: rel.roomName,
+		roomId: rel.roomId,
+		count: rel.textCount,
+		displayTime: short(rel.threadtime)
 	};
 }
 
