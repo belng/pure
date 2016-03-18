@@ -32,6 +32,14 @@ type AutoCompletePrediction = {
 	placeTypes: Array<number>;
 }
 
+type LocationRequestOptions = {
+	priority?: 'high_accuracy' | 'balanced_power' | 'low_power' | 'no_power';
+	interval?: number;
+	timeout?: number;
+	frequency?: number;
+	displacement?: number;
+}
+
 export default class GooglePlaces {
 	static TYPE_FILTER_ADDRESS: number;
 	static TYPE_FILTER_CITIES: number;
@@ -40,6 +48,7 @@ export default class GooglePlaces {
 	static TYPE_FILTER_NONE: number;
 	static TYPE_FILTER_REGIONS: number;
 
+	static requestLocation: (options: ?LocationRequestOptions) => Promise<boolean>;
 	static getCurrentPlace: (filter: ?PlaceFilter) => Promise<Array<{ place: Place; likelihood: number }>>;
 	static getPlaceById: (id: string) => Promise<Place>;
 	static findPlace: () => Promise<Place>;
