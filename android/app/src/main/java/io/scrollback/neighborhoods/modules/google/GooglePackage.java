@@ -19,7 +19,8 @@ public class GooglePackage implements ReactPackage {
 
         return Arrays.<NativeModule>asList(
                 new GoogleSignInModule(reactContext, apiManager),
-                new GooglePlacesModule(reactContext, apiManager)
+                new GooglePlacesModule(reactContext, apiManager),
+                new LocationListenerModule(reactContext, apiManager)
         );
     }
 

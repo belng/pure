@@ -3,7 +3,6 @@ package io.scrollback.neighborhoods.modules.google;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -26,11 +25,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.AutocompletePredictionBuffer;
@@ -58,15 +52,12 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
     private static final String GOOGLE_API_NOT_INITIALIZED_ERROR = "Google API client not initialized";
     private static final String PERMISSION_NOT_GRANTED_ERROR = "Location permissions are not granted";
     private static final String PICKER_CANCELLED_ERROR = "Places picker was cancelled";
-    private static final String SETTINGS_CHANGE_UNAVAILABLE_ERROR = "Unable to change GPS settings";
 
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1090;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1080;
-    private static final int LOCATION_PROMPT_REQUEST_CODE = 1070;
 
     private Promise mPermissionPromise;
     private Promise mRetrievePromise;
-    private Promise mPromptPromise;
     private GoogleApiManagerModule mGoogleApiManager;
 
     public GooglePlacesModule(ReactApplicationContext reactContext, GoogleApiManagerModule apiManagerModule) {
@@ -97,27 +88,6 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
         return constants;
     }
 
-    private void resolvePromptPromise(boolean value) {
-        if (mPromptPromise != null) {
-            mPromptPromise.resolve(value);
-            mPromptPromise = null;
-        }
-    }
-
-    private void rejectPromptPromise(String reason) {
-        if (mPromptPromise != null) {
-            mPromptPromise.reject(reason);
-            mPromptPromise = null;
-        }
-    }
-
-    private void rejectPromptPromise(Exception reason) {
-        if (mPromptPromise != null) {
-            mPromptPromise.reject(reason);
-            mPromptPromise = null;
-        }
-    }
-
     private void rejectPermissionPromise(String reason) {
         if (mPermissionPromise != null) {
             mPermissionPromise.reject(reason);
@@ -144,89 +114,6 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
             mRetrievePromise.reject(reason);
             mRetrievePromise = null;
         }
-    }
-
-    @ReactMethod
-    public void requestLocation(@Nullable final ReadableMap options, final Promise promise) {
-        GoogleApiClient googleApiClient = mGoogleApiManager.getGoogleApiClient();
-
-        if (googleApiClient == null || !googleApiClient.isConnected()) {
-            promise.reject(GOOGLE_API_NOT_INITIALIZED_ERROR);
-            return;
-        }
-
-        int priority = LocationRequest.PRIORITY_NO_POWER;
-
-        LocationRequest locationRequest = LocationRequest.create();
-
-        if (options != null) {
-            if (options.hasKey("priority")) {
-                switch (options.getString("priority")) {
-                    case "high_accuracy":
-                        priority = LocationRequest.PRIORITY_HIGH_ACCURACY;
-                        break;
-                    case "balanced_power":
-                        priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
-                        break;
-                    case "low_power":
-                        priority = LocationRequest.PRIORITY_LOW_POWER;
-                        break;
-                    default:
-                        priority = LocationRequest.PRIORITY_NO_POWER;
-                }
-            }
-
-            if (options.hasKey("interval")) {
-                locationRequest.setInterval(options.getInt("interval"));
-            }
-
-            if (options.hasKey("timeout")) {
-                locationRequest.setMaxWaitTime(options.getInt("timeout"));
-            }
-
-            if (options.hasKey("frequency")) {
-                locationRequest.setNumUpdates(options.getInt("frequency"));
-            }
-
-            if (options.hasKey("displacement")) {
-                locationRequest.setSmallestDisplacement((float) options.getDouble("displacement"));
-            }
-        }
-
-        locationRequest.setPriority(priority);
-
-        LocationSettingsRequest request = new LocationSettingsRequest.Builder()
-                .addLocationRequest(locationRequest)
-                .setAlwaysShow(true)
-                .build();
-
-        PendingResult<LocationSettingsResult> result =
-                LocationServices.SettingsApi.checkLocationSettings(googleApiClient, request);
-
-        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-            @Override
-            public void onResult(@NonNull LocationSettingsResult result) {
-                final Status status = result.getStatus();
-
-                switch (status.getStatusCode()) {
-                    case LocationSettingsStatusCodes.SUCCESS:
-                        promise.resolve(true);
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        promise.reject(SETTINGS_CHANGE_UNAVAILABLE_ERROR);
-                        break;
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        mPromptPromise = promise;
-
-                        try {
-                            status.startResolutionForResult(getCurrentActivity(), LOCATION_PROMPT_REQUEST_CODE);
-                        } catch (IntentSender.SendIntentException e) {
-                            rejectPromptPromise(e);
-                        }
-                        break;
-                }
-            }
-        });
     }
 
     @ReactMethod
@@ -512,13 +399,6 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
 
                 }
                 break;
-            case LOCATION_PROMPT_REQUEST_CODE:
-                if (resultCode == Activity.RESULT_CANCELED) {
-                    rejectPromptPromise(PERMISSION_NOT_GRANTED_ERROR);
-                } else if (resultCode == Activity.RESULT_OK) {
-                    resolvePromptPromise(true);
-                }
-
         }
     }
 }
