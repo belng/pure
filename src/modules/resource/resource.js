@@ -32,7 +32,6 @@ bus.on('presence/online', presence => {
 });
 
 function resourceHandler(changes) {
-
 	if (changes.state && changes.state.user) {
 		resourceMap[changes.auth.resource] = changes.state.user;
 	} else if (changes.auth && changes.auth.resource) {
@@ -45,8 +44,6 @@ function resourceHandler(changes) {
 			state.user = state.user || changes.state.user;
 		}
 	}
-
-
 }
 
 bus.on('change', resourceHandler, Constants.APP_PRIORITIES.AUTHENTICATION_RESOURCE);

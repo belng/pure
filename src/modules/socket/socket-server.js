@@ -18,6 +18,7 @@ function sendError(socket, code, reason, event) {
 		}
 	}));
 }
+
 function handleGetPolicy(socket, message, resourceId, err) {
 	if (message.response && err) {
 		const errorToSend = {

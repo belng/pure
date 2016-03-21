@@ -70,7 +70,8 @@ export default function() {
 	if (!config.s3) {
 		winston.info('Image upload is disabled');
 		bus.on('s3/getPolicy', (policyReq, next) => {
-			policyReq.error = new EnhancedError('Image upload is temporarily disabled', 'NO_CONFIG_FOUND_FO_S3');
+			policyReq.response = {};
+			policyReq.response.error = new EnhancedError('Image upload is temporarily disabled', 'NO_CONFIG_FOUND_FO_S3');
 			next();
 		}, Constants.APP_PRIORITIES.IMAGE_UPLOAD);
 		return;
