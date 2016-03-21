@@ -18,6 +18,57 @@ function sendError(socket, code, reason, event) {
 		}
 	}));
 }
+function handleGetPolicy(socket, message, resourceId, err) {
+	if (message.response && err) {
+		const errorToSend = {
+				type: 'error',
+				message: message.response
+			}, encoded = packer.encode(errorToSend);
+
+		socket.send(encoded);
+	} else {
+		const toSend = {
+				type: 's3/getPolicy',
+				message: message.response
+			}, encoded = packer.encode(toSend);
+		socket.send(encoded);
+	}
+}
+function handleChange(socket, message, resourceId, err) {
+	if (err) {
+		if (message.response) {
+			const errorToSend = {
+					type: 'error',
+					message: message.response
+				}, encoded = packer.encode(errorToSend);
+
+			winston.debug('Sending Error:', errorToSend);
+			socket.send(encoded);
+		} else {
+			sendError(
+				socket, err.code || 'ERR_UNKNOWN', err.message, message
+			);
+		}
+		return;
+	}
+
+	if (message.response) {
+		if (message.auth && message.auth.user) {
+			bus.emit('presence/online', {
+				resource: resourceId,
+				user: message.auth.user
+			});
+		}
+		const toSend = {
+				type: 'change',
+				message: message.response
+			}, encoded = packer.encode(toSend);
+
+		winston.debug('To send:', JSON.stringify(toSend));
+		winston.debug('Encoded string: ', encoded);
+		socket.send(encoded);
+	}
+}
 
 bus.on('http/init', app => {
 	const socketServer = engine.attach(app.httpServer);
@@ -34,11 +85,11 @@ bus.on('http/init', app => {
 		});
 
 		socket.on('message', m => {
-			let message;
+			let frame, message;
 
 			winston.info('new event: ', m);
 			try {
-				message = packer.decode(m);
+				frame = packer.decode(m);
 			} catch (e) {
 				sendError(socket, 0, 'ERR_EVT_PARSE', e.message);
 				return;
@@ -48,12 +99,13 @@ bus.on('http/init', app => {
 				sendError(socket, 'ERR_UNKNOWN', 'invalid');
 				return;
 			}
-
+			message = frame.message;
 			winston.debug(`Message Received: ${resourceId}: `, JSON.stringify(message));
 			message.id = uid(16);
+
 			(message.auth = message.auth || {}).resource = resourceId;
 
-			if (message.entities) {
+			if (frame.type === 'change' && message.entities) {
 				for (const id in message.entities) {
 					if (typeof message.entities[id].presence === 'number') {
 						message.entities[id].resources = message.entities[id].resources || {};
@@ -63,45 +115,19 @@ bus.on('http/init', app => {
 					}
 				}
 			}
-			function handleSetState(err) {
-				if (err) {
-					if (message.response) {
 
-						const errorToSend = {
-								type: 'error',
-								message: message.response
-							}, encoded = packer.encode(errorToSend);
-
-						winston.debug('Sending Error:', errorToSend);
-						socket.send(encoded);
-					} else {
-						sendError(
-							socket, err.code || 'ERR_UNKNOWN', err.message, message
-						);
-					}
-					return;
-				}
-
-				if (message.response) {
-					if (message.auth && message.auth.user) {
-						bus.emit('presence/online', {
-							resource: resourceId,
-							user: message.auth.user
-						});
-					}
-					const toSend = {
-							type: 'change',
-							message: message.response
-						}, encoded = packer.encode(toSend);
-
-					winston.debug('To send:', JSON.stringify(toSend));
-					winston.debug('Encoded string: ', encoded);
-					socket.send(encoded);
-				}
-			}
 
 			message.source = 'socket';
-			bus.emit('change', message, handleSetState);
+
+			switch (frame.type) {
+			case 'change':
+				bus.emit('change', message, handleChange.bind(null, socket, message, resourceId));
+				break;
+			case 's3/getPolicy':
+				bus.emit('s3/getPolicy', message, handleGetPolicy.bind(null, socket, message, resourceId));
+				break;
+			}
+
 		});
 	});
 });

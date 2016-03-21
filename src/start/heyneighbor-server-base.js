@@ -20,6 +20,7 @@ import './../modules/upload/upload';
 import '../modules/score/score';
 import '../modules/gcm/gcm-server';
 import '../modules/postgres/postgres';
+import '../modules/image-upload/image-upload';
 
 // import "./../modules/ui/ui-server";
 import '../modules/http/http'; // if fired before socket server then the http/init listener might not be listening..

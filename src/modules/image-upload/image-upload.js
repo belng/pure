@@ -1,7 +1,7 @@
 import { bus, config, Constants } from '../../core-server';
 import crypto from 'crypto';
 import winston from 'winston';
-
+import EnhancedError from './../../lib/EnhancedError';
 function getDate(long) {
 	const date = new Date();
 
@@ -69,11 +69,15 @@ function getSignature(policy) {
 export default function() {
 	if (!config.s3) {
 		winston.info('Image upload is disabled');
+		bus.on('s3/getPolicy', (policyReq, next) => {
+			policyReq.error = new EnhancedError('Image upload is temporarily disabled', 'NO_CONFIG_FOUND_FO_S3');
+			next();
+		}, Constants.APP_PRIORITIES.IMAGE_UPLOAD);
 		return;
 	}
 
-	bus.on('upload/getPolicy', (policyReq, next) => {
-		const keyPrefix = getKeyPrefix(policyReq.user.id, policyReq.uploadType, policyReq.textId),
+	bus.on('s3/getPolicy', (policyReq, next) => {
+		const keyPrefix = getKeyPrefix(policyReq.state.user, policyReq.uploadType, policyReq.textId),
 			policy = getPolicy(keyPrefix),
 			signature = getSignature(policy);
 
