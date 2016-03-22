@@ -82,7 +82,10 @@ bus.on('postchange', changes => {
 
 	if (Object.keys(frame).length) {
 		console.log('<--', frame);
-		client.send(packer.encode(frame));
+		client.send(packer.encode({
+			type: 'change',
+			message: frame
+		}));
 	}
 });
 

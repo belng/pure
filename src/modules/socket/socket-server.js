@@ -96,7 +96,7 @@ bus.on('http/init', app => {
 		});
 
 		socket.on('message', m => {
-			let frame, message;
+			let frame;
 
 			winston.info('new event: ', m);
 			try {
@@ -106,11 +106,11 @@ bus.on('http/init', app => {
 				return;
 			}
 
+			const message = frame.message;
 			if (typeof message !== 'object') {
 				sendError(socket, 'ERR_UNKNOWN', 'invalid');
 				return;
 			}
-			message = frame.message;
 			winston.debug(`Message Received: ${resourceId}: `, JSON.stringify(message));
 			message.id = uid(16);
 
@@ -127,11 +127,11 @@ bus.on('http/init', app => {
 				}
 			}
 
-
 			message.source = 'socket';
 
 			switch (frame.type) {
 			case 'change':
+				console.log('Emitting change');
 				bus.emit('change', message, handleChange.bind(null, socket, message, resourceId));
 				break;
 			case 's3/getPolicy':
