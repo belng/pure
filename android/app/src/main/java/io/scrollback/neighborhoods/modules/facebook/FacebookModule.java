@@ -123,7 +123,7 @@ public class FacebookModule extends ReactContextBaseJavaModule implements Activi
     private WritableMap accessTokenToWritableMap(AccessToken accessToken) {
         WritableMap map = Arguments.createMap();
 
-        map.putString("token", accessToken.getToken());
+        map.putString("access_token", accessToken.getToken());
         map.putString("user_id", accessToken.getUserId());
         map.putDouble("expires", accessToken.getExpires().getTime());
 

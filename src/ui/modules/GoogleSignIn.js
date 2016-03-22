@@ -2,10 +2,9 @@
 
 type Account = {
 	id: ?string;
-	token: ?string;
 	display_name: ?string;
 	email: ?string;
-	token: ?string;
+	id_token: ?string;
 	auth_code: ?string;
 	photo_url?: string;
 }

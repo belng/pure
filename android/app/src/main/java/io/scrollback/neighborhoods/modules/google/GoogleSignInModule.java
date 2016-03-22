@@ -133,7 +133,7 @@ public class GoogleSignInModule extends ReactContextBaseJavaModule implements Ac
                 accountMap.putString("id", account.getId());
                 accountMap.putString("display_name", account.getDisplayName());
                 accountMap.putString("email", account.getEmail());
-                accountMap.putString("token", account.getIdToken());
+                accountMap.putString("id_token", account.getIdToken());
                 accountMap.putString("auth_code", account.getServerAuthCode());
 
                 Uri photo = account.getPhotoUrl();

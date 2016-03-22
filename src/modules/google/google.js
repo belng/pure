@@ -79,7 +79,7 @@ function getTokenFromCode(code) {
 
 function verifyToken(token, appId) {
 	return new Promise((resolve, reject) => {
-		request(encodeURITemplate `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${token}`,
+		request(encodeURITemplate `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${token}`,
 		(err, res, body) => {
 			winston.error(err, body);
 			if (err || !res) {
@@ -94,7 +94,7 @@ function verifyToken(token, appId) {
 				return;
 			}
 
-			if (response.audience === appId) resolve(token);
+			if (response.aud === appId) resolve(token);
 			else reject(new EnhancedError(Constants.ERRORS.AUDIENCE_MISMATCH_GOOGLE, 'AUDIENCE_MISMATCH_GOOGLE'));
 		});
 	});
@@ -104,7 +104,7 @@ function getDataFromToken(token) {
 	const signin = {};
 
 	return new Promise((resolve, reject) => {
-		request(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`, (err, res, body) => {
+		request(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${token}`, (err, res, body) => {
 			try {
 				if (err) throw (err);
 				const user = JSON.parse(body);
@@ -119,9 +119,9 @@ function getDataFromToken(token) {
 				(signin.identities = []).push('mailto:' + user.email);
 				signin.params = {
 					google: {
-						accessToken: token,
+						idToken: token,
 						verified: true,
-						// find out a way to get the name
+						name: user.name,
 						picture: user.picture
 					}
 				};
@@ -151,7 +151,7 @@ function googleAuth(changes, n) {
 	}
 
 	/* TODO: how do we handle auth from already logged in user?*/
-	const key = changes.auth.google.code || changes.auth.google.accessToken;
+	const key = changes.auth.google.code || changes.auth.google.idToken;
 
 	if (!key) {
 		return next(new EnhancedError(Constants.ERRORS.INVALID_GOOGLE_KEY, 'INVALID_GOOGLE_KEY'));
