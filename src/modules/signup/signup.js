@@ -61,7 +61,7 @@ function signuphandler(changes, n) {
 			cache.getEntity(changes.auth.signup.id, (err, entity) => {
 				if (err && next) return next(err);
 				if (entity && next) return next(new EnhancedError(Constants.ERRORS.ERR_USER_NAME_TAKEN, 'ERR_USER_NAME_TAKEN'));
-				changes.state = (changes.state || {}).user = changes.auth.signup.id;
+				changes.auth.user  = changes.auth.signup.id;
 
 				changes.response = changes.response || {};
 				changes.response.state = changes.response.state || {};

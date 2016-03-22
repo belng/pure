@@ -45,7 +45,7 @@ function signinhandler(changes, n) {
 					return next(new EnhancedError('The username is invalid', 'INVALID_USERID'));
 				}
 				winston.info('setstate: sign-in module: found user');
-				(changes.state = changes.state || {}).user = entity.id;
+				changes.auth.user = entity.id;
 				changes.response = changes.response || {};
 				changes.response.state = changes.response.state || {};
 				changes.response.state.user = entity.id;
@@ -63,7 +63,7 @@ function signinhandler(changes, n) {
 				if (entities && entities.length) {
 					const entity = entities[0];
 
-					(changes.state = (changes.state || {})).user = entity.id;
+					changes.auth.user = entity.id;
 					changes.response = (changes.response || {});
 					(changes.response.state = changes.response.state || {}).user = entity.id;
 					(changes.response.entities = changes.response.entities || {})[entity.id] = entity;
