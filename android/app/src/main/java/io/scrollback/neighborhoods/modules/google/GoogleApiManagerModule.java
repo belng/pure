@@ -9,6 +9,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
 
 import io.scrollback.neighborhoods.R;
@@ -44,6 +45,7 @@ public class GoogleApiManagerModule extends ReactContextBaseJavaModule implement
         if (currentActivity != null) {
             mGoogleApiClient = new GoogleApiClient
                     .Builder(currentActivity)
+                    .addApi(LocationServices.API)
                     .addApi(Places.GEO_DATA_API)
                     .addApi(Places.PLACE_DETECTION_API)
                     .addApi(Auth.GOOGLE_SIGN_IN_API, gso)

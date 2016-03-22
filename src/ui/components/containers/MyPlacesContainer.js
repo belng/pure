@@ -11,12 +11,6 @@ const mapSubscriptionToProps = {
 		key: 'me',
 		transform: user => user.params && user.params.places ? user.params.places : {},
 	},
-	location: {
-		key: {
-			type: 'state',
-			path: 'location'
-		},
-	},
 };
 
 const mapActionsToProps = {

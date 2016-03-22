@@ -5,6 +5,11 @@ import ReactNative from 'react-native';
 import PlaceManager from './PlaceManager';
 import PageLoading from '../PageLoading';
 import Colors from '../../../Colors';
+import LocationListener from '../../../modules/LocationListener';
+
+const {
+	InteractionManager
+} = ReactNative;
 
 const {
 	StyleSheet,
@@ -33,6 +38,10 @@ export default class MyPlaces extends Component<void, Props, void> {
 		removePlace: PropTypes.func.isRequired,
 		style: View.propTypes.style,
 	};
+
+	componentDidMount() {
+		InteractionManager.runAfterInteractions(() => LocationListener.requestEnableLocation(null));
+	}
 
 	render() {
 		if (this.props.places) {

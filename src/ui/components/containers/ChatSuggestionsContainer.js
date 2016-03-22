@@ -4,7 +4,15 @@ import React, { Component, PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import ChatSuggestions from '../views/ChatSuggestions';
 
-export default class ChatSuggestionsContainer extends Component<void, any, { prefix: string }> {
+type Props = {
+	user: string
+}
+
+export default class ChatSuggestionsContainer extends Component<void, Props, { prefix: string }> {
+	static propTypes = {
+		user: PropTypes.string
+	};
+
 	state: { prefix: string } = {
 		prefix: '',
 	};
@@ -22,7 +30,6 @@ export default class ChatSuggestionsContainer extends Component<void, any, { pre
 
 		return (
 			<Connect
-
 				mapSubscriptionToProps={{
 					users: {
 						key: {
@@ -49,7 +56,3 @@ export default class ChatSuggestionsContainer extends Component<void, any, { pre
 		);
 	}
 }
-
-ChatSuggestionsContainer.propTypes = {
-	user: PropTypes.string
-};

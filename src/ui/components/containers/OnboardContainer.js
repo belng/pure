@@ -377,12 +377,6 @@ const mapSubscriptionToProps = {
 		},
 		transform: signup => signup ? signup.error : null
 	},
-	location: {
-		key: {
-			type: 'state',
-			path: 'location'
-		}
-	}
 };
 
 export default class OnboardContainerOuter extends Component<void, { user: ?string }, void> {

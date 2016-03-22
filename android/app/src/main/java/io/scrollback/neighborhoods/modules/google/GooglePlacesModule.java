@@ -88,13 +88,6 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
         return constants;
     }
 
-    private void resolvePermissionPromise(WritableMap map) {
-        if (mPermissionPromise != null) {
-            mPermissionPromise.resolve(map);
-            mPermissionPromise = null;
-        }
-    }
-
     private void rejectPermissionPromise(String reason) {
         if (mPermissionPromise != null) {
             mPermissionPromise.reject(reason);
@@ -366,45 +359,46 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_CANCELED) {
-                rejectRetrivePromise(PICKER_CANCELLED_ERROR);
-            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                Activity currentActivity = getCurrentActivity();
+        switch (requestCode) {
+            case PLACE_AUTOCOMPLETE_REQUEST_CODE:
+                if (resultCode == Activity.RESULT_CANCELED) {
+                    rejectRetrivePromise(PICKER_CANCELLED_ERROR);
+                } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                    Activity currentActivity = getCurrentActivity();
 
-                if (currentActivity != null) {
-                    Status status = PlaceAutocomplete.getStatus(currentActivity, data);
-                    rejectRetrivePromise(status.getStatusMessage());
-                } else {
-                    rejectRetrivePromise(ACTIVITY_DOES_NOT_EXIST_ERROR);
+                    if (currentActivity != null) {
+                        Status status = PlaceAutocomplete.getStatus(currentActivity, data);
+                        rejectRetrivePromise(status.getStatusMessage());
+                    } else {
+                        rejectRetrivePromise(ACTIVITY_DOES_NOT_EXIST_ERROR);
+                    }
+                } else if (resultCode == Activity.RESULT_OK) {
+                    Activity currentActivity = getCurrentActivity();
+
+                    if (currentActivity != null) {
+                        resolveRetrivePromise(buildPlacesMap(PlaceAutocomplete.getPlace(currentActivity, data)));
+                    } else {
+                        rejectRetrivePromise(ACTIVITY_DOES_NOT_EXIST_ERROR);
+                    }
+
                 }
-            } else if (resultCode == Activity.RESULT_OK) {
-                Activity currentActivity = getCurrentActivity();
+                break;
+            case LOCATION_PERMISSION_REQUEST_CODE:
+                if (resultCode == Activity.RESULT_CANCELED) {
+                    rejectPermissionPromise(PERMISSION_NOT_GRANTED_ERROR);
+                } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                    rejectPermissionPromise(PERMISSION_NOT_GRANTED_ERROR);
+                } else if (resultCode == Activity.RESULT_OK) {
+                    Activity currentActivity = getCurrentActivity();
 
-                if (currentActivity != null) {
-                    resolveRetrivePromise(buildPlacesMap(PlaceAutocomplete.getPlace(currentActivity, data)));
-                } else {
-                    rejectRetrivePromise(ACTIVITY_DOES_NOT_EXIST_ERROR);
+                    if (currentActivity != null) {
+                        resolveRetrivePromise(buildPlacesMap(PlaceAutocomplete.getPlace(currentActivity, data)));
+                    } else {
+                        rejectRetrivePromise(ACTIVITY_DOES_NOT_EXIST_ERROR);
+                    }
+
                 }
-
-            }
-        }
-
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_CANCELED) {
-                rejectPermissionPromise(PERMISSION_NOT_GRANTED_ERROR);
-            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                rejectPermissionPromise(PERMISSION_NOT_GRANTED_ERROR);
-            } else if (resultCode == Activity.RESULT_OK) {
-                Activity currentActivity = getCurrentActivity();
-
-                if (currentActivity != null) {
-                    resolveRetrivePromise(buildPlacesMap(PlaceAutocomplete.getPlace(currentActivity, data)));
-                } else {
-                    rejectRetrivePromise(ACTIVITY_DOES_NOT_EXIST_ERROR);
-                }
-
-            }
+                break;
         }
     }
 }

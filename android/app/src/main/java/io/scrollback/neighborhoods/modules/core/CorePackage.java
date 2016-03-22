@@ -16,9 +16,7 @@ public class CorePackage implements ReactPackage {
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
         return Arrays.<NativeModule>asList(
                 new BuildConfigModule(reactContext),
-                new VersionCodesModule(reactContext),
                 new URLResolverModule(reactContext),
-                new GeolocationModule(reactContext),
                 new ShareModule(reactContext)
         );
     }
@@ -30,6 +28,6 @@ public class CorePackage implements ReactPackage {
 
     @Override
     public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
-        return Arrays.asList();
+        return Collections.emptyList();
     }
 }
