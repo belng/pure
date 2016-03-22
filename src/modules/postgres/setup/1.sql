@@ -6,6 +6,14 @@
 -- For texts and threads they are the colon character (:) followed by 15 random
 -- bytes. In JSON they are represented by :<20-char base64>.
 
+DROP TABLE IF EXISTS contacts;
+
+CREATE TABLE contacts (
+	referrer text,
+	createtime bigint,
+	contact jsonb
+);
+
 DROP TABLE IF EXISTS notes;
 DROP TABLE IF EXISTS rels CASCADE;
 DROP TABLE IF EXISTS items CASCADE;

@@ -19,6 +19,16 @@ function sendError(socket, code, reason, event) {
 	}));
 }
 
+function handleContacts(socket, message, resourceId, err) {
+	const type = (message.response && message.response.error) ? 'error' : 'contacts';
+
+	const toSend = {
+			type,
+			message: message.response
+		}, encoded = packer.encode(toSend);
+	socket.send(encoded);
+}
+
 function handleGetPolicy(socket, message, resourceId, err) {
 	if (message.response && err) {
 		const errorToSend = {
@@ -126,6 +136,9 @@ bus.on('http/init', app => {
 				break;
 			case 's3/getPolicy':
 				bus.emit('s3/getPolicy', message, handleGetPolicy.bind(null, socket, message, resourceId));
+				break;
+			case 'contacts':
+				bus.emit('s3/getPolicy', message, handleContacts.bind(null, socket, message, resourceId));
 				break;
 			}
 
