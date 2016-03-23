@@ -1,2 +1,7 @@
-export read from './read';
-export write from './write';
+import read from './read';
+import write from './write';
+
+export {
+	read,
+	write,
+};

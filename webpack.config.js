@@ -21,7 +21,7 @@ const entry = [
 	'./src/start/heyneighbor-client',
 ];
 
-const babelrc = JSON.parse(fs.readFileSync(path.join(__dirname, '.babelrc'), 'utf-8').toString());
+const babelrc = JSON.parse(fs.readFileSync(path.join(__dirname, '.babelrc.web.json'), 'utf-8').toString());
 
 module.exports = {
 	devtool: 'source-map',
