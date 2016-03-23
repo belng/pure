@@ -12,11 +12,9 @@ import { PRESENCE_FOREGROUND, PRESENCE_NONE } from '../../lib/Constants';
 /*
  * User related actions
  */
-export const signIn = (provider: string, accessToken: string): Object => ({
+export const signIn = (provider: string, auth: { accessToken: string; } | { idToken: string; }): Object => ({
 	auth: {
-		[provider]: {
-			accessToken
-		}
+		[provider]: auth
 	}
 });
 
@@ -107,7 +105,8 @@ export const sendMessage = (
 				id,
 				...data,
 				create: true,
-				createTime: Date.now()
+				createTime: Date.now(),
+				updateTime: Date.now(),
 			})
 		}
 	};
@@ -124,7 +123,8 @@ export const startThread = (
 				id,
 				...data,
 				create: true,
-				createTime: Date.now()
+				createTime: Date.now(),
+				updateTime: Date.now(),
 			})
 		}
 	};

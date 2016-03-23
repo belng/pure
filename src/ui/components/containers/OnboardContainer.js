@@ -328,7 +328,7 @@ class OnboardContainer extends Component<void, Props, State> {
 
 const mapActionsToProps = {
 	clearSignUpError: (store, result) => () => store.dispatch(clearSignUpError(result.pendingUser)),
-	signIn: (store) => (provider: string, token: string) => store.dispatch(signIn(provider, token)),
+	signIn: (store) => (provider, auth) => store.dispatch(signIn(provider, auth)),
 	cancelSignUp: (store) => () => store.dispatch(cancelSignUp()),
 	signUp: (store, result) => (id: string, name: string) => {
 		const { error, ...user } = result.pendingUser; // eslint-disable-line no-use-before-define

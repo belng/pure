@@ -1,7 +1,7 @@
 /* @flow */
 
 type AccessToken = {
-	token: ?string;
+	access_token: ?string;
 	user_id: ?string;
 	expires: ?number;
 	permissions_granted: Array<string>;

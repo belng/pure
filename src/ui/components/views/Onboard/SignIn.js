@@ -94,7 +94,7 @@ export default class SignIn extends Component<void, Props, State> {
 		facebookLoading: false
 	};
 
-	_onSignInSuccess: Function = (provider: string, token: string) => {
+	_onSignInSuccess: Function = (provider: string, auth: { accessToken: string; } | { idToken: string; }) => {
 		switch (provider) {
 		case PROVIDER_GOOGLE:
 			ToastAndroid.show('Signing in with Google', ToastAndroid.SHORT);
@@ -104,7 +104,7 @@ export default class SignIn extends Component<void, Props, State> {
 			break;
 		}
 
-		this.props.signIn(provider, token);
+		this.props.signIn(provider, auth);
 	};
 
 	_onSignInFailure: Function = (provider: string) => {
@@ -132,7 +132,7 @@ export default class SignIn extends Component<void, Props, State> {
 
 			const {
 				permissions_granted,
-				token
+				access_token
 			} = result;
 
 			if (
@@ -141,8 +141,8 @@ export default class SignIn extends Component<void, Props, State> {
 				permissions_granted.indexOf(PERMISSION_EMAIL) > -1
 			) {
 
-				if (token) {
-					this._onSignInSuccess(PROVIDER_FACEBOOK, token);
+				if (access_token) {
+					this._onSignInSuccess(PROVIDER_FACEBOOK, { accessToken: access_token });
 				} else {
 					this._onSignInFailure(PROVIDER_FACEBOOK);
 				}
@@ -158,8 +158,8 @@ export default class SignIn extends Component<void, Props, State> {
 		try {
 			const result = await GoogleSignIn.signIn();
 
-			if (result.token) {
-				this._onSignInSuccess(PROVIDER_GOOGLE, result.token);
+			if (result.id_token) {
+				this._onSignInSuccess(PROVIDER_GOOGLE, { idToken: result.id_token });
 			} else {
 				this._onSignInFailure(PROVIDER_GOOGLE);
 			}
