@@ -40,7 +40,7 @@ const ServerHTML = ({ locale, title, description, body, image, permalink }: Prop
 		<body>
 			<div id='root' dangerouslySetInnerHTML={{ __html: body }} />
 
-			<script src='/dist/scripts/bundle.min.js'></script>
+			<script src='/static/dist/scripts/bundle.min.js'></script>
 		</body>
 	</html>
 );
