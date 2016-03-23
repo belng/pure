@@ -2,6 +2,7 @@
 
 import { bus, config } from '../../core-client.js';
 import packer from './../../lib/packer';
+import uuid from 'node-uuid';
 
 const {
 	protocol,
@@ -17,12 +18,12 @@ if (!global.navigator.userAgent) {
 
 const eio = require('engine.io-client'); // eslint-disable-line import/no-commonjs
 
-let	backOff = 1, client;
+let	backOff = 1, client, pendingCallbacks = {};
 
 function disconnected() {
 
 	/* eslint-disable no-use-before-define */
-
+	pendingCallbacks = {};
 	if (backOff < 256) {
 		backOff *= 2;
 	} else {
@@ -43,7 +44,14 @@ function onMessage(message) {
 	// console.log('-->', frame);
 
 	frame.message.source = 'server';
-	bus.emit(frame.type, frame.message);
+	if (frame.type === 'contacts' || frame.type === 's3/getPolicy') {
+		if (pendingCallbacks[frame.id]) {
+			pendingCallbacks[frame.id].data.response = frame.message;
+			pendingCallbacks[frame.id].next();
+		}
+	} else {
+		bus.emit(frame.type, frame.message);
+	}
 }
 
 function connect() {
@@ -93,3 +101,31 @@ bus.on('state:init', state => {
 	state.connectionStatus = 'connecting';
 	connect();
 });
+
+
+bus.on('contacts', (contacts, next) => {
+	const frame = {
+		type: 'contacts',
+		message: contacts,
+		id: uuid.v4()
+	};
+
+	pendingCallbacks[frame.id] = {
+		data: contacts,
+		next
+	};
+	client.send(packer.encode(frame));
+}, 1);
+
+bus.on('s3/getPolicy', (policy, next) => {
+	const frame = {
+		type: 's3/getPolicy',
+		message: policy,
+		id: uuid.v4()
+	};
+	pendingCallbacks[frame.id] = {
+		data: policy,
+		next
+	};
+	client.send(packer.encode(frame));
+}, 1);
