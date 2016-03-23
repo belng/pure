@@ -9,7 +9,10 @@ const crypto = require('crypto');
 const child_process = require('child_process');
 const pack = require('../node_modules/react-native/package.json');
 
-const SSH_HOST = 'ubuntu@52.76.69.167'; // The server user and host
+const SSH_HOST_PROD = 'ubuntu@52.76.69.167';
+const SSH_HOST_DEV = 'ubuntu@52.77.64.21';
+const SSH_HOST = process.argv.indexOf('--prod') > -1 ? SSH_HOST_PROD : SSH_HOST_DEV; // The server user and host
+const SSH_PATH = '/home/ubuntu/pure/static/bundles/android/'; // The server user and host
 const BUNDLE_NAME = 'index.android.bundle'; // Name of the bundle
 const GRADLE_PATH = __dirname + '/../android/app/build.gradle'; // Path to the gradle configuration
 
@@ -36,7 +39,7 @@ const lines = fs.readFileSync(GRADLE_PATH).toString().split('\n');
 for (let line of lines) {
 	if (/versionName/.test(line)) {
 		// Version name should be changed whenever any native APIs change
-		metadata.version_name = line.trim().split(' ')[1].replace(/('|')/g, '');
+		metadata.version_name = line.trim().split(' ')[1].replace(/('|")/g, '');
 
 		log.i('Found version name', metadata.version_name);
 	} else if (/versionCode/.test(line)) {
@@ -76,14 +79,37 @@ try {
 	}
 }
 
+// List files in a directory
+function listFiles(dir, filelist) {
+	const files = fs.readdirSync(dir);
+
+	let list = filelist ? filelist.splice(0) : [];
+
+	files.forEach(file => {
+		if (file.indexOf('.') === 0) {
+			return;
+		}
+
+		if (fs.statSync(dir + file).isDirectory()) {
+			list = listFiles(dir + file + '/', list);
+		} else {
+			list.push(dir + file);
+		}
+	});
+
+	return list;
+}
+
 log.i('Generating JavaScript bundle', BUNDLE_NAME);
 
+const assetsPath = bundlesDir + '/assets/';
 const bundlePath = bundlesDir + '/' + BUNDLE_NAME;
 const metadataFile = bundlesDir + '/metadata.json';
 
 const bundle = child_process.spawn('react-native', [
 	'bundle', '--platform', 'android', '--dev', 'false',
 	'--entry-file', __dirname + '/../index.android.js',
+	'--assets-dest', assetsPath,
 	'--bundle-output', bundlePath
 ]);
 
@@ -105,13 +131,24 @@ bundle.on('exit', code => {
 	metadata.checksum_md5 = crypto.createHash('md5').update(data, 'utf8').digest('hex');
 	metadata.checksum_sha256 = crypto.createHash('sha256').update(data, 'utf8').digest('hex');
 
+	// List all the assets
+	metadata.assets = listFiles(assetsPath).map(file => {
+		const content = fs.readFileSync(file).toString();
+
+		return {
+			filename: path.relative(bundlesDir, file),
+			checksum_md5: crypto.createHash('md5').update(content, 'utf8').digest('hex'),
+			checksum_sha256: crypto.createHash('sha256').update(content, 'utf8').digest('hex'),
+		};
+	});
+
 	log.i('Writing metadata', metadataFile);
 
 	fs.writeFileSync(metadataFile, JSON.stringify(metadata, null, 2) + '\n', 'utf-8');
 
 	log.i('Uploading files to server', SSH_HOST);
 
-	const upload = child_process.spawn('scp', [ '-r', bundlesDir, `${SSH_HOST}:/home/ubuntu/heyneighbor/public/s/bundles/android/` ]);
+	const upload = child_process.spawn('scp', [ '-r', bundlesDir, `${SSH_HOST}:${SSH_PATH}` ]);
 
 	upload.stdout.on('data', d => log.i(d));
 	upload.stderr.on('data', d => log.e(d));
