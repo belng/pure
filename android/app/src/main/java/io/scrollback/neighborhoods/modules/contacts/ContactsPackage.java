@@ -10,8 +10,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import io.scrollback.neighborhoods.modules.gcm.GCMModule;
-
 public class ContactsPackage implements ReactPackage {
 
     @Override

@@ -1,5 +1,5 @@
 import { bus } from '../../core-client';
-import GCM from '../../ui/modules/GCM';
+import GCMPreferences from '../../ui/modules/GCMPreferences';
 
 bus.on('postchange', changes => {
 	if (changes.state && 'session' in changes.state) {
@@ -10,9 +10,9 @@ bus.on('postchange', changes => {
 		}
 
 		if (session && typeof changes.state.session === 'string') {
-			GCM.saveSession(changes.state.session);
+			GCMPreferences.saveSession(changes.state.session);
 		} else {
-			GCM.saveSession('');
+			GCMPreferences.saveSession('');
 		}
 	}
 });
