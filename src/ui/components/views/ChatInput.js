@@ -57,10 +57,6 @@ type Props = {
 type State = {
 	text: string;
 	query: string;
-	upload: ?{
-		originalUrl: string;
-		thumbnailUrl: string;
-	};
 	photo: ?{
 		uri: string;
 		size: number;
@@ -82,7 +78,6 @@ export default class ChatInput extends Component<void, Props, State> {
 		text: '',
 		query: '',
 		photo: null,
-		upload: null,
 	};
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
@@ -105,7 +100,7 @@ export default class ChatInput extends Component<void, Props, State> {
 	_input: Object;
 
 	_sendMessage: Function = () => {
-		this.props.sendMessage(this.state.text);
+		this.props.sendMessage(null, this.state.text);
 
 		this.setState({
 			text: ''
@@ -128,27 +123,27 @@ export default class ChatInput extends Component<void, Props, State> {
 		}
 	};
 
-	_handleUploadFinish: Function = upload => {
+	_handleUploadFinish: Function = ({ id, result }) => {
 		const {
 			photo,
 		} = this.state;
 
-		if (!upload || !photo) {
+		if (!result.url || !photo) {
 			return;
 		}
 
 		const { height, width, name } = photo;
 		const aspectRatio = height / width;
 
-		this.props.sendMessage(`${photo.name}: ${upload.originalUrl}`, {
+		this.props.sendMessage(id, `${photo.name}: ${result.url}`, {
 			photo: {
 				height,
 				width,
 				title: name,
-				url: upload.originalUrl,
+				url: result.url,
 				thumbnail_height: Math.min(480, width) * aspectRatio,
 				thumbnail_width: Math.min(480, width),
-				thumbnail_url: upload.thumbnailUrl
+				thumbnail_url: result.thumbnail
 			}
 		});
 
@@ -158,7 +153,6 @@ export default class ChatInput extends Component<void, Props, State> {
 	_handleUploadClose: Function = () => {
 		this.setState({
 			photo: null,
-			upload: null,
 		});
 	};
 

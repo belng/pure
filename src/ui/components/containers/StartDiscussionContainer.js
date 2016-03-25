@@ -38,8 +38,9 @@ class StartDiscussionContainer extends Component<void, Props, State> {
 					}
 				}}
 				mapActionsToProps={{
-					startThread: (store, result, props) => (name, body, meta) => {
+					startThread: (store, result, props) => (id, name, body, meta) => {
 						const changes = startThread({
+							id,
 							name,
 							body,
 							meta,

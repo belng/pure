@@ -1,13 +1,127 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
-import Connect from '../../../modules/store/Connect';
+import React, { PropTypes, Component } from 'react';
+import uuid from 'node-uuid';
+import ImageUploadHelper from '../../../modules/image-upload/ImageUploadHelper';
 
-// TODO: Image upload container
-const ImageUploadContainer = (props: any) => <Connect passProps={props} component={props.component} />;
+type UploadResult = {
+	id: string;
+	result: {
+		url: ?string;
+		thumbnail: ?string;
+	};
+}
 
-ImageUploadContainer.propTypes = {
-	component: PropTypes.any.isRequired
-};
+type Props = {
+	photo: any;
+	component: ReactClass;
+	autoStart?: boolean;
+	onUploadClose?: Function;
+	onUploadFinish?: (result: UploadResult) => void;
+}
 
-export default ImageUploadContainer;
+type State = {
+	id: ?string;
+	upload: ?ImageUploadHelper;
+	status: 'idle' | 'loading' | 'finished' | 'error';
+}
+
+export default class ImageUploadContainer extends Component<void, Props, State> {
+	static propTypes = {
+		photo: PropTypes.any.isRequired,
+		component: PropTypes.any.isRequired,
+		autoStart: PropTypes.bool,
+		onUploadClose: PropTypes.func,
+		onUploadFinish: PropTypes.func,
+	};
+
+	state: State = {
+		id: null,
+		upload: null,
+		status: 'idle',
+	};
+
+	componentWillMount() {
+		if (this.props.autoStart) {
+			this._startUpload();
+		}
+	}
+
+	componentWillUnmount() {
+		this._closeUpload();
+	}
+
+	_startUpload: Function = async () => {
+		const { photo } = this.props;
+		const id = uuid.v4();
+		const upload = ImageUploadHelper.create({
+			uploadType: 'content',
+			generateThumb: true,
+			textId: id,
+		});
+
+		this.setState({
+			id,
+			upload,
+			status: 'loading',
+		});
+
+		try {
+			const result = await upload.send(photo.name ? photo.name.replace(/\s+/g, ' ') : 'image', {
+				uri: photo.uri,
+				type: photo.name && photo.name.split('.').pop() || 'jpg'
+			});
+
+			if (this.props.onUploadFinish) {
+				this.props.onUploadFinish({ id, result });
+			}
+
+			this.setState({
+				id: null,
+				upload: null,
+				status: 'finished',
+			});
+
+			setTimeout(this._closeUpload, 500);
+		} catch (e) {
+			this.setState({
+				id: null,
+				upload: null,
+				status: 'error',
+			});
+		}
+	};
+
+	_cancelUpload: Function = () => {
+		if (this.state.upload) {
+			this.state.upload.cancel();
+			this.setState({
+				id: null,
+				upload: null,
+				status: 'idle',
+			});
+		}
+	};
+
+	_closeUpload: Function = () => {
+		this._cancelUpload();
+
+		if (this.props.onUploadClose) {
+			this.props.onUploadClose();
+		}
+	};
+
+	render() {
+		const ChildComponent = this.props.component;
+
+		return (
+			<ChildComponent
+				photo={this.props.photo}
+				status={this.state.status}
+				startUpload={this._startUpload}
+				cancelUpload={this._cancelUpload}
+				closeUpload={this._closeUpload}
+			/>
+		);
+	}
+}

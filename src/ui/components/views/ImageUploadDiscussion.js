@@ -54,7 +54,7 @@ type Props = {
 	style?: any;
 }
 
-export default class ChatInput extends Component<void, Props, void> {
+export default class ImageUploadDiscussion extends Component<void, Props, void> {
 	static propTypes = {
 		photo: PropTypes.shape({
 			name: PropTypes.string.isRequired,
@@ -67,7 +67,7 @@ export default class ChatInput extends Component<void, Props, void> {
 		startUpload: PropTypes.func.isRequired,
 		cancelUpload: PropTypes.func.isRequired,
 		closeUpload: PropTypes.func.isRequired,
-		style: View.propTypes.any,
+		style: View.propTypes.style,
 	};
 
 	shouldComponentUpdate(nextProps: Props): boolean {

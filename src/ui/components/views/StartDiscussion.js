@@ -152,8 +152,11 @@ type State = {
 	name: string;
 	body: string;
 	upload: ?{
-		originalUrl: string;
-		thumbnailUrl: string;
+		id: string;
+		result: {
+			url: ?string;
+			thumbnail: ?string;
+		}
 	};
 	photo: ?{
 		uri: string;
@@ -352,22 +355,25 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 			return;
 		}
 
-		let meta;
+		let meta, id;
 
-		if (this.state.upload && this.state.photo) {
-			const { upload } = this.state;
-			const { height, width, name } = this.state.photo;
+		const { upload, photo } = this.state;
+
+		if (upload && upload.result && photo) {
+			const { height, width, name } = photo;
+			const { result } = upload;
 			const aspectRatio = height / width;
 
+			id = upload.id;
 			meta = {
 				photo: {
 					height,
 					width,
 					title: name,
-					url: upload.originalUrl,
+					url: result.url,
 					thumbnail_height: Math.min(480, width) * aspectRatio,
 					thumbnail_width: Math.min(480, width),
-					thumbnail_url: upload.thumbnailUrl
+					thumbnail_url: result.thumbnail
 				}
 			};
 		}
@@ -376,6 +382,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 			status: 'loading'
 		}, () => {
 			this.props.startThread(
+				id,
 				this.state.name,
 				this.state.body,
 				meta

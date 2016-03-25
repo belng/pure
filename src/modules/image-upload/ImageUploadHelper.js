@@ -4,7 +4,7 @@ import { bus } from '../../core-client';
 
 type UploadOptions = {
 	uploadType: 'content';
-	generateThumb: boolean;
+	generateThumb?: boolean;
 	textId: string;
 }
 
@@ -31,6 +31,7 @@ export default class ImageUploadHelper {
 
 	_policy: Promise<UploadPolicy>;
 	_options: UploadOptions;
+	_request: XMLHttpRequest;
 
 	constructor(options: UploadOptions) {
 		this._options = options;
@@ -120,7 +121,15 @@ export default class ImageUploadHelper {
 		request.open('POST', baseUrl, true);
 		request.send(formData);
 
+		this._request = request;
+
 		return requestPromise;
+	}
+
+	cancel() {
+		if (this._request) {
+			this._request.abort();
+		}
 	}
 
 	async send(name: string, file: File | { uri: string; type: string; }): Promise<UploadResult> {

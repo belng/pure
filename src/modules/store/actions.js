@@ -95,15 +95,15 @@ export const unbanUser = (): Object => ({
  * Text related actions
  */
 export const sendMessage = (
-	data: { body: string; meta?: ?Object; parents: Array<string>; creator: string; }
+	data: { id?: string, body: string; meta?: ?Object; parents: Array<string>; creator: string; }
 ): Object => {
-	const id = uuid.v4();
+	const id = data.id || uuid.v4();
 
 	return {
 		entities: {
 			[id]: new TextModel({
-				id,
 				...data,
+				id,
 				create: true,
 				createTime: Date.now(),
 				updateTime: Date.now(),
@@ -113,15 +113,15 @@ export const sendMessage = (
 };
 
 export const startThread = (
-	data: { name: string; body: string; meta?: ?Object; parents: Array<string>; creator: string; }
+	data: { id?: string, name: string; body: string; meta?: ?Object; parents: Array<string>; creator: string; }
 ): Object => {
-	const id = uuid.v4();
+	const id = data.id || uuid.v4();
 
 	return {
 		entities: {
 			[id]: new ThreadModel({
-				id,
 				...data,
+				id,
 				create: true,
 				createTime: Date.now(),
 				updateTime: Date.now(),
