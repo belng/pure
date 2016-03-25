@@ -25,34 +25,6 @@ function broadcast (entity) {
 	pg.notify(config.connStr, channel, packer.encode(entity));
 }
 
-// TODO: use the function in Cache and delete this.
-function rangeToKnowledge(range, orderedResult) {
-	let newRange = new Know.RangeArray([]), start, end;
-
-	if (range.length === 2) {
-		newRange = new Know.RangeArray([ range ]);
-	} else {
-		start = range[0];
-		if (range[1] > 0 && range[2] > 0) {
-			const index = orderedResult.indexOf(start);
-
-			start = index < range[1] ? -Infinity : orderedResult.valAt(0);
-			end = orderedResult.length - index < range[2] ? +Infinity :
-				orderedResult.valAt(orderedResult.length - 1);
-		} else if (range[1] > 0) {
-			start = orderedResult.length < range[1] ? -Infinity : orderedResult.valAt(0);
-			end = range[0];
-		} else if (range[2] > 0) {
-			start = range[0];
-			end = orderedResult.length < range[2] ? +Infinity : orderedResult.valAt(orderedResult.length - 1);
-		}
-		newRange.add([ start, end ]);
-	}
-
-	return newRange;
-}
-
-
 function onRangeQuery(key, range, err, r) {
 	if (err) {
 		winston.error(err);
@@ -75,8 +47,8 @@ function onRangeQuery(key, range, err, r) {
 	});
 
 	const orderedResult = new Know.OrderedArray(cache.arrayOrder(cache.keyToSlice(key)), results);
-
-	const newRange = rangeToKnowledge(range, orderedResult);
+	const madeRange = Know.RangeArray.makeRange(range);
+	const newRange = cache.countedToBounded(madeRange, orderedResult);
 
 	cache.put({
 		knowledge: { [key]: newRange },
@@ -207,8 +179,7 @@ bus.on('change', (changes, next) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
 				counter.dec();
 
-				const orderedResult = new Know.OrderedArray([ cache.keyToSlice(key).order ], results);
-				const newRange = rangeToKnowledge(range, orderedResult);
+				const newRange = cache.countedToBounded(range, results);
 
 				jsonop(response, {
 					indexes: { [key]: results },
