@@ -41,7 +41,7 @@ function onMessage(message) {
 	// console.log('frame: -->', message);
 	const frame = packer.decode(message);
 
-	// console.log('-->', frame);
+	console.log('-->', frame);
 
 	frame.message.source = 'server';
 	if (frame.type === 'contacts' || frame.type === 's3/getPolicy') {
