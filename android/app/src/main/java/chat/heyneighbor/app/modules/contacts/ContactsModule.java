@@ -3,7 +3,7 @@ package chat.heyneighbor.app.modules.contacts;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.database.Cursor;
-import android.os.AsyncTask;
+import android.os.Process;
 import android.os.RemoteException;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
@@ -285,18 +285,16 @@ public class ContactsModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void getContacts(final Promise promise) {
-        (new AsyncTask<Void, Void, Void>() {
+        new Thread(new Runnable() {
             @Override
-            protected Void doInBackground(Void... voids) {
+            public void run() {
                 try {
                     promise.resolve(getContactsList());
                 } catch (Exception e) {
                     promise.reject(e);
                 }
-
-                return null;
             }
-        }).execute();
+        }).start();
     }
 
     @ReactMethod
@@ -340,9 +338,11 @@ public class ContactsModule extends ReactContextBaseJavaModule {
             }
         }
 
-        (new AsyncTask<Void, Void, Void>() {
+        new Thread(new Runnable() {
             @Override
-            protected Void doInBackground(Void... voids) {
+            public void run() {
+                Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+
                 try {
                     data.put("data", JSONHelpers.ReadableArrayToJSON(getContactsList()));
 
@@ -375,9 +375,7 @@ public class ContactsModule extends ReactContextBaseJavaModule {
                 } catch (Exception e) {
                     promise.reject(e);
                 }
-
-                return null;
             }
-        }).execute();
+        }).start();
     }
 }

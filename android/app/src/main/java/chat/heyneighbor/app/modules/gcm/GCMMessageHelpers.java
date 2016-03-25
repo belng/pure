@@ -2,7 +2,6 @@ package chat.heyneighbor.app.modules.gcm;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -17,7 +16,6 @@ public class GCMMessageHelpers {
 
     public static void setSavedToServer(Context context, boolean result) {
         SharedPreferences.Editor e = GCMPreferences.get(context).edit();
-        Log.d("Helper", "setSavedToServer");
         e.putString(GCMPreferences.SAVED_TO_SERVER, result ?  "true" : "false");
         e.apply();
     }
@@ -36,14 +34,13 @@ public class GCMMessageHelpers {
             return;
         }
 
-        (new AsyncTask<Void, Void, Void>() {
+        new Thread(new Runnable() {
             @Override
-            protected Void doInBackground(Void... voids) {
+            public void run() {
                 try {
                     String uuid = Settings.Secure.getString(context.getContentResolver(),
                             Settings.Secure.ANDROID_ID);
 
-                    Log.d("Helper", "Sending upstream message");
                     data.putString("uuid", uuid);
                     data.putString("sessionId", session);
                     data.putString("token", token);
@@ -51,10 +48,8 @@ public class GCMMessageHelpers {
                 } catch (Exception e) {
                     Log.e(TAG, "Failed to send registration message to GCM for token: " + token);
                 }
-
-                return null;
             }
-        }).execute();
+        }).start();
     }
 
     public static void sendUpstreamMessageWithToken(Context context, final String token) {

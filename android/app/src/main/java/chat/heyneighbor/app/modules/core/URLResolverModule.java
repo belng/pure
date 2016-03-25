@@ -1,7 +1,5 @@
 package chat.heyneighbor.app.modules.core;
 
-import android.os.AsyncTask;
-
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -73,9 +71,9 @@ public class URLResolverModule extends ReactContextBaseJavaModule {
 
         final int maxRedirects = 5;
 
-        new AsyncTask<Void, Void, Void>() {
+        new Thread(new Runnable() {
             @Override
-            protected Void doInBackground(Void... voids) {
+            public void run() {
                 String finalUrl;
 
                 try {
@@ -121,10 +119,8 @@ public class URLResolverModule extends ReactContextBaseJavaModule {
                 }
 
                 resolvePromises.remove(url);
-
-                return null;
             }
-        }.execute();
+        }).start();
     }
 
     @ReactMethod

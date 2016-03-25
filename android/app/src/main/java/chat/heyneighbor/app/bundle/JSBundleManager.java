@@ -1,7 +1,6 @@
 package chat.heyneighbor.app.bundle;
 
 import android.content.res.AssetManager;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -85,16 +84,12 @@ public class JSBundleManager {
     }
 
     public JSBundleManager checkUpdate() {
-        if (mEnabled == null || mEnabled) {
-            (new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... voids) {
-                    checkAndDownloadUpdate();
-
-                    return null;
-                }
-            }).execute();
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                checkAndDownloadUpdate();
+            }
+        }).start();
 
         return this;
     }
