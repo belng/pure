@@ -7,7 +7,7 @@ const {
 	protocol,
 	host
 } = config.server;
-const endpoint = `${protocol}//${host}/m/contacts`;
+const endpoint = `${protocol}//${host}/x/contacts`;
 
 export default function uploadContacts() {
 	const session = cache.getState('session');
