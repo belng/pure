@@ -300,40 +300,43 @@ public class ContactsModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void sendContacts(final String endpoint, final ReadableMap metadata, final Promise promise) {
+    public void sendContacts(final String endpoint, @Nullable final ReadableMap metadata, final Promise promise) {
         final JSONObject data = new JSONObject();
-        final ReadableMapKeySetIterator iterator = metadata.keySetIterator();
 
-        while (iterator.hasNextKey()) {
-            String key = iterator.nextKey();
+        if (metadata != null) {
+            final ReadableMapKeySetIterator iterator = metadata.keySetIterator();
 
-            try {
-                switch (metadata.getType(key)) {
-                    case Null:
-                        data.put(key, null);
-                        break;
-                    case String:
-                        data.put(key, metadata.getString(key));
-                        break;
-                    case Number:
-                        data.put(key, metadata.getDouble(key));
-                        break;
-                    case Boolean:
-                        data.put(key, metadata.getBoolean(key));
-                        break;
-                    case Map:
-                        data.put(key, JSONHelpers.ReadableMapToJSON(metadata.getMap(key)));
-                        break;
-                    case Array:
-                        data.put(key, JSONHelpers.ReadableArrayToJSON(metadata.getArray(key)));
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Unsupported data type passed");
+            while (iterator.hasNextKey()) {
+                String key = iterator.nextKey();
 
+                try {
+                    switch (metadata.getType(key)) {
+                        case Null:
+                            data.put(key, null);
+                            break;
+                        case String:
+                            data.put(key, metadata.getString(key));
+                            break;
+                        case Number:
+                            data.put(key, metadata.getDouble(key));
+                            break;
+                        case Boolean:
+                            data.put(key, metadata.getBoolean(key));
+                            break;
+                        case Map:
+                            data.put(key, JSONHelpers.ReadableMapToJSON(metadata.getMap(key)));
+                            break;
+                        case Array:
+                            data.put(key, JSONHelpers.ReadableArrayToJSON(metadata.getArray(key)));
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Unsupported data type passed");
+
+                    }
+                } catch (JSONException | IllegalArgumentException e) {
+                    promise.reject(e);
+                    return;
                 }
-            } catch (JSONException | IllegalArgumentException e) {
-                promise.reject(e);
-                return;
             }
         }
 
