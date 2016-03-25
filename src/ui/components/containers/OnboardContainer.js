@@ -7,6 +7,7 @@ import shallowEqual from 'shallowequal';
 import Connect from '../../../modules/store/Connect';
 import Onboard from '../views/Onboard/Onboard';
 import Validator from '../../../lib/Validator';
+import uploadContacts from '../../../modules/contacts/uploadContacts';
 import { signIn, signUp, cancelSignUp, clearSignUpError, saveUser } from '../../../modules/store/actions';
 import { ERRORS } from '../../../lib/Constants';
 import type { User } from '../../../lib/schemaTypes';
@@ -82,6 +83,7 @@ class OnboardContainer extends Component<void, Props, State> {
 			name: { value: '', error: null },
 			picture: { value: '', error: null },
 			places: { value: {}, error: null },
+			invite: { value: true, error: null },
 		},
 		page: PAGE_LOADING,
 		onboarding: false,
@@ -147,6 +149,7 @@ class OnboardContainer extends Component<void, Props, State> {
 
 				this.setState({
 					fields: {
+						...fields,
 						nick: { value: fields.nick.value, error: message },
 						name: { value: fields.name.value || data.name, error: null },
 						picture: { value: fields.picture.value || data.picture, error: null },
@@ -209,6 +212,8 @@ class OnboardContainer extends Component<void, Props, State> {
 			return PAGE_USER_DETAILS;
 		case 'places':
 			return PAGE_PLACES;
+		case 'invite':
+			return PAGE_GET_STARTED;
 		default:
 			return PAGE_HOME;
 		}
@@ -289,11 +294,19 @@ class OnboardContainer extends Component<void, Props, State> {
 			this.props.savePlaces(fields.places.value);
 			break;
 		case PAGE_GET_STARTED:
-			this.setState({
-				page: PAGE_HOME,
-				onboarding: false,
-			});
+			this._finishOnboarding(fields.invite.value);
 			break;
+		}
+	};
+
+	_finishOnboarding: Function = (invite: boolean) => {
+		this.setState({
+			page: PAGE_HOME,
+			onboarding: false,
+		});
+
+		if (invite) {
+			uploadContacts();
 		}
 	};
 

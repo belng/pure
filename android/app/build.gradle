@@ -95,7 +95,7 @@ android {
     buildToolsVersion "23.0.1"
 
     defaultConfig {
-        applicationId "io.scrollback.neighborhoods"
+        applicationId "chat.heyneighbor.app"
         minSdkVersion 16
         targetSdkVersion 22
         versionCode 38

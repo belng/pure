@@ -15,6 +15,7 @@ export default class Facebook {
 	static getCurrentAccessToken: () => Promise<AccessToken>;
 	static sendGraphRequest: (
 		method: 'GET' | 'POST' | 'DELETE',
-		path: string, params: { [key: string]: string }
+		path: string,
+		params: { [key: string]: string }
 	) => void;
 }

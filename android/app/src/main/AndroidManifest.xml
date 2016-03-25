@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.scrollback.neighborhoods">
+    package="chat.heyneighbor.app">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -72,7 +72,7 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <category android:name="io.scrollback.neighborhoods" />
+                <category android:name="chat.heyneighbor.app" />
             </intent-filter>
         </receiver>
 
