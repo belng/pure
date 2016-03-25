@@ -90,7 +90,7 @@ function getDataFromToken(token) {
 	const signin = {};
 
 	return new Promise((resolve, reject) => {
-		request(encodeURITemplate `https://graph.facebook.com/me/?access_token=${token}`, (err, res, body) => {
+		request(encodeURITemplate `https://graph.facebook.com/me/?fields=email,name,picture,timezone,verified&access_token=${token}`, (err, res, body) => {
 			try {
 				if (err) throw err;
 				const user = JSON.parse(body);
@@ -108,10 +108,10 @@ function getDataFromToken(token) {
 					facebook: {
 						facebookID: user.id,
 						accessToken: token,
-						name: `${user.first_name}${user.middle_name ? ' ' + user.middle_name : ''}${' ' + user.last_name || ''}`.trim(),
+						name: user.name,
 						timezone: user.timezone,
-						verified: true,
-						picture: encodeURITemplate `https://graph.facebook.com/${user.id}/picture?type=square&height=192&width=192`
+						verified: user.verified,
+						picture: encodeURITemplate `user.picture.data.url`
 					}
 				};
 				signin.timezone = user.timezone * 60;
