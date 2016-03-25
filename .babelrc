@@ -1,15 +1,5 @@
 {
   "presets": [
-    "es2015",
-    "stage-1",
-    "react"
-  ],
-  "env": {
-    "production": {
-      "plugins": [
-        "transform-react-constant-elements",
-        "transform-react-inline-elements"
-      ]
-    }
-  }
+    "react-native"
+  ]
 }

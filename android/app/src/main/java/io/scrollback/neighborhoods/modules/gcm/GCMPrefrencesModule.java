@@ -8,15 +8,15 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 
-public class GCMModule extends ReactContextBaseJavaModule {
+public class GCMPrefrencesModule extends ReactContextBaseJavaModule {
 
-    public GCMModule(ReactApplicationContext reactContext) {
+    public GCMPrefrencesModule(ReactApplicationContext reactContext) {
         super(reactContext);
     }
 
     @Override
     public String getName() {
-        return "GCMModule";
+        return "GCMPrefrencesModule";
     }
 
     @ReactMethod

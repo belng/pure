@@ -21,10 +21,10 @@ const styles = StyleSheet.create({
 	icon: {
 		marginHorizontal: 8,
 		marginVertical: 6,
-		color: Colors.primary,
+		color: Colors.darkGrey,
 	},
 	title: {
-		color: Colors.primary,
+		color: Colors.darkGrey,
 		fontWeight: 'bold',
 		fontSize: 16,
 		lineHeight: 24,

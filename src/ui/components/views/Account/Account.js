@@ -10,7 +10,7 @@ import AvatarRound from '../AvatarRound';
 import GrowingTextInput from '../GrowingTextInput';
 import Modal from '../Modal';
 import TouchFeedback from '../TouchFeedback';
-import GCM from '../../../modules/GCM';
+import GCMPreferences from '../../../modules/GCMPreferences';
 import debounce from '../../../../lib/debounce';
 import type { User } from '../../../../lib/schemaTypes';
 
@@ -118,7 +118,7 @@ export default class Account extends Component<void, Props, State> {
 		let value = true;
 
 		try {
-			value = await GCM.getPreference(PUSH_NOTIFICATION_ENABLED_KEY);
+			value = await GCMPreferences.getPreference(PUSH_NOTIFICATION_ENABLED_KEY);
 		} catch (e) {
 			// Ignore
 		}
@@ -145,7 +145,7 @@ export default class Account extends Component<void, Props, State> {
 	};
 
 	_handleGCMChange: Function = (value: boolean) => {
-		GCM.setPreference(PUSH_NOTIFICATION_ENABLED_KEY, value ? 'true' : 'false');
+		GCMPreferences.setPreference(PUSH_NOTIFICATION_ENABLED_KEY, value ? 'true' : 'false');
 
 		this.setState({
 			GCMEnabled: value
