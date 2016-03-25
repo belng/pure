@@ -3,6 +3,7 @@
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import shallowEqual from 'shallowequal';
+import ImageChooser from 'react-native-image-chooser';
 import Colors from '../../Colors';
 import Icon from './Icon';
 import GrowingTextInput from './GrowingTextInput';
@@ -10,7 +11,6 @@ import TouchFeedback from './TouchFeedback';
 import ChatSuggestionsContainer from '../containers/ChatSuggestionsContainer';
 import ImageUploadContainer from '../containers/ImageUploadContainer';
 import ImageUploadChat from './ImageUploadChat';
-import ImageChooser from '../../modules/ImageChooser';
 
 const {
 	StyleSheet,
