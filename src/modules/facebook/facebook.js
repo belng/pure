@@ -111,7 +111,7 @@ function getDataFromToken(token) {
 						name: user.name,
 						timezone: user.timezone,
 						verified: user.verified,
-						picture: encodeURITemplate `user.picture.data.url`
+						picture: encodeURITemplate `https://graph.facebook.com/${user.id}/picture?type=square&height=192&width=192`
 					}
 				};
 				signin.timezone = user.timezone * 60;
