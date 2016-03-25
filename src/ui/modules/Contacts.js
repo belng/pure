@@ -20,5 +20,5 @@ type Contact = {
 
 export default class Contacts {
 	static getContacts: () => Promise<Array<Contact>>;
-	static sendContacts: (endpoint: string, metadata: { data?: void } | null) => Promise<void>;
+	static sendContacts: (endpoint: string, metadata: ?{ data?: void }) => Promise<void>;
 }
