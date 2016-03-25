@@ -22,7 +22,7 @@ export default {
 };
 
 function item(ids) {
-	return  {
+	return {
 		$: `SELECT *, ${TYPE_SEGMENT} FROM items WHERE id IN (&(ids))`,
 		ids
 	};
