@@ -1,6 +1,10 @@
 package io.scrollback.neighborhoods.modules.contacts;
 
+import android.content.ContentProviderClient;
+import android.content.ContentResolver;
 import android.database.Cursor;
+import android.os.AsyncTask;
+import android.os.RemoteException;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
@@ -12,8 +16,19 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedWriter;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class ContactsModule extends ReactContextBaseJavaModule {
 
@@ -28,8 +43,9 @@ public class ContactsModule extends ReactContextBaseJavaModule {
         return "ContactsModule";
     }
 
-    private @Nullable WritableMap getEmailDetails(final String id) {
-        Cursor cursor = getReactApplicationContext().getContentResolver().query(
+    @Nullable
+    private WritableMap getEmailDetails(final ContentProviderClient client, final String id) throws RemoteException {
+        Cursor cursor = client.query(
                 Email.CONTENT_URI, null,
                 Email.CONTACT_ID + " = ?", new String[] { id }, null
         );
@@ -76,8 +92,9 @@ public class ContactsModule extends ReactContextBaseJavaModule {
         return null;
     }
 
-    private @Nullable WritableMap getAddressDetails(final String id) {
-        Cursor cursor = getReactApplicationContext().getContentResolver().query(
+    @Nullable
+    private WritableMap getAddressDetails(final ContentProviderClient client, final String id) throws RemoteException {
+        Cursor cursor = client.query(
                 StructuredPostal.CONTENT_URI, null,
                 StructuredPostal.CONTACT_ID + " = ?", new String[] { id }, null
         );
@@ -139,13 +156,14 @@ public class ContactsModule extends ReactContextBaseJavaModule {
         return null;
     }
 
-    private @Nullable WritableMap getContactDetails(final String id) {
+    @Nullable
+    private WritableMap getContactDetails(final ContentProviderClient client, final String id) throws RemoteException {
         String number = null;
         String name = null;
         String photo = null;
         String thumbnail = null;
 
-        WritableMap email = getEmailDetails(id);
+        WritableMap email = getEmailDetails(client, id);
 
         if (email != null) {
             if (email.hasKey("name")) {
@@ -161,7 +179,7 @@ public class ContactsModule extends ReactContextBaseJavaModule {
             }
         }
 
-        Cursor cursor = getReactApplicationContext().getContentResolver().query(
+        Cursor cursor = client.query(
                 Phone.CONTENT_URI, null,
                 Phone.CONTACT_ID + " = ?", new String[] { id }, null
         );
@@ -216,7 +234,7 @@ public class ContactsModule extends ReactContextBaseJavaModule {
             details.putString("thumbnail", thumbnail);
         }
 
-        WritableMap address = getAddressDetails(id);
+        WritableMap address = getAddressDetails(client, id);
 
         if (address != null) {
             details.putMap("address", address);
@@ -227,33 +245,136 @@ public class ContactsModule extends ReactContextBaseJavaModule {
         return details;
     }
 
-    @ReactMethod
-    public void getContacts(final Promise promise) {
+    @Nullable
+    public WritableArray getContactsList() throws Exception {
         WritableArray contactsList = Arguments.createArray();
-        Cursor cursor = getReactApplicationContext().getContentResolver().query(
-                Contacts.CONTENT_URI, null, null, null, null
-        );
+        ContentResolver resolver = getReactApplicationContext().getContentResolver();
+        ContentProviderClient client = resolver.acquireContentProviderClient(Contacts.CONTENT_URI);
 
-        if (cursor == null) {
-            promise.reject(ERR_READING_CONTACTS);
-            return;
+        if (client == null) {
+            throw new Exception(ERR_READING_CONTACTS);
         }
 
         try {
-            while (cursor.moveToNext()) {
-                String id = cursor.getString(cursor.getColumnIndex(Contacts._ID));
-                WritableMap details = getContactDetails(id);
+            Cursor cursor = client.query(
+                    Contacts.CONTENT_URI, null, null, null, null
+            );
 
-                if (details != null) {
-                    contactsList.pushMap(details);
-                }
+            if (cursor == null) {
+                throw new Exception(ERR_READING_CONTACTS);
             }
-        } catch (Exception e) {
-            promise.reject(e);
+
+            try {
+                while (cursor.moveToNext()) {
+                    String id = cursor.getString(cursor.getColumnIndex(Contacts._ID));
+                    WritableMap details = getContactDetails(client, id);
+
+                    if (details != null) {
+                        contactsList.pushMap(details);
+                    }
+                }
+            } finally {
+                cursor.close();
+            }
         } finally {
-            cursor.close();
+            client.release();
         }
 
-        promise.resolve(contactsList);
+        return contactsList;
+    }
+
+    @ReactMethod
+    public void getContacts(final Promise promise) {
+        (new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                try {
+                    promise.resolve(getContactsList());
+                } catch (Exception e) {
+                    promise.reject(e);
+                }
+
+                return null;
+            }
+        }).execute();
+    }
+
+    @ReactMethod
+    public void sendContacts(final String endpoint, final ReadableMap metadata, final Promise promise) {
+        final JSONObject data = new JSONObject();
+        final ReadableMapKeySetIterator iterator = metadata.keySetIterator();
+
+        while (iterator.hasNextKey()) {
+            String key = iterator.nextKey();
+
+            try {
+                switch (metadata.getType(key)) {
+                    case Null:
+                        data.put(key, null);
+                        break;
+                    case String:
+                        data.put(key, metadata.getString(key));
+                        break;
+                    case Number:
+                        data.put(key, metadata.getDouble(key));
+                        break;
+                    case Boolean:
+                        data.put(key, metadata.getBoolean(key));
+                        break;
+                    case Map:
+                        data.put(key, JSONHelpers.ReadableMapToJSON(metadata.getMap(key)));
+                        break;
+                    case Array:
+                        data.put(key, JSONHelpers.ReadableArrayToJSON(metadata.getArray(key)));
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unsupported data type passed");
+
+                }
+            } catch (JSONException | IllegalArgumentException e) {
+                promise.reject(e);
+                return;
+            }
+        }
+
+        (new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                try {
+                    data.put("data", JSONHelpers.ReadableArrayToJSON(getContactsList()));
+
+                    HttpURLConnection connection;
+
+                    connection = (HttpURLConnection) ((new URL(endpoint).openConnection()));
+
+                    connection.setDoOutput(true);
+                    connection.setRequestProperty("Content-Type", "application/json");
+                    connection.setRequestProperty("Accept", "application/json");
+                    connection.setRequestMethod("POST");
+
+                    connection.connect();
+
+                    OutputStream os = connection.getOutputStream();
+
+                    try {
+                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+
+                        try {
+                            writer.write(data.toString());
+                        } finally {
+                            writer.close();
+                        }
+                    } finally {
+                        os.close();
+                    }
+
+                    promise.resolve(true);
+                } catch (Exception e) {
+                    promise.reject(e);
+                }
+
+                return null;
+            }
+        }).execute();
     }
 }
