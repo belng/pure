@@ -1,10 +1,10 @@
 /* @flow */
 
 export type Route = {
-   name: string;
-   props?: {
-      [key: string]: ?string
-   };
+	name: string;
+	props?: {
+		[key: string]: ?string
+	};
 }
 
 export type NavigationState = {
