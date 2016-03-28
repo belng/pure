@@ -49,7 +49,6 @@ function onRangeQuery(key, range, err, r) {
 	const orderedResult = new Know.OrderedArray(cache.arrayOrder(cache.keyToSlice(key)), results);
 	const madeRange = Know.RangeArray.makeRange(range);
 	const newRange = cache.countedToBounded(madeRange, orderedResult);
-
 	cache.put({
 		knowledge: { [key]: newRange },
 		indexes: { [key]: orderedResult }
@@ -151,11 +150,9 @@ bus.on('change', (changes, next) => {
 
 		winston.info('sql', sql);
 		counter.inc();
-		// console.log("Inspecting the object to be inserted:", util.inspect(changes.entities, { depth: null }));
 		pg.write(config.connStr, sql, (err, results) => {
 			let i = 0;
 
-			// console.log("Inspecting the results that was inserted:", util.inspect(results, { depth: null }));
 			if (err) {
 				counter.err(err);
 				return;
@@ -177,8 +174,6 @@ bus.on('change', (changes, next) => {
 	if (changes.queries) {
 		const cb = (key, range, err, results) => {
 				if (err) { jsonop(response, { state: { error: err } }); }
-				counter.dec();
-
 				const newRange = cache.countedToBounded(range, results);
 
 				jsonop(response, {
