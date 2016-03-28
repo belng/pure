@@ -6,7 +6,7 @@ import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import AppbarTouchable from './AppbarTouchable';
-import type { Item } from '../../../lib/schemaTypes';
+import type { Thread } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	thread: ?Item | { type: 'loading' };
+	thread: ?Thread | { type: 'loading' };
 	onNavigation: Function;
 }
 

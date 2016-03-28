@@ -8,14 +8,14 @@ import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
 import ListHeader from './ListHeader';
 import { PRESENCE_FOREGROUND } from '../../../lib/Constants';
-import type { Relation } from '../../../lib/schemaTypes';
+import type { RoomRel, ThreadRel } from '../../../lib/schemaTypes';
 
 const {
 	ListView,
 } = ReactNative;
 
 type Props = {
-	data: Array<Relation | { type: 'loading' } | { type: 'failed' }>;
+	data: Array<RoomRel | ThreadRel | { type: 'loading' } | { type: 'failed' }>;
 }
 
 type State = {
@@ -53,7 +53,7 @@ export default class PeopleList extends Component<void, Props, State> {
 
 	_renderHeader: Function = () => <ListHeader>People talking</ListHeader>;
 
-	_renderRow: Function = (relation: Relation) => (
+	_renderRow: Function = (relation: RoomRel | ThreadRel) => (
 		<PeopleListItem
 			key={relation.user}
 			user={relation.user}

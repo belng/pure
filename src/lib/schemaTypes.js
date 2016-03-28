@@ -1,87 +1,107 @@
 /* @flow */
 
-// User
-export type User = {
-	counts: { [key: string]: number };
+export type Entity = {
+	counts?: { [key: string]: number };
 	createTime: number;
-	deleteTime: number;
 	id: string;
-	identities: Array<string>;
-	locale: number;
-	meta: Object;
-	name: string;
-	params: Object;
-	presence: number;
-	presenceTime: number;
-	resources: { [key: string]: number };
-	tags: Array<number>;
-	timezone: number;
+	meta?: Object;
+	name?: string;
+	params?: Object;
+	tags?: Array<number>;
 	type: number;
 	updateTime: number;
-};
+}
 
-// Room, Text, Thread, Topic, Priv
-export type Item = {
+export type User = Entity & {
+	deleteTime?: number;
+	identities: Array<string>;
+	locale?: number;
+	params?: {
+		email?: {
+			notifications?: boolean;
+			frequency?: 'daily' | 'never';
+		}
+	};
+	presence?: number;
+	presenceTime?: number;
+	resources?: { [key: string]: number };
+	timezone?: number;
+}
+
+export type Item = Entity & {
 	body: string;
-	counts: { [key: string]: number };
-	createTime: number;
 	creator: string;
-	deleteTime: number;
-	id: string;
-	identities?: Array<string>;
-	meta: Object;
-	name: string;
-	params?: Object;
+	deleteTime?: number;
 	parents: Array<string>;
 	score?: number;
-	tags: Array<number>;
-	type: number;
 	updater: string;
-	updateTime: number;
-};
+}
 
-// RoomRel, TextRel, ThreadRel, TopicRel, PrivRel
+export type Room = Item & {
+	identities: Array<string>;
+}
+
+export type Text = Item
+
+export type Thread = Item & {
+	name: string;
+	score: number;
+}
+
+export type Topic = Item
+
+export type Priv = Item
+
 export type Relation = {
-	admin: boolean;
-	expireTime: number;
-	interest: number;
+	admin?: boolean;
+	expireTime?: number;
+	interest?: number;
 	item: string;
-	message: string;
-	presence: number;
-	presenceTime: number;
-	resources: { [key: string]: number };
-	roles: Array<number>;
+	message?: string;
+	presence?: number;
+	presenceTime?: number;
+	resources?: { [key: string]: number };
+	roles?: Array<number>;
 	createTime: number;
 	updateTime: number;
-	tags: Array<string>;
-	transitRole: number;
-	transitType: number;
+	tags?: Array<string>;
+	transitRole?: number;
+	transitType?: number;
 	type: number;
 	user: string;
-};
+}
 
-// Note
+export type RoomRel = Relation
+
+export type TextRel = Relation
+
+export type ThreadRel = Relation
+
+export type TopicRel = Relation
+
+export type PrivRel = Relation
+
 export type Note = {
 	count: number;
 	data: {
 		body: string;
 		creator: string;
 		id: string;
-		room?: string;
-		title: string;
-		thread?: string;
-		type: string;
 		link: string;
-		picture: string;
+		picture?: string;
+		room?: string;
+		thread?: string;
+		title: string;
+		type: 'reply' | 'mention' | 'thread';
 	};
+	createTime: number;
 	dismissTime: number;
 	event: number;
-	createTime: number;
-	updateTime: number;
 	group: string;
 	id: string;
 	readTime: number;
 	score: number;
 	type: number;
+	updateTime: number;
 	user: string;
-};
+}

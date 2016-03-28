@@ -12,7 +12,7 @@ import Icon from './Icon';
 import Time from './Time';
 import { parseURLs } from '../../../lib/URL';
 import { TAG_POST_HIDDEN } from '../../../lib/Constants';
-import type { Item } from '../../../lib/schemaTypes';
+import type { Text } from '../../../lib/schemaTypes';
 
 const {
 	Clipboard,
@@ -92,8 +92,8 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	text: Item;
-	previousText: Item;
+	text: Text;
+	previousText: Text;
 	isFirst: boolean;
 	isLast: boolean;
 	user: string;

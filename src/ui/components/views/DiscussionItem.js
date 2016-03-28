@@ -16,7 +16,7 @@ import Share from '../../modules/Share';
 import { convertRouteToURL } from '../../../lib/Route';
 import { config } from '../../../core-client';
 import { TAG_POST_HIDDEN } from '../../../lib/Constants';
-import type { Item } from '../../../lib/schemaTypes';
+import type { Thread } from '../../../lib/schemaTypes';
 
 const {
 	Clipboard,
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	thread: Item;
+	thread: Thread;
 	hidden?: boolean;
 	onNavigation: Function;
 }

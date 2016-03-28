@@ -153,7 +153,7 @@ bus.on('change', change => {
 
 			let needsInvitations = false;
 
-			if (user.params.places) {
+			if (user.params && user.params.places) {
 				const { home, work, hometown } = user.params.places;
 
 				if (home && home.id) {
