@@ -30,6 +30,7 @@ function handleContacts(socket, message, resourceId, err) {
 }
 
 function handleGetPolicy(socket, message, resourceId, err) {
+
 	if (message.response && err) {
 		const errorToSend = {
 				type: 'error',
@@ -131,7 +132,6 @@ bus.on('http/init', app => {
 
 			switch (frame.type) {
 			case 'change':
-				console.log('Emitting change');
 				bus.emit('change', message, handleChange.bind(null, socket, message, resourceId));
 				break;
 			case 's3/getPolicy':
