@@ -8,14 +8,14 @@ import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
 import ListHeader from './ListHeader';
 import { PRESENCE_FOREGROUND } from '../../../lib/Constants';
-import type { RoomRel, ThreadRel } from '../../../lib/schemaTypes';
+import type { User, RoomRel, ThreadRel } from '../../../lib/schemaTypes';
 
 const {
 	ListView,
 } = ReactNative;
 
 type Props = {
-	data: Array<RoomRel | ThreadRel | { type: 'loading' } | { type: 'failed' }>;
+	data: Array<{ rel: RoomRel | ThreadRel; user: User } | { type: 'loading' } | { type: 'failed' }>;
 }
 
 type State = {
@@ -53,11 +53,11 @@ export default class PeopleList extends Component<void, Props, State> {
 
 	_renderHeader: Function = () => <ListHeader>People talking</ListHeader>;
 
-	_renderRow: Function = (relation: RoomRel | ThreadRel) => (
+	_renderRow: Function = (relation: { rel: RoomRel | ThreadRel, user: User }) => (
 		<PeopleListItem
 			key={relation.user}
 			user={relation.user}
-			status={relation.presence === PRESENCE_FOREGROUND ? 'online' : 'offline'}
+			status={relation.rel.presence === PRESENCE_FOREGROUND ? 'online' : 'offline'}
 		/>
 	);
 
@@ -67,7 +67,7 @@ export default class PeopleList extends Component<void, Props, State> {
 		if (data.length === 0) {
 			return <PageEmpty label='Nobody here' image='sad' />;
 		} else if (data.length === 1) {
-			switch (data[0] && data[0].type) {
+			switch (data[0] && data[0].type || null) {
 			case 'loading':
 				return <PageLoading />;
 			case 'failed':
