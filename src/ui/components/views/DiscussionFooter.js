@@ -8,7 +8,7 @@ import AppText from './AppText';
 import Icon from './Icon';
 import CardAuthor from './CardAuthor';
 import Time from './Time';
-import type { Item } from '../../../lib/schemaTypes';
+import type { Thread } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	thread: Item;
+	thread: Thread;
 	style?: any;
 }
 

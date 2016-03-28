@@ -201,6 +201,12 @@ export default class Account extends Component<void, Props, State> {
 			return <PageLoading />;
 		}
 
+		let email;
+
+		if (user.params) {
+			email = user.params.email;
+		}
+
 		return (
 			<ScrollView contentContainerStyle={styles.settings}>
 				<View style={styles.item}>
@@ -248,7 +254,7 @@ export default class Account extends Component<void, Props, State> {
 						<AppText style={styles.itemText}>Mention notifications via email</AppText>
 					</View>
 					<Switch
-						value={user.params && user.params.email ? user.params.email.notifications !== false : false}
+						value={email ? email.notifications !== false : false}
 						onValueChange={this._handleEmailNotificationChange}
 					/>
 				</View>
@@ -257,8 +263,8 @@ export default class Account extends Component<void, Props, State> {
 						<View style={styles.itemLabel}>
 							<AppText style={styles.itemText}>Email digest frequency</AppText>
 							<AppText style={styles.itemValueText}>
-								{user.params && user.params.email && user.params.email.frequency ?
-									user.params.email.frequency.charAt(0).toUpperCase() + user.params.email.frequency.slice(1) :
+								{email && email.frequency ?
+									email.frequency.charAt(0).toUpperCase() + email.frequency.slice(1) :
 									'Daily'
 								}
 							</AppText>

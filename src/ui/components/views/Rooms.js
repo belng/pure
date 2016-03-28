@@ -12,7 +12,7 @@ import ListItem from './ListItem';
 import AppText from './AppText';
 import Icon from './Icon';
 import Colors from '../../Colors';
-import type { Relation, Item } from '../../../lib/schemaTypes';
+import type { RoomRel, Room } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
 type Props = {
 	available?: boolean;
 	onNavigation: Function;
-	data: Array<{ rel: Relation, room: Item } | { type: 'loading' } | { type: 'failed' }>;
+	data: Array<{ rel: RoomRel, room: Room } | { type: 'loading' } | { type: 'failed' }>;
 }
 
 type State = {

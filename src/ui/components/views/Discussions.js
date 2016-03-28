@@ -8,7 +8,7 @@ import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
 import LoadingItem from './LoadingItem';
 import StartDiscussionButton from './StartDiscussionButton';
-import type { Item } from '../../../lib/schemaTypes';
+import type { Thread } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
 type Props = {
 	user: string;
 	room: string;
-	data: Array<Item | { type: 'loading' } | { type: 'failed' }>;
+	data: Array<Thread | { type: 'loading' } | { type: 'failed' }>;
 	loadMore: (count: number) => void;
 	onNavigation: (count: number) => void;
 }

@@ -7,7 +7,7 @@ import ChatItemContainer from '../containers/ChatItemContainer';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
 import LoadingItem from './LoadingItem';
-import type { Item } from '../../../lib/schemaTypes';
+import type { Text } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
@@ -31,8 +31,8 @@ const styles = StyleSheet.create({
 
 type Props = {
 	data: Array<{
-		text: Item;
-		previousText: Item;
+		text: Text;
+		previousText: Text;
 		isFirst: boolean;
 		isLast: boolean;
 	} | { type: 'loading' } | { type: 'failed' }>;
