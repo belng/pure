@@ -61,18 +61,18 @@ log.i('Found React Native version', metadata.react_native_version);
 metadata.timestamp = Date.now();
 
 // Create the bundles directory and copy the bundle
-const bundlesDir = path.normalize(__dirname + '/../../hey-neighbor-bundles/android/' + metadata.version_name); // Path to output directory, synced to the server
+const assetsPath = path.normalize(__dirname + '/../../hey-neighbor-bundles/android/' + metadata.version_name); // Path to output directory, synced to the server
 
-log.i('Creating new directory', bundlesDir);
+log.i('Creating new directory', assetsPath);
 
 try {
-	fs.mkdirSync(path.dirname(bundlesDir));
+	fs.mkdirSync(path.dirname(assetsPath));
 } catch (e) {
 	// Do nothing
 }
 
 try {
-	fs.mkdirSync(bundlesDir);
+	fs.mkdirSync(assetsPath);
 } catch (e) {
 	if (e.code !== 'EEXIST') {
 		throw e;
@@ -90,10 +90,12 @@ function listFiles(dir, filelist) {
 			return;
 		}
 
-		if (fs.statSync(dir + file).isDirectory()) {
-			list = listFiles(dir + file + '/', list);
+		const filePath = path.join(dir, file);
+
+		if (fs.statSync(filePath).isDirectory()) {
+			list = listFiles(filePath, list);
 		} else {
-			list.push(dir + file);
+			list.push(filePath);
 		}
 	});
 
@@ -102,9 +104,8 @@ function listFiles(dir, filelist) {
 
 log.i('Generating JavaScript bundle', BUNDLE_NAME);
 
-const assetsPath = bundlesDir + '/assets/';
-const bundlePath = bundlesDir + '/' + BUNDLE_NAME;
-const metadataFile = bundlesDir + '/metadata.json';
+const bundlePath = assetsPath + '/' + BUNDLE_NAME;
+const metadataFile = assetsPath + '/metadata.json';
 
 const bundle = child_process.spawn('react-native', [
 	'bundle', '--platform', 'android', '--dev', 'false',
@@ -125,18 +126,20 @@ bundle.on('exit', code => {
 	// Read the bundle so that we can generate checksum
 	log.i(chalk.gray('Generating checksums for bundle'), chalk.bold(bundlePath));
 
-	const data = fs.readFileSync(bundlePath).toString();
+	const data = fs.readFileSync(bundlePath);
 
 	// Checksums can be used to verify bundle integrity
 	metadata.checksum_md5 = crypto.createHash('md5').update(data, 'utf8').digest('hex');
 	metadata.checksum_sha256 = crypto.createHash('sha256').update(data, 'utf8').digest('hex');
 
 	// List all the assets
-	metadata.assets = listFiles(assetsPath).map(file => {
-		const content = fs.readFileSync(file).toString();
+	metadata.assets = listFiles(assetsPath).filter(
+		file => !(file.endsWith('metadata.json') || file.endsWith('.bundle'))
+	).map(file => {
+		const content = fs.readFileSync(file);
 
 		return {
-			filename: path.relative(bundlesDir, file),
+			filename: path.relative(assetsPath, file),
 			checksum_md5: crypto.createHash('md5').update(content, 'utf8').digest('hex'),
 			checksum_sha256: crypto.createHash('sha256').update(content, 'utf8').digest('hex'),
 		};
@@ -148,7 +151,7 @@ bundle.on('exit', code => {
 
 	log.i('Uploading files to server', SSH_HOST);
 
-	const upload = child_process.spawn('scp', [ '-r', bundlesDir, `${SSH_HOST}:${SSH_PATH}` ]);
+	const upload = child_process.spawn('scp', [ '-r', assetsPath, `${SSH_HOST}:${SSH_PATH}` ]);
 
 	upload.stdout.on('data', d => log.i(d));
 	upload.stderr.on('data', d => log.e(d));
