@@ -97,6 +97,10 @@ dependencies {
     }
 }
 
+project.ext.vectoricons = [
+    iconFontNames: [ "MaterialIcons.ttf", "EvilIcons.ttf" ]
+]
+
 apply from: "react.gradle"
 apply from: "fonts.gradle"
 
