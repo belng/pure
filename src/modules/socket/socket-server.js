@@ -19,7 +19,7 @@ function sendError(socket, code, reason, event) {
 	}));
 }
 
-function handleContacts(socket, message, resourceId, err) {
+function handleContacts(socket, message) {
 	const type = (message.response && message.response.error) ? 'error' : 'contacts';
 
 	const toSend = {

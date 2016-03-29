@@ -41,6 +41,7 @@
 		"port": 5235,
 		"packageName": ""
 	},
+
 	"connStr": "pg://scrollback:@localhost/pure",
 	"open_in_browser": false
 }

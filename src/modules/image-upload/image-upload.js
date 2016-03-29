@@ -65,6 +65,22 @@ function getSignature(policy) {
 	return signature;
 }
 
+export function getResponse(policyReq) {
+	const keyPrefix = getKeyPrefix(policyReq.auth.user, policyReq.uploadType, policyReq.textId),
+		policy = getPolicy(keyPrefix),
+		signature = getSignature(policy);
+
+	policyReq.response = {
+		acl: config.s3.acl,
+		policy,
+		keyPrefix,
+		bucket: config.s3.bucket,
+		'x-amz-algorithm': config.s3.algorithm,
+		'x-amz-credential': getCredential(),
+		'x-amz-date': getDate(true),
+		'x-amz-signature': signature
+	};
+}
 
 export default function() {
 	if (!config.s3) {
@@ -78,23 +94,8 @@ export default function() {
 	}
 
 	bus.on('s3/getPolicy', (policyReq, next) => {
-		const keyPrefix = getKeyPrefix(policyReq.state.user, policyReq.uploadType, policyReq.textId),
-			policy = getPolicy(keyPrefix),
-			signature = getSignature(policy);
-
-		policyReq.response = {
-			acl: config.s3.acl,
-			policy,
-			keyPrefix,
-			bucket: config.s3.bucket,
-			'x-amz-algorithm': config.s3.algorithm,
-			'x-amz-credential': getCredential(),
-			'x-amz-date': getDate(true),
-			'x-amz-signature': signature
-		};
-
+		getResponse(policyReq);
 		next();
 	}, Constants.APP_PRIORITIES.IMAGE_UPLOAD);
 	winston.info('Image upload is ready');
-
 }
