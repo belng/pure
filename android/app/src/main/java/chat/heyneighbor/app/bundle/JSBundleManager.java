@@ -86,14 +86,14 @@ public class JSBundleManager {
     }
 
     public JSBundleManager checkUpdate() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (mEnabled == null || mEnabled) {
+        if (mEnabled == null || mEnabled) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
                     checkAndDownloadUpdate();
                 }
-            }
-        }).start();
+            }).start();
+        }
 
         return this;
     }
