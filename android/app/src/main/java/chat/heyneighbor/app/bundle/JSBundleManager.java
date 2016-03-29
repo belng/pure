@@ -111,7 +111,7 @@ public class JSBundleManager {
         return this;
     }
 
-    private boolean shouldDownloadBundle(JSONObject metadata) throws IOException, JSONException, NoSuchAlgorithmException {
+    private boolean hasBundleChanged(JSONObject metadata) throws IOException, JSONException, NoSuchAlgorithmException {
         InputStream in;
         File assetFile = new File(assetDir, mBundleAssetName);
 
@@ -127,8 +127,6 @@ public class JSBundleManager {
             String currentChecksum = Checksum.MD5(in);
 
             if (updateChecksum.equals(currentChecksum)) {
-                Log.d(TAG, "Bundle is already up-to-date");
-
                 return false;
             }
         } finally {
@@ -136,6 +134,27 @@ public class JSBundleManager {
         }
 
         return true;
+    }
+
+    private boolean hasMetadataChanged(JSONObject metadata) throws IOException, JSONException {
+        File metadataFile = new File(assetDir, mMetadataName);
+
+        return metadataFile.exists() && !(metadata.toString().equals(new JSONObject(IOHelpers.getStringFromFile(metadataFile)).toString()));
+    }
+
+    private boolean shouldDownloadBundle(JSONObject metadata) throws IOException, JSONException, NoSuchAlgorithmException {
+        if (hasMetadataChanged(metadata)) {
+            Log.d(TAG, "Metadata change detected");
+            return true;
+        }
+
+        if (hasBundleChanged(metadata)) {
+            Log.d(TAG, "Bundle change detected");
+            return true;
+        }
+
+        Log.d(TAG, "Everything is up-to-date");
+        return false;
     }
 
     private JSONObject fetchMetadata() throws IOException, JSONException {
