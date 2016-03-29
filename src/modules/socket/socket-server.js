@@ -21,7 +21,7 @@ function sendError(socket, code, reason, event) {
 
 function handleContacts(socket, message) {
 	const type = (message.response && message.response.error) ? 'error' : 'contacts';
-
+	message.response.id = message.id;
 	const toSend = {
 			type,
 			message: message.response
@@ -30,8 +30,9 @@ function handleContacts(socket, message) {
 }
 
 function handleGetPolicy(socket, message, resourceId, err) {
-
-	if (message.response && err) {
+	message.response = message.response || {};
+	message.response.id = message.id;
+	if (err) {
 		const errorToSend = {
 				type: 'error',
 				message: message.response
@@ -113,7 +114,6 @@ bus.on('http/init', app => {
 				return;
 			}
 			winston.debug(`Message Received: ${resourceId}: `, JSON.stringify(message));
-			message.id = uid(16);
 
 			(message.auth = message.auth || {}).resource = resourceId;
 

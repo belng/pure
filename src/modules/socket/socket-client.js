@@ -92,7 +92,8 @@ bus.on('postchange', changes => {
 		console.log('<--', frame);
 		client.send(packer.encode({
 			type: 'change',
-			message: frame
+			message: frame,
+			id: uuid.v4()
 		}));
 	}
 });
