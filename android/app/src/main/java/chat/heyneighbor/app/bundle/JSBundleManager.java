@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,15 +25,16 @@ public class JSBundleManager {
     private static final String TAG = "JSBundleManager";
 
     private static final String PROP_FILENAME = "filename";
+    private static final String PROP_ASSETS = "assets";
     private static final String PROP_VERSION_NAME = "version_name";
     private static final String PROP_CHECKSUM_MD5 = "checksum_md5";
 
+    private final Boolean mEnabled;
     private final String mBundleAssetName;
     private final String mMetadataName;
     private final String mRequestPath;
     private final AssetManager mAssetManager;
     private final Callback mCallback;
-    private final Boolean mEnabled;
     private final File assetDir;
     private final File tmpDir;
 
@@ -87,7 +89,9 @@ public class JSBundleManager {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                checkAndDownloadUpdate();
+                if (mEnabled == null || mEnabled) {
+                    checkAndDownloadUpdate();
+                }
             }
         }).start();
 
@@ -134,6 +138,10 @@ public class JSBundleManager {
         return true;
     }
 
+    private JSONObject fetchMetadata() throws IOException, JSONException {
+        return new JSONObject(IOHelpers.getStringFromFile(downloadFile(mMetadataName, null)));
+    }
+
     private File downloadFile(String sourceFileName, @Nullable String downloadFileName) throws IOException {
         URL url = new URL(mRequestPath + "/" + sourceFileName);
         File file = new File(tmpDir, downloadFileName == null ? sourceFileName : downloadFileName);
@@ -143,23 +151,30 @@ public class JSBundleManager {
         return IOHelpers.saveStream(new BufferedInputStream(url.openStream()), file);
     }
 
-    private JSONObject fetchMetadata() throws IOException, JSONException {
-        return new JSONObject(IOHelpers.getStringFromFile(downloadFile(mMetadataName, null)));
-    }
+    private File downloadAndVerifyFile(JSONObject metadata, @Nullable String target) throws IOException, JSONException, NoSuchAlgorithmException {
+        String fileName = metadata.getString(PROP_FILENAME);
+        File file = downloadFile(fileName, target);
 
-    private File downloadBundle(JSONObject metadata) throws IOException, JSONException, NoSuchAlgorithmException {
-        File bundle = downloadFile(metadata.getString(PROP_FILENAME), mBundleAssetName);
-
-        Log.d(TAG, "Verifying downloaded bundle");
+        Log.d(TAG, "Verifying downloaded file: " + fileName);
 
         String updateChecksum = metadata.getString(PROP_CHECKSUM_MD5);
-        String currentChecksum = Checksum.MD5(bundle);
+        String currentChecksum = Checksum.MD5(file);
 
         if (!updateChecksum.equals(currentChecksum)) {
             throw new IOException("MD5 checksums don't match: " + updateChecksum + " != " + currentChecksum);
         }
 
-        return bundle;
+        return file;
+    }
+
+    private void downloadBundleAndAssets(JSONObject metadata) throws IOException, JSONException, NoSuchAlgorithmException {
+        downloadAndVerifyFile(metadata, mBundleAssetName);
+
+        JSONArray assetsList = metadata.getJSONArray(PROP_ASSETS);
+
+        for (int i = 0; i < assetsList.length(); i++) {
+            downloadAndVerifyFile(assetsList.getJSONObject(i), null);
+        }
     }
 
     private void checkAndDownloadUpdate() {
@@ -179,7 +194,7 @@ public class JSBundleManager {
                     mCallback.onDownloading();
                 }
 
-                downloadBundle(metadata);
+                downloadBundleAndAssets(metadata);
 
                 IOHelpers.deleteDirectory(assetDir);
                 IOHelpers.copyFiles(tmpDir, assetDir);
@@ -229,6 +244,12 @@ public class JSBundleManager {
         private Callback mCallback;
         private Boolean mEnabled;
 
+        public Builder setEnabled(@Nullable final Boolean enabled) {
+            mEnabled = enabled;
+
+            return this;
+        }
+
         public Builder setBundleAssetName(@NonNull final String bundleAssetName) {
             mBundleAssetName = bundleAssetName;
 
@@ -261,12 +282,6 @@ public class JSBundleManager {
 
         public Builder setCallback(@Nullable final Callback callback) {
             mCallback = callback;
-
-            return this;
-        }
-
-        public Builder setEnabled(@Nullable final Boolean enabled) {
-            mEnabled = enabled;
 
             return this;
         }
