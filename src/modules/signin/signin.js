@@ -22,7 +22,7 @@ function getEntityByIdentity(identities, callback) {
 function signinhandler(changes, n) {
 	function next(e) {
 		if (e) {
-			(changes.response = changes.response || {}).state = changes.auth;
+			changes.response = changes.response || {};
 			changes.response.state.signin.error = e;
 			n(changes);
 		} else {

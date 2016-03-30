@@ -75,7 +75,7 @@ bus.on('change', sessionHandler, Constants.APP_PRIORITIES.AUTHENTICATION_SESSION
 bus.on('change', (changes, next) => {
 	if (changes.response && changes.response.state && changes.response.state.user) {
 		generateSession(changes.response.state.user).then((session) => {
-			changes.response.state.session =	session;
+			changes.response.state.session = session;
 			next();
 		});
 	} else {
