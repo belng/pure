@@ -81,8 +81,6 @@ export default class ImageUploadContainer extends Component<void, Props, State> 
 				upload: null,
 				status: 'finished',
 			});
-
-			setTimeout(this._closeUpload, 500);
 		} catch (e) {
 			this.setState({
 				id: null,
