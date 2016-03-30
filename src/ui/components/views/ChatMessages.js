@@ -33,7 +33,6 @@ type Props = {
 	data: Array<{
 		text: Text;
 		previousText: Text;
-		isFirst: boolean;
 		isLast: boolean;
 	} | { type: 'loading' } | { type: 'failed' }>;
 	user: string;
@@ -103,12 +102,14 @@ export default class ChatMessages extends Component {
 	};
 
 	render() {
+		const { data } = this.props;
+
 		let placeHolder;
 
-		if (this.props.data.length === 0) {
+		if (data.length === 0) {
 			placeHolder = <PageEmpty label='No messages yet' image='sad' />;
-		} else if (this.props.data.length === 1) {
-			switch (this.props.data[0] && this.props.data[0].type) {
+		} else if (data.length === 1) {
+			switch (data[0] && data[0].type) {
 			case 'loading':
 				placeHolder = <PageLoading />;
 				break;
