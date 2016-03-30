@@ -49,7 +49,7 @@ type State = {
 export default class EmbedThumbnail extends Component<void, Props, State> {
 	static propTypes = {
 		embed: PropTypes.shape({
-			type: PropTypes.string.isRequired,
+			type: PropTypes.string,
 			height: PropTypes.number,
 			width: PropTypes.number,
 			thumbnail_height: PropTypes.number,
