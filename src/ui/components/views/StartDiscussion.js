@@ -340,7 +340,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 			return;
 		}
 
-		if (!this.state.body) {
+		if (!this.state.body && !this.state.upload) {
 			this._handleError(NO_SUMMARY_MESSAGE);
 			return;
 		}
@@ -445,7 +445,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 
 	render() {
 		const isLoading = this.state.status === 'loading';
-		const isDisabled = !(this.state.name && (this.state.body || this.state.meta && this.state.meta.photo) && !isLoading);
+		const isDisabled = !(this.state.name && (this.state.body || this.state.upload) && !isLoading);
 
 		return (
 			<View style={styles.container}>

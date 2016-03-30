@@ -24,7 +24,7 @@ type Props = {
 export default class EmbedSummary extends Component<void, Props, void> {
 	static propTypes = {
 		summary: PropTypes.string.isRequired,
-		style: PropTypes.any.isRequired,
+		style: AppText.propTypes.style,
 	};
 
 	shouldComponentUpdate(nextProps: Props): boolean {

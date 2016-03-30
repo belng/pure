@@ -4,6 +4,12 @@ import { bus, config } from '../../core-client.js';
 import packer from './../../lib/packer';
 import uuid from 'node-uuid';
 
+type Frame = {
+	type: string;
+	message: any;
+	id?: string;
+}
+
 const {
 	protocol,
 	host,
@@ -105,7 +111,7 @@ bus.on('state:init', state => {
 });
 
 bus.on('s3/getPolicy', (policy, next) => {
-	const frame = {
+	const frame: Frame = {
 		type: 's3/getPolicy',
 		message: policy
 	};
