@@ -4,6 +4,12 @@ import { bus, config } from '../../core-client.js';
 import packer from './../../lib/packer';
 import uuid from 'node-uuid';
 
+type Frame = {
+	type: string;
+	message: any;
+	id?: string;
+}
+
 const {
 	protocol,
 	host,
@@ -104,22 +110,8 @@ bus.on('state:init', state => {
 	connect();
 });
 
-
-bus.on('contacts', (contacts, next) => {
-	const frame = {
-		type: 'contacts',
-		message: contacts
-	};
-	contacts.id = uuid.v4();
-	pendingCallbacks[frame.id] = {
-		data: contacts,
-		next
-	};
-	client.send(packer.encode(frame));
-}, 1);
-
 bus.on('s3/getPolicy', (policy, next) => {
-	const frame = {
+	const frame: Frame = {
 		type: 's3/getPolicy',
 		message: policy
 	};
