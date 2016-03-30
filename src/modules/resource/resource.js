@@ -48,4 +48,3 @@ function resourceHandler(changes) {
 
 bus.on('change', resourceHandler, Constants.APP_PRIORITIES.AUTHENTICATION_RESOURCE);
 bus.on('s3/getPolicy', resourceHandler, Constants.APP_PRIORITIES.AUTHENTICATION_RESOURCE);
-bus.on('contacts', resourceHandler, Constants.APP_PRIORITIES.AUTHENTICATION_RESOURCE);

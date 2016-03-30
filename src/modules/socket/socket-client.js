@@ -104,20 +104,6 @@ bus.on('state:init', state => {
 	connect();
 });
 
-
-bus.on('contacts', (contacts, next) => {
-	const frame = {
-		type: 'contacts',
-		message: contacts
-	};
-	contacts.id = uuid.v4();
-	pendingCallbacks[frame.id] = {
-		data: contacts,
-		next
-	};
-	client.send(packer.encode(frame));
-}, 1);
-
 bus.on('s3/getPolicy', (policy, next) => {
 	const frame = {
 		type: 's3/getPolicy',

@@ -1,6 +1,5 @@
-import { bus, Constants, config } from '../../core-server';
+import { bus, config } from '../../core-server';
 import * as pg from './../../lib/pg';
-import EnhancedError from './../../lib/EnhancedError';
 import route from 'koa-route';
 
 export function buildSql(user, contacts, time) {
@@ -31,18 +30,6 @@ function saveContacts(sql) {
 		});
 	});
 }
-
-bus.on('contacts', (message, next) => {
-	const sql = buildSql(message.auth.user, message.contacts, Date.now());
-	saveContacts(sql).then(next).catch(err => {
-		message.response = message.response || {};
-		message.response.error = new EnhancedError(
-			err.message,
-			'PG_WRITE_FAILED'
-		);
-		return next(message.response.error);
-	});
-}, Constants.APP_PRIORITIES.CONTACTS);
 
 function getUser(session) {
 	return new Promise((resolve, reject) => {

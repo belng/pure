@@ -19,16 +19,6 @@ function sendError(socket, code, reason, event) {
 	}));
 }
 
-function handleContacts(socket, message) {
-	const type = (message.response && message.response.error) ? 'error' : 'contacts';
-	message.response.id = message.id;
-	const toSend = {
-			type,
-			message: message.response
-		}, encoded = packer.encode(toSend);
-	socket.send(encoded);
-}
-
 function handleGetPolicy(socket, message, resourceId, err) {
 	message.response = message.response || {};
 	message.response.id = message.id;
@@ -138,11 +128,7 @@ bus.on('http/init', app => {
 			case 's3/getPolicy':
 				bus.emit('s3/getPolicy', message, handleGetPolicy.bind(null, socket, message, resourceId));
 				break;
-			case 'contacts':
-				bus.emit('s3/getPolicy', message, handleContacts.bind(null, socket, message, resourceId));
-				break;
 			}
-
 		});
 	});
 });
