@@ -57,7 +57,9 @@ export default class DiscussionFooter extends Component<void, Props, void> {
 		thread: PropTypes.shape({
 			updateTime: PropTypes.number.isRequired,
 			creator: PropTypes.string.isRequired,
-			counts: PropTypes.objectOf(PropTypes.number)
+			counts: PropTypes.shape({
+				children: PropTypes.number
+			})
 		}).isRequired,
 		style: View.propTypes.style
 	};
@@ -94,7 +96,7 @@ export default class DiscussionFooter extends Component<void, Props, void> {
 							style={styles.icon}
 							size={24}
 						/>
-						<AppText style={styles.label}>{thread.counts && thread.counts.length ? thread.counts.length : 1}</AppText>
+						<AppText style={styles.label}>{thread.counts && thread.counts.children ? thread.counts.children : 0}</AppText>
 					</View>
 				</View>
 			</View>

@@ -7,6 +7,7 @@ import Colors from '../../Colors';
 import AppText from './AppText';
 import AvatarRound from './AvatarRound';
 import TouchFeedback from './TouchFeedback';
+import type { User } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
@@ -51,13 +52,15 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	user: string;
+	user: User;
 	status: 'online' | 'offline';
 }
 
 export default class PeopleListItem extends Component<void, Props, void> {
 	static propTypes = {
-		user: PropTypes.string.isRequired,
+		user: PropTypes.shape({
+			id: PropTypes.string.isRequired
+		}),
 		status: PropTypes.string
 	};
 
@@ -78,11 +81,11 @@ export default class PeopleListItem extends Component<void, Props, void> {
 						<AvatarRound
 							style={styles.avatar}
 							size={36}
-							user={user}
+							user={user.id}
 						/>
 						<View style={styles.nick}>
 							<AppText style={[ styles.nickText, status !== 'online' ? styles.offline : null ]}>
-								{user}
+								{user.id}
 							</AppText>
 						</View>
 						<View>
