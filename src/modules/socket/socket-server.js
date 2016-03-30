@@ -109,14 +109,15 @@ bus.on('http/init', app => {
 			}
 
 			const message = frame.message;
+
 			if (typeof message !== 'object') {
 				sendError(socket, 'ERR_UNKNOWN', 'invalid');
 				return;
 			}
+
 			winston.debug(`Message Received: ${resourceId}: `, JSON.stringify(message));
 
 			(message.auth = message.auth || {}).resource = resourceId;
-
 			if (frame.type === 'change' && message.entities) {
 				for (const id in message.entities) {
 					if (typeof message.entities[id].presence === 'number') {
