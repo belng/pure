@@ -45,9 +45,9 @@ function onMessage(message) {
 
 	frame.message.source = 'server';
 	if (frame.type === 'contacts' || frame.type === 's3/getPolicy') {
-		if (pendingCallbacks[frame.id]) {
-			pendingCallbacks[frame.id].data.response = frame.message;
-			pendingCallbacks[frame.id].next();
+		if (pendingCallbacks[frame.message.id]) {
+			pendingCallbacks[frame.message.id].data.response = frame.message;
+			pendingCallbacks[frame.message.id].next();
 		}
 	} else {
 		bus.emit(frame.type, frame.message);
@@ -90,6 +90,7 @@ bus.on('postchange', changes => {
 
 	if (Object.keys(frame).length) {
 		console.log('<--', frame);
+		frame.id = uuid.v4();
 		client.send(packer.encode({
 			type: 'change',
 			message: frame,
@@ -107,10 +108,9 @@ bus.on('state:init', state => {
 bus.on('contacts', (contacts, next) => {
 	const frame = {
 		type: 'contacts',
-		message: contacts,
-		id: uuid.v4()
+		message: contacts
 	};
-
+	contacts.id = uuid.v4();
 	pendingCallbacks[frame.id] = {
 		data: contacts,
 		next
@@ -121,12 +121,14 @@ bus.on('contacts', (contacts, next) => {
 bus.on('s3/getPolicy', (policy, next) => {
 	const frame = {
 		type: 's3/getPolicy',
-		message: policy,
-		id: uuid.v4()
+		message: policy
 	};
-	pendingCallbacks[frame.id] = {
+
+	policy.id = uuid.v4();
+	pendingCallbacks[policy.id] = {
 		data: policy,
 		next
 	};
+
 	client.send(packer.encode(frame));
 }, 1);

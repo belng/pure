@@ -82,17 +82,14 @@ export function getResponse(policyReq) {
 	};
 }
 
-export default function() {
-	if (!config.s3) {
-		winston.info('Image upload is disabled');
-		bus.on('s3/getPolicy', (policyReq, next) => {
-			policyReq.response = {};
-			policyReq.response.error = new EnhancedError('Image upload is temporarily disabled', 'NO_CONFIG_FOUND_FO_S3');
-			next();
-		}, Constants.APP_PRIORITIES.IMAGE_UPLOAD);
-		return;
-	}
-
+if (!config.s3) {
+	winston.info('Image upload is disabled');
+	bus.on('s3/getPolicy', (policyReq, next) => {
+		policyReq.response = {};
+		policyReq.response.error = new EnhancedError('Image upload is temporarily disabled', 'NO_CONFIG_FOUND_FO_S3');
+		next();
+	}, Constants.APP_PRIORITIES.IMAGE_UPLOAD);
+} else {
 	bus.on('s3/getPolicy', (policyReq, next) => {
 		getResponse(policyReq);
 		next();
