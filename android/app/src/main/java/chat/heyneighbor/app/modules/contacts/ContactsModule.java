@@ -20,15 +20,14 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedWriter;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class ContactsModule extends ReactContextBaseJavaModule {
 
@@ -346,32 +345,17 @@ public class ContactsModule extends ReactContextBaseJavaModule {
                 try {
                     data.put("data", JSONHelpers.ReadableArrayToJSON(getContactsList()));
 
-                    HttpURLConnection connection;
+                    MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+                    OkHttpClient client = new OkHttpClient();
+                    RequestBody body = RequestBody.create(JSON, data.toString());
+                    Request request = new Request.Builder()
+                            .url(endpoint)
+                            .post(body)
+                            .build();
 
-                    connection = (HttpURLConnection) ((new URL(endpoint).openConnection()));
+                    Response response = client.newCall(request).execute();
 
-                    connection.setDoOutput(true);
-                    connection.setRequestProperty("Content-Type", "application/json");
-                    connection.setRequestProperty("Accept", "application/json");
-                    connection.setRequestMethod("POST");
-
-                    connection.connect();
-
-                    OutputStream os = connection.getOutputStream();
-
-                    try {
-                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-
-                        try {
-                            writer.write(data.toString());
-                        } finally {
-                            writer.close();
-                        }
-                    } finally {
-                        os.close();
-                    }
-
-                    promise.resolve(true);
+                    promise.resolve(response.body().string());
                 } catch (Exception e) {
                     promise.reject(e);
                 }

@@ -56,6 +56,9 @@ public class JSONHelpers {
                 case Number:
                     json.put(key, map.getDouble(key));
                     break;
+                case String:
+                    json.put(key, map.getString(key));
+                    break;
                 case Map:
                     json.put(key, ReadableMapToJSON(map.getMap(key)));
                     break;
