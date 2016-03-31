@@ -75,7 +75,7 @@ bus.on('http/init', app => {
 	app.use(route.post('/x/contacts', function *() {
 		const request = this.request.body;
 		try {
-			const res = yield handleContacts(request.session, request.data);
+			const res = yield handleContacts(request.auth.session, request.data);
 			this.body = res;
 		} catch (e) {
 			this.body = e;
