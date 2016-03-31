@@ -3,7 +3,6 @@ package chat.heyneighbor.app.modules.contacts;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.database.Cursor;
-import android.os.Process;
 import android.os.RemoteException;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
@@ -17,17 +16,18 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
-import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
 
 public class ContactsModule extends ReactContextBaseJavaModule {
 
@@ -245,7 +245,7 @@ public class ContactsModule extends ReactContextBaseJavaModule {
     }
 
     @Nullable
-    public WritableArray getContactsList() throws Exception {
+    private WritableArray getContactsList() throws Exception {
         WritableArray contactsList = Arguments.createArray();
         ContentResolver resolver = getReactApplicationContext().getContentResolver();
         ContentProviderClient client = resolver.acquireContentProviderClient(Contacts.CONTENT_URI);
@@ -298,64 +298,38 @@ public class ContactsModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void sendContacts(final String endpoint, @Nullable final ReadableMap metadata, final Promise promise) {
-        final JSONObject data = new JSONObject();
-
-        if (metadata != null) {
-            final ReadableMapKeySetIterator iterator = metadata.keySetIterator();
-
-            while (iterator.hasNextKey()) {
-                String key = iterator.nextKey();
-
-                try {
-                    switch (metadata.getType(key)) {
-                        case Null:
-                            data.put(key, null);
-                            break;
-                        case String:
-                            data.put(key, metadata.getString(key));
-                            break;
-                        case Number:
-                            data.put(key, metadata.getDouble(key));
-                            break;
-                        case Boolean:
-                            data.put(key, metadata.getBoolean(key));
-                            break;
-                        case Map:
-                            data.put(key, JSONHelpers.ReadableMapToJSON(metadata.getMap(key)));
-                            break;
-                        case Array:
-                            data.put(key, JSONHelpers.ReadableArrayToJSON(metadata.getArray(key)));
-                            break;
-                        default:
-                            throw new IllegalArgumentException("Unsupported data type passed");
-
-                    }
-                } catch (JSONException | IllegalArgumentException e) {
-                    promise.reject(e);
-                    return;
-                }
-            }
-        }
-
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-
                 try {
+                    final JSONObject data = JSONHelpers.ReadableMapToJSON(metadata);
+
                     data.put("data", JSONHelpers.ReadableArrayToJSON(getContactsList()));
 
                     MediaType JSON = MediaType.parse("application/json; charset=utf-8");
                     OkHttpClient client = new OkHttpClient();
                     RequestBody body = RequestBody.create(JSON, data.toString());
+
                     Request request = new Request.Builder()
                             .url(endpoint)
                             .post(body)
                             .build();
 
-                    Response response = client.newCall(request).execute();
+                    client.newCall(request).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Request request, IOException throwable) {
+                            promise.reject(throwable);
+                        }
 
-                    promise.resolve(response.body().string());
+                        @Override
+                        public void onResponse(Response response) throws IOException {
+                            if (response.isSuccessful()) {
+                                promise.resolve(response.body().string());
+                            } else {
+                                promise.reject(String.valueOf(response.code()), response.message());
+                            }
+                        }
+                    });
                 } catch (Exception e) {
                     promise.reject(e);
                 }
