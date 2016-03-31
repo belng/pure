@@ -24,7 +24,7 @@ function signinhandler(changes, n) {
 		if (e) {
 			changes.response = changes.response || {};
 			changes.response.state = changes.response.state || {};
-			changes.response.state.singin = changes.response.state.signin || {};
+			changes.response.state.signin = changes.response.state.signin || {};
 			changes.response.state.signin.error = e;
 			n(changes);
 		} else {
