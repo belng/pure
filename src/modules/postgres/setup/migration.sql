@@ -335,4 +335,4 @@ CREATE TABLE placeid_map (
 
 UPDATE rooms SET identities = ARRAY((SELECT 'place:' || placeid FROM placeid_map WHERE room_name = rooms.name))::text[];
 
-DELETE FROM texts where body is NULL;
+DELETE FROM texts WHERE body IS NULL;
