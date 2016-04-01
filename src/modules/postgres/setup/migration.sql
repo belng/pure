@@ -49,7 +49,7 @@ CREATE FUNCTION getMetadata(t text) RETURNS jsonb AS $$
 			}
 		}
 
-		return JSON.stringify(metadata);
+		return JSON.stringify({ photo: metadata });
 		}
 		else {
 			return null;
@@ -231,7 +231,7 @@ INSERT
 				'terms AS terms, '
 				'updater AS updater, '
 				'round(EXTRACT(EPOCH FROM updatetime)*1000) AS updatetime, '
-				'NULL AS counts, '
+				'json_build_object(''children'', length) AS counts, '
 				'NULL AS score '
 			'FROM threads')
 		AS t(
