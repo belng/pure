@@ -1,5 +1,5 @@
 /* @flow */
 
 export default {
-	counts: { __any__: 'inc' }
+	children: 'inc'
 };
