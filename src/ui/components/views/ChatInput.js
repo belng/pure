@@ -86,14 +86,14 @@ export default class ChatInput extends Component<void, Props, State> {
 
 	setQuotedText: Function = (text) => {
 		this._computeAndSetText({
-			replyTo: text.from,
-			quotedText: text.text
+			replyTo: text.creator,
+			quotedText: text.body
 		});
 	};
 
 	setReplyTo: Function = (text) => {
 		this._computeAndSetText({
-			replyTo: text.from
+			replyTo: text.creator
 		});
 	};
 
