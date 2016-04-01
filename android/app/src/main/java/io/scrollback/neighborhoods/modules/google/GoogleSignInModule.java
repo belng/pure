@@ -80,7 +80,7 @@ public class GoogleSignInModule extends ReactContextBaseJavaModule implements Ac
     }
 
     @ReactMethod
-    private void signOut(final Promise promise) {
+    public void signOut(final Promise promise) {
         GoogleApiClient googleApiClient = mGoogleApiManager.getGoogleApiClient();
 
         if (googleApiClient != null && googleApiClient.isConnected()) {
@@ -101,7 +101,7 @@ public class GoogleSignInModule extends ReactContextBaseJavaModule implements Ac
     }
 
     @ReactMethod
-    private void revokeAccess(final Promise promise) {
+    public void revokeAccess(final Promise promise) {
         GoogleApiClient googleApiClient = mGoogleApiManager.getGoogleApiClient();
 
         if (googleApiClient != null && googleApiClient.isConnected()) {
