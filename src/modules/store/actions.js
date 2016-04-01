@@ -73,6 +73,7 @@ export const removePlace = (user: string, type: string): Object => ({
 			id: user,
 			params: {
 				places: {
+					[type]: null,
 					__op__: {
 						[type]: 'delete'
 					}
