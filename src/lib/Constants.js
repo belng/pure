@@ -42,6 +42,7 @@ export const TRANSIT_INVITE = 2;
 export const TRANSIT_RESTORE = 3;
 
 export const TAG_POST_HIDDEN = -1;
+export const TAG_POST_IMAGE = 3;
 export const TAG_POST_STICKY = 1;
 export const TAG_POST_PHOTO = 3;
 export const TAG_USER_GUEST = 10;

@@ -96,7 +96,7 @@ export default class DiscussionFooter extends Component<void, Props, void> {
 							style={styles.icon}
 							size={24}
 						/>
-						<AppText style={styles.label}>{thread.counts && thread.counts.children ? thread.counts.children : 0}</AppText>
+						<AppText style={styles.label}>{thread.counts && thread.counts.children ? (thread.counts.children + 1) : 1}</AppText>
 					</View>
 				</View>
 			</View>

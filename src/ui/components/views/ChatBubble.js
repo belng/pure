@@ -129,7 +129,7 @@ export default class ChatBubble extends Component<DefaultProps, Props, void> {
 
 		return (
 			<View style={[ right ? styles.containerRight : styles.containerLeft, this.props.style ]} ref={c => (this._root = c)}>
-				{right && !showArrow ? null :
+				{right || !showArrow ? null :
 					<View style={[ styles.triangleContainer, styles.triangleContainerLeft ]}>
 						<View style={[ styles.triangle, styles.triangleLeft ]} />
 					</View>

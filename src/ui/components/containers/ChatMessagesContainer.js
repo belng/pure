@@ -4,54 +4,10 @@ import React, { Component, PropTypes } from 'react';
 import shallowEqual from 'shallowequal';
 import Connect from '../../../modules/store/Connect';
 import ChatMessages from '../views/ChatMessages';
+import { TAG_POST_HIDDEN } from '../../../lib/Constants';
 import type { SubscriptionRange } from '../../../modules/store/ConnectTypes';
 
-class ChatMessagesContainerInner extends Component<void, any, void> {
-	static propTypes = {
-		data: PropTypes.arrayOf(PropTypes.object).isRequired,
-		thread: PropTypes.object
-	};
-
-	render() {
-		const {
-			thread,
-			data
-		} = this.props;
-
-		let newdata;
-
-		if (thread && thread.type !== 'loading') {
-			newdata = [];
-
-			for (let i = 0, l = data.length; i < l; i++) {
-				const item = data[i];
-
-				if (i !== l - 1 || typeof item.type === 'string') {
-					newdata.push(item);
-				} else {
-					newdata.push({
-						text: item.text,
-						previousText: thread,
-						isLast: false
-					});
-				}
-			}
-
-			newdata.push({ text: thread });
-		} else {
-			newdata = data;
-		}
-
-		return (
-			<ChatMessages
-				{...this.props}
-				data={newdata}
-			/>
-		);
-	}
-}
-
-const transformTexts = texts => {
+const transformTexts = (texts, thread) => {
 	const data = [];
 
 	for (let l = texts.length - 1, i = l; i >= 0; i--) {
@@ -66,8 +22,51 @@ const transformTexts = texts => {
 		}
 	}
 
+	if (thread && thread.type !== 'loading') {
+		const first = data[data.length - 1];
+
+		if (first && first.text) {
+			data[data.length - 1] = {
+				text: first.text,
+				previousText: thread,
+				isLast: false
+			};
+		}
+
+		data.push({ text: thread });
+	}
+
 	return data;
 };
+
+const filterHidden = results => results.filter(item => {
+	if (item.tags && item.tags.indexOf(TAG_POST_HIDDEN) > -1) {
+		return false;
+	}
+
+	return true;
+});
+
+class ChatMessagesContainerInner extends Component<void, any, void> {
+	static propTypes = {
+		data: PropTypes.arrayOf(PropTypes.object).isRequired,
+		thread: PropTypes.object
+	};
+
+	render() {
+		const {
+			thread,
+			data
+		} = this.props;
+
+		return (
+			<ChatMessages
+				{...this.props}
+				data={transformTexts(data, thread)}
+			/>
+		);
+	}
+}
 
 type State = {
 	range: SubscriptionRange;
@@ -131,7 +130,7 @@ export default class ChatMessagesContainer extends Component<void, any, State> {
 							},
 							range,
 						},
-						transform: transformTexts,
+						transform: filterHidden,
 						defer,
 					},
 					thread: {

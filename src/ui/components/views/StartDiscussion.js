@@ -15,9 +15,9 @@ import AppbarIcon from './AppbarIcon';
 import GrowingTextInput from './GrowingTextInput';
 import TouchFeedback from './TouchFeedback';
 import Icon from './Icon';
-import AvatarContainer from '../containers/AvatarContainer';
 import ImageUploadContainer from '../containers/ImageUploadContainer';
 import StartDiscussionDone from '../containers/StartDiscussionDoneContainer';
+import AvatarRound from './AvatarRound';
 import Banner from './Banner';
 import ImageUploadDiscussion from './ImageUploadDiscussion';
 import KeyboardSpacer from './KeyboardSpacer';
@@ -459,7 +459,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 						<AppbarIcon name='close' style={styles.icon} />
 					</AppbarTouchable>
 
-					<AvatarContainer
+					<AvatarRound
 						user={this.props.user}
 						style={styles.userIcon}
 						size={30}
