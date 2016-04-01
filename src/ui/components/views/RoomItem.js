@@ -5,7 +5,6 @@ import ReactNative from 'react-native';
 import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AppText from './AppText';
-import NotificationBadgeContainer from '../containers/NotificationBadgeContainer';
 import ListItem from './ListItem';
 import Icon from './Icon';
 import Modal from './Modal';
@@ -89,8 +88,6 @@ export default class RoomItem extends Component<void, Props, void> {
 				<View style={styles.item}>
 					<AppText style={styles.title}>{room.name || room.id}</AppText>
 				</View>
-
-				<NotificationBadgeContainer room={this.props.room.id} />
 
 				<TouchableOpacity onPress={this._handleShowMenu}>
 					<Icon
