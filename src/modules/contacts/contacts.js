@@ -21,7 +21,6 @@ export function buildSql(user, contacts, time) {
 
 function saveContacts(sql) {
 	return new Promise((resolve, reject) => {
-
 		pg.write(config.connStr, sql, (err, results) => {
 			if (err) {
 				return reject(err);
@@ -68,17 +67,14 @@ function handleContacts(session, contacts) {
 			});
 		});
 	});
-
-
 }
 bus.on('http/init', app => {
 	app.use(route.post('/x/contacts', function *() {
 		const request = this.request.body;
 		try {
-			const res = yield handleContacts(request.auth.session, request.data);
-			this.body = res;
+			this.body = yield handleContacts(request.auth.session, request.data);
 		} catch (e) {
-			this.body = e;
+			this.throw(500, e.message);
 		}
 	}));
 });
