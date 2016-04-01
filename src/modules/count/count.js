@@ -33,7 +33,10 @@ bus.on('change', (changes, next) => {
 			const parent = changes.entities[entity.parents[0]] || {};
 			parent.counts = parent.counts ? parent.counts : {};
 			parent.counts = {
-				children: inc
+				children: 1,
+				__op__: {
+					children: 'inc'
+				}
 			};
 			parent.id = entity.parents[0];
 			parent.type = (entity.type === Constants.TYPE_TEXT) ?

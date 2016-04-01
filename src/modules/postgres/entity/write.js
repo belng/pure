@@ -97,9 +97,9 @@ export default function (entity) {
 						$: 'presence = GREATEST(presence, &{presence}::smallint)',
 						presence: entity.presence
 					};
-				case 'count':
+				case 'counts':
 					return {
-						$: `"${name}" = jsonop("${name}"::jsonb, &{${name}}::jsonb, &{${defaultOps}_op}::jsonb)`,
+						$: `"${name}" = jsonop("${name}"::jsonb, &{${name}}::jsonb, &{defaultOps}::jsonb)`,
 						[name]: entity[name]
 					};
 				case 'meta':

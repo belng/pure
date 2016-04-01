@@ -86,14 +86,14 @@ export default class ChatInput extends Component<void, Props, State> {
 
 	setQuotedText: Function = (text) => {
 		this._computeAndSetText({
-			replyTo: text.from,
-			quotedText: text.text
+			replyTo: text.creator,
+			quotedText: text.body
 		});
 	};
 
 	setReplyTo: Function = (text) => {
 		this._computeAndSetText({
-			replyTo: text.from
+			replyTo: text.creator
 		});
 	};
 
@@ -143,7 +143,8 @@ export default class ChatInput extends Component<void, Props, State> {
 				url: result.url,
 				thumbnail_height: Math.min(480, width) * aspectRatio,
 				thumbnail_width: Math.min(480, width),
-				thumbnail_url: result.thumbnail
+				thumbnail_url: result.thumbnail,
+				type: 'photo',
 			}
 		});
 

@@ -355,7 +355,8 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 			return;
 		}
 
-		let meta, id;
+		let meta, id,
+			body = this.state.body;
 
 		const { upload, photo } = this.state;
 
@@ -373,9 +374,11 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 					url: result.url,
 					thumbnail_height: Math.min(480, width) * aspectRatio,
 					thumbnail_width: Math.min(480, width),
-					thumbnail_url: result.thumbnail
+					thumbnail_url: result.thumbnail,
+					type: 'photo',
 				}
 			};
+			body = body || `${name}: ${result.url}`;
 		}
 
 		this.setState({
@@ -384,7 +387,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 			this.props.startThread(
 				id,
 				this.state.name,
-				this.state.body,
+				body,
 				meta
 			);
 		});
