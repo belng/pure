@@ -61,7 +61,7 @@ function removeRels(change, removable) {
 	}
 }
 
-function sendInvitations (resources, user, relRooms, ...stubsets) {
+function sendInvitations (resources, user, deletedRels, relRooms, ...stubsets) {
 	const stubs = {}, changedRels = {},
 		all = [], addable = [], removable = [],
 		change = {};
@@ -87,13 +87,13 @@ function sendInvitations (resources, user, relRooms, ...stubsets) {
 		if (stubs[identity]) {
 			stubs[identity].exists = true;
 		} else {
-			const type = relRoom.rel.roles.filter(role =>
+			const type = relRoom.roomrel.roles.filter(role =>
 				role >= constants.ROLE_HOME &&
 				role <= constants.ROLE_HOMETOWN
 			)[0];
 
-			if (changedRels[type]) {
-				removable.push(relRoom.rel);
+			if (changedRels[type] || deletedRels[type]) {
+				removable.push(relRoom.roomrel);
 			} else {
 				all.push({ identity, type, name: relRoom.room.name });
 			}
@@ -106,10 +106,6 @@ function sendInvitations (resources, user, relRooms, ...stubsets) {
 		all.push(stub);
 		if (!stub.exists) { addable.push(stub); }
 	}
-
-	// TODO: Find multi-criteria rooms.
-	// TODO: Filter addable rooms by creatability.
-	// TODO: Create addable rooms that don’t exist.
 
 	pg.read(config.connStr, {
 		$: 'SELECT * FROM "rooms" WHERE identities && &{idents}',
@@ -144,6 +140,7 @@ bus.on('change', change => {
 	if (change.entities) {
 		for (const id in change.entities) {
 			const user:User = change.entities[id],
+				deletedRels = [],
 				promises = [];
 
 			if (
@@ -151,28 +148,29 @@ bus.on('change', change => {
 				!user.params || !user.params.places
 			) { continue; }
 
-			let needsInvitations = false;
-
 			if (user.params && user.params.places) {
 				const { home, work, hometown } = user.params.places;
 
 				if (home && home.id) {
 					promises.push(place.getStubset(home.id, constants.ROLE_HOME));
-					needsInvitations = true;
 				}
 
 				if (work && work.id) {
 					promises.push(place.getStubset(work.id, constants.ROLE_WORK));
-					needsInvitations = true;
 				}
 
 				if (hometown && hometown.id) {
 					promises.push(place.getStubset(hometown.id, constants.ROLE_HOMETOWN));
-					needsInvitations = true;
 				}
-			}
 
-			if (!needsInvitations) { return; }
+				for (const rel in user.params.places) {
+					if (user.params.places[rel] === null) {
+						deletedRels.push(rel);
+					}
+				}
+			} else {
+				return;
+			}
 
 			/* Fetch the current rooms of this user. */
 			const currentRels = new Promise((resolve, reject) => {
@@ -192,7 +190,7 @@ bus.on('change', change => {
 			Promise.all([ currentRels, ...promises ])
 			.then((res) => sendInvitations({
 				[resource]: constants.PRESENCE_FOREGROUND
-			}, user, ...res))
+			}, user, deletedRels, ...res))
 			.catch(err => winston.error(err));
 		}
 	}
