@@ -14,20 +14,24 @@ bus.on('http/init', app => {
 				size
 			} = query;
 
-			const data = yield new Promise((resolve, reject) => {
-				cache.getEntity(user, (err, res) => {
-					if (err) {
-						reject(err);
-					} else {
-						resolve(res);
-					}
+			try {
+				const data = yield new Promise((resolve, reject) => {
+					cache.getEntity(user, (err, res) => {
+						if (err) {
+							reject(err);
+						} else {
+							resolve(res);
+						}
+					});
 				});
-			});
 
-			if (data && data.meta && data.meta.picture) {
-				this.response.redirect(buildAvatarURLForSize(data.meta.picture, size));
-			} else {
-				this.throw(404, `Couldn't find picture for user: ${user}`);
+				if (data && data.meta && data.meta.picture) {
+					this.response.redirect(buildAvatarURLForSize(data.meta.picture, size));
+				} else {
+					this.throw(404, `Couldn't find picture for user: ${user}`);
+				}
+			} catch (e) {
+				this.throw(500, e.message);
 			}
 		} else {
 			this.throw(400, 'User ID is not specified for picture');
