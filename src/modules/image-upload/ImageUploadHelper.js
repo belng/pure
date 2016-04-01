@@ -37,7 +37,9 @@ export default class ImageUploadHelper {
 		this._options = options;
 		this._policy = new Promise((resolve, reject) => {
 			bus.emit('s3/getPolicy', options, (err, res) => {
-				if (res.response.error) {
+				if (err || !(res && res.response)) {
+					reject(err);
+				} else if (res.response && res.response.error) {
 					reject(res.response.error);
 				} else {
 					resolve(res.response);

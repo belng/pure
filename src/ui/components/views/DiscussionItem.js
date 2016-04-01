@@ -4,7 +4,6 @@ import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
-import NotificationBadgeContainer from '../containers/NotificationBadgeContainer';
 import Card from './Card';
 import CardTitle from './CardTitle';
 import DiscussionSummary from './DiscussionSummary';
@@ -162,8 +161,6 @@ export default class DiscussionItem extends Component<void, Props, void> {
 							<CardTitle style={[ styles.item, styles.title ]}>
 								{this.props.thread.name}
 							</CardTitle>
-
-							<NotificationBadgeContainer thread={this.props.thread.id} style={styles.badge} />
 
 							<TouchableOpacity onPress={this._handleShowMenu}>
 								<Icon

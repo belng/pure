@@ -11,7 +11,6 @@ const {
 
 type Props = {
 	uri?: string;
-	size: number;
 }
 
 type State = {
@@ -20,8 +19,7 @@ type State = {
 
 export default class Avatar extends Component<void, Props, State> {
 	static propTypes = {
-		uri: PropTypes.string,
-		size: PropTypes.number.isRequired
+		uri: PropTypes.string
 	};
 
 	state: State = {
