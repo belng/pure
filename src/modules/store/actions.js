@@ -7,7 +7,7 @@ import TextModel from '../../models/text';
 import RoomRelModel from '../../models/roomrel';
 import ThreadRelModel from '../../models/threadrel';
 import uuid from 'node-uuid';
-import { PRESENCE_FOREGROUND, PRESENCE_NONE } from '../../lib/Constants';
+import { PRESENCE_FOREGROUND, PRESENCE_NONE, TAG_POST_PHOTO } from '../../lib/Constants';
 
 /*
  * User related actions
@@ -108,6 +108,7 @@ export const sendMessage = (
 				create: true,
 				createTime: Date.now(),
 				updateTime: Date.now(),
+				tags: data.meta && data.meta.photo ? [ TAG_POST_PHOTO ] : [],
 			})
 		}
 	};
@@ -126,6 +127,7 @@ export const startThread = (
 				create: true,
 				createTime: Date.now(),
 				updateTime: Date.now(),
+				tags: data.meta && data.meta.photo ? [ TAG_POST_PHOTO ] : [],
 			})
 		}
 	};
