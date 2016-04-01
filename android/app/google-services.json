@@ -8,10 +8,10 @@
     {
       "client_info": {
         "mobilesdk_app_id": "1:949615022713:android:68efb474d8f51b11",
-        "client_id": "android:chat.heyneighbor.app",
+        "client_id": "android:co.babil.braavos",
         "client_type": 1,
         "android_client_info": {
-          "package_name": "chat.heyneighbor.app",
+          "package_name": "co.babil.braavos",
           "certificate_hash": []
         }
       },
@@ -20,7 +20,7 @@
           "client_id": "949615022713-71pbh16crv526j0hmc4der6oefnkf616.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "chat.heyneighbor.app",
+            "package_name": "co.babil.braavos",
             "certificate_hash": "5BD5425F5BADDCAE50FC718E9C09AAB94DAB48AF"
           }
         },
@@ -28,7 +28,7 @@
           "client_id": "949615022713-lej7459cdjrsof4insccr0fbuvvnb2nt.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "chat.heyneighbor.app",
+            "package_name": "co.babil.braavos",
             "certificate_hash": "A79B322EF656B440DC64E77054A28BF273F49C86"
           }
         },
