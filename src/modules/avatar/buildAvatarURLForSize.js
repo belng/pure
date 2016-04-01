@@ -1,6 +1,6 @@
 /* @flow */
 
-function replaceparams(u, params) {
+function replaceParams(u, params) {
 	let link = u.replace(/(&|\?)(.+=.+)*/g, '');
 
 	for (const q in params) {
@@ -12,15 +12,15 @@ function replaceparams(u, params) {
 	return link;
 }
 
-export default function(url: string, size: number): string {
+export default function buildAvatarURLForSize(url: string, size: number = 24): string {
 	if (/https?\:\/\/.*\.googleusercontent\.com\//.test(url)) {
-		return replaceparams(url, {
+		return replaceParams(url, {
 			sz: size
 		});
 	}
 
 	if (/https?\:\/\/graph\.facebook\.com\//.test(url)) {
-		return replaceparams(url, {
+		return replaceParams(url, {
 			type: 'square',
 			height: size,
 			width: size
@@ -28,11 +28,11 @@ export default function(url: string, size: number): string {
 	}
 
 	if (/https?\:\/\/gravatar\.com\//.test(url)) {
-		return replaceparams(url, {
+		return replaceParams(url, {
 			size,
 			d: 'retro'
 		});
 	}
 
-	return replaceparams(url, { size });
+	return replaceParams(url, { size });
 }

@@ -1,7 +1,7 @@
 /* @flow */
 
 import React, { PropTypes } from 'react';
-import getAvatarURL from '../../../lib/getAvatarURL';
+import buildAvatarURLForSize from '../../../modules/avatar/buildAvatarURLForSize';
 import Avatar from '../views/Avatar';
 import { cache, config } from '../../../core-client';
 
@@ -11,9 +11,9 @@ const getUserAvatar = (user, size = 48) => {
 	const userObj = cache.getEntity(user);
 
 	if (userObj.meta && userObj.meta.picture) {
-		return getAvatarURL(userObj.meta.picture, size);
+		return buildAvatarURLForSize(userObj.meta.picture, size);
 	} else {
-		return protocol + '//' + host + '/' + user + '/picture?size=' + size;
+		return `${protocol}//${host}/i/picture?user=${user}&size=${size}`;
 	}
 };
 
