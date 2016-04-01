@@ -39,13 +39,13 @@ function getRelationAndSetPresence(slice: Object, status: 'online' | 'offline') 
 	}
 }
 
-subscribe({ type: 'state', path: 'session', source: 'presence' }, () => {
-	const id = cache.getState('user');
-
-	if (id) {
-		bus.emit('change', setPresence(id, 'online'));
-	}
-});
+// subscribe({ type: 'state', path: 'session', source: 'presence' }, () => {
+// 	const id = cache.getState('user');
+//
+// 	if (id) {
+// 		bus.emit('change', setPresence(id, 'online'));
+// 	}
+// });
 
 subscribe({ type: 'state', path: 'user', source: 'presence' }, id => {
 	if (id) {
