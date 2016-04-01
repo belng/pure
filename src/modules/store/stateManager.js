@@ -4,7 +4,9 @@ import { bus, cache } from '../../core-client';
 
 cache.onChange(changes => bus.emit('postchange', changes));
 
-bus.on('change', changes => cache.put(changes));
+bus.on('change', changes => {
+	cache.put(changes);
+});
 bus.on('error', changes => {
 	if (changes.state) {
 		const { resource, session, ...state } = changes.state; // eslint-disable-line no-use-before-define

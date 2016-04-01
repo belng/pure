@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
+import shallowEqual from 'shallowequal';
 import Connect from '../../../modules/store/Connect';
 import PassUserProp from '../../../modules/store/PassUserProp';
 import Discussions from '../views/Discussions';
@@ -28,6 +29,10 @@ class DiscussionsContainer extends Component<void, any, State> {
 		defer: true,
 	};
 
+	shouldComponentUpdate(nextProps: any, nextState: State): boolean {
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+	}
+
 	componentWillUpdate() {
 		if (this.state.defer) {
 			this.setState({ defer: false });
@@ -41,7 +46,7 @@ class DiscussionsContainer extends Component<void, any, State> {
 		this.setState({
 			range: {
 				...range,
-				before: before && before > (count + 20) ? before : count + 20,
+				before: before && before > (count + 10) ? before : count + 20,
 			}
 		});
 	};

@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
+import shallowEqual from 'shallowequal';
 import Connect from '../../../modules/store/Connect';
 import ChatMessages from '../views/ChatMessages';
 import type { SubscriptionRange } from '../../../modules/store/ConnectTypes';
@@ -88,6 +89,10 @@ export default class ChatMessagesContainer extends Component<void, any, State> {
 		defer: true,
 	};
 
+	shouldComponentUpdate(nextProps: any, nextState: State): boolean {
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+	}
+
 	componentWillUpdate() {
 		if (this.state.defer) {
 			this.setState({ defer: false });
@@ -101,7 +106,7 @@ export default class ChatMessagesContainer extends Component<void, any, State> {
 		this.setState({
 			range: {
 				...range,
-				before: before && before > (count + 20) ? before : count + 20,
+				before: before && before > (count + 20) ? before : count + 40,
 			}
 		});
 	};

@@ -38,10 +38,10 @@ function resourceHandler(changes) {
 	} else if (changes.auth && changes.auth.resource) {
 		if (resourceMap[changes.auth.resource]) {
 			changes.auth.user = resourceMap[changes.auth.resource];
-			const r = changes.response = changes.response || {};
-			const state = r.state = r.state || {};
-
-			state.user = changes.auth.user;
+			// const r = changes.response = changes.response || {};
+			// const state = r.state = r.state || {};
+			//
+			// state.user = changes.auth.user;
 		}
 	}
 }

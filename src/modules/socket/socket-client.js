@@ -95,7 +95,7 @@ bus.on('postchange', changes => {
 	}
 
 	if (Object.keys(frame).length) {
-		console.log('<--', frame);
+		console.trace('<--', frame);
 		frame.id = uuid.v4();
 		client.send(packer.encode({
 			type: 'change',

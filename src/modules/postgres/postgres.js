@@ -123,6 +123,7 @@ pg.listen(config.connStr, channel, (payload) => {
 	const entity = packer.decode(payload);
 	const change = { entities: { [entity.id]: entity } };
 
+	console.log("Entity: ",entity.id, ': ', entity);
 	bus.emit('postchange', change);
 	cache.put(change);
 });

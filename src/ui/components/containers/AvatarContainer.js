@@ -1,38 +1,23 @@
 /* @flow */
 
 import React, { PropTypes } from 'react';
-import Connect from '../../../modules/store/Connect';
 import getAvatarURL from '../../../lib/getAvatarURL';
 import Avatar from '../views/Avatar';
-import { config } from '../../../core-client';
+import { cache, config } from '../../../core-client';
 
 const { host, protocol } = config.server;
 
-const extractAvatarURL = (user, size = 48) => {
-	if (user.meta && user.meta.picture) {
-		return getAvatarURL(user.meta.picture, size);
+const getUserAvatar = (user, size = 48) => {
+	const userObj = cache.getEntity(user);
+
+	if (userObj.meta && userObj.meta.picture) {
+		return getAvatarURL(userObj.meta.picture, size);
 	} else {
-		return protocol + '//' + host + '/' + user.id + '/picture?size=' + size;
+		return protocol + '//' + host + '/' + user + '/picture?size=' + size;
 	}
 };
 
-const transformUserToUri = (user, props) => extractAvatarURL(user && user.id ? user : { id: props.user }, props.size);
-
-const AvatarContainer = (props: any) => (
-	<Connect
-		mapSubscriptionToProps={{
-			uri: {
-				key: {
-					type: 'entity',
-					id: props.user,
-				},
-				transform: transformUserToUri
-			}
-		}}
-		passProps={props}
-		component={Avatar}
-	/>
-);
+const AvatarContainer = (props: any) => <Avatar { ...props } uri={getUserAvatar(props.user, props.size)} />;
 
 AvatarContainer.defaultProps = {
 	size: 48
