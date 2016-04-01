@@ -58,12 +58,13 @@ $$ LANGUAGE plv8 IMMUTABLE;
 
 
 \echo 'Connecting to pure'
-\c pure scrollback localhost
+\c aravind aravind localhost
 --\c pure localhost
 
 --Drop and create tables
 
-\i ~/pure/src/modules/postgres/setup/1.sql
+\i ./1.sql
+\i ./dblink.sql
 
 --Migration data sql queries
 \echo 'Executing Rooms migration query'
@@ -85,11 +86,7 @@ INSERT
 		counts,
 		identities)
 	SELECT *
-	FROM dblink ('host=hndb.c1mimw7qcvsb.ap-southeast-1.rds.amazonaws.com  '
-			'dbname=hn '
-			'user=heyneighbor '
-			'password=wotgiz9880570175',
-		'SELECT '
+	FROM dblink ('SELECT '
 			'(SELECT newid FROM id_map WHERE oldid = entities.id) AS id, '
 			'guides->>''displayName'' AS name, '
 			'description AS body, '
@@ -151,11 +148,7 @@ INSERT
 		timezone,
 		updatetime)
 	SELECT *
-	FROM dblink ('host=hndb.c1mimw7qcvsb.ap-southeast-1.rds.amazonaws.com '
-			'dbname=hn '
-			'user=heyneighbor '
-			'password=wotgiz9880570175',
-		'SELECT '
+	FROM dblink ('SELECT '
 			'id AS id, '
 			'guides->>''displayName'' AS name, '
 			'(SELECT array_agg(identity) FROM unnest(identities) AS identity WHERE identity like ''mailto:%'') AS identities, '
@@ -218,11 +211,7 @@ INSERT
 			counts,
 			score)
 		SELECT *
-		FROM dblink ('host=hndb.c1mimw7qcvsb.ap-southeast-1.rds.amazonaws.com  '
-				'dbname=hn '
-				'user=heyneighbor '
-				'password=wotgiz9880570175',
-			'SELECT '
+		FROM dblink ('SELECT '
 				'(SELECT newid FROM id_map WHERE oldid = id) AS id, '
 				'title AS name, '
 				'(SELECT text FROM texts WHERE id = threads.id) AS body, '
@@ -282,11 +271,7 @@ INSERT
 		updatetime,
 		counts)
 	SELECT *
-	FROM dblink ('host=hndb.c1mimw7qcvsb.ap-southeast-1.rds.amazonaws.com  '
-			'dbname=hn '
-			'user=heyneighbor '
-			'password=wotgiz9880570175',
-		'SELECT '
+	FROM dblink ('SELECT '
 			'gen_random_uuid() AS id, '
 			'title AS name, '
 			'CASE '
@@ -342,6 +327,6 @@ CREATE TABLE placeid_map (
 	placeid text
 );
 
-\copy placeid_map(room_name, placeid) from '~/migration/location.csv' CSV HEADER delimiter ','
+\copy placeid_map(room_name, placeid) from './location.csv' CSV HEADER delimiter ','
 
 UPDATE rooms SET identities = ARRAY((SELECT 'place:' || placeid FROM placeid_map WHERE room_name = rooms.name))::text[];

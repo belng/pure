@@ -1,0 +1,3 @@
+
+SELECT dblink_connect('user=hn host=db.example.com dbname=hn password=shhh');
+
