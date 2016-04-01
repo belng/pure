@@ -3,12 +3,13 @@
 import React from 'react';
 import Connect from '../../../modules/store/Connect';
 import Account from '../views/Account/Account';
-import { saveUser, signOut } from '../../../modules/store/actions';
+import { saveUser } from '../../../modules/store/actions';
+import { bus } from '../../../core-client';
 
 const mapActionsToProps = {
 	saveUser: store => user => store.dispatch(saveUser(user)),
 	saveParams: (store, result) => params => store.dispatch(saveUser({ ...result.user, params })),
-	signOut: store => () => store.dispatch(signOut()),
+	signOut: () => () => bus.emit('signout'),
 };
 
 const mapSubscriptionToProps = {

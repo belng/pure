@@ -13,6 +13,7 @@ import { ERRORS } from '../../../lib/Constants';
 import type { User } from '../../../lib/schemaTypes';
 
 type Props = {
+	me: ?string;
 	user: User;
 	error?: { message: string, code: string },
 	pendingUser: {
@@ -60,6 +61,7 @@ const FIELD_NAMES = {
 
 class OnboardContainer extends Component<void, Props, State> {
 	static propTypes = {
+		me: PropTypes.string,
 		user: PropTypes.shape({
 			id: PropTypes.string
 		}),
@@ -164,6 +166,7 @@ class OnboardContainer extends Component<void, Props, State> {
 
 	_setCurrentPage: Function = (props: Props) => {
 		const {
+			me,
 			user,
 			pendingUser
 		} = props;
@@ -175,7 +178,7 @@ class OnboardContainer extends Component<void, Props, State> {
 				onboarding: true,
 			});
 		} else {
-			if (user && user.type !== 'loading') {
+			if (me && user && user.type !== 'loading') {
 				if (user.params && user.params.places) {
 					if (this.state.onboarding) {
 						this.setState({
@@ -413,6 +416,7 @@ export default class OnboardContainerOuter extends Component<void, { user: ?stri
 					},
 				} : mapSubscriptionToProps}
 				component={OnboardContainer}
+				passProps={{ me: this.props.user }}
 			/>
 		);
 	}

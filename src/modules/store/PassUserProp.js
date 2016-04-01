@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import shallowEqual from 'shallowequal';
 import Connect from './Connect';
 
@@ -15,6 +15,10 @@ const mapSubscriptionToProps = {
 
 export default function(component: ReactClass<any>): ReactClass<any> {
 	class PassUserProp extends Component<void, any, void> {
+		static propTypes = {
+			user: PropTypes.string
+		};
+
 		shouldComponentUpdate(nextProps: any): boolean {
 			return !shallowEqual(this.props, nextProps);
 		}

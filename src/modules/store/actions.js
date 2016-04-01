@@ -43,6 +43,7 @@ export const signOut = (): Object => ({
 	state: {
 		session: null,
 		user: null,
+		initialURL: null,
 	}
 });
 
