@@ -14,7 +14,7 @@ export default function(changes, config) {
 			switch (entity.type) {
 			case Constants.TYPE_NOTE:
 			case Constants.TYPE_USER:
-				winston.debug('UPDATING: TYPE_NOTE or TYPE_USER');
+				console.trace('UPDATING: TYPE_NOTE or TYPE_USER', e);
 				return pg.cat([ {
 					$: 'SELECT resources FROM users WHERE id = &{user}',
 					user: entity.id || entity.user

@@ -34,10 +34,6 @@ export default function(entity) {
 		'UPDATE "' + TABLES[entity.type] + '" SET ',
 		'presence = ',
 		selectSubQuery(entity, isRel),
-		wherePart(entity, isRel),
-		{
-			$: ' RETURNING &{id}::text as "id"',
-			id: isRel ? entity.user + '_' + entity.item : entity.id
-		}
+		wherePart(entity, isRel)
 	]);
 }

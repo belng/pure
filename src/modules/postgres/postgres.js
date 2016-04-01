@@ -22,6 +22,7 @@ function getTypeFromId(id) {
 }
 
 function broadcast (entity) {
+	console.trace("BROADCAST:", entity.id);
 	pg.notify(config.connStr, channel, packer.encode(entity));
 }
 
@@ -160,9 +161,9 @@ bus.on('change', (changes, next) => {
 			}
 
 			results.forEach(result => {
-				winston.info(`Response for entity: ${ids[i]}`, JSON.stringify(result.rowCount));
+				winston.info(`Response for entity: ${ids[i]}`, JSON.stringify(result));
 
-				if (result.rowCount) {
+				if (result.rowCount && result.rows.length) {
 					broadcast(changes.entities[result.rows[0].id]);
 				}
 				i++;
