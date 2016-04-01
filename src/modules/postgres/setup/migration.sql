@@ -20,35 +20,35 @@ CREATE FUNCTION getMetadata(t text) RETURNS jsonb AS $$
 		return null;
 	}
 
-	const numbers = [
+	var numbers = [
 		'height',
 		'width',
 		'thumbnail_height',
 		'thumbnail_width'
 	];
 
-	const parts = t.match(/\[!\[([^\]]+)+\]\(([^\)]+)\)\]\(([^\)]+)\)/);
+	var parts = t.match(/\[!\[([^\]]+)+\]\(([^\)]+)\)\]\(([^\)]+)\)/);
 	if (parts && parts.length) {
 
-		const title = parts[1];
-		const thumbnailUrlParts = parts[2].split('#');
-		const originalUrl = parts[3];
+		var title = parts[1];
+		var thumbnailUrlParts = parts[2].split('#');
+		var originalUrl = parts[3];
 
-		const metadata = {
+		var metadata = {
 			type: 'photo',
 			url: originalUrl,
 			thumbnail_url: thumbnailUrlParts[0].trim(),
 			title: title
 		};
 
-		const data = thumbnailUrlParts[1];
+		var data = thumbnailUrlParts[1];
 
 		if (data) {
-			const pairs = data.split('&');
+			var pairs = data.split('&');
 			var i = 0;
 			var l = pairs.length;
 			for (i, l; i < l; i++) {
-				const kv = pairs[i].split('=');
+				var kv = pairs[i].split('=');
 				metadata[kv[0]] = numbers.indexOf(kv[0]) > -1 ? parseInt(kv[1], 10) : kv[1];
 			}
 		}
@@ -224,7 +224,7 @@ INSERT
 					'CASE '
 						'WHEN tag = ''hidden'' THEN -1 '
 						'WHEN tag = ''image'' THEN 3 '
-						'ELSE 1 '
+						'ELSE NULL '
 					'END '
 				') FROM unnest(tags) tag) AS tags, '
 				'round(EXTRACT(EPOCH FROM starttime)*1000) AS createtime, '
@@ -235,7 +235,7 @@ INSERT
 				'terms AS terms, '
 				'updater AS updater, '
 				'round(EXTRACT(EPOCH FROM updatetime)*1000) AS updatetime, '
-				'json_build_object(''children'', length) AS counts, '
+				'json_build_object(''children'', threads.length - 1) AS counts, '
 				'NULL AS score '
 			'FROM threads')
 		AS t(
@@ -292,7 +292,7 @@ INSERT
 				'CASE '
 					'WHEN tag = ''hidden'' THEN -1 '
 					'WHEN tag = ''image'' THEN 3 '
-					'ELSE 1 '
+					'ELSE NULL '
 				'END '
 			') FROM unnest(tags) tag) AS tags, '
 			'ROUND(EXTRACT(EPOCH FROM "time")*1000) AS createtime, '
