@@ -105,7 +105,7 @@ bus.on('http/init', app => {
 				return;
 			}
 
-			winston.debug(`Message Received: ${resourceId}: `, JSON.stringify(message));
+			winston.debug(`SOCKET-UP: Message Received: ${resourceId}: `, JSON.stringify(message));
 
 			(message.auth = message.auth || {}).resource = resourceId;
 			if (frame.type === 'change' && message.entities) {
@@ -146,7 +146,7 @@ bus.on('postchange', changes => {
 						info: 'sent by dispatch'
 					}, encoded = packer.encode(toDispatch);
 
-				winston.debug('Dispatching:' + e, JSON.stringify(toDispatch));
+				winston.debug('SOCKET-DN: Dispatching: ' + e, JSON.stringify(toDispatch));
 				winston.debug('Encoded string: ', encoded);
 				sockets[e].send(encoded);
 			}
