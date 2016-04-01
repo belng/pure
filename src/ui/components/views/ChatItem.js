@@ -152,7 +152,7 @@ export default class ChatItem extends Component<void, Props, void> {
 		if (text.meta && text.meta.photo) {
 			const { photo } = text.meta;
 
-			menu['Open image in browser'] = () => Linking.openURL(photo.url.toLowerCase());
+			menu['Open image in browser'] = () => Linking.openURL(photo.url);
 			menu['Copy image link'] = () => this._copyToClipboard(photo.url);
 		} else {
 			menu['Copy text'] = () => this._copyToClipboard(text.body);
