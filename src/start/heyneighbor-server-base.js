@@ -21,6 +21,7 @@ import '../modules/gcm/gcm-server';
 import '../modules/postgres/postgres';
 import '../modules/image-upload/image-upload';
 import '../modules/contacts/contacts';
+import '../modules/avatar/avatar';
 
 // import "./../modules/ui/ui-server";
 import '../modules/http/http'; // if fired before socket server then the http/init listener might not be listening..
