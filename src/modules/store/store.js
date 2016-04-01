@@ -22,7 +22,7 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 			throw new TypeError(`Invalid 'id' passed to store.subscribe::entity in ${options.source}`);
 		}
 
-		unWatch = cache.watchEntity(options.id, data => data && data.type === 'loading' ? callback(LOADING) : callback(data));
+		unWatch = cache.watchEntity(options.id, data => data && data.type === 'loading' ? callback(LOADING) : callback(data || null));
 		break;
 	case 'me':
 		let unWatchMe;
@@ -32,7 +32,7 @@ export const subscribe = (options: SubscriptionOptions, callback: Function): Sub
 				unWatchMe();
 			}
 
-			unWatchMe = cache.watchEntity(user, callback);
+			unWatchMe = cache.watchEntity(user, data => data && data.type === 'loading' ? callback(LOADING) : callback(data || null));
 		});
 
 		unWatch = () => {
