@@ -334,3 +334,5 @@ CREATE TABLE placeid_map (
 \copy placeid_map(room_name, placeid) from './location.csv' CSV HEADER delimiter ','
 
 UPDATE rooms SET identities = ARRAY((SELECT 'place:' || placeid FROM placeid_map WHERE room_name = rooms.name))::text[];
+
+DELETE FROM texts WHERE body IS NULL;
