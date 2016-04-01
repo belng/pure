@@ -7,7 +7,7 @@ import * as Constants from './lib/Constants';
 export type Bus = {
 	on(event: string, callback: Function, priority?: number|string): void;
 	off(event: string, callback: Function): void;
-	emit(event: string, options: Object, callback?: Function): void;
+	emit(event: string, options?: Object, callback?: Function): void;
 	dump(event: string): void;
 	setDebug(level: number): void;
 }
