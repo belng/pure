@@ -143,7 +143,8 @@ export default class ChatInput extends Component<void, Props, State> {
 				url: result.url,
 				thumbnail_height: Math.min(480, width) * aspectRatio,
 				thumbnail_width: Math.min(480, width),
-				thumbnail_url: result.thumbnail
+				thumbnail_url: result.thumbnail,
+				type: 'photo',
 			}
 		});
 

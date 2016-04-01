@@ -16,6 +16,10 @@ DROP FUNCTION IF EXISTS getMetadata(t text);
 
 CREATE FUNCTION getMetadata(t text) RETURNS jsonb AS $$
 
+	if (!t) {
+		return null;
+	}
+
 	const numbers = [
 		'height',
 		'width',
@@ -49,7 +53,7 @@ CREATE FUNCTION getMetadata(t text) RETURNS jsonb AS $$
 			}
 		}
 
-		return JSON.stringify(metadata);
+		return JSON.stringify({ photo: metadata });
 		}
 		else {
 			return null;
@@ -226,12 +230,12 @@ INSERT
 				'round(EXTRACT(EPOCH FROM starttime)*1000) AS createtime, '
 				'"from" AS creator, '
 				'NULL AS deletetime, '
-				'NULL AS meta, '
+				'getMetadata((SELECT text FROM texts WHERE id = threads.id)) AS meta, '
 				'NULL AS params, '
 				'terms AS terms, '
 				'updater AS updater, '
 				'round(EXTRACT(EPOCH FROM updatetime)*1000) AS updatetime, '
-				'NULL AS counts, '
+				'json_build_object(''children'', length) AS counts, '
 				'NULL AS score '
 			'FROM threads')
 		AS t(
