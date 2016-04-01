@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
 
 type Props = {
 	thread: ?Thread | { type: 'loading' };
+	relations: number;
 	onNavigation: Function;
 }
 
@@ -42,6 +43,7 @@ export default class ChatTitle extends Component<void, Props, void> {
 		thread: PropTypes.shape({
 			name: PropTypes.string
 		}),
+		relations: PropTypes.number.isRequired,
 		onNavigation: PropTypes.func.isRequired
 	};
 
@@ -63,15 +65,17 @@ export default class ChatTitle extends Component<void, Props, void> {
 	};
 
 	render() {
-		const { thread } = this.props;
+		const {
+			thread,
+			relations
+		} = this.props;
 
-		let title, concerns = 1;
+		let title;
 
 		if (thread && thread.type === 'loading') {
 			title = 'Loading…';
 		} else if (thread && thread.name) {
 			title = thread.name;
-			concerns = thread.concerns && thread.concerns.length ? thread.concerns.length : 1;
 		} else {
 			title = '…';
 		}
@@ -83,7 +87,7 @@ export default class ChatTitle extends Component<void, Props, void> {
 						{title}
 					</AppText>
 					<AppText numberOfLines={1} style={styles.subtitle}>
-						{concerns} {concerns > 1 ? ' people' : ' person'} talking
+						{relations} {relations === 1 ? 'person' : 'people'} talking
 					</AppText>
 				</View>
 			</AppbarTouchable>
