@@ -100,8 +100,7 @@ export default function (entity) {
 				case 'counts':
 					return {
 						$: `"${name}" = jsonop("${name}"::jsonb, &{${name}}::jsonb, &{defaultOps}::jsonb)`,
-						[name]: entity[name],
-						defaultOps
+						[name]: entity[name]
 					};
 				case 'meta':
 				case 'params':
