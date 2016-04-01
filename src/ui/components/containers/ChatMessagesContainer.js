@@ -4,6 +4,7 @@ import React, { Component, PropTypes } from 'react';
 import shallowEqual from 'shallowequal';
 import Connect from '../../../modules/store/Connect';
 import ChatMessages from '../views/ChatMessages';
+import { TAG_POST_HIDDEN } from '../../../lib/Constants';
 import type { SubscriptionRange } from '../../../modules/store/ConnectTypes';
 
 const transformTexts = (texts, thread) => {
@@ -37,6 +38,14 @@ const transformTexts = (texts, thread) => {
 
 	return data;
 };
+
+const filterHidden = results => results.filter(item => {
+	if (item.tags && item.tags.indexOf(TAG_POST_HIDDEN) > -1) {
+		return false;
+	}
+
+	return true;
+});
 
 class ChatMessagesContainerInner extends Component<void, any, void> {
 	static propTypes = {
@@ -121,6 +130,7 @@ export default class ChatMessagesContainer extends Component<void, any, State> {
 							},
 							range,
 						},
+						transform: filterHidden,
 						defer,
 					},
 					thread: {

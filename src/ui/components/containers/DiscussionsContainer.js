@@ -5,9 +5,16 @@ import shallowEqual from 'shallowequal';
 import Connect from '../../../modules/store/Connect';
 import PassUserProp from '../../../modules/store/PassUserProp';
 import Discussions from '../views/Discussions';
+import { TAG_POST_HIDDEN } from '../../../lib/Constants';
 import type { SubscriptionRange } from '../../../modules/store/ConnectTypes';
 
-const transformThreads = data => data.reverse();
+const transformThreads = results => results.filter(item => {
+	if (item.tags && item.tags.indexOf(TAG_POST_HIDDEN) > -1) {
+		return false;
+	}
+
+	return true;
+}).reverse();
 
 type State = {
 	range: SubscriptionRange;
