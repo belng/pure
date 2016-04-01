@@ -87,7 +87,7 @@ export default class ChatTitle extends Component<void, Props, void> {
 						{title}
 					</AppText>
 					<AppText numberOfLines={1} style={styles.subtitle}>
-						{relations} {relations === 1 ? ' person' : ' people'} talking
+						{relations} {relations === 1 ? 'person' : 'people'} talking
 					</AppText>
 				</View>
 			</AppbarTouchable>
