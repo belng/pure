@@ -7,12 +7,14 @@ const {
 	Linking
 } = ReactNative;
 
-bus.on('state:init', async () => {
-	const initialURL = await Linking.getInitialURL();
-
-	bus.emit('change', {
-		state: {
-			initialURL
-		}
+bus.on('state:init', () => {
+	Linking.getInitialURL()
+	.catch(() => null)
+	.then(initialURL => {
+		bus.emit('change', {
+			state: {
+				initialURL
+			}
+		});
 	});
 });
