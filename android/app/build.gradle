@@ -1,6 +1,7 @@
 apply plugin: "com.android.application"
 
 import com.android.build.OutputFile
+import groovy.json.JsonSlurper
 
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
@@ -75,6 +76,17 @@ def enableSeparateBuildPerCPUArchitecture = true
  */
 def enableProguardInReleaseBuilds = false
 
+def getConfigField(name) {
+    def slurper = new JsonSlurper()
+    def config = slurper.parse(file('../../config/client.json'))
+
+    if (config[name]) {
+        return config[name]
+    } else {
+        return slurper.parse(file('../../config/client-defaults.json'))[name]
+    }
+}
+
 buildscript {
     repositories {
         maven { url 'https://maven.fabric.io/public' }
@@ -117,6 +129,10 @@ android {
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
+
+        resValue "string", "app_name", getConfigField("app_name")
+        resValue "string", "app_host", getConfigField("server").host
+        resValue "string", "app_protocol", getConfigField("server").protocol
     }
 
     splits {
