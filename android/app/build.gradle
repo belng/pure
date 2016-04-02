@@ -112,8 +112,8 @@ android {
         applicationId "io.scrollback.neighborhoods"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 2
-        versionName "1.0"
+        versionCode 39
+        versionName "1.4"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
