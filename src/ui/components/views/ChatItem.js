@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
 	},
 	avatar: {
 		position: 'absolute',
-		bottom: 0,
+		top: 0,
 		left: -36,
 		alignSelf: 'flex-end'
 	},
@@ -221,12 +221,12 @@ export default class ChatItem extends Component<void, Props, void> {
 		let showAuthor = received,
 			showTime = isLast;
 
-		if (!showTime && previousText) {
+		if (previousText) {
 			if (received) {
 				showAuthor = text.creator !== previousText.creator;
 			}
 
-			showTime = (text.createTime - previousText.createTime) > 300000;
+			showTime = showTime || (text.createTime - previousText.createTime) > 300000;
 		}
 
 		return (

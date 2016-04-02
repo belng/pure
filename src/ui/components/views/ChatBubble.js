@@ -12,6 +12,9 @@ const {
 	View,
 } = ReactNative;
 
+const LEFT_BUBBLE_COLOR = Colors.white;
+const RIGHT_BUBBLE_COLOR = '#ddd';
+
 const styles = StyleSheet.create({
 	containerLeft: {
 		alignItems: 'flex-start'
@@ -20,7 +23,7 @@ const styles = StyleSheet.create({
 		alignItems: 'flex-end'
 	},
 	bubble: {
-		backgroundColor: Colors.white,
+		backgroundColor: LEFT_BUBBLE_COLOR,
 		paddingHorizontal: 12,
 		paddingVertical: 8,
 		borderRadius: 3
@@ -29,7 +32,7 @@ const styles = StyleSheet.create({
 		marginLeft: 8
 	},
 	bubbleRight: {
-		backgroundColor: '#ddd',
+		backgroundColor: RIGHT_BUBBLE_COLOR,
 		marginRight: 8
 	},
 	text: {
@@ -48,27 +51,28 @@ const styles = StyleSheet.create({
 		borderRightColor: 'transparent',
 	},
 	triangleLeft: {
-		left: 1,
-		borderBottomColor: '#fff',
+		left: 0,
+		borderBottomColor: LEFT_BUBBLE_COLOR,
 		transform: [
-			{ rotate: '12deg' }
+			{ rotate: '-180deg' }
 		]
 	},
 	triangleRight: {
 		right: 8,
-		borderBottomColor: '#ddd',
+		borderBottomColor: RIGHT_BUBBLE_COLOR,
 	},
 	triangleContainer: {
 		position: 'absolute',
 		height: 12,
 		width: 10,
-		bottom: 0,
 	},
 	triangleContainerLeft: {
 		left: 0,
+		top: 0,
 	},
 	triangleContainerRight: {
-		right: 0
+		right: 0,
+		bottom: 0,
 	},
 	author: {
 		fontSize: 12,
@@ -129,12 +133,6 @@ export default class ChatBubble extends Component<DefaultProps, Props, void> {
 
 		return (
 			<View style={[ right ? styles.containerRight : styles.containerLeft, this.props.style ]} ref={c => (this._root = c)}>
-				{right || !showArrow ? null :
-					<View style={[ styles.triangleContainer, styles.triangleContainerLeft ]}>
-						<View style={[ styles.triangle, styles.triangleLeft ]} />
-					</View>
-				}
-
 				<View style={[ styles.bubble, right ? styles.bubbleRight : styles.bubbleLeft ]}>
 					{this.props.showAuthor ?
 						<AppText style={styles.author}>{creator}</AppText> :
@@ -148,6 +146,13 @@ export default class ChatBubble extends Component<DefaultProps, Props, void> {
 						null
 					}
 				</View>
+
+				{right || !showArrow ? null :
+					<View style={[ styles.triangleContainer, styles.triangleContainerLeft ]}>
+						<View style={[ styles.triangle, styles.triangleLeft ]} />
+					</View>
+				}
+
 
 				{right && showArrow ?
 					<View style={[ styles.triangleContainer, styles.triangleContainerRight ]}>
