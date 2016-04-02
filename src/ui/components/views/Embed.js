@@ -150,6 +150,10 @@ export default class Embed extends Component<DefaultProps, Props, State> {
 				);
 			}
 
+			if (items.length === 0) {
+				return null;
+			}
+
 			if (openOnPress === false) {
 				return (
 					<View {...this.props}>
