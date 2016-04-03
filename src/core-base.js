@@ -63,6 +63,5 @@ export const cache = new Know({
 			return entity.user + '_' + entity.item;
 		}
 		return entity.id;
-	},
-	entityOp: { counts: { __all__: 'inc' } }
+	}
 });

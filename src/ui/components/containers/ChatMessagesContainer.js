@@ -16,7 +16,7 @@ const transformTexts = (texts, thread) => {
 		} else {
 			data.push({
 				text: texts[i],
-				previousText: texts[i + 1],
+				previousText: texts[i - 1],
 				isLast: i === l,
 			});
 		}

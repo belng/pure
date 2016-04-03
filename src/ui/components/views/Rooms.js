@@ -175,7 +175,6 @@ export default class Rooms extends Component<void, Props, State> {
 						keyboardShouldPersistTaps
 						dataSource={this.state.dataSource}
 						renderRow={this._renderRow}
-						renderFooter={this._renderFooter}
 					/>
 				}
 			</View>

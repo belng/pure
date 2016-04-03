@@ -4,6 +4,8 @@ import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import PeopleList from '../views/PeopleList';
 
+const filterInvalidRels = data => data.filter(result => result.user && result.rel);
+
 const PeopleListContainer = (props: any) => (
 	<Connect
 		mapSubscriptionToProps={{
@@ -24,7 +26,8 @@ const PeopleListContainer = (props: any) => (
 						before: 100,
 						after: 0
 					}
-				}
+				},
+				transform: filterInvalidRels
 			}
 		}}
 		passProps={props}
