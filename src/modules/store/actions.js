@@ -7,7 +7,7 @@ import TextModel from '../../models/text';
 import RoomRelModel from '../../models/roomrel';
 import ThreadRelModel from '../../models/threadrel';
 import uuid from 'node-uuid';
-import { PRESENCE_FOREGROUND, PRESENCE_NONE, TAG_POST_PHOTO } from '../../lib/Constants';
+import { PRESENCE_FOREGROUND, PRESENCE_NONE, TAG_POST_PHOTO, TAG_POST_HIDDEN } from '../../lib/Constants';
 
 /*
  * User related actions
@@ -131,16 +131,44 @@ export const startThread = (
 	};
 };
 
-export const hideText = (): Object => ({
-
+export const hideText = (id: string): Object => ({
+	[id]: new TextModel({
+		id,
+		tags: [ TAG_POST_HIDDEN ],
+		__op__: {
+			tags: 'inter'
+		}
+	})
 });
 
-export const unhideText = (): Object => ({
-
+export const unhideText = (id: string): Object => ({
+	[id]: new TextModel({
+		id,
+		tags: [ TAG_POST_HIDDEN ],
+		__op__: {
+			tags: 'union'
+		}
+	})
 });
 
-export const uploadImage = (): Object => ({
+export const hideThread = (id: string): Object => ({
+	[id]: new ThreadModel({
+		id,
+		tags: [ TAG_POST_HIDDEN ],
+		__op__: {
+			tags: 'inter'
+		}
+	})
+});
 
+export const unhideThread = (id: string): Object => ({
+	[id]: new ThreadModel({
+		id,
+		tags: [ TAG_POST_HIDDEN ],
+		__op__: {
+			tags: 'union'
+		}
+	})
 });
 
 /*
