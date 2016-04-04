@@ -3,13 +3,14 @@
 import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import ChatTitle from '../views/ChatTitle';
+import { PRESENCE_FOREGROUND } from '../../../lib/Constants';
 
-const getRelationsCount = result => {
+const getOnlineCount = result => {
 	if (result) {
 		if (result[0] && result[0].type === 'loading') {
 			return 0;
 		} else {
-			return result.length;
+			return result.filter(item => item && item.rel && item.rel.presence === PRESENCE_FOREGROUND).length;
 		}
 	} else {
 		return 0;
@@ -26,7 +27,7 @@ const ChatTitleContainer = (props: any) => {
 						id: props.thread
 					}
 				},
-				relations: {
+				online: {
 					key: {
 						slice: {
 							type: 'rel',
@@ -44,7 +45,7 @@ const ChatTitleContainer = (props: any) => {
 							after: 0
 						}
 					},
-					transform: getRelationsCount
+					transform: getOnlineCount
 				}
 			}}
 			passProps={props}
