@@ -3,7 +3,7 @@
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import shallowEqual from 'shallowequal';
-import DiscussionItem from './DiscussionItem';
+import DiscussionItemContainer from '../containers/DiscussionItemContainer';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
 import LoadingItem from './LoadingItem';
@@ -79,7 +79,7 @@ export default class Discussions extends Component<void, Props, State> {
 		}
 
 		return (
-			<DiscussionItem
+			<DiscussionItemContainer
 				key={thread.id}
 				thread={thread}
 				onNavigation={this.props.onNavigation}

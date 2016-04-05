@@ -37,15 +37,15 @@ const styles = StyleSheet.create({
 	},
 	image: {
 		resizeMode: 'contain',
-		margin: 4
+		margin: 8
 	},
 	imageLogo: {
-		height: 59,
-		width: 108
+		height: 39,
+		width: 72
 	},
 	imageLogoType: {
-		height: 35,
-		width: 219
+		height: 23,
+		width: 146
 	},
 	logoContainer: {
 		flex: 1,
