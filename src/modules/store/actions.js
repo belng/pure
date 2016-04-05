@@ -132,23 +132,27 @@ export const startThread = (
 };
 
 export const hideText = (id: string): Object => ({
-	[id]: new TextModel({
-		id,
-		tags: [ TAG_POST_HIDDEN ],
-		__op__: {
-			tags: 'inter'
-		}
-	})
+	entities: {
+		[id]: new TextModel({
+			id,
+			tags: [ TAG_POST_HIDDEN ],
+			__op__: {
+				tags: 'inter'
+			}
+		})
+	}
 });
 
 export const unhideText = (id: string): Object => ({
-	[id]: new TextModel({
-		id,
-		tags: [ TAG_POST_HIDDEN ],
-		__op__: {
-			tags: 'union'
-		}
-	})
+	entities: {
+		[id]: new TextModel({
+			id,
+			tags: [ TAG_POST_HIDDEN ],
+			__op__: {
+				tags: 'union'
+			}
+		})
+	}
 });
 
 export const hideThread = (id: string): Object => ({

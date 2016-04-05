@@ -99,7 +99,7 @@ type Props = {
 	user: string;
 	quoteMessage: Function;
 	replyToMessage: Function;
-	// isUserAdmin: boolean;
+	isUserAdmin: boolean;
 	// isCreatorBanned: boolean;
 	hideText: Function;
 	unhideText: Function;
@@ -126,7 +126,7 @@ export default class ChatItem extends Component<void, Props, void> {
 		user: PropTypes.string.isRequired,
 		quoteMessage: PropTypes.func.isRequired,
 		replyToMessage: PropTypes.func.isRequired,
-		// isUserAdmin: PropTypes.bool.isRequired,
+		isUserAdmin: PropTypes.bool.isRequired,
 		// isCreatorBanned: PropTypes.bool.isRequired,
 		hideText: PropTypes.func.isRequired,
 		unhideText: PropTypes.func.isRequired,
@@ -170,13 +170,13 @@ export default class ChatItem extends Component<void, Props, void> {
 				menu['Hide message'] = () => this.props.hideText();
 			}
 
-			if (text.creator !== this.props.user) {
-				if (this.props.isCreatorBanned) {
-					menu['Unban ' + text.body] = () => this.props.unbanUser();
-				} else {
-					menu['Ban ' + text.body] = () => this.props.banUser();
-				}
-			}
+			// if (text.creator !== this.props.user) {
+			// 	if (this.props.isCreatorBanned) {
+			// 		menu['Unban ' + text.creator] = () => this.props.unbanUser();
+			// 	} else {
+			// 		menu['Ban ' + text.creator] = () => this.props.banUser();
+			// 	}
+			// }
 		}
 
 		Modal.showActionSheetWithItems(menu);

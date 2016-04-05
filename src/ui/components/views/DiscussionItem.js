@@ -56,7 +56,11 @@ const styles = StyleSheet.create({
 
 type Props = {
 	thread: Thread;
-	hidden?: boolean;
+	isUserAdmin: boolean;
+	hideThread: Function;
+	unhideThread: Function;
+	banUser: Function;
+	unbanUser: Function;
 	onNavigation: Function;
 }
 
@@ -69,15 +73,14 @@ export default class DiscussionItem extends Component<void, Props, void> {
 			creator: PropTypes.string.isRequired,
 			parents: PropTypes.arrayOf(PropTypes.string).isRequired
 		}).isRequired,
-		hidden: PropTypes.bool,
 		onNavigation: PropTypes.func.isRequired,
 		// user: PropTypes.string.isRequired,
-		// isUserAdmin: PropTypes.bool.isRequired,
+		isUserAdmin: PropTypes.bool.isRequired,
 		// isCreatorBanned: PropTypes.bool.isRequired,
-		// hideText: PropTypes.func.isRequired,
-		// unhideText: PropTypes.func.isRequired,
-		// banUser: PropTypes.func.isRequired,
-		// unbanUser: PropTypes.func.isRequired
+		hideThread: PropTypes.func.isRequired,
+		unhideThread: PropTypes.func.isRequired,
+		banUser: PropTypes.func.isRequired,
+		unbanUser: PropTypes.func.isRequired
 	};
 
 	shouldComponentUpdate(nextProps: Props): boolean {
@@ -115,21 +118,21 @@ export default class DiscussionItem extends Component<void, Props, void> {
 			}));
 		};
 
-		// if (this.props.isUserAdmin) {
-		// 	if (this.props.hidden) {
-		// 		menu['Unhide discussion'] = () => this.props.unhideText();
-		// 	} else {
-		// 		menu['Hide discussion'] = () => this.props.hideText();
-		// 	}
-		//
-		// 	if (thread.creator !== this.props.user) {
-		// 		if (this.props.isCreatorBanned) {
-		// 			menu['Unban ' + thread.from] = () => this.props.unbanUser();
-		// 		} else {
-		// 			menu['Ban ' + thread.from] = () => this.props.banUser();
-		// 		}
-		// 	}
-		// }
+		if (this.props.isUserAdmin) {
+			if (thread.tags && thread.tags.indexOf(TAG_POST_HIDDEN) > -1) {
+				menu['Unhide discussion'] = () => this.props.unhideThread();
+			} else {
+				menu['Hide discussion'] = () => this.props.hideThread();
+			}
+
+			// if (thread.creator !== this.props.user) {
+			// 	if (this.props.isCreatorBanned) {
+			// 		menu['Unban ' + thread.creator] = () => this.props.unbanUser();
+			// 	} else {
+			// 		menu['Ban ' + thread.creator] = () => this.props.banUser();
+			// 	}
+			// }
+		}
 
 		Modal.showActionSheetWithItems(menu);
 	};
