@@ -25,16 +25,16 @@ const mapSubscriptionToProps = {
 const mapActionsToProps = {
 	hideText: (store, result, props) => () => {
 		if (props.text.type === TYPE_THREAD) {
-			store.dispatch(hideThread(props.text.id));
+			store.dispatch(hideThread(props.text));
 		} else {
-			store.dispatch(hideText(props.text.id));
+			store.dispatch(hideText(props.text));
 		}
 	},
 	unhideText: (store, result, props) => () => {
 		if (props.text.type === TYPE_THREAD) {
-			store.dispatch(unhideThread(props.text.id));
+			store.dispatch(unhideThread(props.text));
 		} else {
-			store.dispatch(unhideText(props.text.id));
+			store.dispatch(unhideText(props.text));
 		}
 	},
 	banUser: (store, result, props) => () => store.dispatch(banUser(props.text.creator)),
