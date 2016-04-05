@@ -132,7 +132,7 @@ export function subscribe (userRel: Object) {
 		const data = getTokenAndSession();
 		if (data.error) log.info(data.error);
 		updateUser({ data }, (error) => {
-			console.log("dta: ", data);
+			// console.log("dta: ", data);
 			if (!error) {
 				register();
 				return;
@@ -152,6 +152,7 @@ function handleSubscription(changes) {
 		// next();
 		return;
 	}
+	// console.log("chandra: ", changes);
 	for (const i in changes.entities) {
 		const entity = changes.entities[i];
 
@@ -160,10 +161,10 @@ function handleSubscription(changes) {
 				entity.type === Constants.TYPE_ROOMREL
 			) {
 			// console.log("ksdfhjhadf : ", entity);
-			if (entity.createTime !== entity.updateTime) {
-				log.info('Not created now, return', entity);
-				return;
-			}
+			// if (entity.createTime !== entity.updateTime) {
+			// 	log.info('Not created now, return', entity);
+			// 	return;
+			// }
 			let user = changes.entities[entity.user];
 
 			if (!user) {

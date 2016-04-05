@@ -24,13 +24,12 @@ if (config.gcm.senderId) {
 
 function sendStanza(changes, entity) {
 	if (entity.type === Constants.TYPE_THREAD) {
-		if (/*entity.createTime !== entity.updateTime*/ !entity.create) {
+		if (!entity.createTime || entity.createTime !== entity.updateTime) {
 			log.info('not new thread: ', entity);
 			return;
 		}
 		// console.log("sdjkfhjd g: ", entity)
-		const counter = new Counter();
-		const title = entity.creator + ' created a thread',
+		const title = entity.creator + ' started a discussion',
 			urlLink = config.server.protocol + '//' + config.server.host + convertRouteToURL({
 				name: 'room',
 				props: {
@@ -39,19 +38,6 @@ function sendStanza(changes, entity) {
 			});
 
 		log.info('sending pushnotification for thread', entity, urlLink);
-		let user = changes.entities[entity.creator];
-		if (!user) {
-			counter.inc();
-			cache.getEntity(entity.creator, (err, u) => {
-				// console.log("asjkhdgj ag: ", u)
-				if (!err)	{
-					user = u;
-				}
-				counter.dec();
-			});
-		}
-		counter.then(() => {
-			// console.log("user is here: ", user)
 			const pushData = {
 				count: 1,
 				data: {
@@ -63,7 +49,7 @@ function sendStanza(changes, entity) {
 					thread: entity.id,
 					type: 'thread',
 					link: urlLink,
-					picture: user.meta && user.meta.picture
+					picture: `${config.server.protocol}//${config.server.host}/i/picture?user=${entity.creator}&size=${48}`
 				},
 				updateTime: Date.now(),
 				type: entity.type
@@ -71,11 +57,10 @@ function sendStanza(changes, entity) {
 
 			// console.log("gcm entity:", pushData)
 			client.send(createStanza(pushData));
-		});
 	}
 	if (entity.type === Constants.TYPE_TEXT) {
 		log.info('push notification for text: ', entity);
-		if (/*entity.createTime !== entity.updateTime &&*/ !entity.create) {
+		if (entity.createTime !== entity.updateTime) {
 			log.info('not new text: ', entity);
 			return;
 		}
@@ -99,7 +84,6 @@ function sendStanza(changes, entity) {
 			});
 		}
 		counter.then(() => {
-			// console.log("user is here: ", user)
 			const pushData = {
 				count: 1,
 				data: {

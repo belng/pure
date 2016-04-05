@@ -9,7 +9,7 @@ bus.on('change', changes => {
 });
 bus.on('error', changes => {
 	if (changes.state) {
-		const { resource, session, ...state } = changes.state; // eslint-disable-line no-use-before-define
+		const { ...state } = changes.state; // eslint-disable-line no-use-before-define
 
 		cache.put({ state });
 	}

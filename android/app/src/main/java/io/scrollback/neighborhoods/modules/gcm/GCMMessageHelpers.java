@@ -8,6 +8,9 @@ import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
+import java.util.Random;
+import java.util.UUID;
+
 import io.scrollback.neighborhoods.R;
 
 public class GCMMessageHelpers {
@@ -44,7 +47,8 @@ public class GCMMessageHelpers {
                     data.putString("uuid", uuid);
                     data.putString("sessionId", session);
                     data.putString("token", token);
-                    gcm.send(senderId + "@gcm.googleapis.com", "gsa8tdsagd-gsds65", data);
+                    Log.d(TAG, senderId);
+                    gcm.send(senderId + "@gcm.googleapis.com", UUID.randomUUID().toString(), data);
                 } catch (Exception e) {
                     Log.e(TAG, "Failed to send registration message to GCM for token: " + token);
                 }
