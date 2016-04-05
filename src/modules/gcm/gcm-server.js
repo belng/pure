@@ -55,7 +55,7 @@ function sendStanza(changes, entity) {
 				type: entity.type
 			};
 
-			console.log("gcm entity:", pushData)
+			// console.log("gcm entity:", pushData)
 			client.send(createStanza(pushData));
 	}
 	if (entity.type === Constants.TYPE_TEXT) {
