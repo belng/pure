@@ -91,7 +91,7 @@ function handleStanza(stanza) {
 	const st = stanza.toJSON();
 	let x;
 
-	log.info('stanza: ', st);
+	log.info('stanza: ', JSON.stringify(st));
 
 	if (st.children && st.children[0] && st.children[0].children) {
 		x = JSON.parse(st.children[0].children[0]);

@@ -31,7 +31,7 @@ function getRelationAndSetPresence(slice: Object, status: 'online' | 'offline') 
 				bus.emit('change', setItemPresence({
 					item,
 					user,
-					role: [ 'visitor' ],
+					roles: [ 'visitor' ],
 					create: true,
 				}, type, status));
 			}
