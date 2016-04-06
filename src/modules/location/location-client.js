@@ -1,7 +1,7 @@
 /* @flow */
 
 import { bus } from '../../core-client';
-import * as store from '../../modules/store/store';
+import { on } from '../store/store';
 
 const BANGALORE = { latitude: 12.9667, longitude: 77.5667 };
 
@@ -17,7 +17,7 @@ const success = position => bus.emit('change', {
 	}
 });
 
-store.on('subscribe', ({ path }) => {
+on('subscribe', ({ path }) => {
 	if (path === 'location') {
 		geolocation.getCurrentPosition(success);
 
@@ -29,7 +29,7 @@ store.on('subscribe', ({ path }) => {
 	}
 });
 
-store.on('unsubscribe', ({ path }) => {
+on('unsubscribe', ({ path }) => {
 	if (path === 'location') {
 		subscriptions--;
 

@@ -40,26 +40,22 @@ bus.on('error', changes => {
 	}
 });
 
-bus.on('postchange', changes => {
-	if (changes.state && 'session' in changes.state) {
-		const { session } = changes.state;
-
-		if (session === '@@loading') {
-			return;
-		}
-
-		if (session && typeof changes.state.session === 'string') {
-			sessionStorage.setItem('id', changes.state.session);
-		} else {
-			sessionStorage.removeItem('id');
-		}
-	}
-});
-
 bus.on('state:init', state => (state.session = '@@loading'));
 
 subscribe({ type: 'state', path: 'connectionStatus', source: 'session' }, status => {
 	if (status === 'online') {
 		initializeSession();
+	}
+});
+
+subscribe({ type: 'state', path: 'session', source: 'session' }, session => {
+	if (session === '@@loading') {
+		return;
+	}
+
+	if (session) {
+		sessionStorage.setItem('id', session);
+	} else {
+		sessionStorage.removeItem('id');
 	}
 });
