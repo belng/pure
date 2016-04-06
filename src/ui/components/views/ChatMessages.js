@@ -133,7 +133,6 @@ export default class ChatMessages extends Component {
 						keyboardShouldPersistTaps={false}
 						style={styles.inverted}
 						contentContainerStyle={styles.container}
-						initialListSize={5}
 						dataSource={this.state.dataSource}
 						onEndReached={this._loadMore}
 						renderRow={this._renderRow}
