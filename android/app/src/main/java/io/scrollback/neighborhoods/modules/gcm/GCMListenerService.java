@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
+import io.scrollback.neighborhoods.AppState;
+
 
 public class GCMListenerService extends GcmListenerService {
 
@@ -16,6 +18,10 @@ public class GCMListenerService extends GcmListenerService {
 
         Log.d(TAG, "Got notification: " + data);
 
-        GCMNotificationHandler.send(this, NOTIFICATION_ID, data);
+        if (AppState.isForeground()) {
+            Log.d(TAG, "App is in forground. Not showing notification.");
+        } else {
+            GCMNotificationHandler.send(this, NOTIFICATION_ID, data);
+        }
     }
 }
