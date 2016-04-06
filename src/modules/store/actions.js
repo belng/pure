@@ -200,7 +200,7 @@ export const setPresence = (id: string, status: 'online' | 'offline'): Object =>
 });
 
 export const setItemPresence = (
-	presence: { item: string, user: string, roles: Array<string>, create?: boolean },
+	presence: { item: string, user: string, roles: Array<number>, create?: boolean },
 	type: 'room' | 'thread', status: 'online' | 'offline'
 ): Object => {
 	const rel = {

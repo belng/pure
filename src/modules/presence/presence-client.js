@@ -1,6 +1,6 @@
 /* @flow */
 
-import { bus, cache } from '../../core-client';
+import { bus, cache, Constants } from '../../core-client';
 import { subscribe, on } from '../store/store';
 import { setPresence, setItemPresence } from '../store/actions';
 
@@ -31,7 +31,7 @@ function getRelationAndSetPresence(slice: Object, status: 'online' | 'offline') 
 				bus.emit('change', setItemPresence({
 					item,
 					user,
-					roles: [ 'visitor' ],
+					roles: [ Constants.ROLE_VISITOR ],
 					create: true,
 				}, type, status));
 			}
