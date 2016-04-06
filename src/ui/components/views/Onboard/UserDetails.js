@@ -112,8 +112,23 @@ export default class UserDetails extends Component<void, Props, void> {
 			picture
 		} = fields;
 
-		const nickColor = nick.error ? Colors.error : Colors.placeholder;
-		const nameColor = name.error ? Colors.error : Colors.placeholder;
+		let nickColor, nameColor;
+
+		if (nick.error) {
+			nickColor = Colors.error;
+		} else if (nick.value) {
+			nickColor = Colors.placeholder;
+		} else {
+			nickColor = Colors.info;
+		}
+
+		if (name.error) {
+			nameColor = Colors.error;
+		} else if (name.value) {
+			nameColor = Colors.placeholder;
+		} else {
+			nameColor = Colors.info;
+		}
 
 		return (
 			<View style={styles.container}>
