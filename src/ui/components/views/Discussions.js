@@ -11,18 +11,39 @@ import StartDiscussionButton from './StartDiscussionButton';
 import type { Thread } from '../../../lib/schemaTypes';
 
 const {
+	PixelRatio,
+	Dimensions,
 	StyleSheet,
 	ListView,
-	View
+	View,
 } = ReactNative;
 
 const styles = StyleSheet.create({
-	container: {
+	column: {
 		paddingTop: 4,
 		paddingBottom: 88
 	},
-	item: {
+
+	grid: {
+		flexDirection: 'row',
+		flexWrap: 'wrap',
+		justifyContent: 'center',
+		paddingTop: 8,
+		paddingBottom: 88
+	},
+
+	columnItem: {
 		overflow: 'hidden'
+	},
+
+	gridItem: {
+		overflow: 'hidden',
+		width: 320,
+		marginHorizontal: 8,
+		marginVertical: 8,
+		borderLeftWidth: 1 / PixelRatio.get(),
+		borderRightWidth: 1 / PixelRatio.get(),
+		borderRadius: 3,
 	}
 });
 
@@ -83,7 +104,7 @@ export default class Discussions extends Component<void, Props, State> {
 				key={thread.id}
 				thread={thread}
 				onNavigation={this.props.onNavigation}
-				style={styles.item}
+				style={Dimensions.get('window').width > 400 ? styles.gridItem : styles.columnItem}
 			/>
 		);
 	};
@@ -115,8 +136,7 @@ export default class Discussions extends Component<void, Props, State> {
 				{placeHolder ? placeHolder :
 					<ListView
 						removeClippedSubviews
-						contentContainerStyle={styles.container}
-						initialListSize={3}
+						contentContainerStyle={Dimensions.get('window').width > 400 ? styles.grid : styles.column}
 						onEndReached={this._loadMore}
 						dataSource={this.state.dataSource}
 						renderRow={this._renderRow}
