@@ -1,6 +1,6 @@
 /* @flow */
 
-import type { User } from '../../lib/schemaTypes';
+import type { User, Text, Thread } from '../../lib/schemaTypes';
 import UserModel from '../../models/user';
 import ThreadModel from '../../models/thread';
 import TextModel from '../../models/text';
@@ -131,49 +131,61 @@ export const startThread = (
 	};
 };
 
-export const hideText = (id: string): Object => ({
+export const hideText = (text: Text): Object => ({
 	entities: {
-		[id]: new TextModel({
-			id,
-			tags: [ TAG_POST_HIDDEN ],
-			__op__: {
-				tags: 'inter'
-			}
+		[text.id]: new TextModel({
+			id: text.id,
+			tags: text.tags ? text.tags.concat(TAG_POST_HIDDEN) : [ TAG_POST_HIDDEN ],
 		})
 	}
 });
 
-export const unhideText = (id: string): Object => ({
+export const unhideText = (text: Text): Object => {
+	if (text.tags) {
+		const i = text.tags.indexOf(TAG_POST_HIDDEN);
+
+		if (i > -1) {
+			return {
+				entities: {
+					[text.id]: new TextModel({
+						id: text.id,
+						tags: text.tags ? text.tags.slice(0).splice(i, 1) : [],
+					})
+				}
+			};
+		}
+	}
+
+	return {};
+};
+
+export const hideThread = (thread: Thread): Object => ({
 	entities: {
-		[id]: new TextModel({
-			id,
-			tags: [ TAG_POST_HIDDEN ],
-			__op__: {
-				tags: 'union'
-			}
+		[thread.id]: new TextModel({
+			id: thread.id,
+			tags: thread.tags ? thread.tags.concat(TAG_POST_HIDDEN) : [ TAG_POST_HIDDEN ],
 		})
 	}
 });
 
-export const hideThread = (id: string): Object => ({
-	[id]: new ThreadModel({
-		id,
-		tags: [ TAG_POST_HIDDEN ],
-		__op__: {
-			tags: 'inter'
-		}
-	})
-});
+export const unhideThread = (thread: Thread): Object => {
+	if (thread.tags) {
+		const i = thread.tags.indexOf(TAG_POST_HIDDEN);
 
-export const unhideThread = (id: string): Object => ({
-	[id]: new ThreadModel({
-		id,
-		tags: [ TAG_POST_HIDDEN ],
-		__op__: {
-			tags: 'union'
+		if (i > -1) {
+			return {
+				entities: {
+					[thread.id]: new TextModel({
+						id: thread.id,
+						tags: thread.tags ? thread.tags.slice(0).splice(i, 1) : [],
+					})
+				}
+			};
 		}
-	})
-});
+	}
+
+	return {};
+};
 
 /*
  * Notification related actions
