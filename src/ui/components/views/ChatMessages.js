@@ -114,7 +114,7 @@ export default class ChatMessages extends Component {
 				placeHolder = <PageLoading />;
 				break;
 			case 'banned':
-				placeHolder = <PageEmpty label="You're banned in this community" image='meh' />;
+				placeHolder = <PageEmpty label="You're banned in this group" image='meh' />;
 				break;
 			case 'nonexistent':
 				placeHolder = <PageEmpty label="This discussion doesn't exist" image='sad' />;
