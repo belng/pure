@@ -61,9 +61,9 @@ export default class RoomItem extends Component<void, Props, void> {
 		const options = [];
 		const actions = [];
 
-		options.push('Share community');
+		options.push('Share group');
 		actions.push(() => {
-			Share.shareItem('Share community', config.server.protocol + '//' + config.server.host + convertRouteToURL({
+			Share.shareItem('Share group', config.server.protocol + '//' + config.server.host + convertRouteToURL({
 				name: 'room',
 				props: {
 					room: room.id
