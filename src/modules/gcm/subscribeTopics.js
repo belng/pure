@@ -4,7 +4,7 @@ import Counter from '../../lib/counter';
 import log from 'winston';
 import values from 'lodash/values';
 import request from 'request';
-import { getTokenAndSession, updateUser } from './handleUpstreamMessage';
+import { getTokenFromSession, updateUser } from './handleUpstreamMessage';
 const authKey = 'key=' + config.gcm.apiKey;
 const options = {
 	url: 'https://iid.googleapis.com/iid/v1:batchAdd',
@@ -129,7 +129,7 @@ export function subscribe (userRel: Object) {
 	}
 	if (!gcm) {
 		log.debug('No gcm found for user retrying saving token...');
-		const data = getTokenAndSession();
+		const data = getTokenFromSession();
 		if (data.error) log.info(data.error);
 		updateUser({ data }, (error) => {
 			// console.log("dta: ", data);
