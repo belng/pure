@@ -6,7 +6,7 @@ import PersistentStorage from '../../lib/PersistentStorage';
 
 const sessionStorage = new PersistentStorage('session');
 
-async function initializeSession() {
+async function saveAndInitializeSession() {
 	let session;
 
 	try {
@@ -60,6 +60,6 @@ bus.on('state:init', state => (state.session = '@@loading'));
 
 subscribe({ type: 'state', path: 'connectionStatus', source: 'session' }, status => {
 	if (status === 'online') {
-		initializeSession();
+		saveAndInitializeSession();
 	}
 });
