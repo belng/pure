@@ -28,16 +28,26 @@ function sendStanza(changes, entity) {
 			log.info('not new thread: ', entity);
 			return;
 		}
-		// console.log("sdjkfhjd g: ", entity)
-		const title = entity.creator + ' started a discussion',
-			urlLink = config.server.protocol + '//' + config.server.host + convertRouteToURL({
-				name: 'room',
-				props: {
-					room: entity && entity.parents[0]
-				}
+		const counter = new Counter();
+		let room = changes.entities[entity.parents[0]];
+		if (!room) {
+			counter.inc();
+			cache.getEntity(entity.parents[0], (e, roomObj) => {
+				room = roomObj;
+				counter.dec();
 			});
+		}
+		// console.log("sdjkfhjd g: ", entity)
+		counter.then(() => {
+			const title = room.name + ':' + entity.creator + ' started a discussion',
+				urlLink = config.server.protocol + '//' + config.server.host + convertRouteToURL({
+					name: 'room',
+					props: {
+						room: entity && entity.parents[0]
+					}
+				});
 
-		log.info('sending pushnotification for thread', entity, urlLink);
+			log.info('sending pushnotification for thread', entity, urlLink);
 			const pushData = {
 				count: 1,
 				data: {
@@ -55,8 +65,9 @@ function sendStanza(changes, entity) {
 				type: entity.type
 			};
 
-			// console.log("gcm entity:", pushData)
+				// console.log("gcm entity:", pushData)
 			client.send(createStanza(pushData));
+		});
 	}
 	if (entity.type === Constants.TYPE_TEXT) {
 		log.info('push notification for text: ', entity);
@@ -65,25 +76,39 @@ function sendStanza(changes, entity) {
 			return;
 		}
 		const counter = new Counter();
-		const title = entity.creator + ' replied',
-			urlLink = config.server.protocol + '//' + config.server.host + convertRouteToURL({
-				name: 'chat',
-				props: {
-					room: entity && entity.parents[1],
-					thread: entity && entity.parents[0]
-				}
-			});
 
-		log.info('pushnotification: ', entity, urlLink);
-		let user = changes.entities[entity.creator];
-		if (!user || !user.meta) {
-			counter.inc();
-			cache.getEntity(entity.creator, (err, u) => {
-				if (!err)	user = u;
-				counter.dec();
-			});
+		let room = changes.entities[entity.parents[1]],
+			thread = changes.entities[entity.parents[0]];
+
+		if (!room || !thread) {
+			if (!room) {
+				counter.inc();
+				cache.getEntity(entity.parents[1], (e, r) => {
+					room = r;
+					counter.dec();
+				});
+			}
+
+			if (!thread) {
+				counter.inc();
+				cache.getEntity(entity.parents[0], (e, t) => {
+					thread = t;
+					counter.dec();
+				});
+			}
 		}
+
 		counter.then(() => {
+			const title = room.name + ':' + entity.creator + ' replied in ' + thread.name,
+				urlLink = config.server.protocol + '//' + config.server.host + convertRouteToURL({
+					name: 'chat',
+					props: {
+						room: entity && entity.parents[1],
+						thread: entity && entity.parents[0]
+					}
+				});
+
+			log.info('pushnotification: ', entity, urlLink);
 			const pushData = {
 				count: 1,
 				data: {
@@ -95,7 +120,7 @@ function sendStanza(changes, entity) {
 					thread: entity && entity.parents[0],
 					type: 'reply',
 					link: urlLink,
-					picture: user.meta.picture
+					picture: `${config.server.protocol}//${config.server.host}/i/picture?user=${entity.creator}&size=${48}`
 				},
 				updateTime: Date.now(),
 				type: entity.type
