@@ -61,6 +61,7 @@ export default class Home extends Component<void, Props, void> {
 						persistenceKey={initialURL ? null : PERSISTANCE_KEY}
 					/>
 
+					{/* $FlowFixMe */}
 					{Platform.Version >= VersionCodes.KITKAT ?
 						<KeyboardSpacer /> :
 						null // Android seems to Pan the screen on < Kitkat
