@@ -22,6 +22,7 @@ import Banner from './Banner';
 import ImageUploadDiscussion from './ImageUploadDiscussion';
 import KeyboardSpacer from './KeyboardSpacer';
 import Facebook from '../../modules/Facebook';
+import NavigationActions from '../../navigation-rfc/Navigation/NavigationActions';
 import { convertRouteToURL } from '../../../lib/Route';
 import { config } from '../../../core-client';
 
@@ -29,7 +30,6 @@ const {
 	AsyncStorage,
 	TouchableOpacity,
 	StyleSheet,
-	NavigationActions,
 	ScrollView,
 	ToastAndroid,
 	View

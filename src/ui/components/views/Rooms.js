@@ -12,12 +12,12 @@ import ListItem from './ListItem';
 import AppText from './AppText';
 import Icon from './Icon';
 import Colors from '../../Colors';
+import NavigationActions from '../../navigation-rfc/Navigation/NavigationActions';
 import type { RoomRel, Room } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
 	View,
-	NavigationActions,
 	ListView,
 } = ReactNative;
 

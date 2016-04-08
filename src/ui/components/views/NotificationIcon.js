@@ -7,10 +7,10 @@ import Colors from '../../Colors';
 import AppbarTouchable from './AppbarTouchable';
 import AppbarIcon from './AppbarIcon';
 import NotificationBadgeContainer from '../containers/NotificationBadgeContainer';
+import NavigationActions from '../../navigation-rfc/Navigation/NavigationActions';
 
 const {
 	StyleSheet,
-	NavigationActions,
 	View
 } = ReactNative;
 

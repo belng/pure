@@ -8,12 +8,12 @@ import StatusbarWrapper from './StatusbarWrapper';
 import KeyboardSpacer from './KeyboardSpacer';
 import Modal from './Modal';
 import UserSwitcherContainer from '../containers/UserSwitcherContainer';
+import NavigationState from '../../navigation-rfc/Navigation/NavigationState';
 import VersionCodes from '../../modules/VersionCodes';
 import Colors from '../../Colors';
 import { convertRouteToState, convertURLToState } from '../../../lib/Route';
 
 const {
-	NavigationState,
 	StyleSheet,
 	Platform,
 	View

@@ -6,12 +6,12 @@ import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import AppbarTouchable from './AppbarTouchable';
+import NavigationActions from '../../navigation-rfc/Navigation/NavigationActions';
 import type { Thread } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
 	View,
-	NavigationActions
 } = ReactNative;
 
 const styles = StyleSheet.create({

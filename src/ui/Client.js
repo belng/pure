@@ -1,6 +1,5 @@
 /* @flow */
 
-import './navigation-rfc/polyfill';
 import '../modules/client/client';
 import React, { Component } from 'react';
 import ReactNative from 'react-native';
