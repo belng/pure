@@ -12,6 +12,12 @@ import { PRESENCE_FOREGROUND, PRESENCE_NONE, TAG_POST_PHOTO, TAG_POST_HIDDEN } f
 /*
  * User related actions
  */
+export const initializeSession = (session: string): Object => ({
+	auth: {
+		session
+	}
+});
+
 export const signIn = (provider: string, auth: { accessToken: string; } | { idToken: string; }): Object => ({
 	auth: {
 		[provider]: auth

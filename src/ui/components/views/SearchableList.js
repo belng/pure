@@ -6,12 +6,12 @@
  */
 
 import React, { Component, PropTypes } from 'react';
+import debounce from 'lodash/debounce';
 import ReactNative from 'react-native';
 import shallowEqual from 'shallowequal';
 import SearchBar from './Searchbar';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
-import debounce from '../../../lib/debounce';
 
 const {
 	StyleSheet,
