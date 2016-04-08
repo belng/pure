@@ -319,7 +319,10 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 		}
 
 		this.props.onNavigation(new NavigationActions.Push(route));
-		this.props.dismiss();
+
+		setTimeout(() => {
+			this.props.dismiss();
+		}, 1000);
 	};
 
 	_handleError: Function = message => {
