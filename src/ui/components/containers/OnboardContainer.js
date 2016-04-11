@@ -347,7 +347,7 @@ const mapActionsToProps = {
 	signIn: (store) => (provider, auth) => store.dispatch(signIn(provider, auth)),
 	cancelSignUp: (store) => () => store.dispatch(cancelSignUp()),
 	signUp: (store, result) => (id: string, name: string) => {
-		const { error, ...user } = result.pendingUser; // eslint-disable-line no-use-before-define
+		const { error, ...user } = result.pendingUser; // eslint-disable-line no-unused-vars
 
 		store.dispatch(signUp({ ...user, id, name }));
 	},
