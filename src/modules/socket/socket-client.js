@@ -61,7 +61,6 @@ function onMessage(message) {
 }
 
 function connect() {
-
 	client = new eio.Socket((protocol === 'https:' ? 'wss:' : 'ws:') + '//' + host, {
 		jsonp: poll,
 		transports: poll ? [ 'polling', 'websocket' ] : [ 'websocket' ]
@@ -107,6 +106,20 @@ bus.on('postchange', changes => {
 
 bus.on('state:init', state => {
 	state.connectionStatus = 'connecting';
+	connect();
+});
+
+bus.on('signout', () => {
+	if (client) {
+		client.close();
+	}
+
+	bus.emit('change', {
+		state: {
+			connectionStatus: 'connecting'
+		}
+	});
+
 	connect();
 });
 
