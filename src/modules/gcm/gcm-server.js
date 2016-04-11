@@ -30,7 +30,7 @@ function sendStanza(changes, entity) {
 		}
 		const counter = new Counter();
 		let room = changes.entities[entity.parents[0]];
-		if (!room) {
+		if (!room || !room.name) {
 			counter.inc();
 			cache.getEntity(entity.parents[0], (e, roomObj) => {
 				room = roomObj;
@@ -41,9 +41,10 @@ function sendStanza(changes, entity) {
 		counter.then(() => {
 			const title = room.name + ':' + entity.creator + ' started a discussion',
 				urlLink = config.server.protocol + '//' + config.server.host + convertRouteToURL({
-					name: 'room',
+					name: 'chat',
 					props: {
-						room: entity && entity.parents[0]
+						room: entity && entity.parents[0],
+						thread: entity && entity.id
 					}
 				});
 
