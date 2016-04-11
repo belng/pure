@@ -113,13 +113,11 @@ bus.on('signout', () => {
 	if (client) {
 		client.close();
 	}
-
 	bus.emit('change', {
 		state: {
 			connectionStatus: 'connecting'
 		}
 	});
-
 	connect();
 });
 
