@@ -129,7 +129,7 @@ bus.on('change', (changes, next) => {
 				counter.err(err);
 			});
 		} else if (entity.type === Constants.TYPE_THREAD) {
-			if (entity.createTime !== entity.updateTime) {
+			if (!entity.createTime || entity.createTime !== entity.updateTime) {
 				continue;
 			}
 			const threadRel = {
