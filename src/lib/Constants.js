@@ -23,6 +23,7 @@ export const ROLE_MENTIONED = 2;
 export const ROLE_FOLLOWER = 3;
 export const ROLE_MODERATOR = 4;
 export const ROLE_OWNER = 5;
+export const ROLE_CREATOR = 6;
 
 export const ROLE_LIKE = 31;
 export const ROLE_FLAG = 32;
@@ -88,6 +89,7 @@ export const APP_PRIORITIES = {
 	IMAGE_UPLOAD: 700,
 	NOTE: 675,
 	COUNT: 650,
+	SCORE: 640,
 	STORAGE: 500,
 	GCM: 500
 };
