@@ -148,7 +148,7 @@ export function subscribe (userRel: Object) {
 function handleSubscription(changes) {
 	const counter = new Counter();
 
-	if (!changes.entities) {
+	if (!changes.entities || !config.gcm.apiKey) {
 		// next();
 		return;
 	}

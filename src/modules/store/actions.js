@@ -155,7 +155,9 @@ export const unhideText = (text: Text): Object => {
 				entities: {
 					[text.id]: new TextModel({
 						id: text.id,
-						tags: text.tags ? text.tags.slice(0).splice(i, 1) : [],
+						tags: text.tags ? text.tags.filter(e => {
+							return e === TAG_POST_HIDDEN ? false : e;
+						}) : [],
 					})
 				}
 			};
@@ -167,7 +169,7 @@ export const unhideText = (text: Text): Object => {
 
 export const hideThread = (thread: Thread): Object => ({
 	entities: {
-		[thread.id]: new TextModel({
+		[thread.id]: new ThreadModel({
 			id: thread.id,
 			tags: thread.tags ? thread.tags.concat(TAG_POST_HIDDEN) : [ TAG_POST_HIDDEN ],
 		})
@@ -178,12 +180,15 @@ export const unhideThread = (thread: Thread): Object => {
 	if (thread.tags) {
 		const i = thread.tags.indexOf(TAG_POST_HIDDEN);
 
+
 		if (i > -1) {
 			return {
 				entities: {
-					[thread.id]: new TextModel({
+					[thread.id]: new ThreadModel({
 						id: thread.id,
-						tags: thread.tags ? thread.tags.slice(0).splice(i, 1) : [],
+						tags: thread.tags ? thread.tags.filter(e => {
+							return e === TAG_POST_HIDDEN ? false : e;
+						}) : [],
 					})
 				}
 			};

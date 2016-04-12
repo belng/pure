@@ -12,8 +12,10 @@ let client;
 if (config.gcm.senderId) {
 	log.info('GCM module ready.');
 	connect((e, c) => {
-		if (e) log.error(e);
-		else {
+		if (e) {
+			log.error(e);
+			return;
+		} else {
 			client = c;
 			handleUpstreamMessage(c);
 		}
@@ -30,7 +32,7 @@ function sendStanza(changes, entity) {
 		}
 		const counter = new Counter();
 		let room = changes.entities[entity.parents[0]];
-		if (!room) {
+		if (!room || !room.name) {
 			counter.inc();
 			cache.getEntity(entity.parents[0], (e, roomObj) => {
 				room = roomObj;
@@ -39,11 +41,12 @@ function sendStanza(changes, entity) {
 		}
 		// console.log("sdjkfhjd g: ", entity)
 		counter.then(() => {
-			const title = room.name + ':' + entity.creator + ' started a discussion',
+			const title = room.name + ': ' + entity.creator + ' started a discussion',
 				urlLink = config.server.protocol + '//' + config.server.host + convertRouteToURL({
-					name: 'room',
+					name: 'chat',
 					props: {
-						room: entity && entity.parents[0]
+						room: entity && entity.parents[0],
+						thread: entity && entity.id
 					}
 				});
 
@@ -99,7 +102,7 @@ function sendStanza(changes, entity) {
 		}
 
 		counter.then(() => {
-			const title = room.name + ':' + entity.creator + ' replied in ' + thread.name,
+			const title = room.name + ': ' + entity.creator + ' replied in ' + thread.name,
 				urlLink = config.server.protocol + '//' + config.server.host + convertRouteToURL({
 					name: 'chat',
 					props: {
@@ -137,11 +140,11 @@ function sendStanza(changes, entity) {
 }
 
 bus.on('change', (changes) => {
-	if (!changes.entities) {
+	if (!changes.entities || !config.gcm.senderId) {
 		return;
 	}
 	for (const i in changes.entities) {
 		const entity = changes.entities[i];
 		sendStanza(changes, entity);
 	}
-});
+}, Constants.APP_PRIORITIES.GCM);

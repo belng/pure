@@ -8,12 +8,12 @@ import StatusbarWrapper from './StatusbarWrapper';
 import KeyboardSpacer from './KeyboardSpacer';
 import Modal from './Modal';
 import UserSwitcherContainer from '../containers/UserSwitcherContainer';
+import NavigationState from '../../navigation-rfc/Navigation/NavigationState';
 import VersionCodes from '../../modules/VersionCodes';
 import Colors from '../../Colors';
 import { convertRouteToState, convertURLToState } from '../../../lib/Route';
 
 const {
-	NavigationState,
 	StyleSheet,
 	Platform,
 	View
@@ -61,6 +61,7 @@ export default class Home extends Component<void, Props, void> {
 						persistenceKey={initialURL ? null : PERSISTANCE_KEY}
 					/>
 
+					{/* $FlowFixMe */}
 					{Platform.Version >= VersionCodes.KITKAT ?
 						<KeyboardSpacer /> :
 						null // Android seems to Pan the screen on < Kitkat

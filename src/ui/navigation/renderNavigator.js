@@ -5,11 +5,11 @@ import ReactNative from 'react-native';
 import Modal from '../components/views/Modal';
 import renderOverlay from './renderOverlay';
 import renderScene from './renderScene';
+import NavigationAnimatedView from '../navigation-rfc/Navigation/NavigationAnimatedView';
+import NavigationReducer from '../navigation-rfc/Navigation/NavigationReducer';
 
 const {
-	NavigationAnimatedView,
 	StyleSheet,
-	NavigationReducer,
 	BackAndroid
 } = ReactNative;
 

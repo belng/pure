@@ -77,7 +77,9 @@ export default class Embed extends Component<DefaultProps, Props, State> {
 	_mounted: boolean;
 
 	_handlePress: Function = () => {
-		Linking.openURL(this.props.url);
+		if (typeof this.props.url === 'string') {
+			Linking.openURL(this.props.url);
+		}
 	};
 
 	_fetchData: Function = () => {

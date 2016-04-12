@@ -5,7 +5,7 @@ import Connect from '../../../modules/store/Connect';
 import PassUserProp from '../../../modules/store/PassUserProp';
 import Rooms from '../views/Rooms';
 
-const filterInvalidRels = data => data.filter(result => result.room && result.roomrel);
+const filterInvalidRels = data => data.filter(result => typeof result.type === 'string' || result.room && result.roomrel);
 
 class RoomsContainer extends Component {
 	static propTypes = {

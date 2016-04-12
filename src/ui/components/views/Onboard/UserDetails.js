@@ -180,6 +180,8 @@ export default class UserDetails extends Component<void, Props, void> {
 					disabled={!this.props.canGoForward}
 					onPress={this.props.submitUserDetails}
 				/>
+
+				{/* $FlowFixMe */}
 				{Platform.Version >= VersionCodes.KITKAT ?
 					<KeyboardSpacer /> :
 					null // Android seems to Pan the screen on < Kitkat

@@ -1,13 +1,9 @@
 /* @flow */
 
 import React, { PropTypes } from 'react';
-import ReactNative from 'react-native';
 import renderNavigator from './renderNavigator';
-
-const {
-	NavigationContainer,
-	NavigationState
-} = ReactNative;
+import NavigationContainer from '../navigation-rfc/Navigation/NavigationContainer';
+import NavigationState from '../navigation-rfc/Navigation/NavigationState';
 
 const stateToString = (navState) => {
 	return JSON.stringify({
