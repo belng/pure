@@ -21,7 +21,10 @@ bus.on('change', (changes, next) => {
 			entity.type === Constants.TYPE_TEXT ||
 			entity.type === Constants.TYPE_THREAD
 		) {
-			if (!entity.parents) return;
+			if (entity.createTime !== entity.updateTime) {
+				next();
+				continue;
+			}
 			let inc;
 			log.info('Count module reached: ', entity);
 			if (entity.createTime === entity.updateTime) {
