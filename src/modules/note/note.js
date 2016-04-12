@@ -2,7 +2,7 @@
 import log from 'winston';
 import Counter from '../../lib/counter';
 import Note from '../../models/note';
-import { Constants, bus, cache } from '../../core-server';
+import { Constants, bus, cache, config } from '../../core-server';
 import { convertRouteToURL } from '../../lib/Route';
 
 bus.on('change', (changes) => {
@@ -13,12 +13,12 @@ bus.on('change', (changes) => {
 
 	for (const id in changes.entities) {
 		const entity = changes.entities[id];
-
-		if (
-			entity.type === Constants.TYPE_TEXTREL &&
-			entity.role === Constants.ROLE_MENTIONED
-		) {
-			let item = changes.entities[entity.item], user;
+		// console.log('note module: ', entity)
+		if (entity.type === Constants.TYPE_TEXTREL) {
+			// console.log("dkfj dskhfcxjvh jf: ", entity);
+			if (entity.roles.indexOf(Constants.ROLE_MENTIONED) === -1) return;
+			// console.log("dkfj dskhfcxjvh jf: ", entity);
+			let item = changes.entities[entity.item], roomName;
 			const now = Date.now(),
 				noteObj = {
 					group: '',
@@ -29,24 +29,31 @@ bus.on('change', (changes) => {
 					count: 1,
 					score: 50,
 					data: {},
-					type: 'mention'
+					type: Constants.TYPE_NOTE
 				};
 
 			if (!item) {
 				counter.inc();
 				cache.getEntity(entity.item, (err, text) => {
 					if (!err) item = text;
+					cache.getEntity(item.parents[1], (e, r) => {
+						if (e) return;
+						roomName = r.name;
+						counter.dec();
+					});
+				});
+			} else {
+				counter.inc();
+				cache.getEntity(item.parents[1], (e, r) => {
+					if (e) return;
+					roomName = r.name;
+					counter.dec();
 				});
 			}
+
 			counter.then(() => {
-				user = changes.entities[item.creator];
-				if (!user) {
-					cache.getEntity(item.creator, (er, u) => {
-						if (!er) user = u;
-					});
-				}
-				const title = item.creator + 'mentioned you';
-				const urlLink = convertRouteToURL({
+				const title = roomName + ': ' + item.creator + ' mentioned you';
+				const urlLink = config.server.protocol + '//' + config.server.host + convertRouteToURL({
 					name: 'chat',
 					props: {
 						room: item.parents[1],
@@ -63,13 +70,14 @@ bus.on('change', (changes) => {
 					thread: entity.type === Constants.TYPE_TEXTREL ? item.parents[0] : null,
 					room: entity.type === Constants.TYPE_TEXTREL ? item.parents[1] : item.parents[0],
 					link: urlLink,
-					picture: user && user.meat && user.meta.picture
+					picture: `${config.server.protocol}//${config.server.host}/i/picture?user=${item.creator}&size=${48}`
 				};
 				const	note = new Note(noteObj);
+				console.log("Note created: ", note);
 				changes.entities[note.getId()] = note;
 			});
 		}
 	}
-});
+}, Constants.APP_PRIORITIES.NOTE);
 
 log.info('Note module ready.');
