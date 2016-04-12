@@ -115,5 +115,5 @@ bus.on('change', (changes, next) => {
 		}
 	}
 	next();
-});
+}, Constants.APP_PRIORITIES.COUNT);
 log.info('Count module ready.');
