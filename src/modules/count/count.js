@@ -22,7 +22,6 @@ bus.on('change', (changes, next) => {
 			entity.type === Constants.TYPE_THREAD
 		) {
 			if (entity.createTime !== entity.updateTime) {
-				next();
 				continue;
 			}
 			let inc;
@@ -116,5 +115,5 @@ bus.on('change', (changes, next) => {
 		}
 	}
 	next();
-});
+}, Constants.APP_PRIORITIES.COUNT);
 log.info('Count module ready.');
