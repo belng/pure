@@ -9,6 +9,7 @@ import Colors from '../../Colors';
 
 const {
 	View,
+	ScrollView,
 	StyleSheet,
 	TouchableOpacity,
 } = ReactNative;
@@ -63,6 +64,7 @@ export default class UserSwitcher extends Component<void, Props, void> {
 		return (
 			<View style={styles.container}>
 				<StatusbarWrapper />
+				<ScrollView>
 				{data.map(it => (
 					<TouchableOpacity key={it.user} onPress={() => this.props.switchUser(it)}>
 						<View style={it.user === user ? styles.current : null}>
@@ -75,6 +77,7 @@ export default class UserSwitcher extends Component<void, Props, void> {
 						</View>
 					</TouchableOpacity>
 				))}
+				</ScrollView>
 			</View>
 		);
 	}

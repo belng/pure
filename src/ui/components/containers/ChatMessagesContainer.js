@@ -39,7 +39,7 @@ const transformTexts = (texts, thread) => {
 	return data;
 };
 
-const filterHidden = (results, me) => me && me.tags && me.tags.indexOf(TAG_USER_ADMIN) ? results : results.filter(item => {
+const filterHidden = (results, me) => me && me.tags && me.tags.indexOf(TAG_USER_ADMIN) > -1 ? results : results.filter(item => {
 	return !(item.tags && item.tags.indexOf(TAG_POST_HIDDEN) > -1);
 });
 

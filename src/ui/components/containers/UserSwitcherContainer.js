@@ -3,62 +3,38 @@
 import React, { PropTypes, Component } from 'react';
 import Connect from '../../../modules/store/Connect';
 import UserSwitcher from '../views/UserSwitcher';
-import { TAG_USER_ADMIN } from '../../../lib/Constants';
-import { config } from '../../../core-client';
+import { bus } from '../../../core-client';
 import { initializeSession } from '../../../modules/store/actions';
-import type { User } from '../../../lib/schemaTypes';
 
-const {
-	server: {
-		host,
-		protocol,
-	}
-} = config;
 
 type Props = {
-	me: User;
+	user: string;
+	data: ?Array<{ user: string, session: string }>;
 	switchUser: Function;
 }
 
-type State = {
-	data: Array<{ user: string, session: string }>;
-}
-
-class UserSwitcherContainerInner extends Component<void, Props, State> {
+class UserSwitcherContainerInner extends Component<void, Props, void> {
 	static propTypes = {
-		me: PropTypes.shape({
-			id: PropTypes.string,
-			tags: PropTypes.arrayOf(PropTypes.number)
-		}).isRequired,
+		data: PropTypes.arrayOf(PropTypes.shape({
+			user: PropTypes.string,
+			session: PropTypes.string,
+		})),
+		user: PropTypes.string.isRequired,
 		switchUser: PropTypes.func.isRequired,
 	};
 
-	state: State = {
-		data: [],
-	};
-
-	_fetchData: Function = async () => {
-		const { me } = this.props;
-
-		if (me.params && me.params.sessions_list) {
-			const list = await fetch(`${protocol}//${host}/${me.params.sessions_list}`);
-			const data = await list.json();
-
-			this.setState({
-				data
-			});
-		}
-	};
-
 	render() {
-		const { me } = this.props;
+		const {
+			data,
+			user
+		} = this.props;
 
-		if (me && me.tags && me.tags.indexOf(TAG_USER_ADMIN) > -1) {
+		if (data) {
 			return (
 				<UserSwitcher
 					{...this.state}
 					{...this.props}
-					user={me.id}
+					user={user}
 				/>
 			);
 		}
@@ -68,13 +44,24 @@ class UserSwitcherContainerInner extends Component<void, Props, State> {
 }
 
 const mapSubscriptionToProps = {
-	me: {
-		key: 'me'
+	user: {
+		key: {
+			type: 'state',
+			path: 'user',
+		}
+	},
+	data: {
+		key: {
+			type: 'state',
+			path: 'sessionList',
+		}
 	}
 };
 
 const mapActionsToProps = {
 	switchUser: (store, result) => item => {
+		bus.emit('signout');
+
 		const { me } = result;
 
 		if (me && me.id === item.user) {
