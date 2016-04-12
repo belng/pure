@@ -1,18 +1,12 @@
-import { bus } from '../../core-client';
+/* @flow */
+
+import { subscribe } from '../store/store';
 import GCMPreferences from '../../ui/modules/GCMPreferences';
 
-bus.on('postchange', changes => {
-	if (changes.state && 'session' in changes.state) {
-		const { session } = changes.state;
-
-		if (session === '@@loading') {
-			return;
-		}
-
-		if (session && typeof changes.state.session === 'string') {
-			GCMPreferences.saveSession(changes.state.session);
-		} else {
-			GCMPreferences.saveSession('');
-		}
+subscribe({ type: 'state', path: 'session', source: 'gcm' }, session => {
+	if (session === '@@loading') {
+		return;
 	}
+
+	GCMPreferences.saveSession(session || '');
 });

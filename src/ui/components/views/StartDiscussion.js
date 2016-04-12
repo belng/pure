@@ -22,6 +22,7 @@ import Banner from './Banner';
 import ImageUploadDiscussion from './ImageUploadDiscussion';
 import KeyboardSpacer from './KeyboardSpacer';
 import Facebook from '../../modules/Facebook';
+import NavigationActions from '../../navigation-rfc/Navigation/NavigationActions';
 import { convertRouteToURL } from '../../../lib/Route';
 import { config } from '../../../core-client';
 
@@ -29,7 +30,6 @@ const {
 	AsyncStorage,
 	TouchableOpacity,
 	StyleSheet,
-	NavigationActions,
 	ScrollView,
 	ToastAndroid,
 	View
@@ -319,7 +319,10 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 		}
 
 		this.props.onNavigation(new NavigationActions.Push(route));
-		this.props.dismiss();
+
+		setTimeout(() => {
+			this.props.dismiss();
+		}, 1000);
 	};
 
 	_handleError: Function = message => {

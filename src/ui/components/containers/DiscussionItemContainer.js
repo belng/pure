@@ -21,8 +21,8 @@ const mapSubscriptionToProps = {
 };
 
 const mapActionsToProps = {
-	hideThread: (store, result, props) => () => store.dispatch(hideThread(props.thread.id)),
-	unhideThread: (store, result, props) => () => store.dispatch(unhideThread(props.thread.id)),
+	hideThread: (store, result, props) => () => store.dispatch(hideThread(props.thread)),
+	unhideThread: (store, result, props) => () => store.dispatch(unhideThread(props.thread)),
 	banUser: (store, result, props) => () => store.dispatch(banUser(props.thread.creator)),
 	unbanUser: (store, result, props) => () => store.dispatch(unbanUser(props.thread.creator)),
 };

@@ -1,13 +1,9 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import ReactNative from 'react-native';
 import AppbarTouchable from '../AppbarTouchable';
 import AppbarIcon from '../AppbarIcon';
-
-const {
-	NavigationActions
-} = ReactNative;
+import NavigationActions from '../../../navigation-rfc/Navigation/NavigationActions';
 
 type Props = {
 	onNavigation: Function;

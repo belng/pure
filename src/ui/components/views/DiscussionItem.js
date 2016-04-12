@@ -12,6 +12,7 @@ import TouchFeedback from './TouchFeedback';
 import Modal from './Modal';
 import Icon from './Icon';
 import Share from '../../modules/Share';
+import NavigationActions from '../../navigation-rfc/Navigation/NavigationActions';
 import { convertRouteToURL } from '../../../lib/Route';
 import { config } from '../../../core-client';
 import { TAG_POST_HIDDEN } from '../../../lib/Constants';
@@ -23,7 +24,6 @@ const {
 	ToastAndroid,
 	StyleSheet,
 	TouchableOpacity,
-	NavigationActions,
 	View
 } = ReactNative;
 

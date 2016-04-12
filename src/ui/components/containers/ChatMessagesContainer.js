@@ -4,7 +4,7 @@ import React, { Component, PropTypes } from 'react';
 import shallowEqual from 'shallowequal';
 import Connect from '../../../modules/store/Connect';
 import ChatMessages from '../views/ChatMessages';
-import { TAG_POST_HIDDEN } from '../../../lib/Constants';
+import { TAG_POST_HIDDEN, TAG_USER_ADMIN } from '../../../lib/Constants';
 import type { SubscriptionRange } from '../../../modules/store/ConnectTypes';
 
 const transformTexts = (texts, thread) => {
@@ -39,32 +39,27 @@ const transformTexts = (texts, thread) => {
 	return data;
 };
 
-const filterHidden = results => results.filter(item => {
-	if (item.tags && item.tags.indexOf(TAG_POST_HIDDEN) > -1) {
-		return false;
-	}
-
-	return true;
+const filterHidden = (results, me) => me && me.tags && me.tags.indexOf(TAG_USER_ADMIN) > -1 ? results : results.filter(item => {
+	return !(item.tags && item.tags.indexOf(TAG_POST_HIDDEN) > -1);
 });
 
 class ChatMessagesContainerInner extends Component<void, any, void> {
 	static propTypes = {
 		data: PropTypes.arrayOf(PropTypes.object).isRequired,
-		thread: PropTypes.object
+		thread: PropTypes.object,
+		me: PropTypes.shape({
+			tags: PropTypes.arrayOf(PropTypes.number)
+		}).isRequired,
 	};
 
 	render() {
 		const {
 			thread,
-			data
+			data,
+			me
 		} = this.props;
 
-		return (
-			<ChatMessages
-				{...this.props}
-				data={transformTexts(data, thread)}
-			/>
-		);
+		return <ChatMessages {...this.props} data={transformTexts(filterHidden(data, me), thread)} />;
 	}
 }
 
@@ -130,7 +125,6 @@ export default class ChatMessagesContainer extends Component<void, any, State> {
 							},
 							range,
 						},
-						transform: filterHidden,
 						defer,
 					},
 					thread: {
@@ -138,7 +132,13 @@ export default class ChatMessagesContainer extends Component<void, any, State> {
 							type: 'entity',
 							id: this.props.thread
 						}
-					}
+					},
+					me: {
+						key: {
+							type: 'entity',
+							id: this.props.user
+						}
+					},
 				}}
 				passProps={{ ...this.props, loadMore: count => this._loadMore(count) }}
 				component={ChatMessagesContainerInner}

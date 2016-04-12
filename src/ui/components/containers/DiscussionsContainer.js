@@ -5,16 +5,30 @@ import shallowEqual from 'shallowequal';
 import Connect from '../../../modules/store/Connect';
 import PassUserProp from '../../../modules/store/PassUserProp';
 import Discussions from '../views/Discussions';
-import { TAG_POST_HIDDEN } from '../../../lib/Constants';
+import { TAG_POST_HIDDEN, TAG_USER_ADMIN } from '../../../lib/Constants';
 import type { SubscriptionRange } from '../../../modules/store/ConnectTypes';
 
-const transformThreads = results => results.filter(item => {
-	if (item.tags && item.tags.indexOf(TAG_POST_HIDDEN) > -1) {
-		return false;
-	}
-
-	return true;
+const transformThreads = (results, me) => me && me.tags && me.tags.indexOf(TAG_USER_ADMIN) >= 0 ? results.reverse() : results.filter(item => {
+	return !(item.tags && item.tags.indexOf(TAG_POST_HIDDEN) > -1);
 }).reverse();
+
+class DiscussionsContainerInner extends Component<void, any, void> {
+	static propTypes = {
+		data: PropTypes.arrayOf(PropTypes.object).isRequired,
+		me: PropTypes.shape({
+			tags: PropTypes.arrayOf(PropTypes.number)
+		}).isRequired,
+	};
+
+	render() {
+		const {
+			data,
+			me
+		} = this.props;
+
+		return <Discussions {...this.props} data={transformThreads(data, me)} />;
+	}
+}
 
 type State = {
 	range: SubscriptionRange;
@@ -78,12 +92,17 @@ class DiscussionsContainer extends Component<void, any, State> {
 							},
 							range
 						},
-						transform: transformThreads,
 						defer,
-					}
+					},
+					me: {
+						key: {
+							type: 'entity',
+							id: this.props.user
+						}
+					},
 				}}
 				passProps={{ ...this.props, loadMore: count => this._loadMore(count) }}
-				component={Discussions}
+				component={DiscussionsContainerInner}
 			/>
 		);
 	}

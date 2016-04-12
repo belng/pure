@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
+import debounce from 'lodash/debounce';
 import ReactNative from 'react-native';
 import Colors from '../../../Colors';
 import AppText from '../AppText';
@@ -11,7 +12,6 @@ import GrowingTextInput from '../GrowingTextInput';
 import Modal from '../Modal';
 import TouchFeedback from '../TouchFeedback';
 import GCMPreferences from '../../../modules/GCMPreferences';
-import debounce from '../../../../lib/debounce';
 import type { User } from '../../../../lib/schemaTypes';
 
 const {

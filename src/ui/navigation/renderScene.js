@@ -5,9 +5,9 @@ import ReactNative from 'react-native';
 import routeMapper from './routeMapper';
 import BannerOfflineContainer from '../components/containers/BannerOfflineContainer';
 import Colors from '../Colors';
+import NavigationCard from '../navigation-rfc/CustomComponents/NavigationCard';
 
 const {
-	NavigationCard,
 	StyleSheet,
 	View
 } = ReactNative;

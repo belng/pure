@@ -8,13 +8,13 @@ import AppbarTouchable from '../components/views/AppbarTouchable';
 import AppbarIcon from '../components/views/AppbarIcon';
 import Colors from '../Colors';
 import routeMapper from './routeMapper';
+import NavigationReducer from '../navigation-rfc/Navigation/NavigationReducer';
+import NavigationHeader from '../navigation-rfc/CustomComponents/NavigationHeader';
 
 const {
 	View,
 	StyleSheet,
 	Platform,
-	NavigationHeader,
-	NavigationReducer
 } = ReactNative;
 
 const APPBAR_HEIGHT = Platform.OS === 'ios' ? 44 : 56;

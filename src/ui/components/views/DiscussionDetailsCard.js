@@ -34,6 +34,7 @@ type Props = {
 		name: string;
 		body: string;
 		creator: string;
+		meta?: Object;
 	}
 }
 
@@ -42,6 +43,7 @@ export default class DiscussionDetailsCard extends Component<void, Props, void> 
 		thread: PropTypes.shape({
 			name: PropTypes.string.isRequired,
 			body: PropTypes.string.isRequired,
+			meta: PropTypes.string.isRequired,
 			creator: PropTypes.string.isRequired
 		})
 	};
@@ -56,7 +58,7 @@ export default class DiscussionDetailsCard extends Component<void, Props, void> 
 		return (
 			<Card style={styles.details}>
 				<CardTitle style={styles.title}>{thread.name}</CardTitle>
-				<DiscussionSummary text={thread.body} />
+				<DiscussionSummary text={thread.body} meta={thread.meta} />
 				<CardAuthor nick={thread.creator} style={styles.author} />
 			</Card>
 		);

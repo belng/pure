@@ -4,26 +4,30 @@ import log from 'winston';
 import { config, bus } from '../../core-server';
 import { subscribe } from './subscribeTopics';
 // import util from 'util';
-let client, userToken, userSession;
+let client;
+const sessionAndtokens = {};
 
-export function getTokenAndSession() {
-	if (!userToken && !userSession) {
-		log.info('no token or session found');
+export function getTokenFromSession(session) {
+	if (!session) {
+		log.info('no session found');
 		return { error: 'NO_TOKEN_AND_SESSION' };
 	}
 	return {
-		token: userToken,
-		sessionId: userSession
+		token: sessionAndtokens[session].token,
+		sessionId: session
 	};
 }
 
 function saveTokenAndSession(token, sessionId) {
 	log.debug('token and session saved');
-	userToken = token;
-	userSession = sessionId;
+	sessionAndtokens[sessionId] = { token };
 }
 
-function sendUpstreamMessage (upStanza, type, cb) {
+function sendDownstreamMessage (upStanza, type, cb) {
+	if (!upStanza) {
+		log.info('no upstanza to send');
+		return;
+	}
 	const stnza =
 	`<message>
 		<gcm xmlns="google:mobile:data">
@@ -41,7 +45,7 @@ function sendUpstreamMessage (upStanza, type, cb) {
 }
 export function updateUser(u, cb) {
 	if (!u.data.sessionId && !u.data.token) {
-		console.log('no data token and session found to update user');
+		// console.log('no data token and session found to update user');
 		return;
 	}
 	bus.emit('change', {
@@ -52,7 +56,7 @@ export function updateUser(u, cb) {
 		if (err) {
 			log.error('error on auth user: ', err, u.data.sessionId);
 			saveTokenAndSession(u.data.token, u.data.sessionId);
-			sendUpstreamMessage(u, 'NACK');
+			sendDownstreamMessage(u, 'NACK');
 			if (cb) cb(err);
 		} else {
 			log.info('update user with token');
@@ -68,7 +72,7 @@ export function updateUser(u, cb) {
 					log.debug('error on saving token: ', e);
 					if (cb) cb(e);
 				} else {
-					sendUpstreamMessage(u, 'ACK', () => {
+					sendDownstreamMessage(u, 'ACK', () => {
 						log.info('subscribing user: ', user.id, 'for mention');
 						subscribe({
 							params: user.params || {},
@@ -91,7 +95,7 @@ function handleStanza(stanza) {
 	const st = stanza.toJSON();
 	let x;
 
-	log.info('stanza: ', st);
+	log.info('stanza: ', JSON.stringify(st));
 
 	if (st.children && st.children[0] && st.children[0].children) {
 		x = JSON.parse(st.children[0].children[0]);

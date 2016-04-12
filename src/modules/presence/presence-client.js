@@ -3,6 +3,7 @@
 import { bus, cache } from '../../core-client';
 import { subscribe, on } from '../store/store';
 import { setPresence, setItemPresence } from '../store/actions';
+import { ROLE_VISITOR } from '../../lib/Constants';
 
 function getRelationAndSetPresence(slice: Object, status: 'online' | 'offline') {
 	let type;
@@ -31,7 +32,7 @@ function getRelationAndSetPresence(slice: Object, status: 'online' | 'offline') 
 				bus.emit('change', setItemPresence({
 					item,
 					user,
-					role: [ 'visitor' ],
+					roles: [ ROLE_VISITOR ],
 					create: true,
 				}, type, status));
 			}

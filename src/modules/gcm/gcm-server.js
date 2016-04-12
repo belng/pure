@@ -12,8 +12,10 @@ let client;
 if (config.gcm.senderId) {
 	log.info('GCM module ready.');
 	connect((e, c) => {
-		if (e) log.error(e);
-		else {
+		if (e) {
+			log.error(e);
+			return;
+		} else {
 			client = c;
 			handleUpstreamMessage(c);
 		}
@@ -24,34 +26,31 @@ if (config.gcm.senderId) {
 
 function sendStanza(changes, entity) {
 	if (entity.type === Constants.TYPE_THREAD) {
-		if (/*entity.createTime !== entity.updateTime*/ !entity.create) {
+		if (!entity.createTime || entity.createTime !== entity.updateTime) {
 			log.info('not new thread: ', entity);
 			return;
 		}
-		// console.log("sdjkfhjd g: ", entity)
 		const counter = new Counter();
-		const title = entity.creator + ' created a thread',
-			urlLink = config.server.protocol + '//' + config.server.host + convertRouteToURL({
-				name: 'room',
-				props: {
-					room: entity && entity.parents[0]
-				}
-			});
-
-		log.info('sending pushnotification for thread', entity, urlLink);
-		let user = changes.entities[entity.creator];
-		if (!user) {
+		let room = changes.entities[entity.parents[0]];
+		if (!room || !room.name) {
 			counter.inc();
-			cache.getEntity(entity.creator, (err, u) => {
-				// console.log("asjkhdgj ag: ", u)
-				if (!err)	{
-					user = u;
-				}
+			cache.getEntity(entity.parents[0], (e, roomObj) => {
+				room = roomObj;
 				counter.dec();
 			});
 		}
+		// console.log("sdjkfhjd g: ", entity)
 		counter.then(() => {
-			// console.log("user is here: ", user)
+			const title = room.name + ': ' + entity.creator + ' started a discussion',
+				urlLink = config.server.protocol + '//' + config.server.host + convertRouteToURL({
+					name: 'chat',
+					props: {
+						room: entity && entity.parents[0],
+						thread: entity && entity.id
+					}
+				});
+
+			log.info('sending pushnotification for thread', entity, urlLink);
 			const pushData = {
 				count: 1,
 				data: {
@@ -63,43 +62,56 @@ function sendStanza(changes, entity) {
 					thread: entity.id,
 					type: 'thread',
 					link: urlLink,
-					picture: user.meta && user.meta.picture
+					picture: `${config.server.protocol}//${config.server.host}/i/picture?user=${entity.creator}&size=${48}`
 				},
 				updateTime: Date.now(),
 				type: entity.type
 			};
 
-			// console.log("gcm entity:", pushData)
+				// console.log("gcm entity:", pushData)
 			client.send(createStanza(pushData));
 		});
 	}
 	if (entity.type === Constants.TYPE_TEXT) {
 		log.info('push notification for text: ', entity);
-		if (/*entity.createTime !== entity.updateTime &&*/ !entity.create) {
+		if (entity.createTime !== entity.updateTime) {
 			log.info('not new text: ', entity);
 			return;
 		}
 		const counter = new Counter();
-		const title = entity.creator + ' replied',
-			urlLink = config.server.protocol + '//' + config.server.host + convertRouteToURL({
-				name: 'chat',
-				props: {
-					room: entity && entity.parents[1],
-					thread: entity && entity.parents[0]
-				}
-			});
 
-		log.info('pushnotification: ', entity, urlLink);
-		let user = changes.entities[entity.creator];
-		if (!user || !user.meta) {
-			counter.inc();
-			cache.getEntity(entity.creator, (err, u) => {
-				if (!err)	user = u;
-				counter.dec();
-			});
+		let room = changes.entities[entity.parents[1]],
+			thread = changes.entities[entity.parents[0]];
+
+		if (!room || !thread) {
+			if (!room) {
+				counter.inc();
+				cache.getEntity(entity.parents[1], (e, r) => {
+					room = r;
+					counter.dec();
+				});
+			}
+
+			if (!thread) {
+				counter.inc();
+				cache.getEntity(entity.parents[0], (e, t) => {
+					thread = t;
+					counter.dec();
+				});
+			}
 		}
+
 		counter.then(() => {
-			// console.log("user is here: ", user)
+			const title = room.name + ': ' + entity.creator + ' replied in ' + thread.name,
+				urlLink = config.server.protocol + '//' + config.server.host + convertRouteToURL({
+					name: 'chat',
+					props: {
+						room: entity && entity.parents[1],
+						thread: entity && entity.parents[0]
+					}
+				});
+
+			log.info('pushnotification: ', entity, urlLink);
 			const pushData = {
 				count: 1,
 				data: {
@@ -111,7 +123,7 @@ function sendStanza(changes, entity) {
 					thread: entity && entity.parents[0],
 					type: 'reply',
 					link: urlLink,
-					picture: user.meta.picture
+					picture: `${config.server.protocol}//${config.server.host}/i/picture?user=${entity.creator}&size=${48}`
 				},
 				updateTime: Date.now(),
 				type: entity.type
@@ -128,11 +140,11 @@ function sendStanza(changes, entity) {
 }
 
 bus.on('change', (changes) => {
-	if (!changes.entities) {
+	if (!changes.entities || !config.gcm.senderId) {
 		return;
 	}
 	for (const i in changes.entities) {
 		const entity = changes.entities[i];
 		sendStanza(changes, entity);
 	}
-});
+}, Constants.APP_PRIORITIES.GCM);

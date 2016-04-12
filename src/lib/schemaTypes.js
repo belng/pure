@@ -3,6 +3,7 @@
 export type Entity = {
 	counts?: { [key: string]: number };
 	createTime: number;
+	deleteTime?: number;
 	id: string;
 	meta?: Object;
 	name?: string;
@@ -13,10 +14,27 @@ export type Entity = {
 }
 
 export type User = Entity & {
-	deleteTime?: number;
 	identities: Array<string>;
 	locale?: number;
 	params?: {
+		gcm?: {
+			[key: string]: string;
+		},
+		google?: {
+			name?: string;
+			picture?: string;
+			verified?: boolean;
+		},
+		facebook?: {
+			name?: string;
+			picture?: string;
+			verified?: boolean;
+		},
+		places?: {
+			home?: { id: string, title: string, description: string };
+			work?: { id: string, title: string, description: string };
+			hometown?: { id: string, title: string, description: string };
+		},
 		email?: {
 			notifications?: boolean;
 			frequency?: 'daily' | 'never';
@@ -31,7 +49,6 @@ export type User = Entity & {
 export type Item = Entity & {
 	body: string;
 	creator: string;
-	deleteTime?: number;
 	parents: Array<string>;
 	score?: number;
 	updater: string;
@@ -64,7 +81,7 @@ export type Relation = {
 	roles?: Array<number>;
 	createTime: number;
 	updateTime: number;
-	tags?: Array<string>;
+	tags?: Array<number>;
 	transitRole?: number;
 	transitType?: number;
 	type: number;

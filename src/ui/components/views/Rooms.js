@@ -12,12 +12,12 @@ import ListItem from './ListItem';
 import AppText from './AppText';
 import Icon from './Icon';
 import Colors from '../../Colors';
+import NavigationActions from '../../navigation-rfc/Navigation/NavigationActions';
 import type { RoomRel, Room } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
 	View,
-	NavigationActions,
 	ListView,
 } = ReactNative;
 
@@ -158,7 +158,7 @@ export default class Rooms extends Component<void, Props, State> {
 				placeHolder = <PageLoading />;
 				break;
 			case 'failed':
-				placeHolder = <PageEmpty label='Failed to load discussions' image='sad' />;
+				placeHolder = <PageEmpty label='Failed to load rooms' image='sad' />;
 				break;
 			}
 		}
@@ -175,6 +175,7 @@ export default class Rooms extends Component<void, Props, State> {
 						keyboardShouldPersistTaps
 						dataSource={this.state.dataSource}
 						renderRow={this._renderRow}
+						renderFooter={this._renderFooter}
 					/>
 				}
 			</View>

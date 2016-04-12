@@ -22,16 +22,17 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THE SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * 
+ *
  */
 'use strict';
 
 var React = require('react-native');
+const NavigationActions = require('../Navigation/NavigationActions');
+const NavigationContainer = require('../Navigation/NavigationContainer');
+const NavigationState = require('../Navigation/NavigationState');
+
 var {
   Animated,
-  NavigationActions,
-  NavigationState,
-  NavigationContainer,
   PanResponder,
   StyleSheet,
   View,

@@ -9,6 +9,7 @@ import Icon from './Icon';
 import AvatarRound from './AvatarRound';
 import Time from './Time';
 import TouchFeedback from './TouchFeedback';
+import NavigationActions from '../../navigation-rfc/Navigation/NavigationActions';
 import { NOTE_MENTION, NOTE_THREAD, NOTE_REPLY } from '../../../lib/Constants';
 import type { Note } from '../../../lib/schemaTypes';
 
@@ -16,7 +17,6 @@ const {
 	StyleSheet,
 	View,
 	TouchableHighlight,
-	NavigationActions,
 	PixelRatio
 } = ReactNative;
 
