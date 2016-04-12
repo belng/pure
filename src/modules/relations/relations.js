@@ -16,7 +16,10 @@ bus.on('change', (changes, next) => {
 		let text, role, user;
 
 		if (entity.type === Constants.TYPE_TEXT) {
-			if (!entity.parents) return;
+			if (entity.createTime !== entity.updateTime) {
+				next();
+				continue;
+			}
 			const relationId = entity.creator + '_' + entity.parents[0];
 			let promises;
 
@@ -54,11 +57,13 @@ bus.on('change', (changes, next) => {
 				mentions.forEach((usr) => {
 					promises.push(new Promise((resolve, reject) => {
 						cache.getEntity(relationId, (e, r) => {
+							log.info('Got previous relation for mention: ', e, r, relationId);
 							if (e) {
 								reject(e);
 								return;
 							}
 							if (r && r.roles.indexOf(Constants.ROLE_MENTIONED) > -1) {
+								log.info(relationId, 'this user is already mentioned. Return');
 								resolve();
 								return;
 							}
@@ -81,12 +86,13 @@ bus.on('change', (changes, next) => {
 			}
 			promises.push(new Promise((resolve, reject) => {
 				cache.getEntity(relationId, (err, r) => {
-					log.info('Got previous relation: ', err, r, relationId);
+					log.info('Got previous relation for follower: ', err, r, relationId);
 					if (err) {
 						reject(err);
 						return;
 					}
 					if (r && r.roles.indexOf(Constants.ROLE_FOLLOWER) > -1) {
+						log.info(relationId, 'this user is already a follower. Return');
 						resolve();
 						return;
 					}
@@ -110,7 +116,7 @@ bus.on('change', (changes, next) => {
 				log.info('all promises resolved');
 				relations.forEach(relation => {
 					if (!relation) return;
-					console.log("relation.id", relation.id);
+					log.info('relation.id: ', relation.id);
 					changes.entities[relation.id] = relation;
 				});
 				next();
