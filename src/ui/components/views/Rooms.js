@@ -158,7 +158,7 @@ export default class Rooms extends Component<void, Props, State> {
 				placeHolder = <PageLoading />;
 				break;
 			case 'failed':
-				placeHolder = <PageEmpty label='Failed to load discussions' image='sad' />;
+				placeHolder = <PageEmpty label='Failed to load rooms' image='sad' />;
 				break;
 			}
 		}
