@@ -22,7 +22,6 @@ bus.on('change', (changes, next) => {
 			entity.type === Constants.TYPE_THREAD
 		) {
 			if (entity.createTime !== entity.updateTime) {
-				next();
 				continue;
 			}
 			let inc;
