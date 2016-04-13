@@ -1,7 +1,6 @@
-import { bus } from '../../core-server';
+import { bus, Constants } from '../../core-server';
 import engine from 'engine.io';
 import http from 'http';
-import Constants from '../../lib/Constants';
 import fs from 'fs';
 import path from 'path';
 
