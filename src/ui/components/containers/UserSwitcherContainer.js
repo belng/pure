@@ -26,7 +26,7 @@ class UserSwitcherContainerInner extends Component<void, Props, void> {
 	render() {
 		const {
 			data,
-			user
+			user,
 		} = this.props;
 
 		if (data) {
@@ -48,14 +48,14 @@ const mapSubscriptionToProps = {
 		key: {
 			type: 'state',
 			path: 'user',
-		}
+		},
 	},
 	data: {
 		key: {
 			type: 'state',
 			path: 'sessionList',
-		}
-	}
+		},
+	},
 };
 
 const mapActionsToProps = {
