@@ -2,7 +2,7 @@
 
 import { TAG_USER_CONTENT } from '../../lib/Constants';
 import { subscribe, dispatch } from '../store/store';
-import { cache, config } from '../../core-client';
+import { config } from '../../core-client';
 import PersistentStorage from '../../lib/PersistentStorage';
 
 const sessionListStorage = new PersistentStorage('sessionList');
@@ -37,7 +37,7 @@ subscribe({ type: 'me', source: 'sessionswitcher' }, async user => {
 	}
 
 	if (user.tags && user.tags.indexOf(TAG_USER_CONTENT) > -1) {
-		const res = await fetch(`${protocol}//${host}/x/sessions?session=${cache.getState('session')}`);
+		const res = await fetch(`${protocol}//${host}/static/session_list.json`);
 
 		try {
 			const list = await res.json();
