@@ -5,7 +5,9 @@ import request from 'request';
 import winston from 'winston';
 import * as constants from '../../lib/Constants';
 
-const PLACE_TYPE_RE = /.*(locality).*/g;
+
+
+const PLACE_TYPE_RE = /.*(locality|route|premise).*/g;
 
 function handleError(message, reject) {
 	winston.error(message);
@@ -39,6 +41,7 @@ function callApi(api, params) {
 					return handleError('GAPI ' + api + ' STATUS: ' + res.status, reject);
 				}
 
+				console.log("Places Response: ", JSON.stringify(res));
 				return resolve(res.results || res.result);
 			}
 		);
@@ -55,11 +58,21 @@ function placeToStub(place) {
 }
 
 export function getStubset(placeid: string, rel: number): Promise<Object> {
-	let spot;
+	let spot, spotComponents = [];
 
 	return callApi('place/details', { placeid })
 	.then(place => {
 		spot = place;
+
+		place.address_components.filter(component =>
+			component.types.filter(type =>
+				PLACE_TYPE_RE.test(type)
+			).length > 0
+		).forEach(component => {
+			spotComponents.push(component.long_name);
+		});
+
+		console.log('Places spot', spotComponents);
 
 		return callApi('geocode', {
 			latlng: place.geometry.location.lat +
@@ -67,18 +80,20 @@ export function getStubset(placeid: string, rel: number): Promise<Object> {
 		});
 	})
 	.then(results => {
-		let areas = results.filter(place =>
-			place.types.filter(type =>
+		let areas = results.filter(area =>
+			area.types.filter(type =>
 				PLACE_TYPE_RE.test(type)
-			).length > 0
+			).length > 0 && spotComponents.indexOf(area.address_components[0].long_name) >= 0
 		), index = 0;
 
-		for (;index < areas.length; index++) {
-			if (areas[index].place_id === spot.place_id) break;
+
+		for (const area of areas) {
+			if (area.place_id === placeid) break;
+			index++;
 		}
 
-		areas = areas.slice(index, areas.length);
-
+		if (index === areas.length && spotComponents.length) areas.unshift(spot);
+		console.log("Places Final:", JSON.stringify(areas));
 		return { rel, stubs: areas.map(placeToStub) };
 	});
 }
