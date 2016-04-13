@@ -1,14 +1,14 @@
 /* eslint-env jest */
 
-jest.dontMock('../URL');
-
-const {
+import {
 	isValidURL,
 	isValidMail,
 	isValidTel,
 	buildLink,
 	parseURLs,
-} = require('../URL');
+} from '../URL';
+
+jest.unmock('../URL');
 
 describe('isValidURL', () => {
 	it('should detect valid URLs', () => {

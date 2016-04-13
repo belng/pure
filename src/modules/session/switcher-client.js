@@ -11,7 +11,7 @@ const {
 	server: {
 		host,
 		protocol,
-	}
+	},
 } = config;
 
 
@@ -38,10 +38,15 @@ subscribe({ type: 'me', source: 'sessionswitcher' }, async user => {
 
 	if (user.tags && user.tags.indexOf(TAG_USER_CONTENT) > -1) {
 		const res = await fetch(`${protocol}//${host}/x/sessions?session=${cache.getState('session')}`);
-		const list = await res.json();
 
-		sessionListStorage.setItem('list', list);
-		saveList(list);
+		try {
+			const list = await res.json();
+
+			sessionListStorage.setItem('list', list);
+			saveList(list);
+		} catch (e) {
+			removeList();
+		}
 	} else {
 		const list = await sessionListStorage.getItem('list');
 

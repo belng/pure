@@ -4,14 +4,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
+import Connect from '../Connect';
+import Provider from '../Provider';
 
-jest.dontMock('../Container');
-jest.dontMock('../Connect');
-jest.dontMock('../Provider');
-jest.dontMock('../storeShape');
-
-const Connect = require('../Connect').default;
-const Provider = require('../Provider').default;
+jest.unmock('../Container');
+jest.unmock('../Connect');
+jest.unmock('../Provider');
+jest.unmock('../storeShape');
 
 describe('Connect', () => {
 	it('should render connected component with no data', () => {
@@ -134,7 +133,7 @@ describe('Connect', () => {
 		expect(dispatch.mock.calls.length).toBe(1);
 	});
 
-	it('should pass dispatch and data', () => {
+	pit('should pass dispatch and data', () => {
 		const ButtonComponent = ({ initialLabel, label, click }) => <button onClick={click}>{label || initialLabel}</button>; // eslint-disable-line
 
 		let callback;
