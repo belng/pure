@@ -7,14 +7,14 @@ import Colors from '../../Colors';
 import Icon from './Icon';
 
 const {
-	StyleSheet
+	StyleSheet,
 } = ReactNative;
 
 const styles = StyleSheet.create({
 	icon: {
 		margin: 16,
-		color: Colors.white
-	}
+		color: Colors.white,
+	},
 });
 
 type Props = {
@@ -23,7 +23,7 @@ type Props = {
 
 export default class AppbarIcon extends Component<void, Props, void> {
 	static propTypes = {
-		style: Icon.propTypes.style
+		style: Icon.propTypes.style,
 	};
 
 	shouldComponentUpdate(nextProps: Props): boolean {
