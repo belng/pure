@@ -84,7 +84,7 @@ function sendStanza(changes, entity) {
 			thread = changes.entities[entity.parents[0]];
 
 		if (!room || !thread) {
-			if (!room) {
+			if (!room || !room.name) {
 				counter.inc();
 				cache.getEntity(entity.parents[1], (e, r) => {
 					room = r;
@@ -92,7 +92,7 @@ function sendStanza(changes, entity) {
 				});
 			}
 
-			if (!thread) {
+			if (!thread || !thread.name) {
 				counter.inc();
 				cache.getEntity(entity.parents[0], (e, t) => {
 					thread = t;
