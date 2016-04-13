@@ -55,7 +55,7 @@ ServerHTML.propTypes = {
 };
 
 ServerHTML.defaultProps = {
-	locale: 'en'
+	locale: 'en',
 };
 
 export default ServerHTML;
