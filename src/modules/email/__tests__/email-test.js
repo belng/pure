@@ -1,5 +1,6 @@
+/* eslint-env jest */
 
-jest.dontMock('../digestEmail');
+jest.unmock('../digestEmail');
 
 let sendDigestEmail = require('../digestEmail'),
 	pg = require('../../../lib/pg'),
