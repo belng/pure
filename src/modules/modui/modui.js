@@ -1,7 +1,6 @@
-import { bus } from '../../core-server';
+import { bus, Constants } from '../../core-server';
 import engine from 'engine.io';
 import http from 'http';
-import { constants } from '../../lib/Constants';
 import fs from 'fs';
 import path from 'path';
 
@@ -32,8 +31,8 @@ bus.on('change', (change) => {
 		for (const id in change.entities) {
 			const entity = change.entities[id];
 			if (
-				entity !== constants.TYPE_THREAD &&
-				entity !== constants.TYPE_TEXT
+				entity !== Constants.TYPE_THREAD &&
+				entity !== Constants.TYPE_TEXT
 			) { return; }
 			for (const socket of sockets) {
 				socket.send(JSON.stringify(entity));
