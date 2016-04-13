@@ -102,6 +102,11 @@ export default function (entity) {
 						$: `"${name}" = jsonop("${name}"::jsonb, &{${name}}::jsonb, &{defaultOps}::jsonb)`,
 						[name]: entity[name]
 					};
+/*				case 'count':
+					return {
+						$: '"count" = "count" + &{count}',
+						count: entity.count
+					};*/
 				case 'meta':
 				case 'params':
 				case 'data':

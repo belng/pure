@@ -29,6 +29,6 @@ export default class Note {
 	}
 
 	getId() {
-		return this.user + '_' + this.event + '_' + this.data.textId;
+		return this.user + '_' + this.event + '_' + this.data.group;
 	}
 }

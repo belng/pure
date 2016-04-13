@@ -1,4 +1,4 @@
 let place = require("../place");
 
-place.getStubset("EjpOUiBDb2xvbnksIE5hbmphIFJlZGR5IENvbG9ueSwgQmVuZ2FsdXJ1LCBLYXJuYXRha2EsIEluZGlh")
+place.getStubset("ChIJ8xjTUvgTrjsRa7CZtsF6Kho")
 .then(places => console.log(places));

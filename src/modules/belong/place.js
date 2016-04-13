@@ -50,7 +50,7 @@ function placeToStub(place) {
 		identity: 'place:' + place.place_id,
 		name: place.address_components[0].long_name,
 		type: place.types[0] === 'locality' ?
-			constants.TAG_ROOM_CITY : constants.TAG_ROOM_AREA
+			constants.TAG_ROOM_CITY : constants.TAG_ROOM_AREA,
 	};
 }
 
@@ -60,19 +60,24 @@ export function getStubset(placeid: string, rel: number): Promise<Object> {
 	return callApi('place/details', { placeid })
 	.then(place => {
 		spot = place;
+
 		return callApi('geocode', {
 			latlng: place.geometry.location.lat +
-				',' + place.geometry.location.lng
+				',' + place.geometry.location.lng,
 		});
 	})
 	.then(results => {
-		const areas = results.filter(place =>
+		let areas = results.filter(place =>
 			place.types.filter(type =>
 				PLACE_TYPE_RE.test(type)
 			).length > 0
-		);
+		), index = 0;
 
-		if (areas[0].place_id !== spot.place_id) { areas.unshift(spot); }
+		for (;index < areas.length; index++) {
+			if (areas[index].place_id === spot.place_id) break;
+		}
+
+		areas = areas.slice(index, areas.length);
 
 		return { rel, stubs: areas.map(placeToStub) };
 	});
