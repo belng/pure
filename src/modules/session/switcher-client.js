@@ -2,7 +2,7 @@
 
 import { TAG_USER_CONTENT } from '../../lib/Constants';
 import { subscribe, dispatch } from '../store/store';
-import { config } from '../../core-client';
+import { cache, config } from '../../core-client';
 import PersistentStorage from '../../lib/PersistentStorage';
 
 const sessionListStorage = new PersistentStorage('sessionList');
@@ -41,6 +41,23 @@ subscribe({ type: 'me', source: 'sessionswitcher' }, async user => {
 
 		try {
 			const list = await res.json();
+
+			// If current user is not in the list, add it
+			let exists;
+
+			for (let i = 0, l = list.length; i < l; i++) {
+				if (list[i] && list[i].user === user.id) {
+					exists = true;
+					break;
+				}
+			}
+
+			if (!exists) {
+				list.unshift({
+					user: user.id,
+					session: cache.getState('session')
+				});
+			}
 
 			sessionListStorage.setItem('list', list);
 			saveList(list);
