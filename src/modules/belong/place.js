@@ -5,9 +5,39 @@ import request from 'request';
 import winston from 'winston';
 import * as constants from '../../lib/Constants';
 
+function getScore(types) {
+	let finalScore, finalTag = null;
+	for (const type of types) {
+		let score, tag;
+		if (type === 'locality') {
+			tag = constants.TAG_ROOM_CITY;
+			score = '1';
+		} else if (type === 'sublocality' || type === 'neighborhood') {
+			score = '2';
+			tag = constants.TAG_ROOM_AREA;
+		} else if (/.*sublocality.*/.test(type)) {
+			score = '2' + type.match(/[0-9]/);
+			tag = constants.TAG_ROOM_AREA;
+		} else if (type === 'premise' || type === 'subpremise') {
+			score = '3';
+			tag = constants.TAG_ROOM_SPOT;
+		}
 
+		if (typeof score !== 'undefined' && (!finalScore || score > finalScore)) {
+			finalScore = score;
+			finalTag = tag;
+		}
+	}
 
-const PLACE_TYPE_RE = /.*(locality|route|premise).*/g;
+	if (!finalTag || !finalScore) {
+		return null;
+	} else {
+		return {
+			score: finalScore,
+			tag: finalTag
+		};
+	}
+}
 
 function handleError(message, reject) {
 	winston.error(message);
@@ -41,7 +71,6 @@ function callApi(api, params) {
 					return handleError('GAPI ' + api + ' STATUS: ' + res.status, reject);
 				}
 
-				console.log("Places Response: ", JSON.stringify(res));
 				return resolve(res.results || res.result);
 			}
 		);
@@ -58,21 +87,17 @@ function placeToStub(place) {
 }
 
 export function getStubset(placeid: string, rel: number): Promise<Object> {
-	let spot, spotComponents = [];
+	let spot, score, tag;
 
 	return callApi('place/details', { placeid })
 	.then(place => {
+		const scoreTag = getScore(place.types);
+
 		spot = place;
-
-		place.address_components.filter(component =>
-			component.types.filter(type =>
-				PLACE_TYPE_RE.test(type)
-			).length > 0
-		).forEach(component => {
-			spotComponents.push(component.long_name);
-		});
-
-		console.log('Places spot', spotComponents);
+		if (scoreTag) {
+			score = scoreTag.score;
+			tag = scoreTag.tag;
+		}
 
 		return callApi('geocode', {
 			latlng: place.geometry.location.lat +
@@ -80,20 +105,24 @@ export function getStubset(placeid: string, rel: number): Promise<Object> {
 		});
 	})
 	.then(results => {
-		let areas = results.filter(area =>
-			area.types.filter(type =>
-				PLACE_TYPE_RE.test(type)
-			).length > 0 && spotComponents.indexOf(area.address_components[0].long_name) >= 0
-		), index = 0;
+		if (!score) score = '3';
+		const areas = results.filter(area => {
+			const res = getScore(area.types);
+			return res && res.score < score;
+		});
 
+		let index = 0;
 
-		for (const area of areas) {
-			if (area.place_id === placeid) break;
-			index++;
+		if (tag) {
+			for (const area of areas) {
+				if (area.place_id === placeid) break;
+				index++;
+			}
+
+			if (index === areas.length) areas.unshift(spot);
 		}
 
-		if (index === areas.length && spotComponents.length) areas.unshift(spot);
-		console.log("Places Final:", JSON.stringify(areas));
+		console.log("Places Final", areas.map(e => e.address_components[0].long_name));
 		return { rel, stubs: areas.map(placeToStub) };
 	});
 }
