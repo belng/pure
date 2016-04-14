@@ -15,6 +15,8 @@ bus.on('change', (changes, next) => {
 				counter.err(err);
 				return;
 			}
+
+			console.log("Getting: ", id, result);
 			if (result) {
 				entity.createTime = result.createTime;
 			} else {

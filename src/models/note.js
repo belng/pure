@@ -13,6 +13,10 @@ export default class Note {
 			}
 		}
 		if (data.error) this.error = data.error;
+		Object.defineProperty(this, 'id', {
+			get: () => this.user + '_' + this.event + '_' + this.group,
+			enumerable: false,
+		});
 	}
 
 	packArguments() {
@@ -28,7 +32,4 @@ export default class Note {
 		return [ data ];
 	}
 
-	getId() {
-		return this.user + '_' + this.event + '_' + this.data.textId;
-	}
 }
