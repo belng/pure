@@ -2,7 +2,7 @@
 /* @flow */
 import log from 'winston';
 import { config, bus } from '../../core-server';
-import { subscribe } from './subscribeTopics';
+import { subscribe, getIIDInfo } from './subscribeTopics';
 // import util from 'util';
 let client;
 const sessionAndtokens = {};
@@ -48,6 +48,7 @@ export function updateUser(u, cb) {
 		// console.log('no data token and session found to update user');
 		return;
 	}
+	console.log("auth user: ", u.data.sessionId);
 	bus.emit('change', {
 		auth: {
 			session: u.data.sessionId
@@ -61,6 +62,33 @@ export function updateUser(u, cb) {
 		} else {
 			log.info('update user with token');
 			const user = changes.response.entities[changes.response.state.user];
+
+			if (user && user.params && user.params.gcm) {
+				const oldGcm = user.params.gcm;
+				if (oldGcm[u.data.uuid] === u.data.token) {
+					log.info('Same gcm token. return');
+					sendDownstreamMessage(u, 'ACK');
+					return;
+				} else {
+					// subscribe new token to all topics that previous token is subscribed to.
+					getIIDInfo(oldGcm[u.data.uuid], (error, result, body) => {
+						if (error) {
+							log.e('Error getting old subscribed topics: ', error);
+							return;
+						}
+
+						Object.keys(JSON.parse(body).rel.topics).forEach(topic => {
+							log.info('subscribing to new topic: ', topic);
+							subscribe({
+								params: {
+									gcm: { new: u.data.token }
+								},
+								topic
+							});
+						});
+					});
+				}
+			}
 
 			(user.params.gcm = user.params.gcm || {})[u.data.uuid] = u.data.token;
 			bus.emit('change', {
