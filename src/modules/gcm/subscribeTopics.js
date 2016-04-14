@@ -16,7 +16,7 @@ const options = {
 	body: {}
 };
 
-function getIIDInfo(iid, cb) {
+export function getIIDInfo(iid: String, cb: Function) {
 	request({
 		url: `https://iid.googleapis.com/iid/info/${iid}?details=true`,
 		method: 'GET',
@@ -128,7 +128,7 @@ export function subscribe (userRel: Object) {
 		});
 	}
 	if (!gcm) {
-		log.debug('No gcm found for user retrying saving token...');
+		log.debug('No gcm found for user retrying from saved token...');
 		const data = getTokenFromSession();
 		if (data.error) log.info(data.error);
 		updateUser({ data }, (error) => {
@@ -145,11 +145,11 @@ export function subscribe (userRel: Object) {
 	}
 
 }
-function handleSubscription(changes) {
+function handleSubscription(changes, next) {
 	const counter = new Counter();
 
 	if (!changes.entities || !config.gcm.apiKey) {
-		// next();
+		next();
 		return;
 	}
 	// console.log("chandra: ", changes);
@@ -161,10 +161,10 @@ function handleSubscription(changes) {
 				entity.type === Constants.TYPE_ROOMREL
 			) {
 			// console.log("ksdfhjhadf : ", entity);
-			// if (entity.createTime !== entity.updateTime) {
-			// 	log.info('Not created now, return', entity);
-			// 	return;
-			// }
+			if (entity.createTime !== entity.updateTime) {
+				log.info('Not created now, return', entity);
+				continue;
+			}
 			let user = changes.entities[entity.user];
 
 			if (!user) {
@@ -198,5 +198,6 @@ function handleSubscription(changes) {
 			});
 		}
 	}
+	next();
 }
-bus.on('change', handleSubscription, Constants.APP_PRIORITIES.SUBSCRIBE_TO_TOPICS);
+bus.on('change', handleSubscription, Constants.APP_PRIORITIES.GCM);

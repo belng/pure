@@ -1,8 +1,7 @@
 /* @flow */
 
 import { Constants, bus, cache } from '../../core-server';
-import ThreadRel from '../../models/threadrel';
-import { textrel } from '../../models/models';
+import { textrel, threadrel } from '../../models/models';
 import Counter from '../../lib/counter';
 import log from 'winston';
 
@@ -77,7 +76,7 @@ bus.on('change', (changes, next) => {
 								type: Constants.TYPE_THREADREL,
 								roles: [ Constants.ROLE_MENTIONED ],
 							};
-							const threadRelation = new ThreadRel(threadRel);
+							const threadRelation = new threadrel(threadRel);
 
 							log.info('Thread Relation created:', threadRelation);
 							resolve(threadRelation);
@@ -109,7 +108,7 @@ bus.on('change', (changes, next) => {
 						type: Constants.TYPE_THREADREL,
 						roles: role,
 					};
-					const relation = new ThreadRel(threadRel);
+					const relation = new threadrel(threadRel);
 
 					log.info('create relation on text: ', relation, relation.id);
 					resolve(relation);
@@ -138,8 +137,9 @@ bus.on('change', (changes, next) => {
 				type: Constants.TYPE_THREADREL,
 				roles: [ Constants.ROLE_CREATOR ],
 			};
-			const relation = new ThreadRel(threadRel);
+			const relation = new threadrel(threadRel);
 			changes.entities[relation.id] = relation;
+			log.info('create relation between thread and the creator: ', relation.id);
 		}
 	}
 	counter.then(next);
