@@ -1,28 +1,28 @@
 import React, { Component } from 'react';
 
 const styles = {
-	title: {
+	name: {
 		fontSize: 14,
 		border: '0.2 ridge',
 		fontWeight: 'bold',
-		fontFamily: 'sans-serif',
+		fontFamily: 'Verdana',
 	},
 	body: {
 		fontSize: 13,
 		border: '0.2 solid',
 		fontWeight: 'ridge',
-		fontFamily: 'droid-sans',
+		fontFamily: 'Verdana',
 	},
 	creator: {
 		fontSize: 12,
 		border: '0.2 ridge',
 		fontWeight: 'normal',
-		fontFamily: 'droid-sans',
+		fontFamily: 'Verdana',
 	},
 	message: {
-		width: '42%',
+		width: '50%',
 		border: '0.2px ridge',
-		position: 'relative',
+		position: 'absolute',
 	},
 	button: {
 		width: 4,
@@ -35,10 +35,10 @@ const styles = {
 class TodoItem extends Component {
 	render() {
 		return (
-			<div style={styles.message} id='msgId'>
-				<div style={styles.title}>{this.props.todo}</div>
-				<div style={styles.body}>{this.props.todo}</div>
-				<div style={styles.creator}>{this.props.todo}</div>
+			<div style={styles.message}>
+				<div style={styles.name}>{this.props.todo.name}</div>
+				<div style={styles.body}>{this.props.todo.body}</div>
+				<div style={styles.creator}>{this.props.todo.creator}</div>
 			</div>
 		);
 	}
