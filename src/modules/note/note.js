@@ -74,7 +74,7 @@ bus.on('change', (changes) => {
 				};
 				const	note = new Note(noteObj);
 				console.log("Note created: ", note);
-				changes.entities[note.getId()] = note;
+				changes.entities[note.id] = note;
 			});
 		}
 	}
