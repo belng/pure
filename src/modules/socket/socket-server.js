@@ -134,7 +134,7 @@ bus.on('http/init', app => {
 });
 
 bus.on('postchange', changes => {
-	notify(changes, core.config).on('data', (change, rel) => {
+	notify(changes, core.cache, core.config).on('data', (change, rel) => {
 		if (!rel || !rel.resources || typeof rel.resources !== 'object') return;
 		Object.keys(rel.resources).forEach(e => {
 			if (!sockets[e]) return;

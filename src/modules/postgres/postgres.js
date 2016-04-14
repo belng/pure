@@ -22,7 +22,6 @@ function getTypeFromId(id) {
 }
 
 function broadcast (entity) {
-	console.trace("BROADCAST:", entity.id);
 	pg.notify(config.connStr, channel, packer.encode(entity));
 }
 
@@ -65,7 +64,8 @@ function onEntityQuery(ids, err, r) {
 	const entities = {};
 
 	r.forEach((row) => {
-		entities[row.id] = new Types[TYPE_NAMES[row.type]](row);
+		const entity = new Types[TYPE_NAMES[row.type]](row);
+		entities[entity.id] = entity;
 	});
 
 	const missingIds = ids.filter(id => !(id in entities));
@@ -124,7 +124,6 @@ pg.listen(config.connStr, channel, (payload) => {
 	const entity = packer.decode(payload);
 	const change = { entities: { [entity.id]: entity } };
 
-	console.log("Entity: ",entity.id, ': ', entity);
 	bus.emit('postchange', change);
 	cache.put(change);
 });

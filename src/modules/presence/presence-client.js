@@ -4,8 +4,11 @@ import { bus, cache } from '../../core-client';
 import { subscribe, on } from '../store/store';
 import { setPresence, setItemPresence } from '../store/actions';
 import { ROLE_VISITOR } from '../../lib/Constants';
+import promisify from '../../lib/promisify';
 
-function getRelationAndSetPresence(slice: Object, status: 'online' | 'offline') {
+const getEntityAsync = promisify(cache.getEntity.bind(cache));
+
+async function getRelationAndSetPresence(slice: Object, status: 'online' | 'offline') {
 	let type;
 
 	if (slice.type === 'text') {
@@ -20,23 +23,18 @@ function getRelationAndSetPresence(slice: Object, status: 'online' | 'offline') 
 
 	if (slice.filter && slice.filter.parents_cts) {
 		const item = slice.filter.parents_cts[0];
+		const result = await getEntityAsync(`${user}_${item}`);
 
-		cache.getEntity(`${user}_${item}`, (err, result) => {
-			if (err) {
-				return;
-			}
-
-			if (result) {
-				bus.emit('change', setItemPresence(result, type, status));
-			} else {
-				bus.emit('change', setItemPresence({
-					item,
-					user,
-					roles: [ ROLE_VISITOR ],
-					create: true,
-				}, type, status));
-			}
-		});
+		if (result) {
+			bus.emit('change', setItemPresence(result, type, status));
+		} else {
+			bus.emit('change', setItemPresence({
+				item,
+				user,
+				roles: [ ROLE_VISITOR ],
+				create: true,
+			}, type, status));
+		}
 	}
 }
 

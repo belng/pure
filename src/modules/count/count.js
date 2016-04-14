@@ -21,7 +21,9 @@ bus.on('change', (changes, next) => {
 			entity.type === Constants.TYPE_TEXT ||
 			entity.type === Constants.TYPE_THREAD
 		) {
-			if (!entity.parents) return;
+			if (entity.createTime !== entity.updateTime) {
+				continue;
+			}
 			let inc;
 			log.info('Count module reached: ', entity);
 			if (entity.createTime === entity.updateTime) {
@@ -113,5 +115,5 @@ bus.on('change', (changes, next) => {
 		}
 	}
 	next();
-});
+}, Constants.APP_PRIORITIES.COUNT);
 log.info('Count module ready.');

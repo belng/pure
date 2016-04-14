@@ -3,6 +3,7 @@
 import { Constants, bus, cache } from '../../core-server';
 import ThreadRel from '../../models/threadrel';
 import { textrel } from '../../models/models';
+import Counter from '../../lib/counter';
 import log from 'winston';
 
 bus.on('change', (changes, next) => {
@@ -11,12 +12,17 @@ bus.on('change', (changes, next) => {
 		return;
 	}
 
+	const counter = new Counter();
+
 	for (const id in changes.entities) {
 		const entity = changes.entities[id];
 		let text, role, user;
 
 		if (entity.type === Constants.TYPE_TEXT) {
-			if (!entity.parents) return;
+			if (entity.createTime !== entity.updateTime) {
+				continue;
+			}
+			counter.inc();
 			const relationId = entity.creator + '_' + entity.parents[0];
 			let promises;
 
@@ -41,7 +47,7 @@ bus.on('change', (changes, next) => {
 								item: entity.id,
 								user: usr.id,
 								type: Constants.TYPE_TEXTREL,
-								roles: [ Constants.ROLE_MENTIONED ]
+								roles: [ Constants.ROLE_MENTIONED ],
 							};
 							const relation = new textrel(textRel);
 
@@ -53,12 +59,15 @@ bus.on('change', (changes, next) => {
 
 				mentions.forEach((usr) => {
 					promises.push(new Promise((resolve, reject) => {
-						cache.getEntity(relationId, (e, r) => {
+						const relId = usr.slice(1) + '_' + entity.parents[0];
+						cache.getEntity(relId, (e, r) => {
+							log.info('Got previous relation for mention: ', e, r, relId);
 							if (e) {
 								reject(e);
 								return;
 							}
 							if (r && r.roles.indexOf(Constants.ROLE_MENTIONED) > -1) {
+								log.info(relId, 'this user is already mentioned. Return');
 								resolve();
 								return;
 							}
@@ -66,7 +75,7 @@ bus.on('change', (changes, next) => {
 								item: entity.parents[0],
 								user: usr.slice(1),
 								type: Constants.TYPE_THREADREL,
-								roles: [ Constants.ROLE_MENTIONED ]
+								roles: [ Constants.ROLE_MENTIONED ],
 							};
 							const threadRelation = new ThreadRel(threadRel);
 
@@ -81,12 +90,13 @@ bus.on('change', (changes, next) => {
 			}
 			promises.push(new Promise((resolve, reject) => {
 				cache.getEntity(relationId, (err, r) => {
-					log.info('Got previous relation: ', err, r, relationId);
+					log.info('Got previous relation for follower: ', err, r, relationId);
 					if (err) {
 						reject(err);
 						return;
 					}
 					if (r && r.roles.indexOf(Constants.ROLE_FOLLOWER) > -1) {
+						log.info(relationId, 'this user is already a follower. Return');
 						resolve();
 						return;
 					}
@@ -97,7 +107,7 @@ bus.on('change', (changes, next) => {
 						item: text.parents[0],
 						user,
 						type: Constants.TYPE_THREADREL,
-						roles: role
+						roles: role,
 					};
 					const relation = new ThreadRel(threadRel);
 
@@ -110,15 +120,28 @@ bus.on('change', (changes, next) => {
 				log.info('all promises resolved');
 				relations.forEach(relation => {
 					if (!relation) return;
-					console.log("relation.id", relation.id);
+					log.info('relation.id: ', relation.id);
 					changes.entities[relation.id] = relation;
 				});
-				next();
+				counter.dec();
 			}).catch((err) => {
-				log.info('cought error: ', err);
-				next(err);
+				log.info('caught error: ', err);
+				counter.err(err);
 			});
+		} else if (entity.type === Constants.TYPE_THREAD) {
+			if (!entity.createTime || entity.createTime !== entity.updateTime) {
+				continue;
+			}
+			const threadRel = {
+				user: entity.creator,
+				item: entity.id,
+				type: Constants.TYPE_THREADREL,
+				roles: [ Constants.ROLE_CREATOR ],
+			};
+			const relation = new ThreadRel(threadRel);
+			changes.entities[relation.id] = relation;
 		}
 	}
+	counter.then(next);
 }, Constants.APP_PRIORITIES.RELATIONS);
 log.info('Relation module ready');

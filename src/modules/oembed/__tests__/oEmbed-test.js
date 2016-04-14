@@ -1,22 +1,20 @@
 /* eslint-env jest */
 /* eslint-disable import/no-commonjs */
 
-jest.dontMock('babel-polyfill')
-	.dontMock('node-fetch')
-	.dontMock('xmlhttprequest')
-	.dontMock('../oEmbed')
-	.dontMock('../oEmbedStorage')
-	.dontMock('../getContentType')
-	.dontMock('../providers')
-	.dontMock('../regexes')
-	.setMock('react-native', require('../__mocks__/ReactNative'));
-
-require('babel-polyfill');
-
-const oEmbed = require('../oEmbed').default;
+import oEmbed from '../oEmbed';
 
 global.fetch = require('node-fetch');
 global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+
+jest.unmock('babel-polyfill')
+	.unmock('node-fetch')
+	.unmock('xmlhttprequest')
+	.unmock('../oEmbed')
+	.unmock('../oEmbedStorage')
+	.unmock('../getContentType')
+	.unmock('../providers')
+	.unmock('../regexes')
+	.mock('react-native', () => require('../__mocks__/ReactNative'));
 
 describe('oEmbed', function() {
 	this.env.defaultTimeoutInterval = 300000;
