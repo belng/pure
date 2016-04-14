@@ -18,7 +18,7 @@ bus.on('change', (changes, next) => {
 		let text, role, user;
 
 		if (entity.type === Constants.TYPE_TEXT) {
-			if (entity.createTime !== entity.updateTime) {
+			if (entity.createTime !== entity.updateTime || (!entity.parents || !entity.parents.length)) {
 				continue;
 			}
 			counter.inc();
