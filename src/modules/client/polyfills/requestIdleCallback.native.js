@@ -3,7 +3,7 @@
 import ReactNative from 'react-native';
 
 const {
-	InteractionManager
+	InteractionManager,
 } = ReactNative;
 
 global.requestIdleCallback = cb => setTimeout(() => InteractionManager.runAfterInteractions(cb), 0);
