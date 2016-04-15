@@ -25,6 +25,17 @@ import type { User } from './../../lib/schemaTypes';
 
 // */
 
+function typeStringToNumber(type) {
+	switch (type) {
+	case 'home':
+		return constants.ROLE_HOME;
+	case 'work':
+		return constants.ROLE_WORK;
+	case 'hometown':
+		return constants.ROLE_HOMETOWN;
+	}
+	return 0;
+}
 
 function addRooms(change, addable) {
 	for (const stub of addable) {
@@ -57,7 +68,8 @@ function addRels(change, user:any, resources, addable) {
 
 function removeRels(change, removable) {
 	for (const rel of removable) {
-		change[rel.id] = new RoomRel({ roles: [] });
+		console.log("REL: ", rel);
+		change[rel.id] = new RoomRel({ id: rel.id, roles: [], item: rel.item, user: rel.user });
 	}
 }
 
@@ -66,6 +78,15 @@ function sendInvitations (resources, user, deletedRels, relRooms, ...stubsets) {
 		all = [], addable = [], removable = [],
 		change = {};
 
+	console.log("sendInvitiations fired");
+	console.log("User", user);
+	console.log("DeletedRels:", deletedRels);
+	console.log("relRooms:", relRooms);
+	console.log("stubsets:", stubsets);
+
+	deletedRels = deletedRels.map(typeStringToNumber);
+
+	console.log("DeletedRels:", deletedRels);
 	for (const stubset of stubsets) {
 		changedRels[stubset.rel] = true;
 
@@ -92,7 +113,9 @@ function sendInvitations (resources, user, deletedRels, relRooms, ...stubsets) {
 				role <= constants.ROLE_HOMETOWN
 			)[0];
 
-			if (changedRels[type] || deletedRels[type]) {
+			console.log('TYPE: ', type, typeStringToNumber(type));
+			if (changedRels[type] || deletedRels.indexOf(type) >= 0) {
+				console.log("Add to removable", relRoom);
 				removable.push(relRoom.roomrel);
 			} else {
 				all.push({ identity, type, name: relRoom.room.name });
@@ -148,6 +171,7 @@ bus.on('change', change => {
 				!user.params || !user.params.places
 			) { continue; }
 
+			console.log("User event");
 			if (user.params && user.params.places) {
 				const { home, work, hometown } = user.params.places;
 
@@ -172,6 +196,7 @@ bus.on('change', change => {
 				return;
 			}
 
+			console.log("Places exists");
 			/* Fetch the current rooms of this user. */
 			const currentRels = new Promise((resolve, reject) => {
 				cache.query({
@@ -181,6 +206,7 @@ bus.on('change', change => {
 					order: 'createTime'
 				}, [ -Infinity, Infinity ], (err, results) => {
 					if (err) { reject(err); return; }
+					console.log("Current rooms counts:". results);
 					resolve(results);
 				});
 			});

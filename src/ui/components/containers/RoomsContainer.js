@@ -4,6 +4,7 @@ import React, { Component, PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import PassUserProp from '../../../modules/store/PassUserProp';
 import Rooms from '../views/Rooms';
+import { ROLE_FOLLOWER } from './../../../lib/Constants';
 
 const filterInvalidRels = data => data.filter(result => typeof result.type === 'string' || result.room && result.roomrel);
 
@@ -26,7 +27,8 @@ class RoomsContainer extends Component {
 									room: 'item',
 								},
 								filter: {
-									user
+									user,
+									roles_cts: [ ROLE_FOLLOWER ]
 								},
 								order: 'createTime'
 							},
