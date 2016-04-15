@@ -15,7 +15,7 @@ const httpServer = http.createServer((req, res) => {
 
 httpServer.listen(3030);
 
-const sockServer = engine.attach(httpServer);
+const sockServer = engine.attach(httpServer, { path: '/admin/socket' });
 const sockets = [];
 
 sockServer.on('connection', (socket) => {
