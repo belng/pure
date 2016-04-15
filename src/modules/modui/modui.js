@@ -27,7 +27,7 @@ sockServer.on('connection', (socket) => {
 	});
 });
 
-bus.on('changes', (change) => {
+bus.on('change', (change) => {
 	if (change.entities) {
 		for (const id in change.entities) {
 			const entity = change.entities[id];
