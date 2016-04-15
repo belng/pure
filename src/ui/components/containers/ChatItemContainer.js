@@ -9,7 +9,7 @@ import {
 	hideThread,
 	unhideThread,
 	banUser,
-	unbanUser
+	unbanUser,
 } from '../../../modules/store/actions';
 import { TAG_USER_ADMIN, TYPE_THREAD } from '../../../lib/Constants';
 
@@ -18,32 +18,40 @@ const hasAdminTag = user => (user && user.tags && user.tags.indexOf(TAG_USER_ADM
 const mapSubscriptionToProps = {
 	isUserAdmin: {
 		key: 'me',
-		transform: hasAdminTag
-	}
+		transform: hasAdminTag,
+	},
 };
 
 const mapActionsToProps = {
-	hideText: (store, result, props) => () => {
-		if (props.text.type === TYPE_THREAD) {
-			store.dispatch(hideThread(props.text));
+	hideText: (store, result) => () => {
+		if (result.text.type === TYPE_THREAD) {
+			store.dispatch(hideThread(result.text));
 		} else {
-			store.dispatch(hideText(props.text));
+			store.dispatch(hideText(result.text));
 		}
 	},
-	unhideText: (store, result, props) => () => {
-		if (props.text.type === TYPE_THREAD) {
-			store.dispatch(unhideThread(props.text));
+	unhideText: (store, result) => () => {
+		if (result.text.type === TYPE_THREAD) {
+			store.dispatch(unhideThread(result.text));
 		} else {
-			store.dispatch(unhideText(props.text));
+			store.dispatch(unhideText(result.text));
 		}
 	},
-	banUser: (store, result, props) => () => store.dispatch(banUser(props.text.creator)),
-	unbanUser: (store, result, props) => () => store.dispatch(unbanUser(props.text.creator)),
+	banUser: (store, result) => () => store.dispatch(banUser(result.text.creator)),
+	unbanUser: (store, result) => () => store.dispatch(unbanUser(result.text.creator)),
 };
 
 const ChatItemContainer = (props: any) => (
 	<Connect
-		mapSubscriptionToProps={mapSubscriptionToProps}
+		mapSubscriptionToProps={{
+			...mapSubscriptionToProps,
+			text: {
+				key: {
+					type: 'entity',
+					id: props.text,
+				},
+			},
+		}}
 		mapActionsToProps={mapActionsToProps}
 		passProps={props}
 		component={ChatItem}
@@ -51,10 +59,7 @@ const ChatItemContainer = (props: any) => (
 );
 
 ChatItemContainer.propTypes = {
-	text: PropTypes.shape({
-		id: PropTypes.string,
-		creator: PropTypes.string,
-	})
+	text: PropTypes.string,
 };
 
 export default ChatItemContainer;

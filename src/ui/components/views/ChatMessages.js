@@ -89,7 +89,7 @@ export default class ChatMessages extends Component {
 		return (
 			<ChatItemContainer
 				key={text.id}
-				text={text}
+				text={text.id}
 				isFirst={item.isFirst}
 				isLast={item.isLast}
 				previousText={previousText}

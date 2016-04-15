@@ -3,11 +3,11 @@
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import shallowEqual from 'shallowequal';
+import RoomItemContainer from '../containers/RoomItemContainer';
 import BannerUnavailable from './BannerUnavailable';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
 import LoadingItem from './LoadingItem';
-import RoomItem from './RoomItem';
 import ListItem from './ListItem';
 import AppText from './AppText';
 import Icon from './Icon';
@@ -23,7 +23,7 @@ const {
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1
+		flex: 1,
 	},
 
 	footer: {
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
 
 	footerIcon: {
 		color: Colors.fadedBlack,
-		marginHorizontal: 16
+		marginHorizontal: 16,
 	},
 });
 
@@ -66,19 +66,19 @@ export default class Rooms extends Component<void, Props, State> {
 
 	state: State = {
 		dataSource: new ListView.DataSource({
-			rowHasChanged: (r1, r2) => r1 !== r2
-		})
+			rowHasChanged: (r1, r2) => r1 !== r2,
+		}),
 	};
 
 	componentWillMount() {
 		this.setState({
-			dataSource: this.state.dataSource.cloneWithRows(this.props.data)
+			dataSource: this.state.dataSource.cloneWithRows(this.props.data),
 		});
 	}
 
 	componentWillReceiveProps(nextProps: Props) {
 		this.setState({
-			dataSource: this.state.dataSource.cloneWithRows(nextProps.data)
+			dataSource: this.state.dataSource.cloneWithRows(nextProps.data),
 		});
 	}
 
@@ -90,8 +90,8 @@ export default class Rooms extends Component<void, Props, State> {
 		this.props.onNavigation(new NavigationActions.Push({
 			name: 'room',
 			props: {
-				room: room.id
-			}
+				room: room.id,
+			},
 		}));
 	};
 
@@ -101,9 +101,9 @@ export default class Rooms extends Component<void, Props, State> {
 		}
 
 		return (
-			<RoomItem
+			<RoomItemContainer
 				key={result.room.id}
-				room={result.room}
+				room={result.room.id}
 				onSelect={this._handleSelectLocality}
 				showMenuButton
 				showBadge
@@ -121,8 +121,8 @@ export default class Rooms extends Component<void, Props, State> {
 		this.props.onNavigation(new NavigationActions.Push({
 			name: 'room',
 			props: {
-				room: 'support'
-			}
+				room: 'support',
+			},
 		}));
 	};
 

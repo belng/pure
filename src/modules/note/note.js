@@ -1,20 +1,24 @@
 /* eslint no-loop-func: 0 */
 import log from 'winston';
 import Counter from '../../lib/counter';
-import {note as Note} from '../../models/models';
+import { note as Note } from '../../models/models';
 import { Constants, bus, cache, config } from '../../core-server';
 import { convertRouteToURL } from '../../lib/Route';
 
-bus.on('change', (changes) => {
+bus.on('change', (changes, next) => {
 	if (!changes.entities) {
+		next();
 		return;
 	}
 	const counter = new Counter();
-
+	const counter1 = new Counter();
 	for (const id in changes.entities) {
 		const entity = changes.entities[id];
 		if (entity.type === Constants.TYPE_TEXTREL) {
-			if (entity.roles.indexOf(Constants.ROLE_MENTIONED) === -1) return;
+			if (entity.roles.indexOf(Constants.ROLE_MENTIONED) === -1) {
+				continue;
+			}
+			counter1.inc();
 			let item = changes.entities[entity.item], roomName;
 			const now = Date.now(),
 				noteObj = {
@@ -71,9 +75,12 @@ bus.on('change', (changes) => {
 				const	note = new Note(noteObj);
 				console.log('Note created: ', note);
 				changes.entities[note.id] = note;
+				counter1.dec();
 			});
 		}
 	}
+	counter1.then(next);
+	// next();
 }, Constants.APP_PRIORITIES.NOTE);
 
 log.info('Note module ready.');
