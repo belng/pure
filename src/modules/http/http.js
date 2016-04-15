@@ -10,6 +10,7 @@ import { config, bus } from '../../core-server';
 
 const app = koa();
 const httpServer = http.createServer(app.callback()).listen(config.server.port);
+
 app.use(koabody());
 app.use(logger());
 app.use(client());
