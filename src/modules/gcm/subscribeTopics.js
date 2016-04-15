@@ -1,4 +1,5 @@
 /* @flow */
+/* eslint dot-notation: 0*/
 import { config, bus, Constants, cache } from '../../core-server';
 import Counter from '../../lib/counter';
 import log from 'winston';
@@ -90,7 +91,7 @@ function unsubscribeTopics (data, cb) {
 
 export function subscribe (userRel: Object) {
 	const gcm = userRel.params.gcm;
-
+	const userName = userRel.params['facebook'].name || userRel.params['google'].name;
 	function register () {
 		const	tokens = values(gcm);
 
@@ -118,7 +119,7 @@ export function subscribe (userRel: Object) {
 					log.error(body, userRel.topic);
 					// console.log(options);
 				} else {
-					log.info('succefully subscribed to: ' + userRel.topic, body);
+					log.info(userName, 'succefully subscribed to: ' + userRel.topic, body);
 					// getIIDInfo(token, (e, r, b) => {
 					// 	log.info(b);
 					// 	// return;
@@ -161,7 +162,7 @@ function handleSubscription(changes, next) {
 				entity.type === Constants.TYPE_ROOMREL
 			) {
 			// console.log("ksdfhjhadf : ", entity);
-			if (entity.createTime !== entity.updateTime) {
+			if (!entity.createTime || entity.createTime !== entity.updateTime) {
 				log.info('Not created now, return', entity);
 				continue;
 			}
@@ -175,7 +176,11 @@ function handleSubscription(changes, next) {
 				});
 			}
 			counter.then(() => {
-				if (entity.roles && entity.roles.length === 0) {
+				if (
+					entity.roles && entity.roles.length === 0 ||
+					entity.roles.indexOf(Constants.ROLE_FOLLOWER) === -1 &&
+					entity.roles.indexOf(Constants.ROLE_CREATOR) === -1
+				) {
 					// log.info('Got unfollow, unsubscribe from topics');
 					// const gcm = user.params && user.params.gcm;
 					// const	tokens = values(gcm);
@@ -186,8 +191,10 @@ function handleSubscription(changes, next) {
 					// 		log.info('Unsubscribed from topic: ', topic);
 					// 	});
 					// });
+					// console.log("sdjfh jsghf gh fdgfm: ", Constants.ROLE_OWNER, entity.roles.indexOf(Constants.ROLE_OWNER), entity);
 					return;
 				} else if (entity.roles && entity.roles.length > 0) {
+					// console.log("jhgf shfg: ", entity)
 					log.info('subscribe ' + user.id + ' to ' + entity.item);
 					subscribe({
 						params: user.params || {},
@@ -200,4 +207,6 @@ function handleSubscription(changes, next) {
 	}
 	next();
 }
+
+// console.log("Constants.APP_PRIORITIES.GCM", Constants.APP_PRIORITIES.GCM);
 bus.on('change', handleSubscription, Constants.APP_PRIORITIES.GCM);

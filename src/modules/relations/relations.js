@@ -18,7 +18,7 @@ bus.on('change', (changes, next) => {
 		let text, role, user;
 
 		if (entity.type === Constants.TYPE_TEXT) {
-			if (entity.createTime !== entity.updateTime) {
+			if (!entity.createTime || entity.createTime !== entity.updateTime) {
 				continue;
 			}
 			counter.inc();
@@ -94,7 +94,9 @@ bus.on('change', (changes, next) => {
 						reject(err);
 						return;
 					}
-					if (r && r.roles.indexOf(Constants.ROLE_FOLLOWER) > -1) {
+					if (
+						r && r.roles.indexOf(Constants.ROLE_FOLLOWER) > -1
+					) {
 						log.info(relationId, 'this user is already a follower. Return');
 						resolve();
 						return;
