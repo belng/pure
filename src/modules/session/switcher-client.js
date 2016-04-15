@@ -11,7 +11,7 @@ const {
 	server: {
 		host,
 		protocol,
-	}
+	},
 } = config;
 
 
@@ -37,11 +37,33 @@ subscribe({ type: 'me', source: 'sessionswitcher' }, async user => {
 	}
 
 	if (user.tags && user.tags.indexOf(TAG_USER_CONTENT) > -1) {
-		const res = await fetch(`${protocol}//${host}/x/sessions?session=${cache.getState('session')}`);
-		const list = await res.json();
+		const res = await fetch(`${protocol}//${host}/static/session_list.json`);
 
-		sessionListStorage.setItem('list', list);
-		saveList(list);
+		try {
+			const list = await res.json();
+
+			// If current user is not in the list, add it
+			let exists;
+
+			for (let i = 0, l = list.length; i < l; i++) {
+				if (list[i] && list[i].user === user.id) {
+					exists = true;
+					break;
+				}
+			}
+
+			if (!exists) {
+				list.unshift({
+					user: user.id,
+					session: cache.getState('session')
+				});
+			}
+
+			sessionListStorage.setItem('list', list);
+			saveList(list);
+		} catch (e) {
+			removeList();
+		}
 	} else {
 		const list = await sessionListStorage.getItem('list');
 

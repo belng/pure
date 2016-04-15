@@ -33,7 +33,7 @@
   },
 
   "rules": {
-    "comma-dangle": [1, "always-multiline"],
+    "comma-dangle": 0,
     "no-cond-assign": 2,
     "no-console": 1,
     "no-constant-condition": 2,

@@ -1,23 +1,23 @@
 /* eslint-env jest */
 
-jest.dontMock('../Route');
-jest.dontMock('../RouteBase');
+import { convertURLToRoute, convertRouteToURL } from '../Route';
 
-const { convertURLToRoute, convertRouteToURL } = require('../Route');
+jest.unmock('../Route');
+jest.unmock('../RouteBase');
 
 describe('convertURLToRoute', () => {
 	it('should throw error on invalid url', () => {
 		expect(() => {
 			convertURLToRoute(null);
-		}).toThrow('Invalid URL given');
+		}).toThrow(new TypeError('Invalid URL given'));
 	});
 
 	it('should ignore protocol and host', () => {
 		const result = {
 			name: 'room',
 			props: {
-				room: 'someroom'
-			}
+				room: 'someroom',
+			},
 		};
 
 		expect(result).toEqual(convertURLToRoute('https://heyneighbor.chat/someroom/all/all-messages'));
@@ -37,8 +37,8 @@ describe('convertURLToRoute', () => {
 		expect({
 			name: 'room',
 			props: {
-				room: 'someroom'
-			}
+				room: 'someroom',
+			},
 		}).toEqual(convertURLToRoute('/someroom'));
 	});
 
@@ -46,8 +46,8 @@ describe('convertURLToRoute', () => {
 		expect({
 			name: 'room',
 			props: {
-				room: 'someroom'
-			}
+				room: 'someroom',
+			},
 		}).toEqual(convertURLToRoute('/SomeRoom'));
 	});
 
@@ -55,8 +55,8 @@ describe('convertURLToRoute', () => {
 		expect({
 			name: 'room',
 			props: {
-				room: 'someroom'
-			}
+				room: 'someroom',
+			},
 		}).toEqual(convertURLToRoute('/someroom/all'));
 	});
 
@@ -64,8 +64,8 @@ describe('convertURLToRoute', () => {
 		expect({
 			name: 'room',
 			props: {
-				room: 'someroom'
-			}
+				room: 'someroom',
+			},
 		}).toEqual(convertURLToRoute('/someroom/all/all-messages'));
 	});
 
@@ -74,8 +74,8 @@ describe('convertURLToRoute', () => {
 			name: 'chat',
 			props: {
 				room: 'someroom',
-				thread: 'abc456def'
-			}
+				thread: 'abc456def',
+			},
 		}).toEqual(convertURLToRoute('/someroom/abc456def'));
 	});
 
@@ -182,11 +182,11 @@ describe('convertRouteToURL', () => {
 
 		expect(() => {
 			convertRouteToURL(route1);
-		}).toThrow('Invalid route given');
+		}).toThrow(new TypeError('Invalid route given'));
 
 		expect(() => {
 			convertRouteToURL(route2);
-		}).toThrow('Invalid route given');
+		}).toThrow(new TypeError('Invalid route given'));
 	});
 
 	it('should build url with home', () => {

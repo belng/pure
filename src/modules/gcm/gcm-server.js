@@ -25,6 +25,7 @@ if (config.gcm.senderId) {
 }
 
 function sendStanza(changes, entity) {
+	// console.log('gcm server is here')
 	if (entity.type === Constants.TYPE_THREAD) {
 		if (!entity.createTime || entity.createTime !== entity.updateTime) {
 			log.info('not new thread: ', entity);
@@ -84,7 +85,7 @@ function sendStanza(changes, entity) {
 			thread = changes.entities[entity.parents[0]];
 
 		if (!room || !thread) {
-			if (!room) {
+			if (!room || !room.name) {
 				counter.inc();
 				cache.getEntity(entity.parents[1], (e, r) => {
 					room = r;
@@ -92,7 +93,7 @@ function sendStanza(changes, entity) {
 				});
 			}
 
-			if (!thread) {
+			if (!thread || !thread.name) {
 				counter.inc();
 				cache.getEntity(entity.parents[0], (e, t) => {
 					thread = t;
@@ -139,6 +140,8 @@ function sendStanza(changes, entity) {
 	}
 }
 
+
+// console.log("Constants.APP_PRIORITIES.GCM", Constants.APP_PRIORITIES.GCM);
 bus.on('change', (changes) => {
 	if (!changes.entities || !config.gcm.senderId) {
 		return;

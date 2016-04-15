@@ -2,7 +2,10 @@
 
 import route from 'koa-route';
 import { bus, cache } from '../../core-server';
+import promisify from '../../lib/promisify';
 import buildAvatarURLForSize from './buildAvatarURLForSize';
+
+const getEntityAsync = promisify(cache.getEntity.bind(cache));
 
 bus.on('http/init', app => {
 	app.use(route.get('/i/picture', function *() {
@@ -11,19 +14,11 @@ bus.on('http/init', app => {
 		if (query && query.user) {
 			const {
 				user,
-				size
+				size,
 			} = query;
 
 			try {
-				const data = yield new Promise((resolve, reject) => {
-					cache.getEntity(user, (err, res) => {
-						if (err) {
-							reject(err);
-						} else {
-							resolve(res);
-						}
-					});
-				});
+				const data = yield getEntityAsync(user);
 
 				if (data && data.meta && data.meta.picture) {
 					this.response.redirect(buildAvatarURLForSize(data.meta.picture, size));

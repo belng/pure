@@ -16,7 +16,7 @@ export default function(): Function {
 		// Enable Webpack Dev Server
 		middlewares.push(webpackDevMiddleware(compiler, {
 			publicPath: webpackConfig.output.publicPath,
-			noInfo: true
+			noInfo: true,
 		}));
 
 		// Enable Hot reloading
