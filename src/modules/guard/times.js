@@ -1,7 +1,7 @@
 import { bus, Constants, cache } from '../../core-base';
 import Counter from '../../lib/counter';
 
-bus.on('change', (changes, next) => {
+function validateTime (changes, next) {
 	if (!changes.entities) return next();
 	const counter = new Counter(),
 		now = Date.now();
@@ -28,4 +28,7 @@ bus.on('change', (changes, next) => {
 		});
 	}
 	return counter.then(next);
-}, Constants.APP_PRIORITIES.TIMES_VALIDATION);
+}
+
+bus.on('change', validateTime, Constants.APP_PRIORITIES.TIMES_VALIDATION1);
+bus.on('change', validateTime, Constants.APP_PRIORITIES.TIMES_VALIDATION2);

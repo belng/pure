@@ -20,11 +20,11 @@ export default function send (from, to, sub, html, cb) {
 
 	transport.sendMail(email, (e) => {
 		if (e) {
+			if (cb) cb(e);
 			log.info('error in sending email: ', e, 'retrying...');
 			setTimeout(() => {
 				send(email.from, email.to, email.subject, email.html);
 			}, 300000);
-			if (cb) cb(e);
 		} else {
 			log.info('Email sent successfully to ', email.to);
 			if (cb) cb(null);
