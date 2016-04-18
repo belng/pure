@@ -7,7 +7,7 @@ const eio = require('engine.io-client'); // eslint-disable-line import/no-common
 
 let todos = [];
 
-const client = new eio.Socket({ host: 'wss://' + config.server.host, path: '/admin/socket' });
+const client = new eio.Socket({ host: 'wss://' + config.server.host, path: config.server.path + '/socket' });
 
 function rerender() {
 	ReactDOM.render(<TodoList todos={todos}/>, document.getElementById('root'));
