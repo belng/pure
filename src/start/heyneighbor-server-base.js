@@ -28,4 +28,4 @@ import '../modules/http/http'; // if fired before socket server then the http/in
 // Email server
 import '../modules/email/email-daemon';
 // Moderator UI
-import '../modules/modui/modui';
+import '../modules/modui/modui-server';

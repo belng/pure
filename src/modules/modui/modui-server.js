@@ -1,4 +1,4 @@
-import { bus, Constants } from '../../core-server';
+import { bus, Constants } from '../../core-base';
 import engine from 'engine.io';
 import http from 'http';
 import fs from 'fs';
@@ -10,6 +10,9 @@ const httpServer = http.createServer((req, res) => {
 	case '/':
 		fs.createReadStream(path.join(__dirname, '../../../static/dist/modui.html')).pipe(res);
 		break;
+	default:
+		res.writeHead(404);
+		res.end('Not found ' + req.url);
 	}
 });
 
@@ -20,6 +23,7 @@ const sockets = [];
 
 sockServer.on('connection', (socket) => {
 	sockets.push(socket);
+
 	socket.on('close', () => {
 		const index = sockets.indexOf(socket);
 		if (index >= 0) { sockets.splice(index, 1); }
@@ -31,9 +35,12 @@ bus.on('change', (change) => {
 		for (const id in change.entities) {
 			const entity = change.entities[id];
 			if (
-				entity !== Constants.TYPE_THREAD &&
-				entity !== Constants.TYPE_TEXT
-			) { return; }
+				entity.type !== Constants.TYPE_THREAD &&
+				entity.type !== Constants.TYPE_TEXT ||
+				typeof entity.createTime === 'undefined' ||
+				typeof entity.updateTime !== 'undefined' &&
+				entity.createTime !== entity.updateTime
+			) { continue; }
 			for (const socket of sockets) {
 				socket.send(JSON.stringify(entity));
 			}
