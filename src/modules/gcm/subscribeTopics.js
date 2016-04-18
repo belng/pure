@@ -91,7 +91,7 @@ function unsubscribeTopics (data, cb) {
 
 export function subscribe (userRel: Object) {
 	const gcm = userRel.params.gcm;
-	const userName = userRel.params['facebook'].name || userRel.params['google'].name;
+	const userName = userRel.params['facebook'] ? userRel.params['facebook'].name : userRel.params['google'].name;
 	function register () {
 		const	tokens = values(gcm);
 
