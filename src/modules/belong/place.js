@@ -83,6 +83,7 @@ function placeToStub(place) {
 		name: place.address_components[0].long_name,
 		type: place.types[0] === 'locality' ?
 			constants.TAG_ROOM_CITY : constants.TAG_ROOM_AREA,
+		parents: place.parents
 	};
 }
 
@@ -106,11 +107,13 @@ export function getStubset(placeid: string, rel: number): Promise<Object> {
 	})
 	.then(results => {
 		if (!score) score = '3';
-		const areas = results.filter(area => {
+		let areas = results.filter(area => {
 			const res = getScore(area.types);
+			if (res) area.score = res.score;
 			return res && res.score < score;
 		});
 
+		spot.score = score;
 		let index = 0;
 
 		if (tag) {
@@ -122,7 +125,17 @@ export function getStubset(placeid: string, rel: number): Promise<Object> {
 			if (index === areas.length) areas.unshift(spot);
 		}
 
-		console.log("Places Final", areas.map(e => e.address_components[0].long_name));
+		areas = areas.sort((a, b) => {
+			return a.score < b.score ? -1 : 1;
+		});
+
+		const parents = [];
+
+		for (let i = 0; i < areas.length; i++) {
+			areas[i].parents = [].concat(parents);
+			parents.push('place:' + areas[i].place_id);
+		}
+
 		return { rel, stubs: areas.map(placeToStub) };
 	});
 }
