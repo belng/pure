@@ -34,11 +34,17 @@ function initMailSending(cUserRel) {
 		send(conf.from, emailAdd, 'Welcome to ' + config.app_id, emailHtml, (e) => {
 			if (e) {
 				log.error('Error in sending email');
+				counter.err(e);
+				return;
 			}
 			counter.dec();
 		});
 	});
-	counter.then(() => {
+	counter.then((e) => {
+		if (e) {
+			log.info('Welcome email not sent', e);
+			return;
+		}
 		log.info('Welcome email successfully sent');
 		pg.write(connStr, [ {
 			$: 'UPDATE jobs SET lastrun=&{end} WHERE id=&{jid}',
@@ -52,7 +58,7 @@ function initMailSending(cUserRel) {
 }
 
 function sendWelcomeEmail () {
-	end = Date.now() - /*10000*/ WELCOME_DELAY;
+	end = Date.now() - /* 10000 */ WELCOME_DELAY;
 
 	if (conf.debug) {
 		log.info('debug is enabled');
@@ -88,5 +94,5 @@ export default function (row) {
 	lastEmailSent = row.lastrun;
 	log.info('starting welcome email', 'last sent: ', lastEmailSent);
 	sendWelcomeEmail();
-	setInterval(sendWelcomeEmail, /*10000*/ WELCOME_INTERVAL);
+	setInterval(sendWelcomeEmail, /* 10000 */ WELCOME_INTERVAL);
 }
