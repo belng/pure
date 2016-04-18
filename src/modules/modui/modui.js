@@ -3,7 +3,6 @@ import engine from 'engine.io';
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
-import config from '../../../config/modui.json';
 
 const httpServer = http.createServer((req, res) => {
 	console.log(req);	// eslint-disable-line
@@ -19,7 +18,7 @@ const httpServer = http.createServer((req, res) => {
 
 httpServer.listen(3030);
 
-const sockServer = engine.attach(httpServer, { path: config.server.path });
+const sockServer = engine.attach(httpServer);
 const sockets = [];
 
 sockServer.on('connection', (socket) => {
