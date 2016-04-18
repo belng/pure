@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="co.babil.braavos">
+    package="chat.belong.hello">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -76,7 +76,7 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <category android:name="co.babil.braavos" />
+                <category android:name="chat.belong.hello" />
             </intent-filter>
         </receiver>
 
