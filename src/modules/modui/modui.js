@@ -10,12 +10,15 @@ const httpServer = http.createServer((req, res) => {
 	case '/':
 		fs.createReadStream(path.join(__dirname, '../../../static/dist/modui.html')).pipe(res);
 		break;
+	default:
+		res.writeHead(404);
+		res.end('Not found');
 	}
 });
 
 httpServer.listen(3030);
 
-const sockServer = engine.attach(httpServer, { path: '/admin/socket' });
+const sockServer = engine.attach(httpServer);
 const sockets = [];
 
 sockServer.on('connection', (socket) => {
@@ -33,7 +36,10 @@ bus.on('change', (change) => {
 			const entity = change.entities[id];
 			if (
 				entity.type !== Constants.TYPE_THREAD &&
-				entity.type !== Constants.TYPE_TEXT
+				entity.type !== Constants.TYPE_TEXT ||
+				typeof entity.createTime === 'undefined' ||
+				typeof entity.updateTime !== 'undefined' &&
+				entity.createTime !== entity.updateTime
 			) { continue; }
 			for (const socket of sockets) {
 				socket.send(JSON.stringify(entity));
