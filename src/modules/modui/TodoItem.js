@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Constants } from '../../core-base';
+import Constants from '../../lib/Constants';
 
 const styles = {
 	row: {
