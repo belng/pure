@@ -47,12 +47,16 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="@string/app_host"
-                    android:scheme="http" />
+                    android:scheme="belong"
+                    android:host="@string/app_host" />
 
                 <data
-                    android:host="@string/app_host"
-                    android:scheme="https" />
+                    android:scheme="http"
+                    android:host="@string/app_host" />
+
+                <data
+                    android:scheme="https"
+                    android:host="@string/app_host" />
             </intent-filter>
         </activity>
 
