@@ -1,5 +1,5 @@
 import { short } from '../../lib/Time';
-
+import { config } from '../../core-server';
 let currentU = false,
 	currentR = false;
 
@@ -19,7 +19,7 @@ function relFromUserRel(rel) {
 	return {
 		user: rel.user, // id or identity
 		topics: rel.topics,
-		threadTitle: rel.name,
+		threadTitle: rel.name || rel.threadTitle,
 		threadId: rel.threadid, // room display name or thread title
 		text: rel.teext || rel.body,
 		parents: rel.textparents || rel.parents,
@@ -30,8 +30,8 @@ function relFromUserRel(rel) {
 		reputation: rel.reputation,
 		room: rel.roomName,
 		roomId: rel.roomId,
-		count: rel.textCount,
-		displayTime: short(rel.threadtime)
+		count: rel.textCount || rel.counts.children,
+		displayTime: short(rel.threadTime || rel.tctime)
 	};
 }
 
@@ -51,8 +51,10 @@ function buildMailObj(userRel) {
 		currentU = user;
 		currentR = [
 			{
+				id: rel.roomId,
 				room: rel.room ? rel.room : rel.parent,
-				threads: [ rel ]
+				threads: [ rel ],
+				domain: config.server.protocol + '//' + config.server.host
 			}
 		];
 	} else {
@@ -68,7 +70,12 @@ function buildMailObj(userRel) {
 		}
 
 		if (!sameRoom) {
-			currentR.push({ room: rel.room ? rel.room : rel.parent, threads: [ rel ] });
+			currentR.push({
+				id: rel.roomId,
+				room: rel.room ? rel.room : rel.parent,
+				threads: [ rel ],
+				domain: config.server.protocol + '//' + config.server.host
+			});
 		}
 
 		// console.log("currentR after: ", currentR)

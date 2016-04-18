@@ -109,9 +109,9 @@ CREATE TABLE notes (
 
 CREATE TABLE jobs (
 	id smallint,
-	lastrun bigint
+	lastrun bigint default extract(epoch from now())*1000
 );
-INSERT INTO jobs VALUES (1, 0), (2, 0), (3, 0);
+INSERT INTO jobs VALUES (1), (2), (3);
 CREATE EXTENSION plv8;
 
 DROP FUNCTION IF EXISTS jsonop(jsonb, jsonb,jsonb);
