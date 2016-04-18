@@ -7,6 +7,14 @@ const eio = require('engine.io-client'); // eslint-disable-line import/no-common
 
 let todos = [];
 
+if (localStorage && localStorage.todos) {
+	try {
+		todos = JSON.parse(localStorage.todos);
+		console.log("Got todos:", todos.length);
+		if (todos[0] !== "separator") todos.unshift("separator");
+	} catch (e) {}
+}
+
 const client = new eio.Socket({ host: 'wss://' + config.server.host, path: config.server.path + '/engine.io' });
 
 function rerender() {
@@ -18,5 +26,9 @@ client.on('message', (message) => { // eslint-disable-line
 	const data = JSON.parse(message);
 	todos.unshift(data);
 	todos = todos.slice(0, 1000);
+	localStorage.todos = JSON.stringify(todos);
 	rerender();
 });
+
+rerender();
+
