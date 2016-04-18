@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import * as Constants from '../../lib/Constants';
+import config from '../../../config/modui.json';
 
 const styles = {
 	row: {
@@ -33,7 +34,7 @@ class TodoItem extends Component {
 		const todo = this.props.todo,
 			thread = (todo.type === Constants.TYPE_THREAD),
 			body = todo.tags.indexOf(3) >= 0 ? <img src={todo.meta.photo.thumbnail_url} height="50" /> : todo.body,
-			url = 'belong:' + (
+			url = 'belong://' + config.server.host + '/' + (
 				thread ?
 				todo.parents[0] + '/' + todo.id :
 				todo.parents[1] + '/' + todo.parents[0]
