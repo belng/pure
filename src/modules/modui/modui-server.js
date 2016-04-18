@@ -12,7 +12,7 @@ const httpServer = http.createServer((req, res) => {
 		break;
 	default:
 		res.writeHead(404);
-		res.end('Not found');
+		res.end('Not found ' + req.url);
 	}
 });
 
