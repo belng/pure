@@ -43,7 +43,7 @@ function addRooms(change, addable, all) {
 
 	for (const stub of all) {
 		if (stub.id) {
-			identityIdMap[stub.identity] = stub.id;
+			identityIdMap[stub.identity] = stub;
 			 continue; /* already in db */
 		 }
 	}
@@ -54,8 +54,8 @@ function addRooms(change, addable, all) {
 		 }
 
 		stub.id = uuid.v4();
-		identityIdMap[stub.identity] = stub.id;
-		stub.parents = stub.parents.map(e => identityIdMap[e]);
+		identityIdMap[stub.identity] = stub;
+		stub.parents = stub.parents.map(e => identityIdMap[e].id);
 		stub.parents.filter(e => e); // filter out rooms that with no parents.
 		change[stub.id] = new Room({
 			id: stub.id,
@@ -142,11 +142,14 @@ function sendInvitations (resources, user, deletedRels, relRooms, ...stubsets) {
 				updateable.push(stubs[identity]);
 			}
 		} else {
-			const type = relRoom.roomrel.roles.filter(role =>
+			const types = relRoom.roomrel.roles.filter(role =>
 				role >= constants.ROLE_HOME &&
-				role <= constants.ROLE_HOMETOWN
-			)[0];
+				role <= constants.ROLE_HOMETOWN &&
+				deletedRels.indexOf(role) > -1
+			);
 
+			if (types.length === 0) continue;
+			const type = types[0];
 			if (changedRels[type] || deletedRels.indexOf(type) >= 0) {
 				let shouldRemove = true;
 
@@ -170,6 +173,7 @@ function sendInvitations (resources, user, deletedRels, relRooms, ...stubsets) {
 					updateable.push(newStub);
 					stubs[identity] = newStub;
 				}
+
 			} else {
 				all.push({ identity, type, name: relRoom.room.name });
 			}
