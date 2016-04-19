@@ -1,6 +1,7 @@
 {
 	"app_name": "Hey, Neighbor!",
 	"app_id": "heyneighbor",
+	"package_name": "chat.belong.hello",
 
 	"session": {
 		"private_key": "put_your_private_key_here"

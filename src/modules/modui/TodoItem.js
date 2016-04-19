@@ -1,44 +1,58 @@
 import React, { Component } from 'react';
+import * as Constants from '../../lib/Constants';
+import config from '../../../config/modui.json';
 
 const styles = {
-	title: {
-		fontSize: 14,
-		border: '0.2 ridge',
+	row: {
+		display: 'block',
+	},
+	link: {
+		textDecoration: 'none',
+		color: '#333333'
+	},
+	name: {
 		fontWeight: 'bold',
-		fontFamily: 'sans-serif',
 	},
 	body: {
-		fontSize: 13,
-		border: '0.2 solid',
-		fontWeight: 'ridge',
-		fontFamily: 'droid-sans',
 	},
 	creator: {
-		fontSize: 12,
-		border: '0.2 ridge',
-		fontWeight: 'normal',
-		fontFamily: 'droid-sans',
+		fontStyle: 'italic',
+	},
+	type: {
+		fontStyle: 'italic',
 	},
 	message: {
-		width: '42%',
-		border: '0.2px ridge',
-		position: 'relative',
+		font: '16px/24px normal normal Lato,sans-serif',
+		margin: '0 auto',
+		width: '50%',
+		padding: '8px',
 	},
-	button: {
-		width: 4,
-		fontSize: 9,
-		float: 'right',
-		borderRadius: 100,
-	}
 };
 
 class TodoItem extends Component {
 	render() {
+		const todo = this.props.todo,
+			thread = (todo.type === Constants.TYPE_THREAD),
+			body = todo.tags.indexOf(3) >= 0 ? <img src={todo.meta.photo.thumbnail_url} height="50" /> : todo.body,
+			url = 'belong://' + config.server.host + '/' + (
+				thread ?
+				todo.parents[0] + '/' + todo.id :
+				todo.parents[1] + '/' + todo.parents[0]
+			),
+			type = thread ? 'Start': 'Reply';
+
 		return (
-			<div style={styles.message} id='msgId'>
-				<div style={styles.title}>{this.props.todo}</div>
-				<div style={styles.body}>{this.props.todo}</div>
-				<div style={styles.creator}>{this.props.todo}</div>
+			<div style={styles.message}>
+				<a style={styles.link} href={url}>
+					<span style={styles.row}>
+						<span style={styles.type}>{type} by </span>
+						<span style={styles.creator}>{todo.creator}: </span>
+						<span style={styles.name}>{todo.name}</span>
+					</span>
+					<span style={styles.row}>
+						<span style={styles.body}>{body}</span>
+					</span>
+				</a>
 			</div>
 		);
 	}

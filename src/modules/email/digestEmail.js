@@ -40,7 +40,7 @@ export function initMailSending (userRel) {
 				rooms: rels
 			}),
 			emailSub = getSubject(rels);
-
+// console.log("rels[0].threads: ", rels)
 		send(conf.from, emailAdd, emailSub, emailHtml, (e) => {
 			if (!e) {
 				log.info('Digest email successfully sent');
@@ -76,25 +76,25 @@ function sendDigestEmail () {
 			tzMin = tz - 30,
 			tzMax = tz + 30;
 
-		return { min: tzMin, max: tzMax };
+		return { min: parseInt(tzMin), max: parseInt(tzMax) };
 	}
 
-	const tz = getTimezone(conf.digestEmailTime);
+	const timeZone = getTimezone(conf.digestEmailTime);
 
-	log.info('timezone: ', tz);
+	log.info('timezone: ', timeZone);
 	if (conf.debug) {
-		start = 0; end = Date.now(); tz.min = 0; tz.max = 1000;
+		start = 0; end = Date.now(); /* tz.min = 0; tz.max = 1000; */
 	}
 
 	pg.readStream(config.connStr, {
-		$: 'with urel as (select rrls.presencetime ptime, users.name uname, * from users join roomrels rrls on users.id=rrls.user where roles @> \'{3}\' and rrls.presencetime >= &{start} and rrls.presencetime < &{end} and timezone >= &{min} and timezone < &{max}) select threads.counts textCounts, urel.params, urel.tags, threads.createtime threadtime, threads.id threadId, * from urel join threads on threads.parents[1]=urel.item order by urel.id', // where threads.createtime > urel.ptime
+		$: 'with urel as (select rrls.presencetime ptime, users.name uname, * from users join roomrels rrls on users.id=rrls.user where roles @> \'{3}\' and rrls.presencetime >= &{start} and rrls.presencetime < &{end} and timezone >= &{min} and timezone < &{max}) select threads.counts, urel.params, urel.tags, threads.createtime tctime, threads.id threadId, * from urel join threads on threads.parents[1]=urel.item order by urel.id', // where threads.createtime > urel.ptime
 		start,
 		end,
 		follower: Constants.ROLE_FOLLOWER,
-		min: tz.min,
-		max: tz.max
+		min: timeZone.min,
+		max: timeZone.max
 	}).on('row', (urel) => {
-		log.info('Got user for digest email: ', urel);
+	// console.log('Got user for digest email: ', urel);
 		counter.inc();
 		pg.read(config.connStr, {
 			$: 'select * from rooms where id=&{id} ', // and presencetime<&{roletime}
@@ -128,7 +128,13 @@ export default function (row) {
 		delay = UtcMnts < 30 ? 30 : 90,
 		after = conf.debug ? 0 : (delay - UtcMnts) * 60000;
 
-	log.info('Digest email will be sent after ', after, 'ms');
+	function mtns(millis) {
+		  const minutes = Math.floor(millis / 60000),
+			seconds = ((millis % 60000) / 1000).toFixed(0);
+		  return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+	}
+
+	log.info('Digest email will be sent after ', mtns(after), 'minutes');
 	setTimeout(() => {
 		sendDigestEmail();
 		setInterval(sendDigestEmail, DIGEST_INTERVAL);
