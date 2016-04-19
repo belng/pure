@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import Radium from 'radium';
 import Colors from '../../Colors';
 
@@ -44,14 +44,18 @@ const styles = {
 };
 
 class Home extends Component {
+	static propTypes = {
+		url: PropTypes.string.isRequired,
+	};
+
 	render() {
-		const url = window.location.href;
+		const { url } = this.props;
 
 		return (
 			<div style={styles.container}>
 				<div style={styles.inner}>
 					<h1 style={styles.header}>Connect with your neighbors easily</h1>
-					<a style={styles.button} href={url + (url.match(/[\?]/g) ? '&' : '?') + 'redirect=true'}>
+					<a style={styles.button} href={url}>
 						Install app
 					</a>
 				</div>
