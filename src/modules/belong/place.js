@@ -80,7 +80,7 @@ function callApi(api, params) {
 function placeToStub(place) {
 	return {
 		identity: 'place:' + place.place_id,
-		name: place.address_components[0].long_name,
+		name: place.address_components? place.address_components[0].long_name : place.name,
 		type: place.types[0] === 'locality' ?
 			constants.TAG_ROOM_CITY : constants.TAG_ROOM_AREA,
 		parents: place.parents
@@ -136,6 +136,12 @@ export function getStubset(placeid: string, rel: number): Promise<Object> {
 			parents.push('place:' + areas[i].place_id);
 		}
 
-		return { rel, stubs: areas.map(placeToStub) };
+		areas = areas.map(placeToStub);
+
+		for (let i = areas.length - 1; i > 0; i--) {
+			areas[i].name = areas[i].name + (areas[i - 1] ? ', ' + areas[i - 1].name : '');
+		}
+
+		return { rel, stubs: areas };
 	});
 }
