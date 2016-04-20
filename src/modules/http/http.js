@@ -7,7 +7,7 @@ import koabody from 'koa-body-parser';
 import opn from 'opn';
 import client from '../client/middleware';
 import { config, bus } from '../../core-server';
-
+import './response';
 const app = koa();
 const httpServer = http.createServer(app.callback()).listen(config.server.port);
 
