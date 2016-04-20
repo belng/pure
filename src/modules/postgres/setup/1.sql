@@ -309,6 +309,9 @@ CREATE FUNCTION jsonop(oa jsonb, ob jsonb, oop jsonb) RETURNS jsonb AS $$
 		return el._;
 	}
 
-	var x = j(oa, ob, oop);
-	return JSON.stringify(x);
+	if (typeof oa !== 'object') oa = JSON.parse(oa);
+	if (typeof ob !== 'object') ob = JSON.parse(ob);
+	if (typeof oop !== 'object') oop = JSON.parse(oop);
+
+	return JSON.stringify(j(oa, ob, oop));
 $$ LANGUAGE plv8 IMMUTABLE;
