@@ -7,7 +7,7 @@ import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 import chat.belong.hello.modules.analytics.LifeCycleTracker;
 
-public class HeyNeighbor extends Application {
+public class Belong extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
