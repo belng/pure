@@ -1,5 +1,6 @@
 /* @flow */
 
+import route from 'koa-route';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import Home from '../../ui/components/views/Home.web';
@@ -8,58 +9,63 @@ import promisify from '../../lib/promisify';
 import { convertURLToRoute } from '../../lib/Route';
 import { bus, cache, config } from '../../core-server';
 
+const PLAY_STORE_LINK = `https://play.google.com/store/apps/details?id=${config.package_name}`;
+
 const getEntityAsync = promisify(cache.getEntity.bind(cache));
 
 bus.on('http/init', app => {
-	app.use(function *(next) {
-		if (this.method === 'GET') {
-			const route = convertURLToRoute(this.request.href);
+	app.use(route.get('*', function *() {
+		const query = this.request.query;
 
-			let title;
+		if (query && query.download_app) {
+			this.response.redirect(PLAY_STORE_LINK);
+			return;
+		}
 
-			if (route.props) {
-				switch (route.name) {
-				case 'room':
-					const room = yield getEntityAsync(route.props.room);
+		const { name, props } = convertURLToRoute(this.request.href);
 
-					if (room) {
-						title = room.name;
-					} else {
-						title = 'This group doesn\'t exist on Belong';
-					}
-					break;
-				case 'chat':
-					const thread = yield getEntityAsync(route.props.thread);
+		let title;
 
-					if (thread) {
-						title = thread.name;
-					} else {
-						title = 'This discussion doesn\'t exist on Belong';
-					}
+		if (props) {
+			switch (name) {
+			case 'room':
+				const room = yield getEntityAsync(props.room);
 
-					break;
+				if (room) {
+					title = room.name;
+				} else {
+					title = 'This group doesn\'t exist on Belong';
 				}
-			}
+				break;
+			case 'chat':
+				const thread = yield getEntityAsync(props.thread);
 
-			if (title) {
-				this.body = '<!DOCTYPE html>' + ReactDOMServer.renderToStaticMarkup(
-					<ServerHTML
-						locale='en'
-						title={title}
-						description='Connect with your neighbors on Belong!'
-						body={ReactDOMServer.renderToString(
-							<Home
-								url={`https://play.google.com/store/apps/details?id=${config.package_name}`}
-								radiumConfig={{ userAgent: this.headers['user-agent'] }}
-							/>
-						)}
-						image={`${this.request.origin}/assets/thumbnail.png`}
-						permalink={this.request.href}
-					/>
-				);
+				if (thread) {
+					title = thread.name;
+				} else {
+					title = 'This discussion doesn\'t exist on Belong';
+				}
+
+				break;
 			}
 		}
 
-		return yield next;
-	});
+		if (title) {
+			this.body = '<!DOCTYPE html>' + ReactDOMServer.renderToStaticMarkup(
+				<ServerHTML
+					locale='en'
+					title={title}
+					description='Connect with your neighbors on Belong!'
+					body={ReactDOMServer.renderToString(
+						<Home
+							url={PLAY_STORE_LINK}
+							radiumConfig={{ userAgent: this.headers['user-agent'] }}
+						/>
+					)}
+					image={`${this.request.origin}/assets/thumbnail.png`}
+					permalink={this.request.href}
+				/>
+			);
+		}
+	}));
 });
