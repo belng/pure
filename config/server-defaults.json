@@ -1,6 +1,6 @@
 {
-	"app_name": "Hey, Neighbor!",
-	"app_id": "heyneighbor",
+	"app_name": "Belong",
+	"app_id": "belong",
 	"package_name": "chat.belong.hello",
 
 	"session": {
