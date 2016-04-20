@@ -10,7 +10,7 @@ const mapActionsToProps = {
 	sendMessage: (store, result, props) => (id, body, meta) => store.dispatch(sendMessage({
 		body,
 		meta,
-		parents: [ props.thread ].concat(result.parents),
+		parents: [ props.thread, props.thread ],
 		creator: props.user
 	})),
 };
