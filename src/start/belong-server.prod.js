@@ -2,4 +2,4 @@
 
 import 'source-map-support/register';
 import 'babel-polyfill';
-import './heyneighbor-server-base';
+import './belong-server-base';

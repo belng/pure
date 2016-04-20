@@ -55,7 +55,7 @@ bus.on('http/init', app => {
 				<ServerHTML
 					locale='en'
 					title={title}
-					description='Connect with your neighbors on Belong!'
+					description={`Connect with your neighbors on ${config.app_name}!`}
 					body={ReactDOMServer.renderToString(
 						<Home
 							url={PLAY_STORE_LINK}
