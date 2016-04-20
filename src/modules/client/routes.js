@@ -18,7 +18,7 @@ bus.on('http/init', app => {
 		const query = this.request.query;
 
 		if (query && query.download_app) {
-			this.response.redirect(PLAY_STORE_LINK);
+			this.response.redirect(query.referrer ? `${PLAY_STORE_LINK}&referrer=${query.referrer}` : PLAY_STORE_LINK);
 			return;
 		}
 
