@@ -30,6 +30,11 @@ export default function(changes, cache, config) {
 				} ]));
 				break;
 			case Constants.TYPE_ROOM:
+				cb(pg.cat([ {
+					$: 'SELECT resources FROM rooms WHERE id = &{id}',
+					id: entity.id
+				} ]));
+				break;
 			case Constants.TYPE_TEXT:
 			case Constants.TYPE_THREAD:
 			case Constants.TYPE_TOPIC:
