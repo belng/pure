@@ -28,7 +28,7 @@ CREATE TABLE users (
 	deletetime bigint,
 	tags smallint[], -- e.g. admin, manager
 	locale smallint,
-	counts jsonb,
+	counts jsonb default '{}',
 	meta jsonb,
 	params jsonb, -- user-private information
 	presence smallint, -- foreground/background/none
@@ -54,7 +54,7 @@ CREATE TABLE items (
 	terms tsvector,
 	updater text,
 	updatetime bigint,
-	counts jsonb
+	counts jsonb default '{}'
 );
 
 CREATE TABLE rooms (
@@ -113,6 +113,8 @@ CREATE TABLE jobs (
 );
 INSERT INTO jobs VALUES (1), (2), (3);
 CREATE EXTENSION plv8;
+
+INSERT INTO rooms (id, name) VALUES ('e8d0a3b8-6c00-4871-84ad-1078b1265c08', 'Support');
 
 DROP FUNCTION IF EXISTS jsonop(jsonb, jsonb,jsonb);
 CREATE FUNCTION jsonop(oa jsonb, ob jsonb, oop jsonb) RETURNS jsonb AS $$
