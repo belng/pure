@@ -21,7 +21,7 @@ const {
 const styles = StyleSheet.create({
 	column: {
 		paddingTop: 4,
-		paddingBottom: 88
+		paddingBottom: 88,
 	},
 
 	grid: {
@@ -29,11 +29,11 @@ const styles = StyleSheet.create({
 		flexWrap: 'wrap',
 		justifyContent: 'center',
 		paddingTop: 8,
-		paddingBottom: 88
+		paddingBottom: 88,
 	},
 
 	columnItem: {
-		overflow: 'hidden'
+		overflow: 'hidden',
 	},
 
 	gridItem: {
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
 		borderLeftWidth: 1 / PixelRatio.get(),
 		borderRightWidth: 1 / PixelRatio.get(),
 		borderRadius: 3,
-	}
+	},
 });
 
 type Props = {
@@ -65,24 +65,24 @@ export default class Discussions extends Component<void, Props, State> {
 		room: PropTypes.string.isRequired,
 		user: PropTypes.string.isRequired,
 		loadMore: PropTypes.func.isRequired,
-		onNavigation: PropTypes.func.isRequired
+		onNavigation: PropTypes.func.isRequired,
 	};
 
 	state: State = {
 		dataSource: new ListView.DataSource({
-			rowHasChanged: (r1, r2) => r1 !== r2
-		})
+			rowHasChanged: (r1, r2) => r1 !== r2,
+		}),
 	};
 
 	componentWillMount() {
 		this.setState({
-			dataSource: this.state.dataSource.cloneWithRows(this.props.data)
+			dataSource: this.state.dataSource.cloneWithRows(this.props.data),
 		});
 	}
 
 	componentWillReceiveProps(nextProps: Props) {
 		this.setState({
-			dataSource: this.state.dataSource.cloneWithRows(nextProps.data)
+			dataSource: this.state.dataSource.cloneWithRows(nextProps.data),
 		});
 	}
 
@@ -102,7 +102,7 @@ export default class Discussions extends Component<void, Props, State> {
 		return (
 			<DiscussionItemContainer
 				key={thread.id}
-				thread={thread}
+				thread={thread.id}
 				onNavigation={this.props.onNavigation}
 				style={Dimensions.get('window').width > 400 ? styles.gridItem : styles.columnItem}
 			/>

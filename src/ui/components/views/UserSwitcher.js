@@ -63,8 +63,8 @@ export default class UserSwitcher extends Component<void, Props, void> {
 
 		return (
 			<View style={styles.container}>
-				<StatusbarWrapper />
 				<ScrollView>
+				<StatusbarWrapper />
 				{data.map(it => (
 					<TouchableOpacity key={it.user} onPress={() => this.props.switchUser(it)}>
 						<View style={it.user === user ? styles.current : null}>

@@ -18,7 +18,7 @@ const plugins = [
 ];
 
 const entry = [
-	'./src/start/heyneighbor-client',
+	'./src/ui/Client',
 ];
 
 const babelrc = JSON.parse(fs.readFileSync(path.join(__dirname, '.babelrc.web.json'), 'utf-8').toString());
@@ -28,7 +28,7 @@ module.exports = {
 	entry: __DEV__ ? [ ...entry, 'webpack-hot-middleware/client' ] : [ ...entry ],
 	output: {
 		path: path.resolve(__dirname, 'static/dist/scripts'),
-		publicPath: 'static/dist/scripts',
+		publicPath: '/static/dist/scripts/',
 		filename: 'bundle.min.js',
 		sourceMapFilename: 'bundle.min.js.map'
 	},

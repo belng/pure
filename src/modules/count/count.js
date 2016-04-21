@@ -21,7 +21,7 @@ bus.on('change', (changes, next) => {
 			entity.type === Constants.TYPE_TEXT ||
 			entity.type === Constants.TYPE_THREAD
 		) {
-			if (entity.createTime !== entity.updateTime) {
+			if (!entity.createTime || entity.createTime !== entity.updateTime || (!entity.parents || !entity.parents.length)) {
 				continue;
 			}
 			let inc;

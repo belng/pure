@@ -7,7 +7,7 @@ import {
 	hideThread,
 	unhideThread,
 	banUser,
-	unbanUser
+	unbanUser,
 } from '../../../modules/store/actions';
 import { TAG_USER_ADMIN } from '../../../lib/Constants';
 
@@ -16,20 +16,28 @@ const hasAdminTag = user => (user && user.tags && user.tags.indexOf(TAG_USER_ADM
 const mapSubscriptionToProps = {
 	isUserAdmin: {
 		key: 'me',
-		transform: hasAdminTag
-	}
+		transform: hasAdminTag,
+	},
 };
 
 const mapActionsToProps = {
-	hideThread: (store, result, props) => () => store.dispatch(hideThread(props.thread)),
-	unhideThread: (store, result, props) => () => store.dispatch(unhideThread(props.thread)),
-	banUser: (store, result, props) => () => store.dispatch(banUser(props.thread.creator)),
-	unbanUser: (store, result, props) => () => store.dispatch(unbanUser(props.thread.creator)),
+	hideThread: (store, result) => () => store.dispatch(hideThread(result.thread)),
+	unhideThread: (store, result) => () => store.dispatch(unhideThread(result.thread)),
+	banUser: (store, result) => () => store.dispatch(banUser(result.thread.creator)),
+	unbanUser: (store, result) => () => store.dispatch(unbanUser(result.thread.creator)),
 };
 
 const DiscussionItemContainer = (props: any) => (
 	<Connect
-		mapSubscriptionToProps={mapSubscriptionToProps}
+		mapSubscriptionToProps={{
+			...mapSubscriptionToProps,
+			thread: {
+				key: {
+					type: 'entity',
+					id: props.thread,
+				},
+			},
+		}}
 		mapActionsToProps={mapActionsToProps}
 		passProps={props}
 		component={DiscussionItem}
@@ -37,10 +45,7 @@ const DiscussionItemContainer = (props: any) => (
 );
 
 DiscussionItemContainer.propTypes = {
-	thread: PropTypes.shape({
-		id: PropTypes.string,
-		creator: PropTypes.string,
-	})
+	thread: PropTypes.string,
 };
 
 export default DiscussionItemContainer;

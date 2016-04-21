@@ -11,7 +11,7 @@ const {
 	AppRegistry
 } = ReactNative;
 
-export default class HeyNeighbor extends Component {
+export default class Belong extends Component {
 	render() {
 		return (
 			<Provider store={store}>
@@ -21,4 +21,4 @@ export default class HeyNeighbor extends Component {
 	}
 }
 
-AppRegistry.registerComponent('HeyNeighbor', () => HeyNeighbor);
+AppRegistry.registerComponent('Belong', () => Belong);

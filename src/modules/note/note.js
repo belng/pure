@@ -1,23 +1,24 @@
 /* eslint no-loop-func: 0 */
 import log from 'winston';
 import Counter from '../../lib/counter';
-import Note from '../../models/note';
+import { note as Note } from '../../models/models';
 import { Constants, bus, cache, config } from '../../core-server';
 import { convertRouteToURL } from '../../lib/Route';
 
-bus.on('change', (changes) => {
+bus.on('change', (changes, next) => {
 	if (!changes.entities) {
+		next();
 		return;
 	}
 	const counter = new Counter();
-
+	const counter1 = new Counter();
 	for (const id in changes.entities) {
 		const entity = changes.entities[id];
-		// console.log('note module: ', entity)
 		if (entity.type === Constants.TYPE_TEXTREL) {
-			// console.log("dkfj dskhfcxjvh jf: ", entity);
-			if (entity.roles.indexOf(Constants.ROLE_MENTIONED) === -1) return;
-			// console.log("dkfj dskhfcxjvh jf: ", entity);
+			if (entity.roles.indexOf(Constants.ROLE_MENTIONED) === -1) {
+				continue;
+			}
+			counter1.inc();
 			let item = changes.entities[entity.item], roomName;
 			const now = Date.now(),
 				noteObj = {
@@ -28,8 +29,7 @@ bus.on('change', (changes) => {
 					updateTime: now,
 					count: 1,
 					score: 50,
-					data: {},
-					type: Constants.TYPE_NOTE
+					data: {}
 				};
 
 			if (!item) {
@@ -57,8 +57,8 @@ bus.on('change', (changes) => {
 					name: 'chat',
 					props: {
 						room: item.parents[1],
-						thread: item.parents[0]
-					}
+						thread: item.parents[0],
+					},
 				});
 				noteObj.group = item.parents[0];
 				noteObj.data = {
@@ -70,14 +70,17 @@ bus.on('change', (changes) => {
 					thread: entity.type === Constants.TYPE_TEXTREL ? item.parents[0] : null,
 					room: entity.type === Constants.TYPE_TEXTREL ? item.parents[1] : item.parents[0],
 					link: urlLink,
-					picture: `${config.server.protocol}//${config.server.host}/i/picture?user=${item.creator}&size=${48}`
+					picture: `${config.server.protocol}//${config.server.host}/i/picture?user=${item.creator}&size=${48}`,
 				};
 				const	note = new Note(noteObj);
-				console.log("Note created: ", note);
-				changes.entities[note.getId()] = note;
+				console.log('Note created: ', note);
+				changes.entities[note.id] = note;
+				counter1.dec();
 			});
 		}
 	}
+	counter1.then(next);
+	// next();
 }, Constants.APP_PRIORITIES.NOTE);
 
 log.info('Note module ready.');
