@@ -65,7 +65,7 @@ export default function (entity) {
 				case 'resources':
 				case 'counts':
 					return {
-						$: `jsonop('{}'::jsonb, &{${name}}, '{}'::jsonb}`,
+						$: `jsonop('{}'::jsonb, &{${name}}, '{}'::jsonb)`,
 						[name]: entity[name],
 					};
 				default:
