@@ -41,20 +41,32 @@ const styles = {
 		fontWeight: 300,
 		fontSize: 36,
 	},
+	summary: {
+		color: Colors.grey,
+		fontSize: 16,
+		marginBottom: 36,
+	},
 };
 
 class Home extends Component {
 	static propTypes = {
+		title: PropTypes.string.isRequired,
+		description: PropTypes.string.isRequired,
 		url: PropTypes.string.isRequired,
 	};
 
 	render() {
-		const { url } = this.props;
+		const {
+			title,
+			description,
+			url,
+		} = this.props;
 
 		return (
 			<div style={styles.container}>
 				<div style={styles.inner}>
-					<h1 style={styles.header}>Connect with your neighbors easily</h1>
+					<h1 style={styles.header}>{title}</h1>
+					<p style={styles.summary}>{description}</p>
 					<a style={styles.button} href={url}>
 						Install app
 					</a>

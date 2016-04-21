@@ -24,7 +24,7 @@ bus.on('http/init', app => {
 
 		const { name, props } = convertURLToRoute(this.request.href);
 
-		let title;
+		let title, description;
 
 		if (props) {
 			switch (name) {
@@ -32,18 +32,23 @@ bus.on('http/init', app => {
 				const room = yield getEntityAsync(props.room);
 
 				if (room) {
-					title = room.name;
+					title = `I just joined ${config.app_name}`;
+					description = `Join me in exploring the ${room.name} community `;
 				} else {
-					title = 'This group doesn\'t exist on Belong';
+					title = `Join me on ${config.app_name}`;
+					description = '';
 				}
+
 				break;
 			case 'chat':
 				const thread = yield getEntityAsync(props.thread);
 
 				if (thread) {
 					title = thread.name;
+					description = `Join me in this conversation on ${config.app_name}`;
 				} else {
-					title = 'This discussion doesn\'t exist on Belong';
+					title = `Join me on ${config.app_name}`;
+					description = '';
 				}
 
 				break;
@@ -55,9 +60,11 @@ bus.on('http/init', app => {
 				<ServerHTML
 					locale='en'
 					title={title}
-					description={`Connect with your neighbors on ${config.app_name}!`}
+					description={description}
 					body={ReactDOMServer.renderToString(
 						<Home
+							title={title}
+							description={description}
 							url={PLAY_STORE_LINK}
 							radiumConfig={{ userAgent: this.headers['user-agent'] }}
 						/>
