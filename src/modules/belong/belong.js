@@ -130,6 +130,7 @@ function sendInvitations (resources, user, deletedRels, relRooms, ...stubsets) {
 	}
 
 	for (const relRoom of relRooms) {
+		if (!relRoom.room || !relRoom.room.identities) continue;
 		const identity = relRoom.room.identities.filter(
 			ident => ident.substr(0, 6) === 'place:'
 		)[0];
