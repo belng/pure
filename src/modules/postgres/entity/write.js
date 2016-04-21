@@ -59,6 +59,15 @@ export default function (entity) {
 						$: `&{${name}}`,
 						[name]: Date.now()
 					};
+				case 'meta':
+				case 'params':
+				case 'data':
+				case 'resources':
+				case 'counts':
+					return {
+						$: `jsonop('{}'::jsonb, &{${name}}, '{}'::jsonb)`,
+						[name]: entity[name],
+					};
 				default:
 					return {
 						$: `&{${name}}`,
@@ -102,11 +111,6 @@ export default function (entity) {
 						$: `"${name}" = jsonop("${name}"::jsonb, &{${name}}::jsonb, &{defaultOps}::jsonb)`,
 						[name]: entity[name]
 					};
-/*				case 'count':
-					return {
-						$: '"count" = "count" + &{count}',
-						count: entity.count
-					};*/
 				case 'meta':
 				case 'params':
 				case 'data':
