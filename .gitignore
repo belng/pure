@@ -79,4 +79,4 @@ config/client.json
 FewIntegrationTests.txt
 
 src/modules/postgres/setup/dblink.sql
-
+src/modules/postgres/setup/location.csv
