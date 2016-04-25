@@ -71,7 +71,7 @@ function sendDigestEmail () {
 	function getTimezone(hour) {
 		const UtcHrs = new Date().getUTCHours(),
 			c = UtcHrs > 12 ? 24 - UtcHrs : UtcHrs,
-			d = c > hour ? c - hour : hour - c,
+			d = hour - c,
 			tz = d * 60,
 			tzMin = tz - 30,
 			tzMax = tz + 30;
