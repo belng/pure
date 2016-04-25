@@ -76,16 +76,20 @@ export function updateUser(u, cb) {
 							log.e('Error getting old subscribed topics: ', error);
 							return;
 						}
-
-						Object.keys(JSON.parse(body).rel.topics).forEach(topic => {
-							log.info('subscribing to new topic: ', topic);
-							subscribe({
-								params: {
-									gcm: { new: u.data.token }
-								},
-								topic
+						if (body && JSON.parse(body) && JSON.parse(body).rel) {
+							Object.keys(JSON.parse(body).rel.topics).forEach(topic => {
+								log.info('subscribing to new topic: ', topic);
+								subscribe({
+									params: {
+										gcm: { new: u.data.token }
+									},
+									topic
+								});
 							});
-						});
+						} else {
+							log.debug('body: ', body);
+							log.info('Not found previous subscribed topics.');
+						}
 					});
 				}
 			}
