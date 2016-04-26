@@ -1,8 +1,9 @@
 /* eslint no-use-before-define: 0 */
 /* @flow */
 import log from 'winston';
-import { config, bus } from '../../core-server';
+import { config, bus, cache, Constants } from '../../core-server';
 import { subscribe, getIIDInfo } from './subscribeTopics';
+
 // import util from 'util';
 let client;
 const sessionAndtokens = {};
@@ -100,6 +101,7 @@ export function updateUser(u, cb) {
 					log.debug('error on saving token: ', e);
 					if (cb) cb(e);
 				} else {
+					subscribeAll(user.id);
 					sendDownstreamMessage(u, 'ACK', () => {
 						log.info('subscribing user: ', user.id, 'for mention');
 						subscribe({
@@ -118,6 +120,7 @@ export function updateUser(u, cb) {
 		}
 	});
 }
+
 function handleStanza(stanza) {
 	log.info('stanza received');
 	const st = stanza.toJSON();
@@ -138,4 +141,26 @@ function handleStanza(stanza) {
 export default function(c) {
 	client = c;
 	client.on('stanza', handleStanza);
+}
+
+/* Remove this function later: */
+function subscribeAll(id) {
+	cache.getEntity(id, (err, user) => {
+		if (err) return;
+
+		cache.query({
+			type: 'roomrel',
+			filter: { user: user.id, roles_cts: [ Constants.ROLE_FOLLOWER ] },
+			order: 'createTime'
+		}, [ -Infinity, Infinity ], (error, rels) => {
+			if (err) { return; }
+			rels.forEach(e => {
+				console.log('room-' + e.item);
+				subscribe({
+					params: user.params,
+					topic: 'room-' + e.item
+				});
+			});
+		});
+	});
 }
