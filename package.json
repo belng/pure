@@ -47,7 +47,7 @@
     "winston": "^2.2.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.7.5",
+    "babel-cli": "^6.7.7",
     "babel-eslint": "^6.0.4",
     "babel-jest": "^11.0.0",
     "babel-loader": "^6.2.4",
