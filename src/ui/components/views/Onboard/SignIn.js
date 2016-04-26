@@ -94,6 +94,10 @@ export default class SignIn extends Component<void, Props, State> {
 		facebookLoading: false,
 	};
 
+	_showFailureMessage: Function = () => {
+		ToastAndroid.show('Failed to sign in', ToastAndroid.SHORT);
+	};
+
 	_onSignInSuccess: Function = (provider: string, auth: { accessToken: string; } | { idToken: string; }) => {
 		switch (provider) {
 		case PROVIDER_GOOGLE:
@@ -108,8 +112,6 @@ export default class SignIn extends Component<void, Props, State> {
 	};
 
 	_onSignInFailure: Function = (provider: string) => {
-		ToastAndroid.show('Failed to sign in', ToastAndroid.SHORT);
-
 		switch (provider) {
 		case PROVIDER_GOOGLE:
 			this.setState({
@@ -150,6 +152,10 @@ export default class SignIn extends Component<void, Props, State> {
 				this._onSignInFailure(PROVIDER_FACEBOOK);
 			}
 		} catch (e) {
+			if (e.code !== 'ERR_SIGNIN_CANCELLED') {
+				this._showFailureMessage();
+			}
+
 			this._onSignInFailure(PROVIDER_FACEBOOK);
 		}
 	};
@@ -164,6 +170,10 @@ export default class SignIn extends Component<void, Props, State> {
 				this._onSignInFailure(PROVIDER_GOOGLE);
 			}
 		} catch (e) {
+			if (e.code !== 'ERR_SIGNIN_CANCELLED') {
+				this._showFailureMessage();
+			}
+
 			this._onSignInFailure(PROVIDER_GOOGLE);
 		}
 	};

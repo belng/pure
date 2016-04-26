@@ -1,6 +1,6 @@
 /* @flow */
 
-import '../modules/client/client';
+import './Client-base';
 import React, { Component } from 'react';
 import ReactNative from 'react-native';
 import AppContainer from './components/containers/AppContainer';
@@ -8,7 +8,7 @@ import Provider from '../modules/store/Provider';
 import * as store from '../modules/store/store';
 
 const {
-	AppRegistry
+	AppRegistry,
 } = ReactNative;
 
 export default class Belong extends Component {

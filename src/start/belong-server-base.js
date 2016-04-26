@@ -22,6 +22,7 @@ import '../modules/postgres/postgres';
 import '../modules/image-upload/image-upload';
 import '../modules/contacts/contacts';
 import '../modules/avatar/avatar';
+import '../modules/client/client';
 import '../modules/client/routes';
 
 // Email server
