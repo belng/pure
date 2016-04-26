@@ -30,11 +30,11 @@ const sortPlacesByTag = data => data.slice().sort((a, b) => {
 		}
 
 		if (aTag > bTag) {
-			return 1;
+			return -1;
 		}
 
 		if (aTag < bTag) {
-			return -1;
+			return 1;
 		}
 	}
 
