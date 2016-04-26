@@ -12,6 +12,29 @@ const filterInvalidRels = data => data.filter(result => (
 	(result.roomrel && typeof result.roomrel.type !== 'string')
 ));
 
+const sortPlacesByTag = data => data.slice().sort((a, b) => {
+	if (a.room && a.room.tags && b.room && b.room.tags) {
+		const aTag = a.room.tags[0];
+		const bTag = b.room.tags[0];
+
+		if (aTag === bTag) {
+			return 0;
+		}
+
+		if (aTag > bTag) {
+			return 1;
+		}
+
+		if (aTag < bTag) {
+			return -1;
+		}
+	}
+
+	return -1;
+});
+
+const transformResults = data => sortPlacesByTag(filterInvalidRels(data));
+
 class RoomsContainer extends Component {
 	static propTypes = {
 		user: PropTypes.string.isRequired,
@@ -41,7 +64,7 @@ class RoomsContainer extends Component {
 								end: Infinity,
 							},
 						},
-						transform: filterInvalidRels,
+						transform: transformResults,
 					},
 				}}
 				passProps={this.props}
