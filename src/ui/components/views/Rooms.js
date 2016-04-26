@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
 type Props = {
 	available?: boolean;
 	onNavigation: Function;
-	data: Array<{ rel: RoomRel, room: Room } | { type: 'loading' } | { type: 'failed' }>;
+	data: Array<{ roomrel: RoomRel, room: Room } | { type: 'loading' } | { type: 'failed' }>;
 }
 
 type State = {
@@ -102,8 +102,8 @@ export default class Rooms extends Component<void, Props, State> {
 
 		return (
 			<RoomItemContainer
-				key={result.room.id}
-				room={result.room.id}
+				key={result.roomrel.item}
+				room={result.roomrel.item}
 				onSelect={this._handleSelectLocality}
 				showMenuButton
 				showBadge
