@@ -13,8 +13,8 @@ const httpServer = http.createServer(app.callback()).listen(config.server.port);
 app.use(koabody());
 app.use(logger());
 
-// Serve files under static/ for any requests to /static/
-app.use(mount('/static/', serve('static/'), { defer: true }));
+// Serve files under static/ for any requests to /s/
+app.use(mount('/s/', serve('static/'), { defer: true }));
 
 // Open the URL in browser
 if (config.open_in_browser) {
