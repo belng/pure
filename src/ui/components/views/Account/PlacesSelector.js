@@ -18,13 +18,13 @@ const {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: Colors.lightGrey
+		backgroundColor: Colors.lightGrey,
 	},
 
 	poweredBy: {
 		borderTopColor: Colors.separator,
 		borderTopWidth: StyleSheet.hairlineWidth,
-		alignSelf: 'stretch'
+		alignSelf: 'stretch',
 	},
 });
 
@@ -43,7 +43,7 @@ export default class PlacesSelector extends Component<void, Props, void> {
 	static propTypes = {
 		location: PropTypes.shape({
 			latitude: PropTypes.number,
-			longitude: PropTypes.number
+			longitude: PropTypes.number,
 		}),
 		onSelectPlace: PropTypes.func.isRequired,
 		onCancel: PropTypes.func,
@@ -67,7 +67,6 @@ export default class PlacesSelector extends Component<void, Props, void> {
 					renderBlankslate={this.props.renderBlankslate}
 					onCancel={this.props.onCancel}
 					searchHint={this.props.searchHint}
-					autoFocus
 				/>
 				<KeyboardSpacer offset={36} />
 				<PoweredByGoogle style={styles.poweredBy} />
