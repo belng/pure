@@ -91,7 +91,7 @@
     "flow:added": "git diff HEAD --cached --name-only --diff-filter=ACM | grep '.js$' > /dev/null || exit 0 && npm run flow",
     "lint:added": "git diff HEAD --cached --name-only --diff-filter=ACM | grep '.js$' | xargs eslint",
     "build": "npm run build:server && npm run build:client && npm run build:modui",
-    "build:server": "babel --presets es2015-node5,stage-1,react --source-maps --ignore **/node_modules/** --out-dir build/ src/",
+    "build:server": "babel --presets es2015-node5,stage-1,react --source-maps --ignore **/node_modules/**,**/__tests__/**,**/__mocks__/** --out-dir build/ src/",
     "build:client": "webpack",
     "build:modui": "quik --html src/modules/modui/modui.html --output static/dist/modui.html --production --sourcemaps false",
     "build:android": "./android/gradlew -p android assembleRelease --stacktrace",
