@@ -75,8 +75,10 @@ const PROVIDER_FACEBOOK = 'facebook';
 const PERMISSION_PUBLIC_PROFILE = 'public_profile';
 const PERMISSION_EMAIL = 'email';
 
+type Token = { accessToken: string; } | { idToken: string; };
+
 type Props = {
-	signIn: (provider: string, token: string) => void
+	signIn: (provider: string, token: Token) => void
 }
 
 type State = {
@@ -98,7 +100,7 @@ export default class SignIn extends Component<void, Props, State> {
 		ToastAndroid.show('Failed to sign in', ToastAndroid.SHORT);
 	};
 
-	_onSignInSuccess: Function = (provider: string, auth: { accessToken: string; } | { idToken: string; }) => {
+	_onSignInSuccess: Function = (provider: string, auth: Token) => {
 		switch (provider) {
 		case PROVIDER_GOOGLE:
 			ToastAndroid.show('Signing in with Google', ToastAndroid.SHORT);
