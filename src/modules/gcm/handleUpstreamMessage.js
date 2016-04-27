@@ -158,12 +158,12 @@ function subscribeAll(id) {
 			order: 'createTime'
 		}, [ -Infinity, Infinity ], (error, rels) => {
 			if (err) { return; }
-			for (let i of rels) {
+			for (const i of rels) {
 				subscribe({
 					params: user.params,
 					topic: 'room-' + i.item
 				});
-			};
+			}
 		});
 	});
 }
