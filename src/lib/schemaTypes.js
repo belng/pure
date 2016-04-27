@@ -106,8 +106,14 @@ export type Note = {
 		id: string;
 		link: string;
 		picture?: string;
-		room?: string;
-		thread?: string;
+		room?: {
+			id: string;
+			name?: string;
+		};
+		thread?: {
+			id: string;
+			name?: string;
+		};
 		title: string;
 	};
 	createTime: number;

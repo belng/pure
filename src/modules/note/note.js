@@ -16,44 +16,34 @@ import type {
 	Text as TextType,
 	Thread as ThreadType,
 	Room as RoomType,
-	User as UserType,
 } from '../../lib/schemaTypes';
 
 const server = `${config.server.protocol}//${config.server.host}`;
 
 const getEntityAsync = promisify(cache.getEntity.bind(cache));
 
-function getEntities(ids: Array<string | null>): Array<Object | null> {
-	return ids.map(id => id ? getEntityAsync(id) : null);
-}
-
-async function getItemsData(relation): Promise<{
-	creator: ?UserType;
+async function getItemsData(textrel): Promise<{
 	text: ?TextType;
 	room: ?RoomType;
 	thread: ?ThreadType;
 }> {
-	let creator, room, thread;
+	let room, thread;
 
-	const text = await getEntityAsync(relation.item);
+	const text = await getEntityAsync(textrel.item);
 
 	if (text && text.parents) {
-		[
-			thread,
-			room,
-			creator,
-		] = await getEntities([ text.parents[0], text.parents[1], text.creator ]);
+		thread = await getEntityAsync(text.parents[0]);
+		room = await getEntityAsync(text.parents[1]);
 	}
 
-	return { creator, text, room, thread };
+	return { text, room, thread };
 }
 
-async function createMention(relation): Promise<?Note> {
-	const { creator, text, room, thread } = await getItemsData(relation);
+async function createMention(textrel): Promise<?Note> {
+	const { text, room, thread } = await getItemsData(textrel);
 	const now = Date.now();
 
 	if (
-		creator && creator.id &&
 		text && text.id &&
 		room && room.id &&
 		thread && thread.id
@@ -61,18 +51,25 @@ async function createMention(relation): Promise<?Note> {
 		const note: NoteType = {
 			id: '', // make flow happy
 			group: thread.id,
-			user: relation.user,
+			user: textrel.user,
 			event: NOTE_MENTION,
+			type: TYPE_NOTE,
 			createTime: now,
 			updateTime: now,
 			count: 1,
 			score: 50,
 			data: {
 				id: text.id,
-				creator: creator.id,
-				room: room.id,
-				thread: thread.id,
-				picture: `${server}/i/picture?user=${creator.id}&size=${128}`,
+				creator: text.creator,
+				picture: `${server}/i/picture?user=${text.creator}&size=${128}`,
+				room: {
+					id: room.id,
+					name: room.name,
+				},
+				thread: {
+					id: thread.id,
+					thread: thread.name,
+				},
 				link: server + convertRouteToURL({
 					name: 'chat',
 					props: {
@@ -80,10 +77,9 @@ async function createMention(relation): Promise<?Note> {
 						thread: thread.id,
 					}
 				}),
-				title: `${room.name}: ${creator.id} mentioned you`,
+				title: `${room.name}: ${text.creator} mentioned you in ${thread.name}`,
 				body: text.body,
 			},
-			type: TYPE_NOTE
 		};
 
 		return new Note(note);
