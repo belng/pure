@@ -15,11 +15,10 @@ const DIGEST_INTERVAL = 60 * 60 * 1000, DIGEST_DELAY = 24 * 60 * 60 * 1000,
 let lastEmailSent, end;
 
 
-function getSubject(rels) {
-	const counts = rels.length - 1;
-	// console.log(rels[0])
-	const heading = '[' + rels[0].room + '] ' + rels[0].threads[0].threadTitle + ' +' + counts + ' more';
-	// console.log(heading)
+function getSubject() {
+	// const counts = rels.length - 1;
+	// const heading = '[' + rels[0].room + '] ' + rels[0].threads[0].threadTitle + ' +' + counts + ' more';
+	const heading = 'Updates from ' + config.app_name;
 	return heading;
 }
 
@@ -118,7 +117,7 @@ function sendDigestEmail () {
 			});
 		});
 	}).on('end', () => {
-		log.info('ended');
+		log.info('ended digest email');
 	});
 }
 
