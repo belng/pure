@@ -57,7 +57,7 @@ async function createMention(textrel: TextRelType, text: ?TextType): Promise<?No
 				},
 				thread: {
 					id: thread.id,
-					thread: thread.name,
+					name: thread.name,
 				},
 				link: server + convertRouteToURL({
 					name: 'chat',
