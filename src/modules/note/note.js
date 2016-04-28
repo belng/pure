@@ -16,38 +16,27 @@ import type {
 	Text as TextType,
 	Thread as ThreadType,
 	Room as RoomType,
+	TextRel as TextRelType,
 } from '../../lib/schemaTypes';
 
 const server = `${config.server.protocol}//${config.server.host}`;
 
 const getEntityAsync = promisify(cache.getEntity.bind(cache));
 
-async function getItemsData(textrel): Promise<{
-	text: ?TextType;
-	room: ?RoomType;
-	thread: ?ThreadType;
-}> {
-	let room, thread;
-
-	const text = await getEntityAsync(textrel.item);
+async function createMention(textrel: TextRelType, text: ?TextType): Promise<?Note> {
+	let room: ?RoomType, thread: ?ThreadType;
 
 	if (text && text.parents) {
 		thread = await getEntityAsync(text.parents[0]);
 		room = await getEntityAsync(text.parents[1]);
 	}
 
-	return { text, room, thread };
-}
-
-async function createMention(textrel): Promise<?Note> {
-	const { text, room, thread } = await getItemsData(textrel);
-	const now = Date.now();
-
 	if (
 		text && text.id &&
 		room && room.id &&
 		thread && thread.id
 	) {
+		const now = Date.now();
 		const note: NoteType = {
 			id: '', // make flow happy
 			group: thread.id,
@@ -100,7 +89,7 @@ async function getNotesFromChanges(changes): Promise<Array<?Note>> {
 			const relation = changes.entities[id];
 
 			if (isMentioned(relation)) {
-				promises.push(createMention(relation));
+				promises.push(createMention(relation, changes.entities[relation.item]));
 			}
 		}
 	}
