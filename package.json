@@ -86,7 +86,7 @@
     "start:dev": "babel-node --presets es2015-node5,stage-1,react src/start/belong-server.dev",
     "start:prod": "node build/start/belong-server.prod",
     "packager": "node node_modules/react-native/local-cli/cli.js start",
-    "test": "jest",
+    "test": "ava **/tests/**",
     "flow": "flow",
     "lint": "eslint .",
     "flow:added": "git diff HEAD --cached --name-only --diff-filter=ACM | grep '.js$' > /dev/null || exit 0 && npm run flow",
@@ -115,7 +115,8 @@
   "homepage": "https://github.com/scrollback/pure#readme",
   "ava": {
     "require": [
-      "babel-register"
+      "babel-register",
+      "babel-polyfill"
     ],
     "babel": "inherit"
   },
