@@ -125,9 +125,9 @@ t.thruthy // assert.ok
 t.falsy
 t.is // assert.equal
 t.not // assert.notEqual
-it.deepEqual // assert.deepEqual
+t.deepEqual // assert.deepEqual
 t.notDeepEqual // assert.notDeepEqual
-it.throws // assert.throws
+t.throws // assert.throws
 t.notThrows // assert.doesNotThrow
 t.ifError // assert.ifError
 t.regex
