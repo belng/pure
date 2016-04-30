@@ -5,7 +5,7 @@ We use various tooling to improve the developer workflow. This document lists mo
 The following commands are configured in this repository,
 
 1. `npm start` - start the node server (runs with `babel-node` in developement, and transpiles files on production)
-1. `npm test` - run tests with Jest
+1. `npm test` - run tests with AVA
 2. `npm run flow` - typecheck files with Flow
 3. `npm run lint` - lint changed files with ESLint
 4. `npm run build` - build files with Webpack
@@ -78,24 +78,26 @@ module.exports = {
 
 Webpack is already configured in the repo and you build the bundle using the command `npm run build`, or run the build server with hot reloading functionality with `npm run build-server`. You don't need to install Webpack globally. To use the `webpack` command directly, install Webpack globally by running `npm install -g webpack` and install the dev server globally by running `npm install -g webpack-dev-server`.
 
-## Running tests with [Jest](https://facebook.github.io/jest/)
+## Running tests with [AVA](https://github.com/sindresorhus/ava)
 
 ### Why
 
-1. All CommonJS style dependencies are mocked by default
-2. Automatically finds all tests located in `__tests__` folders in the repo
-3. Allows to test async code synchronously
-4. Tests run in parallel, so that they finish sooner
-5. Includes [`jsdom`](https://github.com/tmpvar/jsdom) by default to run DOM related tests
+1. Minimal, fast and simple test syntax
+2. Runs tests concurrently with isolated environment for each test file
+3. Supports Promises, Generators, Observables, Async functions
+4. Enhanced assertion messages with power assert
+5. Clean stack traces
+6. Supports assertion planning
 
 ### How
 
-Usage is almsot the same as you'd do with `mocha`, except you need to tell Jest not to mock the module you're testing.
+The syntax is simple. There are no implicit globals, so you always import `ava`, and the default assertion library is supplied as an argument to the function.
+
 
 ```js
 // lib/multiply.js
 
-module.exports = function multiply(a, b) {
+export function multiply(a, b) {
 	return a * b;
 }
 ```
@@ -103,28 +105,39 @@ module.exports = function multiply(a, b) {
 ```js
 // lib/__tests__/multiply-test.js
 
-jest.unmock("../multiply");
+import test from "ava";
+import { multiply } from "../multiply";
 
-describe("lib", function() {
-	it("multiplies 2 numbers", function() {
-		const multiply = require("../multiply");
-
-		expect(multiply(2, 3)).toBe(6);
-	});
+test("multiplies 2 numbers", t => {
+	t.plan(1);
+	t.is(multiply(2, 3), 6);
 });
 ```
 
-Now you can either run the test by using the `jest` command, or use `--watch` to run the tests whenever the files change.
+There's no way to group tests (i.e. - no equivalent of `describe`), so you need to group tests by putting them into separate files.
 
-**NOTES:**
+### Common assertions
 
-1. You can also use the `assert` library if you want.
-2. You need to require the module after the `jest.unmock(...)` statement. ES2015 imports are hoisted to the top, so cannot use them.
-3. To turn off auto-mocking modules, use `jest.autoMockOff()`.
+```js
+t.true
+t.false
+t.thruthy // assert.ok
+t.falsy
+t.is // assert.equal
+t.not // assert.notEqual
+it.deepEqual // assert.deepEqual
+t.notDeepEqual // assert.notDeepEqual
+it.throws // assert.throws
+t.notThrows // assert.doesNotThrow
+t.ifError // assert.ifError
+t.regex
+t.pass
+t.fail // assert.fail
+```
 
 ### Setup
 
-Jest is already configured in the repo and you can run the tests by using the command `npm test`. You don't need to install Jest globally. To use the `jest` command directly, install Jest globally by running `npm install -g jest-cli`.
+AVA is already configured in the repo and you can run the tests by using the command `npm test`. You don't need to install AVA globally. To use the `ava` command directly, install AVA globally by running `npm install -g ava`.
 
 ## Type checking with [Flow](http://flowtype.org/)
 
@@ -135,7 +148,7 @@ Jest is already configured in the repo and you can run the tests by using the co
 
 ### How
 
-For Flow to typecheck your file, you need to add a comment '/* @flow */' at the top of your file. Then you can annotate to take advantage of flow.
+For Flow to typecheck your file, you need to add a comment `/* @flow */` at the top of your file. Then you can annotate to take advantage of flow.
 
 ```js
 /* @flow */
@@ -144,7 +157,7 @@ import Ebus from "ebus";
 
 type Bus = {
 	emit(event: string, options: Object, callback?: Function): void;
-	on(event: string, callback: Function, priority?: number): void;
+	on(event: string, callback?: Function, priority?: number): void;
 }
 
 const bus: Bus = new Ebus();

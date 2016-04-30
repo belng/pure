@@ -2,6 +2,7 @@
 import { connect } from './xmpp';
 import { bus, Constants, config, cache } from '../../core-server';
 import log from 'winston';
+import uid from '../../lib/uid-server';
 import Counter from '../../lib/counter';
 import handleUpstreamMessage from './handleUpstreamMessage';
 import createStanza from './createStanza';
@@ -70,7 +71,7 @@ function sendStanza(changes, entity) {
 			};
 
 				// console.log("gcm entity:", pushData)
-			client.send(createStanza(pushData));
+			client.send(createStanza(pushData, uid()));
 		});
 	}
 	if (entity.type === Constants.TYPE_TEXT) {
@@ -131,12 +132,12 @@ function sendStanza(changes, entity) {
 			};
 
 			log.info('sending pushnotification for text', pushData);
-			client.send(createStanza(pushData));
+			client.send(createStanza(pushData, uid()));
 		});
 	}
 	if (entity.type === Constants.TYPE_NOTE) {
 		log.info('sending pushnotification for mention');
-		client.send(createStanza(entity));
+		client.send(createStanza(entity, uid()));
 	}
 }
 

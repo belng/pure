@@ -1,12 +1,12 @@
 import { Constants, bus } from '../../core-server';
 import log from 'winston';
 
-function getScore(params) {
+function getScore() {
 	return 1;
 }
-bus.on('postchange', (changes) => {
+
+bus.on('change', (changes) => {
 	if (!changes.entities) {
-		// next();
 		return;
 	}
 
@@ -14,10 +14,7 @@ bus.on('postchange', (changes) => {
 		const entity = changes.entities[id];
 
 		if (entity.type === Constants.TYPE_THREAD) {
-			console.log("score module", entity);
 			entity.score = getScore(entity.updateTime || Date.now());
-			console.log("score module", entity);
-			changes.entities[id] = entity;
 		}
 
 //		if (entity.type === Constants.TYPE_TEXT) {
@@ -27,7 +24,6 @@ bus.on('postchange', (changes) => {
 //			changes.entities[entity.parents[0]] = thread;
 //		}
 	}
-
-	// next();
 });
+
 log.info('Score module ready.');
