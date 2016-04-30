@@ -11,6 +11,5 @@ node_js:
 before_install:
   - npm i -g quik@latest
 before_script:
-  - npm prune
-  - npm dedupe
+  - npm run flow
   - npm run build
