@@ -27,8 +27,8 @@ function initMailSending(cUserRel) {
 		const emailHtml = template({
 			user: user.id,
 			rels,
-			domain: conf.domain,
-			token: jwt.sign({ email: mailId.substring(8, emailAdd.length) }, conf.secret, { expiresIn: '2 days' })
+			domain: config.server.protocol + '//' + config.server.host + ':' + config.server.port,
+			token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: '2 days' })
 		});
 
 		send(conf.from, emailAdd, 'Welcome to ' + config.app_name, emailHtml, (e) => {
