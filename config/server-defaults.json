@@ -45,9 +45,9 @@
 
 	"s3": {
 		"accessKey": "",
-			"secretKey": "",
-			"region": "",
-			"bucket": "belong",
+		"secretKey": "",
+		"region": "",
+		"bucket": "belong",
 		"acl": "public-read",
 		"service": "s3",
 		"signatureVersion": "aws4_request",
