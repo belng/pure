@@ -58,16 +58,19 @@ const TYPES = {
 		title: 'Where do you live?',
 		summary: 'Type and pick your apartment, street or neighborhood.',
 		icon: 'location-city',
+		image: require('../../../../../assets/house-and-tree.png'), // eslint-disable-line import/no-commonjs
 	},
 	work: {
-		title: 'Where do you work?',
+		title: 'Where do you work or study?',
 		summary: 'Type and pick your office or college.',
 		icon: 'work',
+		image: require('../../../../../assets/office-building.png'), // eslint-disable-line import/no-commonjs
 	},
 	hometown: {
 		title: 'Where are you from?',
 		summary: 'Type and pick your hometown.',
 		icon: 'home',
+		image: require('../../../../../assets/village-house.png'), // eslint-disable-line import/no-commonjs
 	},
 };
 
@@ -86,7 +89,7 @@ export default class PlacesSelectorTip extends Component<void, Props, void> {
 					<View style={styles.header}>
 						<AppText style={styles.title}>{data.title}</AppText>
 					</View>
-					<Image style={styles.image} source={require('../../../../../assets/house-and-tree.png')} />
+					<Image style={styles.image} source={data.image} />
 					<AppText style={styles.summary}>{data.summary}</AppText>
 				</View>
 			</ScrollView>
