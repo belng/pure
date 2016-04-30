@@ -63,6 +63,7 @@
     "babel-preset-react-native": "^1.6.0",
     "babel-preset-stage-1": "^6.5.0",
     "cz-conventional-changelog": "^1.1.6",
+    "enzyme": "^2.2.0",
     "eslint": "^2.8.0",
     "eslint-import-resolver-webpack": "^0.2.1",
     "eslint-loader": "^1.3.0",
@@ -73,6 +74,7 @@
     "estraverse-fb": "^1.3.1",
     "flow-bin": "^0.23.1",
     "jest-cli": "^12.0.1",
+    "jsdom": "^8.4.1",
     "json-loader": "^0.5.4",
     "jsonop": "^2.1.2",
     "node-fetch": "^1.5.1",
@@ -116,7 +118,8 @@
   "ava": {
     "require": [
       "babel-register",
-      "babel-polyfill"
+      "babel-polyfill",
+      "./helpers/setup-browser-env"
     ],
     "babel": "inherit"
   },
