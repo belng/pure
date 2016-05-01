@@ -4,8 +4,10 @@ import jwt from 'jsonwebtoken';
 import handlebars from 'handlebars';
 import * as pg from '../../lib/pg';
 import Counter from '../../lib/counter';
-import send from './sendEmail.js';
-import { Constants, config } from '../../core-server';
+import send from './sendEmail';
+import { config } from '../../core-server';
+import * as Constants from '../../lib/Constants';
+
 const WELCOME_INTERVAL = 5 * 60 * 1000, WELCOME_DELAY = 5 * 60 * 1000, connStr = config.connStr, conf = config.email,
 	template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' +
 	config.app_id + '.welcome.hbs', 'utf-8').toString());
@@ -76,7 +78,7 @@ function sendWelcomeEmail () {
 		userRel.user = user;
 
 		pg.readStream(connStr, {
-			$: 'SELECT * FROM roomrels JOIN rooms ON item=id where \"user\" = &{user}',
+			$: 'SELECT * FROM roomrels JOIN rooms ON item=id where "user" = &{user}',
 			user: user.id
 		}).on('row', (rel) => {
 			rels.push(rel);

@@ -1,6 +1,6 @@
 /* @flow */
 
-import { Constants } from '../../core-server';
+import * as Constants from '../../lib/Constants';
 
 export default function createStanza(pushData: Object, id: string) {
 	let topic;

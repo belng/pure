@@ -1,4 +1,5 @@
-import { Constants, bus } from '../../core-server';
+import { bus } from '../../core-server';
+import { TYPE_THREAD } from '../../lib/Constants';
 import log from 'winston';
 
 function getScore() {
@@ -13,11 +14,11 @@ bus.on('change', (changes) => {
 	for (const id in changes.entities) {
 		const entity = changes.entities[id];
 
-		if (entity.type === Constants.TYPE_THREAD) {
+		if (entity.type === TYPE_THREAD) {
 			entity.score = getScore(entity.updateTime || Date.now());
 		}
 
-//		if (entity.type === Constants.TYPE_TEXT) {
+//		if (entity.type === TYPE_TEXT) {
 //			const thread = changes.entities[entity.parents[0]];
 //
 //			thread.score = getScore(entity.createtime);

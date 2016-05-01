@@ -1,6 +1,7 @@
 /* @flow */
 import { connect } from './xmpp';
-import { bus, Constants, config, cache } from '../../core-server';
+import { bus, config, cache } from '../../core-server';
+import * as Constants from '../../lib/Constants';
 import log from 'winston';
 import uid from '../../lib/uid-server';
 import Counter from '../../lib/counter';
