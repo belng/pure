@@ -34,6 +34,14 @@ Babel is configured to transpile the following features in this repository,
 3. [React's JSX syntax](https://facebook.github.io/jsx/)
 4. [Flow type annotations](flowtype.org/docs/type-annotations.html)
 
+### Setup
+
+Babel is already configured in the repo. To use the `babel` and `babel-node` commands directly, install Babel globally by running `npm install -g babel-cli`.
+
+### Running
+
+You can build the server by running the command `npm run build:server`.
+
 ### Editor plugins
 
 * **Atom** - [`language-babel`](https://atom.io/packages/language-babel)
@@ -76,7 +84,11 @@ module.exports = {
 
 ### Setup
 
-Webpack is already configured in the repo and you build the bundle using the command `npm run build`, or run the build server with hot reloading functionality with `npm run build-server`. You don't need to install Webpack globally. To use the `webpack` command directly, install Webpack globally by running `npm install -g webpack` and install the dev server globally by running `npm install -g webpack-dev-server`.
+Webpack is already configured in the repo. You don't need to install Webpack globally. To use the `webpack` command directly, install Webpack globally by running `npm install -g webpack`.
+
+### Running
+
+You can build the client running the command `npm run build:client` or `webpack` if Webpack is installed globally.
 
 ## Running tests with [AVA](https://github.com/sindresorhus/ava)
 
@@ -91,7 +103,7 @@ Webpack is already configured in the repo and you build the bundle using the com
 
 ### How
 
-The syntax is simple. There are no implicit globals, so you always import `ava`, and the default assertion library is supplied as an argument to the function.
+The syntax is simple. There are no implicit globals, so you always import `ava`, and the default assertion library is supplied as an argument to the `test` function.
 
 
 ```js
@@ -116,6 +128,8 @@ test("multiplies 2 numbers", t => {
 
 There's no way to group tests (i.e. - no equivalent of `describe`), so you need to group tests by putting them into separate files.
 
+Tip: Name your test files as `*.test.js` so AVA can find them, and the linter lints the tests.
+
 ### Common assertions
 
 ```js
@@ -138,6 +152,10 @@ t.fail // assert.fail
 ### Setup
 
 AVA is already configured in the repo and you can run the tests by using the command `npm test`. You don't need to install AVA globally. To use the `ava` command directly, install AVA globally by running `npm install -g ava`.
+
+### Running
+
+You can run a test by running the `ava /path/to/test`. To run all the tests in the repository, run `npm test`.
 
 ## Type checking with [Flow](http://flowtype.org/)
 
@@ -192,14 +210,18 @@ const x: string = 123;
 ### Editor plugins
 
 * **Nuclide** - Inbuilt flow support
-* **Atom** - [`linter-flow`](https://atom.io/packages/linter-flow) (linting), [`nuclide`](https://atom.io/packages/nuclide) (liniting and auto-completion),  [`flow-ide`](https://atom.io/packages/flow-ide) (liniting and auto-completion)
+* **Atom** - [`nuclide`](https://atom.io/packages/nuclide) (liniting and auto-completion)
 * **Sublime Text** -  [`SublimeLinter-flow`](https://packagecontrol.io/packages/SublimeLinter-flow) (linting)
 * **Visual Studio Code** - [`flow-for-vscode`](https://github.com/flowtype/flow-for-vscode) (linting and auto-completion)
 * **Brackets** - [`brackets-flow`](https://github.com/fdecampredon/brackets-flow) (liniting and auto-completion)
 
 ### Setup
 
-Flow is already configured in the repo and you can typecheck the files using the command `npm run flow`. You don't need to install Flow globally. To use the `flow` command directly, install Flow globally by running `npm install -g flow-bin`;
+Flow is already configured in the repo. You don't need to install Flow globally. To use the `flow` command directly, install Flow globally by running `npm install -g flow-bin`;
+
+### Running
+
+You can typecheck the files using the command `npm run flow`.
 
 ## Linting with [ESLint](http://eslint.org/)
 
@@ -249,4 +271,8 @@ eval("console.log('Hello world!')"); // eslint-disable-line no-eval
 
 ### Setup
 
-ESLint is already configured in the repo and you can lint the files using the command `npm run lint` (Note that it'll only check the files which are tracked by GIT and have been changed). You don't need to install ESLint globally. To use the `eslint` command directly, install ESLint globally by running `npm install -g eslint`;
+ESLint is already configured in the repo. You don't need to install ESLint globally. To use the `eslint` command directly, install ESLint globally by running `npm install -g eslint`;
+
+### Running
+
+You can typecheck the files using the command `npm run lint`. To only check the files which are changed and added to GIT, run `npm run lint:added`.
