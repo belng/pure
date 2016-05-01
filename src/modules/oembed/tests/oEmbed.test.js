@@ -1,8 +1,8 @@
 import test from 'ava';
 import oEmbed from '../oEmbed';
 
-global.fetch = require('node-fetch');
-global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+global.fetch = require('node-fetch'); // eslint-disable-line import/no-commonjs
+global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest; // eslint-disable-line import/no-commonjs
 
 test('should return oEmbed data for youtube.com', async t => {
 	const data = await oEmbed('https://www.youtube.com/watch?v=uVdV-lxRPFo');
