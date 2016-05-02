@@ -1,7 +1,8 @@
 /* eslint no-use-before-define: 0 */
 /* @flow */
 import log from 'winston';
-import { config, bus, cache, Constants } from '../../core-server';
+import { config, bus, cache } from '../../core-server';
+import { ROLE_FOLLOWER } from '../../lib/Constants';
 import { subscribe, getIIDInfo } from './subscribeTopics';
 
 // import util from 'util';
@@ -154,17 +155,16 @@ function subscribeAll(id) {
 
 		cache.query({
 			type: 'roomrel',
-			filter: { user: user.id, roles_cts: [ Constants.ROLE_FOLLOWER ] },
+			filter: { user: user.id, roles_cts: [ ROLE_FOLLOWER ] },
 			order: 'createTime'
 		}, [ -Infinity, Infinity ], (error, rels) => {
 			if (err) { return; }
-			rels.forEach(e => {
-				console.log('room-' + e.item);
+			for (const i of rels) {
 				subscribe({
 					params: user.params,
-					topic: 'room-' + e.item
+					topic: 'room-' + i.item
 				});
-			});
+			}
 		});
 	});
 }
