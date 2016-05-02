@@ -44,7 +44,7 @@ type Props = {
 
 export default class CTACard extends Component<void, Props, State> {
 	static propTypes = {
-		room: PropTypes.object.isRequired,
+		room: PropTypes.object,
 		user: PropTypes.object.isRequired,
 		data: PropTypes.shape({
 			id: PropTypes.string.isRequired,
