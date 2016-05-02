@@ -19,22 +19,22 @@ export type User = Entity & {
 	params?: {
 		gcm?: {
 			[key: string]: string;
-		},
+		};
 		google?: {
 			name?: string;
 			picture?: string;
 			verified?: boolean;
-		},
+		};
 		facebook?: {
 			name?: string;
 			picture?: string;
 			verified?: boolean;
-		},
+		};
 		places?: {
-			home?: { id: string, title: string, description: string };
-			work?: { id: string, title: string, description: string };
-			hometown?: { id: string, title: string, description: string };
-		},
+			home?: { id: string; title: string; description: string };
+			work?: { id: string; title: string; description: string };
+			hometown?: { id: string; title: string; description: string };
+		};
 		email?: {
 			notifications?: boolean;
 			frequency?: 'daily' | 'never';
