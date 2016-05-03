@@ -98,12 +98,10 @@ function wherePart (f) {
 		case 'privs':
 		case 'users':
 		case 'notes':
-			filter.$ = 'WHERE deletetime IS NULL' + sql.join(' AND ');
-			break;
-		default:
-			filter.$ = 'WHERE ' + sql.join(' AND ');
+			sql.push(`"${TABLES[TYPES[type]]}".deletetime is null`);
 		}
 
+		filter.$ = 'WHERE ' + sql.join(' AND ');
 		return filter;
 	} else {
 		return '';
