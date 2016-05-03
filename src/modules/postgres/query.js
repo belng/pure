@@ -98,7 +98,7 @@ function wherePart (f) {
 		case 'privs':
 		case 'users':
 		case 'notes':
-			sql.push(`"${TABLES[TYPES[type]]}".deletetime is null`);
+			sql.push(`"${TABLES[TYPES[f.type]]}".deletetime IS NULL`);
 		}
 
 		filter.$ = 'WHERE ' + sql.join(' AND ');
