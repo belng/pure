@@ -60,7 +60,7 @@ function fromPart (slice) {
 
 function wherePart (f) {
 	const sql = [];
-	let filter = f;
+	let filter = f.filter;
 
 
 	for (const prop in filter) {
@@ -89,7 +89,21 @@ function wherePart (f) {
 
 	if (sql.length) {
 		filter = Object.create(filter);
-		filter.$ = 'WHERE ' + sql.join(' AND ');
+		switch (TABLES[TYPES[f.type]]) {
+		case 'items':
+		case 'rooms':
+		case 'texts':
+		case 'threads':
+		case 'topics':
+		case 'privs':
+		case 'users':
+		case 'notes':
+			filter.$ = 'WHERE deletetime IS NULL' + sql.join(' AND ');
+			break;
+		default:
+			filter.$ = 'WHERE ' + sql.join(' AND ');
+		}
+
 		return filter;
 	} else {
 		return '';
@@ -107,7 +121,7 @@ function orderPart(type, order, limit) {
 function simpleQuery(slice, limit) {
 	return pg.cat([
 		fromPart(slice),
-		wherePart(slice.filter),
+		wherePart(slice),
 		orderPart(slice.type, slice.order, limit)
 	], ' ');
 }
