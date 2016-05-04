@@ -164,7 +164,7 @@ COLUMNS[Constants.TYPE_PRIVREL] = [
 COLUMNS[Constants.TYPE_NOTE] = [
 	'count',
 	'data',
-	'dismissTime',
+	'deleteTime',
 	'event',
 	'createTime',
 	'updateTime',

@@ -117,7 +117,6 @@ export type Note = {
 		title: string;
 	};
 	createTime: number;
-	dismissTime?: number;
 	event: number;
 	group: string;
 	id: string;
