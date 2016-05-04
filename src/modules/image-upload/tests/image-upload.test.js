@@ -1,5 +1,5 @@
 import test from 'ava';
-import { getResponse } from './../image-upload';
+import { getResponse } from '../image-upload';
 
 test('generate policies for "content" type upload', t => {
 	const req = {

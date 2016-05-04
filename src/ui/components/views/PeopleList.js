@@ -53,7 +53,7 @@ export default class PeopleList extends Component<void, Props, State> {
 
 	_renderHeader: Function = () => <ListHeader>People talking</ListHeader>;
 
-	_renderRow: Function = (relation: { rel: RoomRel | ThreadRel, user: User }) => (
+	_renderRow: Function = (relation: { rel: RoomRel | ThreadRel; user: User }) => (
 		<PeopleListItem
 			key={relation.user}
 			user={relation.user}

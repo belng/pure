@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	data: Array<{ user: string, session: string }>;
+	data: Array<{ user: string; session: string }>;
 	user: string;
 	switchUser: Function;
 }

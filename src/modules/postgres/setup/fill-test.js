@@ -1,5 +1,5 @@
-import * as Constants from './../../../lib/Constants';
-import uid from './../../../lib/uid-server';
+import * as Constants from '../../../lib/Constants';
+import uid from '../../../lib/uid-server';
 import pg from '../../../lib/pg';
 import casual from 'casual';
 import logger from 'winston';

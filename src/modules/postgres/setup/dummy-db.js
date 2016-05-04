@@ -156,15 +156,15 @@ function insertTextrel(usr, text, cb) {
 
 function insertIntoJobs () {
 	pg.write(connstr, [ {
-		$: `INSERT INTO jobs VALUES (&{id}, &{lastrun})`,
+		$: 'INSERT INTO jobs VALUES (&{id}, &{lastrun})',
 		id: Constants.JOB_EMAIL_DIGEST,
 		lastrun: 0
 	}, {
-		$: `INSERT INTO jobs VALUES (&{id}, &{lastrun})`,
+		$: 'INSERT INTO jobs VALUES (&{id}, &{lastrun})',
 		id: Constants.JOB_EMAIL_MENTION,
 		lastrun: 0
 	}, {
-		$: `INSERT INTO jobs VALUES (&{id}, &{lastrun})`,
+		$: 'INSERT INTO jobs VALUES (&{id}, &{lastrun})',
 		id: Constants.JOB_EMAIL_WELCOME,
 		lastrun: 0
 	} ], () => {

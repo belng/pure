@@ -75,11 +75,11 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	user: User,
-	saveUser: () => void,
-	saveParams: () => void,
-	signOut: () => void,
-	onNavigation: () => void,
+	user: User;
+	saveUser: () => void;
+	saveParams: () => void;
+	signOut: () => void;
+	onNavigation: () => void;
 }
 
 type State = {

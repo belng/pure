@@ -7,7 +7,7 @@ import * as place from './place';
 import * as constants from '../../lib/Constants';
 import uuid from 'node-uuid';
 import * as pg from '../../lib/pg';
-import type { User } from './../../lib/schemaTypes';
+import type { User } from '../../lib/schemaTypes';
 
 const placesRoles = [ constants.ROLE_WORK, constants.ROLE_HOME, constants.ROLE_HOMETOWN ];
 // postgres mock, because jest is acting up.

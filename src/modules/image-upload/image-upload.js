@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import winston from 'winston';
-import EnhancedError from './../../lib/EnhancedError';
+import EnhancedError from '../../lib/EnhancedError';
 import { APP_PRIORITIES } from '../../lib/Constants';
 import { bus, config } from '../../core-server';
 

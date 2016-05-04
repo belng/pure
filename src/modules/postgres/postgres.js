@@ -7,9 +7,9 @@ import * as pg from '../../lib/pg';
 import presenceHandler from './presence';
 import queryHandler from './query';
 import { TYPE_NAMES } from '../../lib/schema';
-import * as Types from './../../models/models';
+import * as Types from '../../models/models';
 import winston from 'winston';
-import packer from './../../lib/packer';
+import packer from '../../lib/packer';
 const channel = 'heyneighbor';
 
 function getTypeFromId(id) {
