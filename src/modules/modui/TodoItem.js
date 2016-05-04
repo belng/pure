@@ -8,7 +8,7 @@ const styles = {
 	},
 	link: {
 		textDecoration: 'none',
-		color: '#333333'
+		color: '#333333',
 	},
 	name: {
 		fontWeight: 'bold',

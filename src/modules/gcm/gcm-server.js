@@ -49,8 +49,8 @@ function sendStanza(changes, entity) {
 					name: 'chat',
 					props: {
 						room: entity && entity.parents[0],
-						thread: entity && entity.id
-					}
+						thread: entity && entity.id,
+					},
 				});
 
 			log.info('sending pushnotification for thread', entity, urlLink);
@@ -65,10 +65,10 @@ function sendStanza(changes, entity) {
 					thread: entity.id,
 					type: 'thread',
 					link: urlLink,
-					picture: `${config.server.protocol}//${config.server.host}/i/picture?user=${entity.creator}&size=${48}`
+					picture: `${config.server.protocol}//${config.server.host}/i/picture?user=${entity.creator}&size=${48}`,
 				},
 				updateTime: Date.now(),
-				type: entity.type
+				type: entity.type,
 			};
 
 				// console.log("gcm entity:", pushData)
@@ -110,8 +110,8 @@ function sendStanza(changes, entity) {
 					name: 'chat',
 					props: {
 						room: entity && entity.parents[1],
-						thread: entity && entity.parents[0]
-					}
+						thread: entity && entity.parents[0],
+					},
 				});
 
 			log.info('pushnotification: ', entity, urlLink);
@@ -126,10 +126,10 @@ function sendStanza(changes, entity) {
 					thread: entity && entity.parents[0],
 					type: 'reply',
 					link: urlLink,
-					picture: `${config.server.protocol}//${config.server.host}/i/picture?user=${entity.creator}&size=${48}`
+					picture: `${config.server.protocol}//${config.server.host}/i/picture?user=${entity.creator}&size=${48}`,
 				},
 				updateTime: Date.now(),
-				type: entity.type
+				type: entity.type,
 			};
 
 			log.info('sending pushnotification for text', pushData);

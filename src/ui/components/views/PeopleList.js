@@ -29,19 +29,19 @@ export default class PeopleList extends Component<void, Props, State> {
 
 	state: State = {
 		dataSource: new ListView.DataSource({
-			rowHasChanged: (r1, r2) => r1 !== r2
-		})
+			rowHasChanged: (r1, r2) => r1 !== r2,
+		}),
 	};
 
 	componentWillMount() {
 		this.setState({
-			dataSource: this.state.dataSource.cloneWithRows(this.props.data)
+			dataSource: this.state.dataSource.cloneWithRows(this.props.data),
 		});
 	}
 
 	componentWillReceiveProps(nextProps: Props) {
 		this.setState({
-			dataSource: this.state.dataSource.cloneWithRows(nextProps.data)
+			dataSource: this.state.dataSource.cloneWithRows(nextProps.data),
 		});
 	}
 

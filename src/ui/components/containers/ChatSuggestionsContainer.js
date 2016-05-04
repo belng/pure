@@ -10,7 +10,7 @@ type Props = {
 
 export default class ChatSuggestionsContainer extends Component<void, Props, { prefix: string }> {
 	static propTypes = {
-		user: PropTypes.string
+		user: PropTypes.string,
 	};
 
 	state: { prefix: string } = {
@@ -19,7 +19,7 @@ export default class ChatSuggestionsContainer extends Component<void, Props, { p
 
 	_getMatchingUsers: Function = (prefix: string) => {
 		this.setState({
-			prefix: prefix.trim()
+			prefix: prefix.trim(),
 		});
 	};
 
@@ -36,19 +36,19 @@ export default class ChatSuggestionsContainer extends Component<void, Props, { p
 							slice: {
 								type: 'user',
 								filter: {
-									prefix: this.state.prefix
+									prefix: this.state.prefix,
 								},
-								order: 'id'
+								order: 'id',
 							},
 							// REVIEW: verify the range schema works
 							range: {
 								start: -Infinity,
 								before: 5,
 								after: 0,
-							}
+							},
 						},
-						transform: results => results.filter(item => item.id !== this.props.user)
-					}
+						transform: results => results.filter(item => item.id !== this.props.user),
+					},
 				}}
 				passProps={{ ...this.props, getMatchingUsers: prefix => this._getMatchingUsers(prefix) }}
 				component={ChatSuggestions}

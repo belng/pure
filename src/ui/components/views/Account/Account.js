@@ -20,57 +20,57 @@ const {
 	View,
 	PixelRatio,
 	TextInput,
-	Switch
+	Switch,
 } = ReactNative;
 
 const styles = StyleSheet.create({
 	info: {
 		flex: 1,
-		marginLeft: 16
+		marginLeft: 16,
 	},
 	nick: {
 		color: Colors.darkGrey,
-		fontWeight: 'bold'
+		fontWeight: 'bold',
 	},
 	email: {
 		fontSize: 12,
-		lineHeight: 18
+		lineHeight: 18,
 	},
 	settings: {
 		alignItems: 'stretch',
-		backgroundColor: Colors.white
+		backgroundColor: Colors.white,
 	},
 	inputContainer: {
 		borderColor: Colors.separator,
 		borderBottomWidth: 1 / PixelRatio.get(),
-		paddingVertical: 8
+		paddingVertical: 8,
 	},
 	inputLabelText: {
 		fontSize: 12,
 		lineHeight: 18,
-		marginHorizontal: 16
+		marginHorizontal: 16,
 	},
 	input: {
 		paddingVertical: 8,
 		marginVertical: 0,
-		marginHorizontal: 12
+		marginHorizontal: 12,
 	},
 	item: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		borderColor: Colors.separator,
 		borderBottomWidth: 1 / PixelRatio.get(),
-		padding: 16
+		padding: 16,
 	},
 	itemLabel: {
-		flex: 1
+		flex: 1,
 	},
 	itemText: {
-		color: Colors.darkGrey
+		color: Colors.darkGrey,
 	},
 	itemValueText: {
 		fontSize: 12,
-		lineHeight: 18
+		lineHeight: 18,
 	},
 });
 
@@ -96,16 +96,16 @@ export default class Account extends Component<void, Props, State> {
 				id: PropTypes.string,
 				meta: PropTypes.object,
 				params: PropTypes.object,
-			})
+			}),
 		]),
 		saveUser: PropTypes.func.isRequired,
 		saveParams: PropTypes.func.isRequired,
 		signOut: PropTypes.func.isRequired,
-		onNavigation: PropTypes.func.isRequired
+		onNavigation: PropTypes.func.isRequired,
 	};
 
 	state: State = {
-		GCMEnabled: true
+		GCMEnabled: true,
 	};
 
 	componentWillMount() {
@@ -124,13 +124,13 @@ export default class Account extends Component<void, Props, State> {
 		}
 
 		this.setState({
-			GCMEnabled: value !== 'false'
+			GCMEnabled: value !== 'false',
 		});
 	};
 
 	_handleStatusChange: Function = (description: string) => {
 		const {
-			user
+			user,
 		} = this.props;
 
 		const meta = user.meta ? { ...user.meta } : {};
@@ -148,13 +148,13 @@ export default class Account extends Component<void, Props, State> {
 		GCMPreferences.setPreference(PUSH_NOTIFICATION_ENABLED_KEY, value ? 'true' : 'false');
 
 		this.setState({
-			GCMEnabled: value
+			GCMEnabled: value,
 		});
 	};
 
 	_handleEmailNotificationChange: Function = (value: string) => {
 		const {
-			user
+			user,
 		} = this.props;
 
 		const params = user.params ? { ...user.params } : {};
@@ -167,7 +167,7 @@ export default class Account extends Component<void, Props, State> {
 
 	_handleEmailFrequencyChange: Function = (value: string) => {
 		const {
-			user
+			user,
 		} = this.props;
 
 		const params = user.params ? { ...user.params } : {};

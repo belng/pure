@@ -12,21 +12,21 @@ import type { Text } from '../../../lib/schemaTypes';
 const {
 	StyleSheet,
 	ListView,
-	View
+	View,
 } = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
-		paddingVertical: 4
+		paddingVertical: 4,
 	},
 	inverted: {
 		transform: [
-			{ scaleY: -1 }
-		]
+			{ scaleY: -1 },
+		],
 	},
 	item: {
-		overflow: 'hidden'
-	}
+		overflow: 'hidden',
+	},
 });
 
 type Props = {
@@ -50,24 +50,24 @@ export default class ChatMessages extends Component {
 		loadMore: PropTypes.func.isRequired,
 		quoteMessage: PropTypes.func.isRequired,
 		replyToMessage: PropTypes.func.isRequired,
-		refreshData: PropTypes.func
+		refreshData: PropTypes.func,
 	};
 
 	state: State = {
 		dataSource: new ListView.DataSource({
-			rowHasChanged: (r1, r2) => r1 !== r2
-		})
+			rowHasChanged: (r1, r2) => r1 !== r2,
+		}),
 	};
 
 	componentWillMount() {
 		this.setState({
-			dataSource: this.state.dataSource.cloneWithRows(this.props.data)
+			dataSource: this.state.dataSource.cloneWithRows(this.props.data),
 		});
 	}
 
 	componentWillReceiveProps(nextProps: Props) {
 		this.setState({
-			dataSource: this.state.dataSource.cloneWithRows(nextProps.data)
+			dataSource: this.state.dataSource.cloneWithRows(nextProps.data),
 		});
 	}
 

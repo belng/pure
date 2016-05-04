@@ -13,7 +13,7 @@ const operators = {
 	lte: '<=',
 	cts: '@>',
 	ctd: '<@',
-	mts: 'like'
+	mts: 'like',
 };
 
 function getPropOp(prop) {
@@ -120,7 +120,7 @@ function simpleQuery(slice, limit) {
 	return pg.cat([
 		fromPart(slice),
 		wherePart(slice),
-		orderPart(slice.type, slice.order, limit)
+		orderPart(slice.type, slice.order, limit),
 	], ' ');
 }
 
@@ -146,8 +146,8 @@ function beforeQuery (slice, start, before, exclude) {
 		query,
 		{
 			$: `) r ORDER BY ${slice.type.toLowerCase()}->&{order} ASC`,
-			order: slice.order.toLowerCase()
-		}
+			order: slice.order.toLowerCase(),
+		},
 
 	], ' ');
 }
@@ -177,7 +177,7 @@ export default function (slice, range) {
 					'UNION ALL',
 					'(',
 					afterQuery(slice, range[0], range[2]),
-					')'
+					')',
 				], ' ');
 			} else if (range[1] > 0) {
 				query = beforeQuery(slice, range[0], range[1]);

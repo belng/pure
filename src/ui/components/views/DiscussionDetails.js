@@ -10,7 +10,7 @@ import PeopleListContainer from '../containers/PeopleListContainer';
 import type { Thread } from '../../../lib/schemaTypes';
 
 const {
-	ScrollView
+	ScrollView,
 } = ReactNative;
 
 type Props = {
@@ -19,7 +19,7 @@ type Props = {
 
 export default class DiscussionDetails extends Component<void, Props, void> {
 	static propTypes = {
-		thread: PropTypes.object
+		thread: PropTypes.object,
 	};
 
 	shouldComponentUpdate(nextProps: Props): boolean {

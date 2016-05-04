@@ -55,7 +55,7 @@ subscribe({ type: 'me', source: 'sessionswitcher' }, async user => {
 			if (!exists) {
 				list.unshift({
 					user: user.id,
-					session: cache.getState('session')
+					session: cache.getState('session'),
 				});
 			}
 

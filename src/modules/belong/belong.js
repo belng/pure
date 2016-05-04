@@ -62,7 +62,7 @@ function addRooms(change, addable, all) {
 			name: stub.name,
 			tags: [ stub.type ],
 			identities: [ stub.identity ],
-			parents: stub.parents.reverse()
+			parents: stub.parents.reverse(),
 		});
 	}
 }
@@ -78,7 +78,7 @@ function addRels(change, user, resources, addable) {
 				if (prev.indexOf(curr) < 0) prev.push(curr);
 				return prev;
 			}, []),
-			resources
+			resources,
 		});
 
 		change[rel.id] = rel;
@@ -94,7 +94,7 @@ function updateRels(change, user, updateable) {
 				roles: [ ...stub.rels, constants.ROLE_FOLLOWER ].reduce((prev, curr) => {
 					if (prev.indexOf(curr) < 0) prev.push(curr);
 					return prev;
-				}, [])
+				}, []),
 			});
 
 			change[rel.id] = rel;
@@ -169,7 +169,7 @@ function sendInvitations (resources, user, deletedRels, relRooms, ...stubsets) {
 					const newStub = {
 						identity,
 						rels: relRoom.roomrel.roles,
-						doUpdate: true
+						doUpdate: true,
 					};
 					updateable.push(newStub);
 					stubs[identity] = newStub;
@@ -190,7 +190,7 @@ function sendInvitations (resources, user, deletedRels, relRooms, ...stubsets) {
 
 	pg.read(config.connStr, {
 		$: 'SELECT * FROM "rooms" WHERE identities && &{idents}',
-		idents: all.map(a => a.identity)
+		idents: all.map(a => a.identity),
 	}, (err, rooms) => {
 		if (err) { winston.error(err); return; }
 		for (let room of rooms) {
@@ -260,7 +260,7 @@ bus.on('change', change => {
 					type: 'roomrel',
 					link: { room: 'item' },
 					filter: { user: id, roles_cts: [ constants.ROLE_FOLLOWER ] },
-					order: 'createTime'
+					order: 'createTime',
 				}, [ -Infinity, Infinity ], (err, results) => {
 					if (err) { reject(err); return; }
 					resolve(results);
@@ -271,7 +271,7 @@ bus.on('change', change => {
 
 			Promise.all([ currentRels, ...promises ])
 			.then((res) => sendInvitations({
-				[resource]: constants.PRESENCE_FOREGROUND
+				[resource]: constants.PRESENCE_FOREGROUND,
 			}, user, deletedRels, ...res))
 			.catch(err => winston.error(err));
 		}

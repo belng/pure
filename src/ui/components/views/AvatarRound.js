@@ -8,17 +8,17 @@ import AvatarContainer from '../containers/AvatarContainer';
 
 const {
 	StyleSheet,
-	View
+	View,
 } = ReactNative;
 
 const styles = StyleSheet.create({
 	avatar: {
-		backgroundColor: Colors.placeholder
+		backgroundColor: Colors.placeholder,
 	},
 	image: {
 		flex: 1,
-		resizeMode: 'cover'
-	}
+		resizeMode: 'cover',
+	},
 });
 
 type Props = {
@@ -31,7 +31,7 @@ export default class AvatarRound extends Component<void, Props, void> {
 	static propTypes = {
 		size: PropTypes.number.isRequired,
 		user: PropTypes.string.isRequired,
-		style: View.propTypes.style
+		style: View.propTypes.style,
 	};
 
 	shouldComponentUpdate(nextProps: Props): boolean {
