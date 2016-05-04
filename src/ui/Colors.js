@@ -16,5 +16,5 @@ export default {
 	fadedBlack: 'rgba(0, 0, 0, .5)',
 	separator: 'rgba(0, 0, 0, .08)',
 	underlay: 'rgba(0, 0, 0, .12)',
-	placeholder: 'rgba(0, 0, 0, .16)'
+	placeholder: 'rgba(0, 0, 0, .16)',
 };

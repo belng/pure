@@ -12,43 +12,43 @@ import type { User } from '../../../lib/schemaTypes';
 const {
 	StyleSheet,
 	PixelRatio,
-	View
+	View,
 } = ReactNative;
 
 const styles = StyleSheet.create({
 	item: {
 		backgroundColor: Colors.white,
 		borderColor: Colors.separator,
-		borderBottomWidth: 1 / PixelRatio.get()
+		borderBottomWidth: 1 / PixelRatio.get(),
 	},
 	person: {
 		flexDirection: 'row',
-		alignItems: 'center'
+		alignItems: 'center',
 	},
 	avatar: {
 		marginHorizontal: 16,
-		marginVertical: 12
+		marginVertical: 12,
 	},
 	nick: {
-		flex: 1
+		flex: 1,
 	},
 	nickText: {
-		color: Colors.darkGrey
+		color: Colors.darkGrey,
 	},
 	status: {
 		fontSize: 12,
 		lineHeight: 18,
 		marginHorizontal: 16,
 		paddingHorizontal: 4,
-		color: Colors.darkGrey
+		color: Colors.darkGrey,
 	},
 	online: {
 		color: Colors.success,
-		fontWeight: 'bold'
+		fontWeight: 'bold',
 	},
 	offline: {
-		opacity: 0.5
-	}
+		opacity: 0.5,
+	},
 });
 
 type Props = {
@@ -59,9 +59,9 @@ type Props = {
 export default class PeopleListItem extends Component<void, Props, void> {
 	static propTypes = {
 		user: PropTypes.shape({
-			id: PropTypes.string.isRequired
+			id: PropTypes.string.isRequired,
 		}),
-		status: PropTypes.string
+		status: PropTypes.string,
 	};
 
 	shouldComponentUpdate(nextProps: Props): boolean {
@@ -71,7 +71,7 @@ export default class PeopleListItem extends Component<void, Props, void> {
 	render() {
 		const {
 			user,
-			status
+			status,
 		} = this.props;
 
 		return (

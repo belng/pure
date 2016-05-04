@@ -15,7 +15,7 @@ import type { User } from '../../../lib/schemaTypes';
 type Props = {
 	me: ?string;
 	user: User;
-	error?: { message: string, code: string },
+	error?: { message: string; code: string };
 	pendingUser: {
 		signedIdentities: string;
 		params: {
@@ -63,7 +63,7 @@ class OnboardContainer extends Component<void, Props, State> {
 	static propTypes = {
 		me: PropTypes.string,
 		user: PropTypes.shape({
-			id: PropTypes.string
+			id: PropTypes.string,
 		}),
 		error: PropTypes.shape({
 			message: PropTypes.string,
@@ -156,7 +156,7 @@ class OnboardContainer extends Component<void, Props, State> {
 						name: { value: fields.name.value || data.name, error: null },
 						picture: { value: fields.picture.value || data.picture, error: null },
 						places: { value: isEmpty(fields.places) ? places : fields.places, error: null },
-					}
+					},
 				});
 
 				break;
@@ -168,7 +168,7 @@ class OnboardContainer extends Component<void, Props, State> {
 		const {
 			me,
 			user,
-			pendingUser
+			pendingUser,
 		} = props;
 
 		if (pendingUser) {
@@ -182,11 +182,11 @@ class OnboardContainer extends Component<void, Props, State> {
 				if (user.params && user.params.places) {
 					if (this.state.onboarding) {
 						this.setState({
-							page: PAGE_GET_STARTED
+							page: PAGE_GET_STARTED,
 						});
 					} else {
 						this.setState({
-							page: PAGE_HOME
+							page: PAGE_HOME,
 						});
 					}
 				} else {
@@ -197,7 +197,7 @@ class OnboardContainer extends Component<void, Props, State> {
 				}
 			} else {
 				this.setState({
-					page: PAGE_SIGN_IN
+					page: PAGE_SIGN_IN,
 				});
 			}
 		}
@@ -280,7 +280,7 @@ class OnboardContainer extends Component<void, Props, State> {
 		const fields = this._validateFields({ ...this.state.fields, [type]: { value, error: null } });
 
 		this.setState({
-			fields
+			fields,
 		});
 	};
 
@@ -317,7 +317,7 @@ class OnboardContainer extends Component<void, Props, State> {
 		const fields = this._ensureAllFields(this._validateFields({ ...this.state.fields }));
 
 		this.setState({
-			fields
+			fields,
 		}, () => this._saveData(this.state.fields, page));
 	};
 
@@ -353,7 +353,7 @@ const mapActionsToProps = {
 	},
 	savePlaces: (store, result) => results => {
 		const {
-			user
+			user,
 		} = result;
 
 		const params = user.params ? { ...user.params } : {};
@@ -373,8 +373,8 @@ const mapActionsToProps = {
 			...result.user,
 			params: {
 				...params,
-				places
-			}
+				places,
+			},
 		}));
 	},
 };
@@ -384,14 +384,14 @@ const mapSubscriptionToProps = {
 		key: {
 			type: 'state',
 			path: 'signup',
-		}
+		},
 	},
 	error: {
 		key: {
 			type: 'state',
 			path: 'signup',
 		},
-		transform: signup => signup ? signup.error : null
+		transform: signup => signup ? signup.error : null,
 	},
 };
 

@@ -9,24 +9,24 @@ import DiscussionSummary from './DiscussionSummary';
 import CardAuthor from './CardAuthor';
 
 const {
-	StyleSheet
+	StyleSheet,
 } = ReactNative;
 
 const styles = StyleSheet.create({
 	details: {
 		paddingVertical: 12,
-		marginVertical: 0
+		marginVertical: 0,
 	},
 
 	title: {
 		marginBottom: 8,
-		marginHorizontal: 16
+		marginHorizontal: 16,
 	},
 
 	author: {
 		marginTop: 8,
-		marginHorizontal: 16
-	}
+		marginHorizontal: 16,
+	},
 });
 
 type Props = {
@@ -44,8 +44,8 @@ export default class DiscussionDetailsCard extends Component<void, Props, void> 
 			name: PropTypes.string.isRequired,
 			body: PropTypes.string.isRequired,
 			meta: PropTypes.string.isRequired,
-			creator: PropTypes.string.isRequired
-		})
+			creator: PropTypes.string.isRequired,
+		}),
 	};
 
 	shouldComponentUpdate(nextProps: Props): boolean {

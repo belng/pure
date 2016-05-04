@@ -29,7 +29,7 @@ const transformTexts = (texts, thread) => {
 			data[data.length - 1] = {
 				text: first.text,
 				previousText: thread,
-				isLast: false
+				isLast: false,
 			};
 		}
 
@@ -48,7 +48,7 @@ class ChatMessagesContainerInner extends Component<void, any, void> {
 		data: PropTypes.arrayOf(PropTypes.object).isRequired,
 		thread: PropTypes.object,
 		me: PropTypes.shape({
-			tags: PropTypes.arrayOf(PropTypes.number)
+			tags: PropTypes.arrayOf(PropTypes.number),
 		}).isRequired,
 	};
 
@@ -56,7 +56,7 @@ class ChatMessagesContainerInner extends Component<void, any, void> {
 		const {
 			thread,
 			data,
-			me
+			me,
 		} = this.props;
 
 		return <ChatMessages {...this.props} data={transformTexts(filterHidden(data, me), thread)} />;
@@ -101,14 +101,14 @@ export default class ChatMessagesContainer extends Component<void, any, State> {
 			range: {
 				...range,
 				before: before && before > (count + 20) ? before : count + 40,
-			}
+			},
 		});
 	};
 
 	render() {
 		const {
 			range,
-			defer
+			defer,
 		} = this.state;
 
 		return (
@@ -119,9 +119,9 @@ export default class ChatMessagesContainer extends Component<void, any, State> {
 							slice: {
 								type: 'text',
 								filter: {
-									parents_cts: [ this.props.thread ]
+									parents_cts: [ this.props.thread ],
 								},
-								order: 'createTime'
+								order: 'createTime',
 							},
 							range,
 						},
@@ -130,14 +130,14 @@ export default class ChatMessagesContainer extends Component<void, any, State> {
 					thread: {
 						key: {
 							type: 'entity',
-							id: this.props.thread
-						}
+							id: this.props.thread,
+						},
 					},
 					me: {
 						key: {
 							type: 'entity',
-							id: this.props.user
-						}
+							id: this.props.user,
+						},
 					},
 				}}
 				passProps={{ ...this.props, loadMore: count => this._loadMore(count) }}

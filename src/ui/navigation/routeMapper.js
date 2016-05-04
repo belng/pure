@@ -44,23 +44,23 @@ export default function(route: Route): RouteDescription {
 		return {
 			title: 'Notifications',
 			component: NotificationCenterContainer,
-			rightComponent: NotificationClearIconContainer
+			rightComponent: NotificationClearIconContainer,
 		};
 	case 'account':
 		return {
 			title: 'My account',
-			component: AccountContainer
+			component: AccountContainer,
 		};
 	case 'places':
 		return {
 			title: 'My places',
-			component: MyPlacesContainer
+			component: MyPlacesContainer,
 		};
 	case 'details':
 		return {
 			title: 'Details',
 			component: DiscussionsDetailsContainer,
-			rightComponent: ShareButtonContainer
+			rightComponent: ShareButtonContainer,
 		};
 	case 'onboard':
 		return {
@@ -77,7 +77,7 @@ export default function(route: Route): RouteDescription {
 			title: config.app_name,
 			leftComponent: AccountButton,
 			rightComponent: NotificationIcon,
-			component: RoomsContainer
+			component: RoomsContainer,
 		};
 	}
 }
