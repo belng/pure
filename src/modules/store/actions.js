@@ -100,7 +100,7 @@ export const unbanUser = (): Object => ({
  * Text related actions
  */
 export const sendMessage = (
-	data: { id?: string, body: string; meta?: ?Object; parents: Array<string>; creator: string; }
+	data: { id?: string; body: string; meta?: ?Object; parents: Array<string>; creator: string; }
 ): Object => {
 	const id = data.id || uuid.v4();
 
@@ -119,7 +119,7 @@ export const sendMessage = (
 };
 
 export const startThread = (
-	data: { id?: string, name: string; body: string; meta?: ?Object; parents: Array<string>; creator: string; }
+	data: { id?: string; name: string; body: string; meta?: ?Object; parents: Array<string>; creator: string; }
 ): Object => {
 	const id = data.id || uuid.v4();
 
@@ -223,7 +223,7 @@ export const setPresence = (id: string, status: 'online' | 'offline'): Object =>
 });
 
 export const setItemPresence = (
-	presence: { item: string, user: string, roles: Array<number>, create?: boolean },
+	presence: { item: string; user: string; roles: Array<number>; create?: boolean },
 	type: 'room' | 'thread', status: 'online' | 'offline'
 ): Object => {
 	const rel = {

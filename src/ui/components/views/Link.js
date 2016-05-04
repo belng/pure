@@ -18,11 +18,11 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	children?: Element,
-	url?: string,
-	onPress?: Function,
-	onOpen?: Function,
-	style?: any,
+	children?: Element;
+	url?: string;
+	onPress?: Function;
+	onOpen?: Function;
+	style?: any;
 }
 
 type DefaultProps = {

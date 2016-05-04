@@ -26,7 +26,7 @@ cache.onChange(change => {
 					[ [ -Infinity, Infinity ] ]
 				) },
 				indexes: { [key]: new Cache.OrderedArray(
-					[ 'rel', 'createTime' ], [{
+					[ 'rel', 'createTime' ], [ {
 						rel: new RoomRel({
 							user: 'harish',
 							item: '5bb985a7-8e48-4aa7-bac7-5de9c6f6a35d',
@@ -39,7 +39,7 @@ cache.onChange(change => {
 							name: 'JP Nagar',
 							identities: [ 'place:FakePlace123' ]
 						})
-					}]
+					} ]
 				) }
 			});
 		});

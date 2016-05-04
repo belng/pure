@@ -50,7 +50,7 @@ export function updateUser(u, cb) {
 		// console.log('no data token and session found to update user');
 		return;
 	}
-	console.log("auth user: ", u.data.sessionId);
+	console.log('auth user: ', u.data.sessionId);
 	bus.emit('change', {
 		auth: {
 			session: u.data.sessionId

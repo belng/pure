@@ -2,9 +2,9 @@ import engine from 'engine.io';
 import winston from 'winston';
 import * as core from '../../core-server';
 import uid from '../../lib/uid-server';
-import notify from './../../lib/dispatch';
-import packer from './../../lib/packer';
-import * as Constants from './../../lib/Constants';
+import notify from '../../lib/dispatch';
+import packer from '../../lib/packer';
+import * as Constants from '../../lib/Constants';
 // import util from 'util';
 const sockets = {}, bus = core.bus;
 

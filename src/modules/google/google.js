@@ -14,7 +14,7 @@ import request from 'request';
 import handlebars from 'handlebars';
 import route from 'koa-route';
 import queryString from 'querystring';
-import { bus, config } from './../../core-server';
+import { bus, config } from '../../core-server';
 import encodeURITemplate from '../../lib/encodeURITemplate';
 import * as Constants from '../../lib/Constants';
 

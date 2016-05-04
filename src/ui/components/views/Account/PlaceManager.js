@@ -38,8 +38,8 @@ const TYPES = [
 ];
 
 type Props = {
-	onPlaceAdded: Function,
-	onPlaceRemoved: Function,
+	onPlaceAdded: Function;
+	onPlaceRemoved: Function;
 	places: {
 		[key: string]: {
 			id: string;

@@ -10,7 +10,7 @@ const msPerMin = msPerSec * 60;
 const msPerHour = msPerMin * 60;
 
 type Props = {
-	type: 'short' | 'long',
+	type: 'short' | 'long';
 	time: number
 }
 

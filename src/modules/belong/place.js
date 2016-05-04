@@ -80,7 +80,7 @@ function callApi(api, params) {
 function placeToStub(place) {
 	return {
 		identity: 'place:' + place.place_id,
-		name: place.address_components? place.address_components[0].long_name : place.name,
+		name: place.address_components ? place.address_components[0].long_name : place.name,
 		type: place.types[0] === 'locality' ?
 			constants.TAG_ROOM_CITY : constants.TAG_ROOM_AREA,
 		parents: place.parents

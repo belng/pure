@@ -1,7 +1,7 @@
 /* @flow */
 
 import { bus, config } from '../../core-client';
-import packer from './../../lib/packer';
+import packer from '../../lib/packer';
 import uuid from 'node-uuid';
 
 type Frame = {

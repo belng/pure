@@ -2,7 +2,7 @@ import * as pg from '../../../lib/pg';
 import { TABLES, COLUMNS, RELATION_TYPES } from '../../../lib/schema';
 import * as Constants from '../../../lib/Constants';
 import jsonop from 'jsonop';
-import defaultOps from './../../../lib/defaultOps';
+import defaultOps from '../../../lib/defaultOps';
 
 function shouldInsert(entity) {
 	if (!('createTime' in entity)) return false;

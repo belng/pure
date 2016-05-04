@@ -15,7 +15,7 @@ import type { User } from '../../../lib/schemaTypes';
 type Props = {
 	me: ?string;
 	user: User;
-	error?: { message: string, code: string },
+	error?: { message: string; code: string };
 	pendingUser: {
 		signedIdentities: string;
 		params: {
