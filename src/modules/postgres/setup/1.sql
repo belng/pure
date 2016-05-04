@@ -105,7 +105,7 @@ CREATE TABLE notes (
 	event smallint, -- e.g. mention, invite, request
 	createtime bigint,
 	updatetime bigint,
-	deletetime bigint,
+	deletetime bigint
 );
 
 CREATE TABLE jobs (

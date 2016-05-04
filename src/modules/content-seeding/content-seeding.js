@@ -32,7 +32,7 @@ function tagStringToNumber(tag) {
 }
 
 function seedContent(room) {
-	log.info('something:');
+	log.info('something:', JSON.stringify(room));
 	fs.readdir('./templates/seed-content', (err, files: any) => {
 		const changes = {
 			entities: {}
@@ -46,8 +46,9 @@ function seedContent(room) {
 		*/
 		files = files.map(file => file.split('-'))
 		.filter(e => e.length === 3)
-		.filter(
-			e => room.tags.indexOf(tagStringToNumber(e[0])) > -1
+		.filter(e => {
+			return room.tags.indexOf(tagStringToNumber(e[0])) > -1;
+		}
 		);
 
 		/*
@@ -103,7 +104,7 @@ function seedContent(room) {
 bus.on('postchange', (changes, next) => {
 	const entities = changes && changes.entities || {};
 	Object.keys(entities).filter(e => (
-        entities[e].type === TYPE_ROOM &&
+        entities[e].type === TYPE_ROOM && entities[e].createTime &&
         entities[e].createTime === entities[e].updateTime
 	)).map(e => entities[e]).forEach(seedContent);
 	next();
