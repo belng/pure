@@ -1,4 +1,5 @@
 /* @flow */
+/* eslint-disable no-param-reassign*/
 
 import { bus, cache, config } from '../../core-server';
 import winston from 'winston';

@@ -1,0 +1,4 @@
+{
+	"title": "area-1-b-title <%= name %>",
+	"body": "area-1-b-body <%= name %>"
+}
