@@ -129,7 +129,7 @@ export default function (entity) {
 			}).filter(sql => sql), ', '),
 
 			'WHERE',
-			entity.id && !isRel ? {
+			entity.id && !isRel && entity.type !== Constants.TYPE_NOTE ? {
 				$: '"id" = &{id}',
 				id: entity.id,
 			} :
@@ -142,7 +142,7 @@ export default function (entity) {
 				$: '"user" = &{user} AND "event" = &{event}' +
 					' AND "group" = &{group}',
 				user: entity.user,
-				event: entity.item,
+				event: entity.event,
 				group: entity.group,
 			} : 'FALSE',
 			{

@@ -1,11 +1,12 @@
 /* @flow */
 
-import type { User, Text, Thread } from '../../lib/schemaTypes';
+import type { User, Text, Thread, Note } from '../../lib/schemaTypes';
 import UserModel from '../../models/user';
 import ThreadModel from '../../models/thread';
 import TextModel from '../../models/text';
 import RoomRelModel from '../../models/roomrel';
 import ThreadRelModel from '../../models/threadrel';
+import NoteModel from '../../models/note';
 import uuid from 'node-uuid';
 import { PRESENCE_FOREGROUND, PRESENCE_NONE, TAG_POST_PHOTO, TAG_POST_HIDDEN } from '../../lib/Constants';
 
@@ -205,9 +206,18 @@ export const dismissAllNotes = (): Object => ({
 
 });
 
-export const dismissNote = (): Object => ({
+export const dismissNote = (note: Note): Object => {
+	const n = new NoteModel({
+		...note,
+		deleteTime: Date.now(),
+	});
 
-});
+	return {
+		entities: {
+			[n.id]: n,
+		}
+	};
+};
 
 /*
  * Presence related actions
