@@ -31,8 +31,4 @@ export default class Note {
 		if (this.error) data.error = this.error;
 		return [ data ];
 	}
-
-	getId() {
-		return this.user + '_' + this.event + '_' + this.group;
-	}
 }
