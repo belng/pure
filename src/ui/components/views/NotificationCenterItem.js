@@ -69,6 +69,8 @@ const styles = StyleSheet.create({
 		margin: 14,
 	},
 	closeButton: {
+		height: 44,
+		width: 44,
 		borderRadius: 22,
 		margin: 2,
 	},
@@ -311,20 +313,20 @@ export default class NotificationCenterItem extends Component<void, Props, void>
 								/>
 							</View>
 						</View>
-							<TouchableHighlight
-								style={styles.closeButton}
-								underlayColor={Colors.underlay}
-								onPress={this._handleDismiss}
-							>
-								<View style={styles.close}>
-									<Icon
-										name='close'
-										style={styles.icon}
-										size={16}
-									/>
-								</View>
-							</TouchableHighlight>
-						</View>
+						<TouchableHighlight
+							style={styles.closeButton}
+							underlayColor={Colors.underlay}
+							onPress={this._handleDismiss}
+						>
+							<View style={styles.close}>
+								<Icon
+									name='close'
+									style={styles.icon}
+									size={16}
+								/>
+							</View>
+						</TouchableHighlight>
+					</View>
 				</TouchFeedback>
 			</View>
 		);
