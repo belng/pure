@@ -7,6 +7,7 @@ import template from 'lodash/template';
 import { bus } from '../../core-server';
 import Thread from '../../models/thread';
 import { TYPE_ROOM,
+	TYPE_THREAD,
 	TAG_ROOM_AREA,
 	TAG_ROOM_CITY,
 	TAG_ROOM_SPOT
@@ -82,11 +83,16 @@ function seedContent(room) {
 			if (!e) return;
 			changes.entities[id] = new Thread({
 				id,
+				type: TYPE_THREAD,
 				name: template(e.title)({
 					name: room.name
 				}),
+				body: template(e.body)({
+					name: room.name
+				}),
 				parents: [ room.id ].concat(room.parents),
-				creator: e.creator
+				creator: e.creator,
+				createTime: Date.now(),
 			});
 		});
 
