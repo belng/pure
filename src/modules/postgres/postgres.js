@@ -51,7 +51,7 @@ function onRangeQuery(key, range, err, r) {
 	const newRange = cache.countedToBounded(madeRange, orderedResult);
 	cache.put({
 		knowledge: { [key]: newRange },
-		indexes: { [key]: orderedResult }
+		indexes: { [key]: orderedResult },
 	});
 }
 
@@ -74,7 +74,7 @@ function onEntityQuery(ids, err, r) {
 
 	cache.put({
 		entities,
-		source: 'postgres'
+		source: 'postgres',
 	});
 }
 
@@ -91,7 +91,7 @@ cache.onChange((changes) => {
 						user: [],
 						note: [],
 						rel: [],
-						rest: []
+						rest: [],
 					});
 
 				typeToId.rest.forEach(id => {
@@ -179,7 +179,7 @@ bus.on('change', (changes, next) => {
 
 				jsonop(response, {
 					indexes: { [key]: results },
-					knowledge: { [key]: newRange }
+					knowledge: { [key]: newRange },
 				});
 				counter.dec();
 			},

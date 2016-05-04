@@ -9,7 +9,7 @@ import Loading from './Loading';
 const {
 	StyleSheet,
 	View,
-	Image
+	Image,
 } = ReactNative;
 
 const styles = StyleSheet.create({
@@ -17,12 +17,12 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: Colors.primary
+		backgroundColor: Colors.primary,
 	},
 	logo: {
 		flex: 1,
 		resizeMode: 'contain',
-		marginTop: 240
+		marginTop: 240,
 	},
 	loading: {
 		height: 24,

@@ -9,13 +9,13 @@ import ChatInput from './ChatInput';
 
 const {
 	View,
-	StyleSheet
+	StyleSheet,
 } = ReactNative;
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1
-	}
+		flex: 1,
+	},
 });
 
 type Props = {
@@ -30,7 +30,7 @@ export default class Chat extends Component<void, Props, void> {
 		room: PropTypes.string.isRequired,
 		thread: PropTypes.string.isRequired,
 		user: PropTypes.string.isRequired,
-		sendMessage: PropTypes.func.isRequired
+		sendMessage: PropTypes.func.isRequired,
 	};
 
 	shouldComponentUpdate(nextProps: Props): boolean {

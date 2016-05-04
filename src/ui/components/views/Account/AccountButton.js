@@ -11,7 +11,7 @@ type Props = {
 
 export default class AccountButton extends Component<void, Props, void> {
 	static propTypes = {
-		onNavigation: PropTypes.func.isRequired
+		onNavigation: PropTypes.func.isRequired,
 	};
 
 	_handlePress: Function = () => {

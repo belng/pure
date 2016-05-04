@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
 		lineHeight: 18,
 		textAlign: 'center',
 		marginVertical: 4,
-	}
+	},
 });
 
 type Props = {

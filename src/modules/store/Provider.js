@@ -13,16 +13,16 @@ import type { Store } from './ConnectTypes';
 export default class Provider extends Component<void, { children?: Element; store: Store }, void> {
 	static propTypes = {
 		children: PropTypes.element.isRequired,
-		store: storeShape.isRequired
+		store: storeShape.isRequired,
 	};
 
 	static childContextTypes = {
-		store: storeShape.isRequired
+		store: storeShape.isRequired,
 	};
 
 	getChildContext(): Object {
 		return {
-			store: this.props.store
+			store: this.props.store,
 		};
 	}
 

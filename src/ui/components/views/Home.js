@@ -16,7 +16,7 @@ import { convertRouteToState, convertURLToState } from '../../../lib/Route';
 const {
 	StyleSheet,
 	Platform,
-	View
+	View,
 } = ReactNative;
 
 const styles = StyleSheet.create({
@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	statusbar: {
-		backgroundColor: Colors.primary
+		backgroundColor: Colors.primary,
 	},
 });
 
@@ -40,7 +40,7 @@ type Props = {
 
 export default class Home extends Component<void, Props, void> {
 	static propTypes = {
-		initialURL: PropTypes.string
+		initialURL: PropTypes.string,
 	};
 
 	shouldComponentUpdate(nextProps: Props): boolean {

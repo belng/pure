@@ -12,14 +12,14 @@ const {
 	PixelRatio,
 	TouchableHighlight,
 	ScrollView,
-	View
+	View,
 } = ReactNative;
 
 const styles = StyleSheet.create({
 	inverted: {
 		transform: [
-			{ scaleY: -1 }
-		]
+			{ scaleY: -1 },
+		],
 	},
 	item: {
 		backgroundColor: Colors.white,
@@ -28,13 +28,13 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		paddingHorizontal: 16,
-		height: 40
+		height: 40,
 	},
 	user: {
 		color: Colors.darkGrey,
 		marginHorizontal: 12,
-		paddingHorizontal: 4
-	}
+		paddingHorizontal: 4,
+	},
 });
 
 type Props = {
@@ -47,7 +47,7 @@ export default class ChatSuggestions extends Component<void, Props, void> {
 	static propTypes = {
 		data: PropTypes.arrayOf(PropTypes.string),
 		onSelect: PropTypes.func.isRequired,
-		style: ScrollView.propTypes.style
+		style: ScrollView.propTypes.style,
 	};
 
 	shouldComponentUpdate(nextProps: Props): boolean {
