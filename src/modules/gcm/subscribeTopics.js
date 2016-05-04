@@ -29,6 +29,7 @@ export function getIIDInfo(iid: String, cb: Function) {
 }
 
 function unsubscribeTopics (data, cb) {
+	console.log("unsubscribe data: ", data)
 	const iid = data.iid;
 
 	if (data.topic) {
@@ -161,10 +162,13 @@ function handleSubscription(changes, next) {
 				entity.type === Constants.TYPE_THREADREL ||
 				entity.type === Constants.TYPE_ROOMREL
 			) {
-			// console.log("ksdfhjhadf : ", entity);
+			console.log("ksdfhjhadf : ", entity);
 			if (!entity.createTime || entity.createTime !== entity.updateTime) {
-				log.info('Not created now, return', entity);
-				continue;
+				if (entity.roles && entity.roles.length > 0) {
+					log.info('Not created now, return', entity);
+					continue;
+				}
+
 			}
 			let user = changes.entities[entity.user];
 
@@ -177,21 +181,22 @@ function handleSubscription(changes, next) {
 			}
 			counter.then(() => {
 				if (
-					entity.roles && entity.roles.length === 0 ||
+					entity.roles && entity.roles.length === 0 /*||
 					entity.roles.indexOf(Constants.ROLE_FOLLOWER) === -1 &&
-					entity.roles.indexOf(Constants.ROLE_CREATOR) === -1
+					entity.roles.indexOf(Constants.ROLE_CREATOR) === -1*/
 				) {
-					// log.info('Got unfollow, unsubscribe from topics');
-					// const gcm = user.params && user.params.gcm;
-					// const	tokens = values(gcm);
-					// const topic = entity.type === Constants.TYPE_ROOMREL ? 'room-' +
-					//  entity.item : 'thread-' + entity.item;
-					// tokens.forEach((token) => {
-					// 	unsubscribeTopics({ iid: token, topic }, () => {
-					// 		log.info('Unsubscribed from topic: ', topic);
-					// 	});
-					// });
-					// console.log("sdjfh jsghf gh fdgfm: ", Constants.ROLE_OWNER, entity.roles.indexOf(Constants.ROLE_OWNER), entity);
+					log.info('Got unfollow, unsubscribe from topics');
+					const gcm = user.params && user.params.gcm;
+					const	tokens = values(gcm);
+					const topic = entity.type === Constants.TYPE_ROOMREL ? 'room-' +
+					 entity.item : 'thread-' + entity.item;
+					tokens.forEach((token) => {
+						console.log("unsubscribe topics")
+						unsubscribeTopics({ iid: token, topic }, () => {
+							log.info('Unsubscribed from topic: ', topic);
+						});
+					});
+					console.log("sdjfh jsghf gh fdgfm: ", Constants.ROLE_OWNER, entity.roles.indexOf(Constants.ROLE_OWNER), entity);
 					return;
 				} else if (entity.roles && entity.roles.length > 0) {
 					// console.log("jhgf shfg: ", entity)
