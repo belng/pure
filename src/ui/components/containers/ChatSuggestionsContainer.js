@@ -10,12 +10,16 @@ type Props = {
 	prefix: string;
 }
 
-export default class ChatSuggestionsContainer extends Component<void, Props, { prefix: string }> {
+type State = {
+	prefix: string;
+}
+
+export default class ChatSuggestionsContainer extends Component<void, Props, State> {
 	static propTypes = {
 		user: PropTypes.string,
 	};
 
-	state: { prefix: string } = {
+	state: State = {
 		prefix: '',
 	};
 
@@ -34,8 +38,10 @@ export default class ChatSuggestionsContainer extends Component<void, Props, { p
 	render() {
 		const {
 			prefix,
-			user,
 		} = this.state;
+		const {
+			user,
+		} = this.props;
 
 		if (!prefix) {
 			return null;
@@ -49,7 +55,7 @@ export default class ChatSuggestionsContainer extends Component<void, Props, { p
 							slice: {
 								type: 'user',
 								filter: {
-									id_mts: this.state.prefix,
+									id_mts: prefix,
 								},
 								order: 'updateTime',
 							},

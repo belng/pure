@@ -34,23 +34,27 @@ type Props = {
 		text: Text;
 		previousText: Text;
 		isLast: boolean;
+		type: any;
 	} | { type: 'loading' } | { type: 'failed' }>;
 	user: string;
 	loadMore: (count: number) => void;
+	quoteMessage: Function;
+	replyToMessage: Function;
+	onNavigation: Function;
 }
 
 type State = {
 	dataSource: ListView.DataSource
 }
 
-export default class ChatMessages extends Component {
+export default class ChatMessages extends Component<void, Props, State> {
 	static propTypes = {
 		data: PropTypes.arrayOf(PropTypes.object).isRequired,
 		user: PropTypes.string.isRequired,
 		loadMore: PropTypes.func.isRequired,
 		quoteMessage: PropTypes.func.isRequired,
 		replyToMessage: PropTypes.func.isRequired,
-		refreshData: PropTypes.func,
+		onNavigation: PropTypes.func.isRequired,
 	};
 
 	state: State = {
@@ -97,6 +101,7 @@ export default class ChatMessages extends Component {
 				quoteMessage={this.props.quoteMessage}
 				user={this.props.user}
 				style={[ styles.item, styles.inverted ]}
+				onNavigation={this.props.onNavigation}
 			/>
 		);
 	};

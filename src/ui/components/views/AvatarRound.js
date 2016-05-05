@@ -7,6 +7,7 @@ import Colors from '../../Colors';
 import AvatarContainer from '../containers/AvatarContainer';
 
 const {
+	PixelRatio,
 	StyleSheet,
 	View,
 } = ReactNative;
@@ -44,7 +45,7 @@ export default class AvatarRound extends Component<void, Props, void> {
 		return (
 			<View {...this.props} style={[ styles.avatar, { height: size, width: size, borderRadius: size / 2 }, this.props.style ]}>
 				<AvatarContainer
-					size={this.props.size}
+					size={this.props.size * PixelRatio.get()}
 					user={this.props.user}
 					style={[ styles.image, { borderRadius: size / 2 } ]}
 				/>

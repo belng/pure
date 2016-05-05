@@ -2,7 +2,8 @@
 
 import type { Route } from '../../lib/RouteTypes';
 import NotificationIcon from '../components/views/NotificationIcon';
-import AccountButton from '../components/views/Account/AccountButton';
+import ProfileEditButtonContainer from '../components/containers/ProfileEditButtonContainer';
+import ProfileButtonContainer from '../components/containers/ProfileButtonContainer';
 import ShareButtonContainer from '../components/containers/ShareButtonContainer';
 import DiscussionsDetailsContainer from '../components/containers/DiscussionDetailsContainer';
 import ChatContainer from '../components/containers/ChatContainer';
@@ -13,6 +14,7 @@ import NotificationCenterContainer from '../components/containers/NotificationCe
 import NotificationClearIconContainer from '../components/containers/NotificationClearIconContainer';
 import RoomsContainer from '../components/containers/RoomsContainer';
 import AccountContainer from '../components/containers/AccountContainer';
+import ProfileContainer from '../components/containers/ProfileContainer';
 import OnboardContainer from '../components/containers/OnboardContainer';
 import StartDiscussionContainer from '../components/containers/StartDiscussionContainer';
 import MyPlacesContainer from '../components/containers/MyPlacesContainer';
@@ -46,6 +48,12 @@ export default function(route: Route): RouteDescription {
 			component: NotificationCenterContainer,
 			rightComponent: NotificationClearIconContainer,
 		};
+	case 'profile':
+		return {
+			title: `${route.props ? route.props.user : 'someone'}'s profile`,
+			rightComponent: ProfileEditButtonContainer,
+			component: ProfileContainer,
+		};
 	case 'account':
 		return {
 			title: 'My account',
@@ -75,7 +83,7 @@ export default function(route: Route): RouteDescription {
 	default:
 		return {
 			title: config.app_name,
-			leftComponent: AccountButton,
+			leftComponent: ProfileButtonContainer,
 			rightComponent: NotificationIcon,
 			component: RoomsContainer,
 		};
