@@ -7,6 +7,7 @@ import template from 'lodash/template';
 import { bus } from '../../core-server';
 import Thread from '../../models/thread';
 import { TYPE_ROOM,
+	TYPE_THREAD,
 	TAG_ROOM_AREA,
 	TAG_ROOM_CITY,
 	TAG_ROOM_SPOT
@@ -31,7 +32,7 @@ function tagStringToNumber(tag) {
 }
 
 function seedContent(room) {
-	log.info('something:');
+	log.info('something:', JSON.stringify(room));
 	fs.readdir('./templates/seed-content', (err, files: any) => {
 		const changes = {
 			entities: {}
@@ -45,8 +46,9 @@ function seedContent(room) {
 		*/
 		files = files.map(file => file.split('-'))
 		.filter(e => e.length === 3)
-		.filter(
-			e => room.tags.indexOf(tagStringToNumber(e[0])) > -1
+		.filter(e => {
+			return room.tags.indexOf(tagStringToNumber(e[0])) > -1;
+		}
 		);
 
 		/*
@@ -82,11 +84,16 @@ function seedContent(room) {
 			if (!e) return;
 			changes.entities[id] = new Thread({
 				id,
+				type: TYPE_THREAD,
 				name: template(e.title)({
 					name: room.name
 				}),
+				body: template(e.body)({
+					name: room.name
+				}),
 				parents: [ room.id ].concat(room.parents),
-				creator: e.creator
+				creator: e.creator,
+				createTime: Date.now(),
 			});
 		});
 
@@ -97,7 +104,7 @@ function seedContent(room) {
 bus.on('postchange', (changes, next) => {
 	const entities = changes && changes.entities || {};
 	Object.keys(entities).filter(e => (
-        entities[e].type === TYPE_ROOM &&
+        entities[e].type === TYPE_ROOM && entities[e].createTime &&
         entities[e].createTime === entities[e].updateTime
 	)).map(e => entities[e]).forEach(seedContent);
 	next();
