@@ -176,9 +176,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-auth:8.4.0'
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
     compile 'com.google.android.gms:play-services-location:8.4.0'
-    // compile 'com.facebook.react:react-native:+'  // From node_modules
-
-    compile project(':ReactAndroid')
+    compile 'com.facebook.react:react-native:+'  // From node_modules
 
     compile('com.facebook.android:facebook-android-sdk:4.10.1') {
         exclude group: 'com.parse.bolts', module: 'bolts-android';
