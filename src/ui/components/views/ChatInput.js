@@ -157,15 +157,15 @@ export default class ChatInput extends Component<void, Props, State> {
 		});
 	};
 
-	_handleSuggestionSelect: Function = nick => {
+	_handleSuggestionSelect: Function = (user: { id: string }) => {
 		this.setState({
-			text: '@' + nick + ' ',
+			text: '@' + user.id + ' ',
 			query: '',
 		});
 	};
 
 	_handleChangeText: Function = text => {
-		const query = /^@[a-z0-9]*$/.test(text) ? text : '';
+		const query = /^@[a-z0-9]*$/.test(text) ? text.replace(/^@/, '') : '';
 
 		this.setState({
 			text,
@@ -201,10 +201,8 @@ export default class ChatInput extends Component<void, Props, State> {
 		return (
 			<View {...this.props}>
 				<ChatSuggestionsContainer
-					room={this.props.room}
-					thread={this.props.thread}
 					user={this.props.user}
-					text={this.state.query}
+					prefix={this.state.query}
 					style={styles.suggestions}
 					onSelect={this._handleSuggestionSelect}
 				/>

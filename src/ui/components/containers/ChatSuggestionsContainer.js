@@ -1,11 +1,13 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
+import shallowEqual from 'shallowequal';
 import Connect from '../../../modules/store/Connect';
 import ChatSuggestions from '../views/ChatSuggestions';
 
 type Props = {
-	user: string
+	user: string;
+	prefix: string;
 }
 
 export default class ChatSuggestionsContainer extends Component<void, Props, { prefix: string }> {
@@ -17,40 +19,50 @@ export default class ChatSuggestionsContainer extends Component<void, Props, { p
 		prefix: '',
 	};
 
-	_getMatchingUsers: Function = (prefix: string) => {
-		this.setState({
-			prefix: prefix.trim(),
-		});
-	};
+	componentWillReceiveProps(nextProps: Props) {
+		if (typeof nextProps.prefix === 'string') {
+			this.setState({
+				prefix: nextProps.prefix.trim(),
+			});
+		}
+	}
+
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
+	}
 
 	render() {
-		if (!this.state.prefix) {
+		const {
+			prefix,
+			user,
+		} = this.state;
+
+		if (!prefix) {
 			return null;
 		}
 
 		return (
 			<Connect
 				mapSubscriptionToProps={{
-					users: {
+					data: {
 						key: {
 							slice: {
 								type: 'user',
 								filter: {
-									prefix: this.state.prefix,
+									id_mts: this.state.prefix,
 								},
-								order: 'id',
+								order: 'updateTime',
 							},
-							// REVIEW: verify the range schema works
 							range: {
 								start: -Infinity,
-								before: 5,
-								after: 0,
+								before: 0,
+								after: 5,
 							},
 						},
-						transform: results => results.filter(item => item.id !== this.props.user),
+						transform: results => results.filter(item => item.type !== 'loading' && item.id !== user),
 					},
 				}}
-				passProps={{ ...this.props, getMatchingUsers: prefix => this._getMatchingUsers(prefix) }}
+				passProps={this.props}
 				component={ChatSuggestions}
 			/>
 		);
