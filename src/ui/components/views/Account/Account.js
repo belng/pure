@@ -49,6 +49,8 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 		lineHeight: 18,
 		marginHorizontal: 16,
+		fontWeight: 'bold',
+		color: Colors.fadedBlack,
 	},
 	input: {
 		paddingVertical: 8,
@@ -75,7 +77,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	user: User;
+	user: { type: 'loading' } | User | null;
 	saveUser: () => void;
 	saveParams: () => void;
 	signOut: () => void;
@@ -91,7 +93,7 @@ const PUSH_NOTIFICATION_ENABLED_KEY = 'enabled';
 export default class Account extends Component<void, Props, State> {
 	static propTypes = {
 		user: PropTypes.oneOfType([
-			PropTypes.oneOf([ 'missing', 'failed' ]),
+			PropTypes.oneOf([ 'loading' ]),
 			PropTypes.shape({
 				id: PropTypes.string,
 				meta: PropTypes.object,
@@ -133,7 +135,7 @@ export default class Account extends Component<void, Props, State> {
 			user,
 		} = this.props;
 
-		const meta = user.meta ? { ...user.meta } : {};
+		const meta = user && user.meta ? { ...user.meta } : {};
 
 		meta.description = description;
 
@@ -157,7 +159,7 @@ export default class Account extends Component<void, Props, State> {
 			user,
 		} = this.props;
 
-		const params = user.params ? { ...user.params } : {};
+		const params = user && user.params ? { ...user.params } : {};
 		const email = params.email ? { ...params.email } : {};
 
 		email.notifications = value;
@@ -170,7 +172,7 @@ export default class Account extends Component<void, Props, State> {
 			user,
 		} = this.props;
 
-		const params = user.params ? { ...user.params } : {};
+		const params = user && user.params ? { ...user.params } : {};
 		const email = params.email ? { ...params.email } : {};
 
 		email.frequency = value;
@@ -220,7 +222,7 @@ export default class Account extends Component<void, Props, State> {
 					</View>
 				</View>
 				<View style={styles.inputContainer}>
-					<AppText style={styles.inputLabelText}>Fullname</AppText>
+					<AppText style={styles.inputLabelText}>FULL NAME</AppText>
 					<TextInput
 						style={styles.input}
 						defaultValue={user.name}
@@ -230,7 +232,7 @@ export default class Account extends Component<void, Props, State> {
 					/>
 				</View>
 				<View style={styles.inputContainer}>
-					<AppText style={styles.inputLabelText}>About me</AppText>
+					<AppText style={styles.inputLabelText}>STATUS MESSAGE</AppText>
 					<GrowingTextInput
 						inputStyle={styles.input}
 						defaultValue={user.meta ? user.meta.description : ''}
