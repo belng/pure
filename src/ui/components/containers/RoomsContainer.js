@@ -3,7 +3,7 @@
 import React, { Component, PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import PassUserProp from '../../../modules/store/PassUserProp';
-import Rooms from '../views/Rooms';
+import Rooms from '../views/Homescreen/Rooms';
 import { ROLE_FOLLOWER } from '../../../lib/Constants';
 
 const ITEM_LOADING = { type: 'loading' };
