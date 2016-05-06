@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
 	},
 	icon: {
 		margin: 16,
-		color: Colors.fadedBlack,
+		color: Colors.white,
 	},
 });
 

@@ -7,11 +7,13 @@ import Colors from '../../Colors';
 import AppText from './AppText';
 import AvatarRound from './AvatarRound';
 import TouchFeedback from './TouchFeedback';
+import NavigationActions from '../../navigation-rfc/Navigation/NavigationActions';
 import type { User } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
 	PixelRatio,
+	TouchableOpacity,
 	View,
 } = ReactNative;
 
@@ -54,6 +56,7 @@ const styles = StyleSheet.create({
 type Props = {
 	user: User;
 	status: 'online' | 'offline';
+	onNavigation: Function;
 }
 
 export default class PeopleListItem extends Component<void, Props, void> {
@@ -62,11 +65,23 @@ export default class PeopleListItem extends Component<void, Props, void> {
 			id: PropTypes.string.isRequired,
 		}),
 		status: PropTypes.string,
+		onNavigation: PropTypes.func.isRequired,
 	};
 
 	shouldComponentUpdate(nextProps: Props): boolean {
 		return !shallowEqual(this.props, nextProps);
 	}
+
+	_goToProfile: Function = () => {
+		const { user } = this.props;
+
+		this.props.onNavigation(new NavigationActions.Push({
+			name: 'profile',
+			props: {
+				user: user.id,
+			},
+		}));
+	};
 
 	render() {
 		const {
@@ -78,11 +93,16 @@ export default class PeopleListItem extends Component<void, Props, void> {
 			<View style={styles.item}>
 				<TouchFeedback>
 					<View style={styles.person}>
-						<AvatarRound
+						<TouchableOpacity
+							activeOpacity={0.5}
+							onPress={this._goToProfile}
 							style={styles.avatar}
-							size={36}
-							user={user.id}
-						/>
+						>
+							<AvatarRound
+								size={36}
+								user={user.id}
+							/>
+						</TouchableOpacity>
 						<View style={styles.nick}>
 							<AppText style={[ styles.nickText, status !== 'online' ? styles.offline : null ]}>
 								{user.id}
