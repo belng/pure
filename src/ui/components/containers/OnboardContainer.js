@@ -356,7 +356,7 @@ const mapActionsToProps = {
 			id,
 			name,
 			meta: {
-				description: 'Just joined Belong.',
+				description: 'Hey! I just joined Belong.',
 			},
 		}));
 	},
