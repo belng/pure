@@ -14,6 +14,7 @@ const operators = {
 	cts: '@>',
 	ctd: '<@',
 	mts: 'like',
+	olp: '&&'
 };
 
 function getPropOp(prop) {
@@ -70,7 +71,7 @@ function wherePart (f) {
 			continue;
 		}
 		switch (op) {
-		case 'mts':
+		case 'pref':
 			filter[prop] = filter[prop].replace(/\*$/, ''); /* eslint-disable no-fallthrough */
 		case 'gt':
 		case 'lt':
@@ -79,6 +80,7 @@ function wherePart (f) {
 		case 'lte':
 		case 'in':
 		case 'cts':
+		case 'olp':
 		case 'ctd':
 			sql.push(`"${name.toLowerCase()}" ${operators[op]} &{${prop}}`);
 			break;
