@@ -6,6 +6,7 @@ import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import AvatarRound from './AvatarRound';
+import type { User } from '../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
@@ -38,14 +39,14 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	data: Array<string>;
+	data: Array<User>;
 	onSelect: Function;
 	style?: any;
 }
 
 export default class ChatSuggestions extends Component<void, Props, void> {
 	static propTypes = {
-		data: PropTypes.arrayOf(PropTypes.string),
+		data: PropTypes.arrayOf(PropTypes.object),
 		onSelect: PropTypes.func.isRequired,
 		style: ScrollView.propTypes.style,
 	};
@@ -54,18 +55,18 @@ export default class ChatSuggestions extends Component<void, Props, void> {
 		return !shallowEqual(this.props, nextProps);
 	}
 
-	_renderUser: Function = (user: string) => (
+	_renderUser: Function = (user: User) => (
 		<TouchableHighlight
-			key={user}
+			key={user.id}
 			underlayColor={Colors.underlay}
 			onPress={() => this.props.onSelect(user)}
 		>
 			<View style={[ styles.item, styles.inverted ]}>
 				<AvatarRound
-					user={user}
+					user={user.id}
 					size={24}
 				/>
-				<AppText style={styles.user}>{user}</AppText>
+				<AppText style={styles.user}>{user.id}</AppText>
 			</View>
 		</TouchableHighlight>
 	);

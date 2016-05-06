@@ -40,7 +40,7 @@ const transformTexts = (texts, thread) => {
 };
 
 const filterHidden = (results, me) => me && me.tags && me.tags.indexOf(TAG_USER_ADMIN) > -1 ? results : results.filter(item => {
-	return !(item.tags && item.tags.indexOf(TAG_POST_HIDDEN) > -1);
+	return (me.id === item.creator) || !(item.tags && item.tags.indexOf(TAG_POST_HIDDEN) > -1);
 });
 
 class ChatMessagesContainerInner extends Component<void, any, void> {
