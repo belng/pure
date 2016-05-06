@@ -273,15 +273,17 @@ class OnboardContainer extends Component<void, Props, State> {
 	};
 
 	_onChangeField: Function = (type: string, value: any) => {
-		if (type === 'nick' && this.state.fields.nick.error) {
-			this.props.clearSignUpError();
-		}
-
 		const fields = this._validateFields({ ...this.state.fields, [type]: { value, error: null } });
 
 		this.setState({
 			fields,
 		});
+
+		if (type === 'nick' && !fields.nick.error) {
+			setTimeout(() => {
+				this.props.clearSignUpError();
+			}, 0);
+		}
 	};
 
 	_saveData: Function = (fields: Fields, page: string) => {
@@ -349,7 +351,14 @@ const mapActionsToProps = {
 	signUp: (store, result) => (id: string, name: string) => {
 		const { error, ...user } = result.pendingUser; // eslint-disable-line no-unused-vars
 
-		store.dispatch(signUp({ ...user, id, name }));
+		store.dispatch(signUp({
+			...user,
+			id,
+			name,
+			meta: {
+				description: 'Just joined Belong.',
+			},
+		}));
 	},
 	savePlaces: (store, result) => results => {
 		const {
