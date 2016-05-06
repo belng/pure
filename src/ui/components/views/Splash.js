@@ -40,7 +40,7 @@ export default class Splash extends Component<void, any, void> {
 	render() {
 		return (
 			<View style={styles.container}>
-				<Image style={styles.logo} source={require('../../../../assets/logo.png')} />
+				<Image style={styles.logo} source={require('../../../../assets/logo-white.png')} />
 				<Loading style={styles.loading} />
 			</View>
 		);
