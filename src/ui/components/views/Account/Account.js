@@ -226,7 +226,7 @@ export default class Account extends Component<void, Props, State> {
 					<TextInput
 						style={styles.input}
 						defaultValue={user.name}
-						placeholder='Fullname'
+						placeholder='Full name'
 						autoCapitalize='words'
 						onChangeText={this._handleNameChange}
 					/>
@@ -236,7 +236,7 @@ export default class Account extends Component<void, Props, State> {
 					<GrowingTextInput
 						inputStyle={styles.input}
 						defaultValue={user.meta ? user.meta.description : ''}
-						placeholder='Short description'
+						placeholder='Status message'
 						autoCapitalize='sentences'
 						numberOfLines={5}
 						onChangeText={this._handleStatusChange}
