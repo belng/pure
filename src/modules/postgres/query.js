@@ -13,7 +13,8 @@ const operators = {
 	lte: '<=',
 	cts: '@>',
 	ctd: '<@',
-	mts: 'like',
+	pref: 'like',
+	olp: '&&'
 };
 
 function getPropOp(prop) {
@@ -60,8 +61,7 @@ function fromPart (slice) {
 
 function wherePart (f) {
 	const sql = [];
-	let filter = f.filter;
-
+	const filter = Object.create(f.filter);
 
 	for (const prop in filter) {
 		const [ op, name ] = getPropOp(prop);
@@ -70,8 +70,8 @@ function wherePart (f) {
 			continue;
 		}
 		switch (op) {
-		case 'mts':
-			filter[prop] = filter[prop].replace(/\*$/, ''); /* eslint-disable no-fallthrough */
+		case 'pref':
+			filter[prop] += '%'; // eslint-disable-line no-fallthrough
 		case 'gt':
 		case 'lt':
 		case 'neq':
@@ -79,6 +79,7 @@ function wherePart (f) {
 		case 'lte':
 		case 'in':
 		case 'cts':
+		case 'olp':
 		case 'ctd':
 			sql.push(`"${name.toLowerCase()}" ${operators[op]} &{${prop}}`);
 			break;
@@ -88,7 +89,7 @@ function wherePart (f) {
 	}
 
 	if (sql.length) {
-		filter = Object.create(filter);
+
 		switch (TABLES[TYPES[f.type]]) {
 		case 'items':
 		case 'rooms':
