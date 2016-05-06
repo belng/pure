@@ -55,7 +55,7 @@ export default class ChatSuggestionsContainer extends Component<void, Props, Sta
 							slice: {
 								type: 'user',
 								filter: {
-									id_mts: prefix,
+									id_mts: `${prefix}%`,
 								},
 								order: 'updateTime',
 							},

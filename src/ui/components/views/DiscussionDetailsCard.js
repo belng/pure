@@ -43,7 +43,7 @@ export default class DiscussionDetailsCard extends Component<void, Props, void> 
 		thread: PropTypes.shape({
 			name: PropTypes.string.isRequired,
 			body: PropTypes.string.isRequired,
-			meta: PropTypes.string.isRequired,
+			meta: PropTypes.object,
 			creator: PropTypes.string.isRequired,
 		}),
 	};
