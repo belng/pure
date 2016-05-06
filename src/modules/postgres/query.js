@@ -61,8 +61,7 @@ function fromPart (slice) {
 
 function wherePart (f) {
 	const sql = [];
-	let filter = f.filter;
-
+	const filter = Object.create(f.filter);
 
 	for (const prop in filter) {
 		const [ op, name ] = getPropOp(prop);
@@ -72,8 +71,7 @@ function wherePart (f) {
 		}
 		switch (op) {
 		case 'pref':
-			sql.push(`"${name.toLowerCase()}" ${operators[op]} &{${prop + '%'}}`);
-			break;
+			filter[prop] += '%'; // eslint-disable-line no-fallthrough
 		case 'gt':
 		case 'lt':
 		case 'neq':
@@ -91,7 +89,7 @@ function wherePart (f) {
 	}
 
 	if (sql.length) {
-		filter = Object.create(filter);
+
 		switch (TABLES[TYPES[f.type]]) {
 		case 'items':
 		case 'rooms':
