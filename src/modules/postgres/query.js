@@ -72,7 +72,8 @@ function wherePart (f) {
 		}
 		switch (op) {
 		case 'pref':
-			filter[prop] = filter[prop].replace(/\*$/, ''); /* eslint-disable no-fallthrough */
+			sql.push(`"${name.toLowerCase()}" ${operators[op]} &{${prop + '%'}}`);
+			break;
 		case 'gt':
 		case 'lt':
 		case 'neq':
