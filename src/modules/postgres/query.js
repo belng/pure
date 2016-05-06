@@ -13,7 +13,7 @@ const operators = {
 	lte: '<=',
 	cts: '@>',
 	ctd: '<@',
-	mts: 'like',
+	pref: 'like',
 	olp: '&&'
 };
 
