@@ -1,6 +1,6 @@
 /* @flow */
 
-import { TAG_USER_CONTENT } from '../../lib/Constants';
+import { TAG_USER_CONTENT, TAG_USER_ADMIN } from '../../lib/Constants';
 import { subscribe, dispatch } from '../store/store';
 import { cache, config } from '../../core-client';
 import PersistentStorage from '../../lib/PersistentStorage';
@@ -94,7 +94,7 @@ async function fetchUsers(user) {
 }
 
 async function fetchRooms(user) {
-	if (user.tags && user.tags.indexOf(TAG_USER_CONTENT) > -1) {
+	if (user.tags && (user.tags.indexOf(TAG_USER_CONTENT) > -1 || user.tags.indexOf(TAG_USER_ADMIN) > -1)) {
 		const currentList = await roomListStorage.getItem('list');
 
 		if (currentList) {

@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import shallowEqual from 'shallowequal';
+import RoomListContainer from '../../containers/RoomListContainer';
 import RoomsFooterContainer from '../../containers/RoomsFooterContainer';
 import SearchableList from '../SearchableList';
 import RoomItem from './RoomItem';
@@ -76,6 +77,12 @@ export default class RoomListForModeration extends Component<void, Props, void> 
 			});
 	};
 
+	_renderBlankslate: Function = () => {
+		const { data, ...rest } = this.props; // eslint-disable-line no-unused-vars
+
+		return <RoomListContainer {...rest} />;
+	};
+
 	render() {
 		return (
 			<SearchableList
@@ -83,6 +90,7 @@ export default class RoomListForModeration extends Component<void, Props, void> 
 				getResults={this._getResults}
 				renderRow={this._renderRow}
 				renderFooter={this._renderFooter}
+				renderBlankslate={this._renderBlankslate}
 				searchHint='Search for groups'
 			/>
 		);
