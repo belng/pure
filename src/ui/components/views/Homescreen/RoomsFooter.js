@@ -70,7 +70,7 @@ const DEFAULT_BUTTON = {
 	highlight: false,
 };
 
-export default class RoomItem extends Component<void, Props, State> {
+export default class RoomsFooter extends Component<void, Props, State> {
 	static propTypes = {
 		places: PropTypes.object.isRequired,
 		onNavigation: PropTypes.func.isRequired,
