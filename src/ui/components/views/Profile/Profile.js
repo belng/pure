@@ -2,10 +2,12 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import ProfileField from './ProfileField';
 import AppText from '../AppText';
 import AvatarRound from '../AvatarRound';
 import PageLoading from '../PageLoading';
 import PageEmpty from '../PageEmpty';
+import NavigationActions from '../../../navigation-rfc/Navigation/NavigationActions';
 import Colors from '../../../Colors';
 import {
 	ROLE_HOME,
@@ -69,37 +71,34 @@ const styles = StyleSheet.create({
 		margin: 8,
 		elevation: 2,
 	},
-
-	header: {
-		color: Colors.fadedBlack,
-		fontWeight: 'bold',
-		fontSize: 12,
-		lineHeight: 18,
-	},
-
-	text: {
-		color: Colors.darkGrey,
-		fontSize: 14,
-		lineHeight: 21,
-	},
 });
 
 type Props = {
+	currentUser: string;
 	user: { type: 'loading' } | User | null;
-	places: Array<{
-		type: number;
-		names: Array<string>;
-	}>
+	places: {
+		[type: number]: Array<string>;
+	};
+	onNavigation: Function;
 }
 
+const PLACE_TYPES = [ ROLE_HOME, ROLE_WORK, ROLE_HOMETOWN ];
+
 const PLACE_HEADERS = {
-	[ROLE_HOME]: 'HOME',
-	[ROLE_WORK]: 'WORK',
-	[ROLE_HOMETOWN]: 'HOMETOWN',
+	[ROLE_HOME]: 'home',
+	[ROLE_WORK]: 'work',
+	[ROLE_HOMETOWN]: 'hometown',
+};
+
+const PLACE_LABELS = {
+	[ROLE_HOME]: 'Add where you live',
+	[ROLE_WORK]: 'Add where you work or study',
+	[ROLE_HOMETOWN]: 'Add your hometown',
 };
 
 export default class Profile extends Component<void, Props, void> {
 	static propTypes = {
+		currentUser: PropTypes.string.isRequired,
 		user: PropTypes.oneOfType([
 			PropTypes.oneOf([ 'loading' ]),
 			PropTypes.shape({
@@ -110,11 +109,25 @@ export default class Profile extends Component<void, Props, void> {
 				}),
 			}),
 		]),
-		places: PropTypes.array.isRequired,
+		places: PropTypes.any.isRequired,
+		onNavigation: PropTypes.func.isRequired,
+	};
+
+	_goToAccount: Function = () => {
+		this.props.onNavigation(new NavigationActions.Push({
+			name: 'account',
+		}));
+	};
+
+	_goToPlaces: Function = () => {
+		this.props.onNavigation(new NavigationActions.Push({
+			name: 'places',
+		}));
 	};
 
 	render() {
 		const {
+			currentUser,
 			user,
 			places,
 		} = this.props;
@@ -127,43 +140,55 @@ export default class Profile extends Component<void, Props, void> {
 			return <PageLoading />;
 		}
 
+		const own = currentUser === user.id;
+
 		return (
-			<ScrollView contentContainerStyle={styles.container}>
-				<Image style={styles.cover} source={require('../../../../../assets/profile-cover.jpg')}>
-					<View style={styles.tint} />
-					<View style={styles.coverInner}>
-						<AvatarRound
-							style={styles.avatar}
-							user={user.id}
-							size={160}
+			<View style={styles.container}>
+				<ScrollView>
+					<Image style={styles.cover} source={require('../../../../../assets/profile-cover.jpg')}>
+						<View style={styles.tint} />
+						<View style={styles.coverInner}>
+							<AvatarRound
+								style={styles.avatar}
+								user={user.id}
+								size={160}
+							/>
+							<View style={styles.info}>
+								<AppText style={styles.id}>{user.id}</AppText>
+								{user.name ?
+									<AppText style={styles.name}>{user.name}</AppText> :
+									null
+								}
+							</View>
+						</View>
+					</Image>
+					<View style={styles.info}>
+						<ProfileField
+							action={own ? 'Add a status message' : null}
+							header='Status message'
+							value={user.meta ? user.meta.description : null}
+							onEdit={this._goToAccount}
 						/>
-						<View style={styles.info}>
-							<AppText style={styles.id}>{user.id}</AppText>
-							{user.name ?
-								<AppText style={styles.name}>{user.name}</AppText> :
-								null
-							}
-						</View>
+						{PLACE_TYPES.map(type => {
+							const names = places[type];
+
+							return (
+								<ProfileField
+									key={type}
+									action={
+										own && !(user.params && user.params.places && user.params.places[PLACE_HEADERS[type]]) ?
+										PLACE_LABELS[type] :
+										null
+									}
+									header={PLACE_HEADERS[type]}
+									value={names ? names[0] : null}
+									onEdit={this._goToPlaces}
+								/>
+							);
+						})}
 					</View>
-				</Image>
-				<View style={styles.info}>
-					{user.meta && user.meta.description ?
-						<View style={styles.info}>
-							<AppText style={styles.header}>STATUS MESSAGE</AppText>
-							<AppText style={styles.text}>{user.meta.description}</AppText>
-						</View> :
-						null
-					}
-					{places.length ? places.map(place => (
-						<View key={place.type} style={styles.info}>
-							<AppText style={styles.header}>{PLACE_HEADERS[place.type]}</AppText>
-							<AppText style={styles.text}>{place.names[0]}</AppText>
-						</View>
-						)) :
-						null
-					}
+				</ScrollView>
 				</View>
-			</ScrollView>
-		);
+			);
 	}
 }
