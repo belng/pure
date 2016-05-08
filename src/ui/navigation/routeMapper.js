@@ -56,7 +56,7 @@ export default function(route: Route): RouteDescription {
 		};
 	case 'account':
 		return {
-			title: 'My account',
+			title: 'Account settings',
 			component: AccountContainer,
 		};
 	case 'places':

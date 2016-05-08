@@ -164,9 +164,15 @@ export default class Profile extends Component<void, Props, void> {
 					</Image>
 					<View style={styles.info}>
 						<ProfileField
-							action={own ? 'Add a status message' : null}
-							header='Status message'
+							action={own ? 'Add status' : null}
+							header='Status'
 							value={user.meta ? user.meta.description : null}
+							onEdit={this._goToAccount}
+						/>
+						<ProfileField
+							action={own ? 'Add occupation' : null}
+							header='Occupation'
+							value={user.meta ? user.meta.occupation : null}
 							onEdit={this._goToAccount}
 						/>
 						{PLACE_TYPES.map(type => {
