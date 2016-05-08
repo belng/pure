@@ -3,6 +3,7 @@
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import AppText from '../AppText';
+import RichText from '../RichText';
 import Icon from '../Icon';
 import Colors from '../../../Colors';
 
@@ -51,7 +52,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	action: ?string;
+	action?: ?string;
 	header: string;
 	value: ?string;
 	onEdit: Function;
@@ -81,7 +82,7 @@ export default class Profile extends Component<void, Props, void> {
 			<View style={styles.info}>
 				<AppText style={styles.header}>{header.toUpperCase()}</AppText>
 				{value ?
-					<AppText style={styles.text}>{value}</AppText> :
+					<RichText text={value} style={styles.text} /> :
 						<TouchableOpacity style={styles.button} onPress={onEdit}>
 							<Icon
 								style={styles.icon}

@@ -19,7 +19,9 @@ export default class AccountButton extends Component<void, Props, void> {
 	};
 
 	_handlePress: Function = () => {
-		this.props.onNavigation(new NavigationActions.Push({ name: 'account' }));
+		this.props.onNavigation(new NavigationActions.Push({
+			name: 'account',
+		}));
 	};
 
 	render() {

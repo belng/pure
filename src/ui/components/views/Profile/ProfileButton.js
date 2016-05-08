@@ -1,9 +1,23 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
+import ReactNative from 'react-native';
 import AppbarTouchable from '../AppbarTouchable';
-import AppbarIcon from '../AppbarIcon';
+import AvatarRound from '../AvatarRound';
 import NavigationActions from '../../../navigation-rfc/Navigation/NavigationActions';
+import Colors from '../../../Colors';
+
+const {
+	StyleSheet,
+} = ReactNative;
+
+const styles = StyleSheet.create({
+	avatar: {
+		borderColor: Colors.white,
+		borderWidth: 1,
+		margin: 13,
+	},
+});
 
 type Props = {
 	user: string;
@@ -28,7 +42,11 @@ export default class ProfileButton extends Component<void, Props, void> {
 	render() {
 		return (
 			<AppbarTouchable onPress={this._handlePress}>
-				<AppbarIcon name='menu' />
+				<AvatarRound
+					user={this.props.user}
+					style={styles.avatar}
+					size={30}
+				/>
 			</AppbarTouchable>
 		);
 	}
