@@ -186,6 +186,15 @@ export default class Profile extends Component<void, Props, void> {
 								/>
 							);
 						})}
+						{own ? (
+							<ProfileField
+								header='Email address (Private)'
+								value={user.identities[user.identities.length - 1].slice(7)}
+								onEdit={this._goToAccount}
+							/>
+							) :
+							null
+						}
 					</View>
 				</ScrollView>
 				</View>

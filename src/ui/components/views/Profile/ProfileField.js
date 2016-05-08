@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	action: ?string;
+	action?: ?string;
 	header: string;
 	value: ?string;
 	onEdit: Function;
