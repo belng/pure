@@ -65,12 +65,12 @@ const PLACE_LABELS = {
 };
 
 const DEFAULT_BUTTON = {
-	icon: 'settings',
+	icon: 'my-location',
 	label: PLACE_LABELS.default.toUpperCase(),
 	highlight: false,
 };
 
-export default class RoomItem extends Component<void, Props, State> {
+export default class RoomsFooter extends Component<void, Props, State> {
 	static propTypes = {
 		places: PropTypes.object.isRequired,
 		onNavigation: PropTypes.func.isRequired,
@@ -114,6 +114,12 @@ export default class RoomItem extends Component<void, Props, State> {
 		}));
 	};
 
+	_handleGoToAccount: Function = () => {
+		this.props.onNavigation(new NavigationActions.Push({
+			name: 'account',
+		}));
+	};
+
 	_handleReportIssue: Function = () => {
 		this.props.onNavigation(new NavigationActions.Push({
 			name: 'room',
@@ -140,6 +146,14 @@ export default class RoomItem extends Component<void, Props, State> {
 						<AppText style={[ styles.footerLabel, button.highlight ? styles.highlightLabel : null ]}>
 							{button.label}
 						</AppText>
+					</ListItem>
+					<ListItem containerStyle={styles.footerItem} onPress={this._handleGoToAccount}>
+						<Icon
+							style={styles.footerIcon}
+							name='settings'
+							size={18}
+						/>
+						<AppText style={styles.footerLabel}>CHANGE ACCOUNT SETTINGS</AppText>
 					</ListItem>
 					<ListItem containerStyle={styles.footerItem} onPress={this._handleReportIssue}>
 						<Icon

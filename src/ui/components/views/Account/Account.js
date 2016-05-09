@@ -7,9 +7,8 @@ import Colors from '../../../Colors';
 import AppText from '../AppText';
 import PageLoading from '../PageLoading';
 import PageEmpty from '../PageEmpty';
-import AvatarRound from '../AvatarRound';
-import GrowingTextInput from '../GrowingTextInput';
 import Modal from '../Modal';
+import Icon from '../Icon';
 import TouchFeedback from '../TouchFeedback';
 import GCMPreferences from '../../../modules/GCMPreferences';
 import type { User } from '../../../../lib/schemaTypes';
@@ -24,38 +23,43 @@ const {
 } = ReactNative;
 
 const styles = StyleSheet.create({
-	info: {
-		flex: 1,
-		marginLeft: 16,
-	},
-	nick: {
-		color: Colors.darkGrey,
-		fontWeight: 'bold',
-	},
-	email: {
-		fontSize: 12,
-		lineHeight: 18,
-	},
 	settings: {
 		alignItems: 'stretch',
+	},
+	section: {
+		marginBottom: 8,
 		backgroundColor: Colors.white,
-	},
-	inputContainer: {
 		borderColor: Colors.separator,
+		borderTopWidth: 1 / PixelRatio.get(),
 		borderBottomWidth: 1 / PixelRatio.get(),
-		paddingVertical: 8,
 	},
-	inputLabelText: {
+	header: {
 		fontSize: 12,
 		lineHeight: 18,
 		marginHorizontal: 16,
+		marginTop: 12,
+		marginBottom: 4,
 		fontWeight: 'bold',
-		color: Colors.fadedBlack,
+		color: Colors.grey,
+	},
+	icon: {
+		color: Colors.grey,
+		marginVertical: 16,
+		marginHorizontal: 8,
+	},
+	inputContainer: {
+		flexDirection: 'row',
+		marginHorizontal: 8,
+		paddingBottom: 2,
+		borderColor: Colors.separator,
+		borderBottomWidth: 1 / PixelRatio.get(),
+	},
+	growing: {
+		flex: 1,
 	},
 	input: {
 		paddingVertical: 8,
-		marginVertical: 0,
-		marginHorizontal: 12,
+		marginHorizontal: 8,
 	},
 	item: {
 		flexDirection: 'row',
@@ -85,7 +89,7 @@ type Props = {
 }
 
 type State = {
-	GCMEnabled: boolean
+	GCMEnabled: boolean;
 }
 
 const PUSH_NOTIFICATION_ENABLED_KEY = 'enabled';
@@ -130,16 +134,24 @@ export default class Account extends Component<void, Props, State> {
 		});
 	};
 
-	_handleStatusChange: Function = (description: string) => {
+	_handleMetaItemChange: Function = (key: string, value: string) => {
 		const {
 			user,
 		} = this.props;
 
 		const meta = user && user.meta ? { ...user.meta } : {};
 
-		meta.description = description;
+		meta[key] = value;
 
 		this._saveUser({ ...this.props.user, meta });
+	};
+
+	_handleStatusChange: Function = (description: string) => {
+		this._handleMetaItemChange('description', description);
+	};
+
+	_handleOccupationChange: Function = (occupation: string) => {
+		this._handleMetaItemChange('occupation', occupation);
 	};
 
 	_handleNameChange: Function = (name: string) => {
@@ -211,75 +223,100 @@ export default class Account extends Component<void, Props, State> {
 
 		return (
 			<ScrollView contentContainerStyle={styles.settings}>
-				<View style={styles.item}>
-					<AvatarRound
-						size={48}
-						user={user.id}
-					/>
-					<View style={styles.info}>
-						<AppText style={styles.nick}>{user.id}</AppText>
-						<AppText style={styles.email}>{user.identities[user.identities.length - 1].slice(7)}</AppText>
+				<View style={styles.section}>
+					<AppText style={styles.header}>Personal information</AppText>
+					<View style={styles.inputContainer}>
+						<Icon
+							style={styles.icon}
+							name='face'
+							size={18}
+						/>
+						<TextInput
+							style={[ styles.input, styles.growing ]}
+							defaultValue={user.name}
+							placeholder='Full name'
+							autoCapitalize='words'
+							onChangeText={this._handleNameChange}
+							underlineColorAndroid='transparent'
+						/>
+					</View>
+					<View style={styles.inputContainer}>
+						<Icon
+							style={styles.icon}
+							name='short-text'
+							size={18}
+						/>
+						<TextInput
+							style={[ styles.input, styles.growing ]}
+							defaultValue={user.meta ? user.meta.description : ''}
+							placeholder='Status'
+							autoCapitalize='sentences'
+							onChangeText={this._handleStatusChange}
+							underlineColorAndroid='transparent'
+							multiline
+						/>
+					</View>
+					<View style={styles.inputContainer}>
+						<Icon
+							style={styles.icon}
+							name='business-center'
+							size={18}
+						/>
+						<TextInput
+							style={[ styles.input, styles.growing ]}
+							defaultValue={user.meta ? user.meta.occupation : ''}
+							placeholder='Occupation'
+							autoCapitalize='sentences'
+							onChangeText={this._handleOccupationChange}
+							underlineColorAndroid='transparent'
+							multiline
+						/>
 					</View>
 				</View>
-				<View style={styles.inputContainer}>
-					<AppText style={styles.inputLabelText}>FULL NAME</AppText>
-					<TextInput
-						style={styles.input}
-						defaultValue={user.name}
-						placeholder='Fullname'
-						autoCapitalize='words'
-						onChangeText={this._handleNameChange}
-					/>
-				</View>
-				<View style={styles.inputContainer}>
-					<AppText style={styles.inputLabelText}>STATUS MESSAGE</AppText>
-					<GrowingTextInput
-						inputStyle={styles.input}
-						defaultValue={user.meta ? user.meta.description : ''}
-						placeholder='Short description'
-						autoCapitalize='sentences'
-						numberOfLines={5}
-						onChangeText={this._handleStatusChange}
-					/>
-				</View>
-				<View style={styles.item}>
-					<View style={styles.itemLabel}>
-						<AppText style={styles.itemText}>Push notifications</AppText>
-					</View>
-					<Switch
-						value={this.state.GCMEnabled}
-						onValueChange={this._handleGCMChange}
-					/>
-				</View>
-				<View style={styles.item}>
-					<View style={styles.itemLabel}>
-						<AppText style={styles.itemText}>Mention notifications via email</AppText>
-					</View>
-					<Switch
-						value={email ? email.notifications !== false : false}
-						onValueChange={this._handleEmailNotificationChange}
-					/>
-				</View>
-				<TouchFeedback onPress={this._handleSelectFrequency}>
+				<View style={styles.section}>
+					<AppText style={styles.header}>Notifications</AppText>
 					<View style={styles.item}>
 						<View style={styles.itemLabel}>
-							<AppText style={styles.itemText}>Email digest frequency</AppText>
-							<AppText style={styles.itemValueText}>
-								{email && email.frequency ?
-									email.frequency.charAt(0).toUpperCase() + email.frequency.slice(1) :
-									'Daily'
-								}
-							</AppText>
+							<AppText style={styles.itemText}>Push notifications</AppText>
 						</View>
+						<Switch
+							value={this.state.GCMEnabled}
+							onValueChange={this._handleGCMChange}
+						/>
 					</View>
-				</TouchFeedback>
-				<TouchFeedback onPress={this._handleSignOut}>
 					<View style={styles.item}>
 						<View style={styles.itemLabel}>
-							<AppText style={styles.itemText}>Sign out</AppText>
+							<AppText style={styles.itemText}>Mention notifications via email</AppText>
 						</View>
+						<Switch
+							value={email ? email.notifications !== false : false}
+							onValueChange={this._handleEmailNotificationChange}
+						/>
 					</View>
-				</TouchFeedback>
+					<TouchFeedback onPress={this._handleSelectFrequency}>
+						<View style={styles.item}>
+							<View style={styles.itemLabel}>
+								<AppText style={styles.itemText}>Email digest frequency</AppText>
+								<AppText style={styles.itemValueText}>
+									{email && email.frequency ?
+										email.frequency.charAt(0).toUpperCase() + email.frequency.slice(1) :
+										'Daily'
+									}
+								</AppText>
+							</View>
+						</View>
+					</TouchFeedback>
+				</View>
+				<View style={styles.section}>
+					<AppText style={styles.header}>Other</AppText>
+					<TouchFeedback onPress={this._handleSignOut}>
+						<View style={styles.item}>
+							<View style={styles.itemLabel}>
+								<AppText style={styles.itemText}>Sign out</AppText>
+							</View>
+						</View>
+					</TouchFeedback>
+				</View>
 			</ScrollView>
 		);
 	}

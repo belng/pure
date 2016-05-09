@@ -66,15 +66,7 @@ const normalizePlaces = results => {
 		}
 	}
 
-	const data = [];
-
-	for (const role in roles) {
-		if (roles[role].length) {
-			data.push({ type: role, names: roles[role] });
-		}
-	}
-
-	return data;
+	return roles;
 };
 
 class ProfileContainerInner extends Component {
@@ -111,6 +103,12 @@ export default class ProfileContainer extends Component {
 		return (
 			<Connect
 				mapSubscriptionToProps={{
+					currentUser: {
+						key: {
+							type: 'state',
+							path: 'user',
+						},
+					},
 					user: {
 						key: {
 							type: 'entity',

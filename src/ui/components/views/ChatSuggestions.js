@@ -22,6 +22,7 @@ const styles = StyleSheet.create({
 			{ scaleY: -1 },
 		],
 	},
+
 	item: {
 		backgroundColor: Colors.white,
 		borderColor: Colors.separator,
@@ -31,10 +32,25 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16,
 		height: 40,
 	},
+
 	user: {
-		color: Colors.darkGrey,
+		flexDirection: 'row',
+		justifyContent: 'center',
+		alignItems: 'center',
 		marginHorizontal: 12,
 		paddingHorizontal: 4,
+	},
+
+	id: {
+		color: Colors.darkGrey,
+		fontWeight: 'bold',
+	},
+
+	name: {
+		fontSize: 12,
+		lineHeight: 18,
+		color: Colors.fadedBlack,
+		marginHorizontal: 12,
 	},
 });
 
@@ -66,7 +82,13 @@ export default class ChatSuggestions extends Component<void, Props, void> {
 					user={user.id}
 					size={24}
 				/>
-				<AppText style={styles.user}>{user.id}</AppText>
+				<View style={styles.user}>
+					<AppText style={styles.id}>{user.id}</AppText>
+					{user.name ?
+						<AppText style={styles.name}>({user.name})</AppText> :
+						null
+					}
+				</View>
 			</View>
 		</TouchableHighlight>
 	);

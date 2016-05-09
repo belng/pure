@@ -1,119 +1,32 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import ReactNative from 'react-native';
 import shallowEqual from 'shallowequal';
-import RoomItemContainer from '../../containers/RoomItemContainer';
-import RoomsFooterContainer from '../../containers/RoomsFooterContainer';
-import PageEmpty from '../PageEmpty';
-import PageLoading from '../PageLoading';
-import LoadingItem from '../LoadingItem';
-import NavigationActions from '../../../navigation-rfc/Navigation/NavigationActions';
-import type { RoomRel, Room } from '../../../../lib/schemaTypes';
-
-const {
-	StyleSheet,
-	View,
-	ListView,
-} = ReactNative;
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
-});
+import RoomListForModeration from './RoomListForModeration';
+import RoomListContainer from '../../containers/RoomListContainer';
 
 type Props = {
-	onNavigation: Function;
-	data: Array<{ roomrel: RoomRel; room: Room } | { type: 'loading' } | { type: 'failed' }>;
+	rooms: ?Array<Object>;
 }
 
-type State = {
-	dataSource: ListView.DataSource
-}
-
-export default class Rooms extends Component<void, Props, State> {
+export default class Rooms extends Component<void, Props, void> {
 	static propTypes = {
-		onNavigation: PropTypes.func.isRequired,
-		data: PropTypes.arrayOf(PropTypes.object).isRequired,
+		rooms: PropTypes.array,
 	};
 
-	state: State = {
-		dataSource: new ListView.DataSource({
-			rowHasChanged: (r1, r2) => r1 !== r2,
-		}),
-	};
-
-	componentWillMount() {
-		this.setState({
-			dataSource: this.state.dataSource.cloneWithRows(this.props.data),
-		});
+	shouldComponentUpdate(nextProps: Props): boolean {
+		return !shallowEqual(this.props, nextProps);
 	}
-
-	componentWillReceiveProps(nextProps: Props) {
-		this.setState({
-			dataSource: this.state.dataSource.cloneWithRows(nextProps.data),
-		});
-	}
-
-	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
-	}
-
-	_handleSelectLocality: Function = room => {
-		this.props.onNavigation(new NavigationActions.Push({
-			name: 'room',
-			props: {
-				room: room.id,
-			},
-		}));
-	};
-
-	_renderRow: Function = result => {
-		if (result && result.type === 'loading') {
-			return <LoadingItem />;
-		}
-
-		return (
-			<RoomItemContainer
-				key={result.roomrel.item}
-				room={result.roomrel.item}
-				onSelect={this._handleSelectLocality}
-				showMenuButton
-				showBadge
-			/>
-		);
-	};
-
-	_renderFooter: Function = () => {
-		return <RoomsFooterContainer onNavigation={this.props.onNavigation} />;
-	};
 
 	render() {
-		let placeHolder;
+		const {
+			rooms,
+		} = this.props;
 
-		if (this.props.data.length === 1) {
-			switch (this.props.data[0] && this.props.data[0].type || null) {
-			case 'loading':
-				placeHolder = <PageLoading />;
-				break;
-			case 'failed':
-				placeHolder = <PageEmpty label='Failed to load rooms' image='sad' />;
-				break;
-			}
+		if (rooms && rooms.length) {
+			return <RoomListForModeration {...this.props} data={rooms} />;
+		} else {
+			return <RoomListContainer {...this.props} />;
 		}
-
-		return (
-			<View style={styles.container}>
-				{placeHolder ? placeHolder :
-					<ListView
-						keyboardShouldPersistTaps
-						dataSource={this.state.dataSource}
-						renderRow={this._renderRow}
-						renderFooter={this._renderFooter}
-					/>
-				}
-			</View>
-		);
 	}
 }

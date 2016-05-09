@@ -16,6 +16,7 @@ const {
 
 type Props = {
 	data: Array<{ rel: RoomRel | ThreadRel; user: User } | { type: 'loading' } | { type: 'failed' }>;
+	onNavigation: Function;
 }
 
 type State = {
@@ -25,6 +26,7 @@ type State = {
 export default class PeopleList extends Component<void, Props, State> {
 	static propTypes = {
 		data: PropTypes.arrayOf(PropTypes.object).isRequired,
+		onNavigation: PropTypes.func.isRequired,
 	};
 
 	state: State = {
@@ -58,6 +60,7 @@ export default class PeopleList extends Component<void, Props, State> {
 			key={relation.user}
 			user={relation.user}
 			status={relation.rel.presence === PRESENCE_FOREGROUND ? 'online' : 'offline'}
+			onNavigation={this.props.onNavigation}
 		/>
 	);
 

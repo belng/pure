@@ -91,7 +91,7 @@ function seedContent(room) {
 				body: template(e.body)({
 					name: room.name
 				}),
-				parents: [ room.id ].concat(room.parents),
+				parents: [ room.id ],
 				creator: e.creator,
 				createTime: Date.now(),
 			});
