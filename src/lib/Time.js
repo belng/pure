@@ -80,7 +80,7 @@ export function formatLong(time: number, now: number = Date.now()): string {
 	}
 }
 
-export function toTime(now: number = Date.now()): string {
+export function getReadableTime(now: number = Date.now()): string {
 	const date = new Date(now);
 	const hours = date.getHours();
 	const minutes = date.getMinutes();
