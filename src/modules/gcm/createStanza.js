@@ -9,7 +9,7 @@ export default function createStanza(pushData: Object, id: string) {
 		topic = 'room-' + pushData.data.room.id;
 	}
 	if (pushData.type === Constants.TYPE_TEXT) {
-		topic = 'thread-' + pushData.data.thread;
+		topic = 'thread-' + pushData.data.thread.id;
 	}
 	if (pushData.type === Constants.TYPE_NOTE) {
 		topic = 'user-' + pushData.user;

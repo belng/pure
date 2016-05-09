@@ -30,12 +30,12 @@ export function getIIDInfo(iid: String, cb: Function) {
 
 function unsubscribeTopics (data, cb) {
 	log.info('unsubscribe data: ', data);
-	let iid = [];
+	let iids = [];
 
 	if (Array.isArray(data.iid)) {
-		iid = data.iid;
+		iids = data.iid;
 	} else {
-		iid.push(data.iid);
+		iids.push(data.iid);
 	}
 
 	if (data.topic) {
@@ -43,7 +43,7 @@ function unsubscribeTopics (data, cb) {
 			...options,
 			url: 'https://iid.googleapis.com/iid/v1:batchRemove',
 			body: {
-				registration_tokens: iid,
+				registration_tokens: iids,
 				to: '/topics/' + data.topic,
 			},
 		}, (err, rspns, bdy) => {
@@ -55,45 +55,47 @@ function unsubscribeTopics (data, cb) {
 			}
 		});
 	} else {
-		getIIDInfo(iid, async (e, r, b) => {
-			if (e) {
-				log.error(e);
-				return;
-			}
-			try {
-				// unsubscribe thread topics
-				await Object.keys(JSON.parse(b).rel.topics).map(topic => {
-					if (!/thread-/.test(topic)) {
-						log.debug('does not match thread');
-						return null;
-					}
+		iids.forEach(iid => {
+			getIIDInfo(iid, async (e, r, b) => {
+				if (e) {
+					log.error(e);
+					return;
+				}
+				try {
+					// unsubscribe thread topics
+					await Object.keys(JSON.parse(b).rel.topics).map(topic => {
+						if (!/thread-/.test(topic)) {
+							log.debug('does not match thread');
+							return null;
+						}
 
-					return new Promise((resolve, reject) => {
-						request({
-							...options,
-							url: 'https://iid.googleapis.com/iid/v1:batchRemove',
-							body: {
-								registration_tokens: [ iid ],
-								to: '/topics/' + topic,
-							},
-						}, (err, rspns, bdy) => {
-							if (!err) {
-								log.info('unsubscribed from ', topic);
-								log.info(bdy);
-								resolve();
-							} else {
-								log.error(err);
-								reject(err);
-							}
+						return new Promise((resolve, reject) => {
+							request({
+								...options,
+								url: 'https://iid.googleapis.com/iid/v1:batchRemove',
+								body: {
+									registration_tokens: [ iid ],
+									to: '/topics/' + topic,
+								},
+							}, (err, rspns, bdy) => {
+								if (!err) {
+									log.info('unsubscribed from ', topic);
+									log.info(bdy);
+									resolve();
+								} else {
+									log.error(err);
+									reject(err);
+								}
+							});
 						});
 					});
-				});
-			} catch (err) {
-				// ignore
-			}
-			if (cb) {
-				cb();
-			}
+				} catch (err) {
+					// ignore
+				}
+				if (cb) {
+					cb();
+				}
+			});
 		});
 	}
 
