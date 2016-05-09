@@ -155,6 +155,7 @@ export function subscribe (userRel: Object) {
 
 function mapRelsAndSubscriptions(entity) {
 	cache.getEntity(entity.user, (err, user) => {
+		if (err || !user) return;
 		const tokens = values(user.params.gcm);
 		cache.query({
 			type: 'roomrel',
@@ -163,10 +164,9 @@ function mapRelsAndSubscriptions(entity) {
 		}, [ -Infinity, Infinity ], (error, rels) => {
 			if (err) { return; }
 			tokens.forEach((token) => {
-				getIIDInfo(token, (e, r, b) => {
-
-					if(e || !b) {
-						log.error(e);
+				function callback (e, r, b) {
+					if (e || !b || !JSON.parse(b).rel) {
+						log.error(e, JSON.parse(b));
 						return;
 					}
 					const subscribedRooms = Object.keys(JSON.parse(b).rel.topics).filter(topic => {
@@ -174,43 +174,36 @@ function mapRelsAndSubscriptions(entity) {
 					}).map(room => {
 						return room.replace('room-', '');
 					});
-					const roomsNotFollowing = rels.arr.filter((rel) => {
-						return rel.roles.length === 0;
-					}).map((room) => {
+					const roomsFollowing = rels.arr.map((room) => {
 						return room.item;
 					});
-					const roomsFollowing = rels.arr.filter((rel) => {
-						return rel.roles.length !== 0;
-					}).map((room) => {
-						return room.item;
-					});
-					console.log(subscribedRooms, roomsFollowing, roomsNotFollowing);
+					console.log('all here: ', subscribedRooms, roomsFollowing);
 
-					roomsFollowing.filter(room => {
+					const roomsNotSubscribed = roomsFollowing.filter(room => {
 						return subscribedRooms.indexOf(room) === -1;
 					});
-					roomsNotFollowing.filter(room => {
-						return subscribedRooms.indexOf(room) > -1;
+					const notFollowingSubscribed = subscribedRooms.filter(room => {
+						return roomsFollowing.indexOf(room) === -1;
 					});
-					console.log('after filter');
-					console.log('rooms following but not subscribed: ', roomsFollowing);
-					console.log('rooms not following but subscribed: ', roomsNotFollowing);
+					log.info('rooms following but not subscribed: ', roomsNotSubscribed);
+					log.info('rooms not following but subscribed: ', notFollowingSubscribed);
 
-					if(roomsFollowing.length > 0) {
-						roomsFollowing.forEach(room => {
-								subscribe({
-									params: user.params,
-									topic: 'room-' + room,
-								});
+					if (roomsNotSubscribed.length > 0) {
+						roomsNotSubscribed.forEach(room => {
+							subscribe({
+								params: user.params,
+								topic: 'room-' + room,
+							});
 						});
 					}
 
-					if(roomsNotFollowing.length > 0) {
-						roomsNotFollowing.forEach(room => {
+					if (notFollowingSubscribed.length > 0) {
+						notFollowingSubscribed.forEach(room => {
 							unsubscribeTopics({ iid: token, topic: 'room-' + room });
 						});
 					}
-				});
+				}
+				getIIDInfo(token, callback);
 			});
 		});
 	});
@@ -231,7 +224,7 @@ function handleSubscription(changes, next) {
 				entity.type === Constants.TYPE_THREADREL ||
 				entity.type === Constants.TYPE_ROOMREL
 			) {
-			console.log('ksdfhjhadf : ', entity);
+			// console.log('ksdfhjhadf : ', entity);
 			mapRelsAndSubscriptions(entity);
 			if (!entity.createTime || entity.createTime !== entity.updateTime) {
 				if (entity.roles && entity.roles.length > 0) {

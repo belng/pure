@@ -6,7 +6,7 @@ export default function createStanza(pushData: Object, id: string) {
 	let topic;
 
 	if (pushData.type === Constants.TYPE_THREAD) {
-		topic = 'room-' + pushData.data.room;
+		topic = 'room-' + pushData.data.room.id;
 	}
 	if (pushData.type === Constants.TYPE_TEXT) {
 		topic = 'thread-' + pushData.data.thread;
@@ -25,5 +25,6 @@ export default function createStanza(pushData: Object, id: string) {
 	</gcm>
 	</message>
 	`;
+	console.log(stanza);
 	return stanza;
 }
