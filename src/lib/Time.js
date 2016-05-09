@@ -80,6 +80,6 @@ export function long(time: number, now: number = Date.now()): string {
 		const hours = date.getHours();
 		const meridium = hours > 12 ? 'pm' : 'am';
 
-		return (timeStr ? (timeStr + ', ') : '') + (hours > 12 ? hours - 12 : hours) + ':' + (minutes < 10 ? '0' : '') + minutes + ' ' + meridium;
+		return (timeStr ? (timeStr + ', ') : '') + (hours > 12 ? (hours + 11) % 12 + 1 : hours) + ':' + (minutes < 10 ? '0' : '') + minutes + ' ' + meridium;
 	}
 }

@@ -29,11 +29,16 @@ test('should format long date for future', t => {
 });
 
 test('should format long date for sometime ago', t => {
+	const date = new Date(1462728770073);
+	const hours = date.getHours();
+	const minutes = date.getMinutes();
+	const time = `${hours > 12 ? (hours + 11) % 12 + 1 : hours}:${minutes > 10 ? minutes : '0' + minutes} ${hours > 12 ? 'pm' : 'am'}`;
+
 	t.is(long(1462728770073, 1462728773074), '3 seconds ago');
 	t.is(long(1462728770073, 1462728890074), '2 minutes ago');
 	t.is(long(1462728770073, 1462732370074), '1 hour ago');
-	t.is(long(1462728770073, 1462815170074), 'Yesterday, 11:02 pm');
-	t.is(long(1462728770073, 1463074370074), 'Sunday, 11:02 pm');
-	t.is(long(1462728770073, 1466357570074), '8 May, 11:02 pm');
-	t.is(long(1462728770073, 34575528770074), '8 May 2016, 11:02 pm');
+	t.is(long(1462728770073, 1462815170074), `Yesterday, ${time}`);
+	t.is(long(1462728770073, 1463074370074), `Sunday, ${time}`);
+	t.is(long(1462728770073, 1466357570074), `8 May, ${time}`);
+	t.is(long(1462728770073, 34575528770074), `8 May 2016, ${time}`);
 });
