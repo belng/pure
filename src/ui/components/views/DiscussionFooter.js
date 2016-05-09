@@ -6,8 +6,8 @@ import shallowEqual from 'shallowequal';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import AvatarRound from './AvatarRound';
+import Time from './Time';
 import NavigationActions from '../../navigation-rfc/Navigation/NavigationActions';
-import { long } from '../../../lib/Time';
 import type { Thread } from '../../../lib/schemaTypes';
 
 const {
@@ -120,7 +120,11 @@ export default class DiscussionFooter extends Component<void, Props, void> {
 				<View style={styles.info}>
 					<AppText style={styles.name}>{thread.creator}</AppText>
 					<View style={styles.meta}>
-						<AppText style={styles.label}>{long(thread.createTime)}</AppText>
+						<Time
+							style={styles.label}
+							type='long'
+							time={thread.createTime}
+						/>
 						<AppText style={styles.dot}>●</AppText>
 						<AppText style={styles.label}>{reseponsesLabel}</AppText>
 					</View>
