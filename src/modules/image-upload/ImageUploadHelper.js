@@ -87,18 +87,16 @@ export default class ImageUploadHelper {
 				const req = new XMLHttpRequest();
 
 				req.open('HEAD', thumbnail, true); // Avoid doing a GET request to prevent OOM
-				req.onload = () => {
-					clearTimer();
+				req.onreadystatechange = () => {
+					if (req.readyState === req.DONE) {
+						clearTimer();
 
-					if (req.status < 300) {
-						resolve(thumbnail);
-					} else {
-						onError();
+						if (req.status < 300) {
+							resolve(thumbnail);
+						} else {
+							onError();
+						}
 					}
-				};
-				req.onerror = () => {
-					clearTimer();
-					onError();
 				};
 				req.send();
 			};
