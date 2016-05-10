@@ -102,7 +102,7 @@ export default class DiscussionFooter extends Component<void, Props, void> {
 			reseponsesLabel = '1 response';
 			break;
 		default:
-			reseponsesLabel = `${responses}  responses`;
+			reseponsesLabel = `${responses} responses`;
 		}
 
 		return (
