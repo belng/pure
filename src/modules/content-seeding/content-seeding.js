@@ -47,7 +47,7 @@ function seedContent(room) {
 		files = files.map(file => file.split('-'))
 		.filter(e => e.length === 3)
 		.filter(e => {
-			return room.tags.indexOf(tagStringToNumber(e[0])) > -1;
+			return room.tags && room.tags.indexOf(tagStringToNumber(e[0])) > -1;
 		}
 		);
 
@@ -109,5 +109,6 @@ bus.on('postchange', (changes, next) => {
 	)).map(e => entities[e]).forEach(seedContent);
 	next();
 });
+
 
 log.info('Content seeding module ready.');
