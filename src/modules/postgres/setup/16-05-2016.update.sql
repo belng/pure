@@ -12,11 +12,15 @@ ALTER TABLE contacts ALTER COLUMN createtime SET DEFAULT extract(epoch from now(
 
 ALTER TABLE users ALTER COLUMN identities SET NOT NULL;
 ALTER TABLE users ALTER COLUMN createtime SET NOT NULL;
+ALTER TABLE users ALTER COLUMN tags SET NOT NULL;
 ALTER TABLE users ALTER COLUMN createtime SET DEFAULT extract(epoch from now());
+ALTER TABLE users ALTER COLUMN tags SET DEFAULT '{}';
 
 ALTER TABLE items ALTER COLUMN parents SET NOT NULL;
 ALTER TABLE items ALTER COLUMN createtime SET NOT NULL;
+ALTER TABLE users ALTER COLUMN tags SET NOT NULL;
 ALTER TABLE items ALTER COLUMN createtime SET DEFAULT extract(epoch from now());
+ALTER TABLE users ALTER COLUMN tags SET DEFAULT '{}';
 
 ALTER TABLE rooms ALTER COLUMN name SET NOT NULL;
 

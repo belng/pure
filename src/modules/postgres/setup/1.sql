@@ -26,7 +26,7 @@ CREATE TABLE users (
 	identities text[] NOT NULL, -- user-private
 	createtime bigint DEFAULT extract(epoch from now()) NOT NULL,
 	deletetime bigint,
-	tags smallint[], -- e.g. admin, manager
+	tags smallint[] DEFAULT '{}' NOT NULL, -- e.g. admin, manager
 	locale smallint,
 	counts jsonb DEFAULT '{}',
 	meta jsonb,
@@ -45,7 +45,7 @@ CREATE TABLE items (
 	body text, -- room description, thread start message
 	type smallint,
 	parents uuid[] DEFAULT '{}' NOT NULL, -- room or thread
-	tags smallint[], -- e.g. image, hidden, sticky, city, area, spot
+	tags smallint[] DEFAULT '{}' NOT NULL, -- e.g. image, hidden, sticky, city, area, spot
 	createtime bigint DEFAULT extract(epoch from now()) NOT NULL,
 	creator text,
 	deletetime bigint,
