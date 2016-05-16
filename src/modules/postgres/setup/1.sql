@@ -44,7 +44,7 @@ CREATE TABLE items (
 	name text, -- room display name, thread title
 	body text, -- room description, thread start message
 	type smallint,
-	parents uuid[] NOT NULL, -- room or thread
+	parents uuid[] DEFAULT '{}' NOT NULL, -- room or thread
 	tags smallint[], -- e.g. image, hidden, sticky, city, area, spot
 	createtime bigint DEFAULT extract(epoch from now()) NOT NULL,
 	creator text,
@@ -69,7 +69,7 @@ CREATE TABLE threads (
 ) INHERITS (items);
 
 CREATE TABLE texts (
-	body text NOT NULL -- message text
+	body text NOT NULL, -- message text
 	creator text NOT NULL -- message text
 ) INHERITS (items);
 
@@ -122,7 +122,7 @@ CREATE TABLE jobs (
 INSERT INTO jobs VALUES (1), (2), (3);
 CREATE EXTENSION plv8;
 
-INSERT INTO rooms (id, name, parents) VALUES ('e8d0a3b8-6c00-4871-84ad-1078b1265c08', 'Support', '{}');
+INSERT INTO rooms (id, name) VALUES ('e8d0a3b8-6c00-4871-84ad-1078b1265c08', 'Support');
 
 DROP FUNCTION IF EXISTS jsonop(jsonb, jsonb,jsonb);
 CREATE FUNCTION jsonop(oa jsonb, ob jsonb, oop jsonb) RETURNS jsonb AS $$

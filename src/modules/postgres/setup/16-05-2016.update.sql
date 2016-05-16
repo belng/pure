@@ -32,7 +32,7 @@ ALTER TABLE notes ALTER COLUMN data SET DEFAULT '{}';
 ALTER TABLE notes ALTER COLUMN createtime SET DEFAULT extract(epoch from now());
 
 UPDATE users SET identities = '{}' WHERE identities IS NULL;
-UPDATE items SET parents = '{}' WHERE parents IS NULL;
+UPDATE items SET parents = DEFAULT WHERE parents IS NULL;
 UPDATE rooms SET name = '' WHERE name IS NULL;
 UPDATE threads SET name = '' WHERE name IS NULL;
 UPDATE threads SET body = '' WHERE body IS NULL;
