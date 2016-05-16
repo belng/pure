@@ -36,6 +36,7 @@ const ServerHTML = ({ locale, title, description, body, image, permalink }: Prop
 			<title>{title}</title>
 
 			<link rel='image_src' href={image} />
+			<link rel='stylesheet' href='/s/css/home.css' />
 		</head>
 		<body>
 			<div id='root' dangerouslySetInnerHTML={{ __html: body }} />

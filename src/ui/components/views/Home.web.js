@@ -3,15 +3,20 @@
 import React, { Component, PropTypes } from 'react';
 import Radium from 'radium';
 import Colors from '../../Colors';
+import fs from 'fs';
+
+
+const promo = fs.readFileSync(__dirname + '/../../../../templates/promo.html');
 
 const styles = {
 	container: {
 		display: 'table',
 		tableLayout: 'fixed',
-		fontFamily: 'Lato, Open Sans, sans-serif',
+		fontFamily: 'Alegreya Sans, sans-serif',
 		fontSize: 24,
-		height: '100vh',
 		width: '100%',
+		background: Colors.darkerGrey,
+		color: Colors.white,
 	},
 	inner: {
 		display: 'table-cell',
@@ -37,14 +42,13 @@ const styles = {
 		marginBottom: 240,
 	},
 	header: {
-		color: Colors.darkGrey,
+		color: Colors.white,
 		fontWeight: 300,
 		fontSize: 36,
 	},
 	summary: {
-		color: Colors.grey,
-		fontSize: 16,
-		marginBottom: 36,
+		color: Colors.fadedWhite,
+		fontSize: 24,
 	},
 };
 
@@ -96,20 +100,19 @@ class Home extends Component<void, Props, State> {
 			title,
 			description,
 		} = this.props;
-		const {
-			url,
-			label,
-		} = this.state;
 
 		return (
-			<div style={styles.container}>
-				<div style={styles.inner}>
-					<h1 style={styles.header}>{title}</h1>
-					<p style={styles.summary}>{description}</p>
-					<a style={styles.button} href={url}>
-						{label}
-					</a>
-				</div>
+			<div>
+				{ title ?
+					<div style={styles.container}>
+						<div style={styles.inner}>
+							<h1 style={styles.header}>{title}</h1>
+							<p style={styles.summary}>{description}</p>
+						</div>
+					</div> :
+					null
+				}
+				<div dangerouslySetInnerHTML={{ __html: promo }}></div>
 			</div>
 		);
 	}

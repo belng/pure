@@ -32,11 +32,8 @@ bus.on('http/init', app => {
 				const room = yield getEntityAsync(props.room);
 
 				if (room) {
-					title = `I just joined ${config.app_name}`;
-					description = `Join me in exploring the ${room.name} community `;
-				} else {
-					title = `Join me on ${config.app_name}`;
-					description = '';
+					title = `The ${room.name} community is on ${config.app_name}.`;
+					description = `Install the ${config.app_name} app to join.`;
 				}
 
 				break;
@@ -45,34 +42,29 @@ bus.on('http/init', app => {
 
 				if (thread) {
 					title = thread.name;
-					description = `Join me in this conversation on ${config.app_name}`;
-				} else {
-					title = `Join me on ${config.app_name}`;
-					description = '';
+					description = `Install the ${config.app_name} app to join.`;
 				}
 
 				break;
 			}
 		}
 
-		if (title) {
-			this.body = '<!DOCTYPE html>' + ReactDOMServer.renderToStaticMarkup(
-				<ServerHTML
-					locale='en'
-					title={title}
-					description={description}
-					body={ReactDOMServer.renderToString(
-						<Home
-							title={title}
-							description={description}
-							url={PLAY_STORE_LINK}
-							radiumConfig={{ userAgent: this.headers['user-agent'] }}
-						/>
-					)}
-					image={`${this.request.origin}/s/assets/thumbnail.png`}
-					permalink={this.request.href}
-				/>
-			);
-		}
+		this.body = '<!DOCTYPE html>' + ReactDOMServer.renderToStaticMarkup(
+			<ServerHTML
+				locale='en'
+				title={title || config.app_name}
+				description={description || ''}
+				body={ReactDOMServer.renderToString(
+					<Home
+						title={title}
+						description={description}
+						url={PLAY_STORE_LINK}
+						radiumConfig={{ userAgent: this.headers['user-agent'] }}
+					/>
+				)}
+				image={`${this.request.origin}/s/assets/thumbnail.png`}
+				permalink={this.request.href}
+			/>
+		);
 	}));
 });
