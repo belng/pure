@@ -36,6 +36,9 @@ const ServerHTML = ({ locale, title, description, body, image, permalink }: Prop
 			<title>{title}</title>
 
 			<link rel='image_src' href={image} />
+
+			<link rel='stylesheet' type='text/css' href=
+				'//fonts.googleapis.com/css?family=Alegreya+Sans:300,500,900'>
 			<link rel='stylesheet' href='/s/css/home.css' />
 		</head>
 		<body>
