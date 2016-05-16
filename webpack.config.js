@@ -64,6 +64,11 @@ module.exports = {
 				})
 			},
 			{
+				test: /\.(gif|jpe?g|png|svg)$/,
+				loader: 'url-loader',
+				query: { name: '[name].[hash:16].[ext]' }
+			},
+			{
 				test: /\.json$/,
 				loader: 'json'
 			}
