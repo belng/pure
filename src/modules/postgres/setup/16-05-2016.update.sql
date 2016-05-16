@@ -1,3 +1,12 @@
+UPDATE users SET identities = '{}' WHERE identities IS NULL;
+UPDATE items SET parents = '{}' WHERE parents IS NULL;
+UPDATE rooms SET name = '' WHERE name IS NULL;
+UPDATE threads SET name = '' WHERE name IS NULL;
+UPDATE threads SET body = '' WHERE body IS NULL;
+UPDATE texts SET body = '' WHERE body IS NULL;
+UPDATE notes SET count = DEFAULT WHERE count IS NULL;
+UPDATE notes SET data = DEFAULT WHERE data IS NULL;
+
 ALTER TABLE contacts ALTER COLUMN createtime SET NOT NULL;
 ALTER TABLE contacts ALTER COLUMN createtime SET DEFAULT extract(epoch from now());
 
@@ -30,12 +39,3 @@ ALTER TABLE notes ALTER COLUMN createtime SET NOT NULL;
 ALTER TABLE notes ALTER COLUMN count SET DEFAULT 1;
 ALTER TABLE notes ALTER COLUMN data SET DEFAULT '{}';
 ALTER TABLE notes ALTER COLUMN createtime SET DEFAULT extract(epoch from now());
-
-UPDATE users SET identities = '{}' WHERE identities IS NULL;
-UPDATE items SET parents = DEFAULT WHERE parents IS NULL;
-UPDATE rooms SET name = '' WHERE name IS NULL;
-UPDATE threads SET name = '' WHERE name IS NULL;
-UPDATE threads SET body = '' WHERE body IS NULL;
-UPDATE texts SET body = '' WHERE body IS NULL;
-UPDATE notes SET count = DEFAULT WHERE count IS NULL;
-UPDATE notes SET data = DEFAULT WHERE data IS NULL;
