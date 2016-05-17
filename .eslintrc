@@ -7,8 +7,11 @@
     "es6": true
   },
 
-  "ecmaFeatures": {
-    "jsx": true
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
   },
 
   "plugins": [
