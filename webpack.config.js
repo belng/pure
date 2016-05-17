@@ -5,8 +5,10 @@ const __DEV__ = process.env.NODE_ENV !== 'production';
 const webpack = require('webpack');
 const path = require('path');
 const fs = require('fs');
+const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 
 const plugins = [
+	new LodashModuleReplacementPlugin(),
 	new webpack.EnvironmentPlugin('NODE_ENV'),
 	new webpack.DefinePlugin({
 		__DEV__: JSON.stringify(__DEV__)
