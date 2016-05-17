@@ -1,7 +1,7 @@
 /* @flow */
 
 import { bus } from '../../core-client';
-import { subscribe } from '../../modules/store/store';
+import store from '../../modules/store/store';
 import PersistentStorage from '../../lib/PersistentStorage';
 
 const sessionStorage = new PersistentStorage('session');
@@ -40,7 +40,9 @@ bus.on('error', changes => {
 	}
 });
 
-bus.on('postchange', changes => {
+bus.on('state:init', state => (state.session = '@@loading'));
+
+store.on('change', changes => {
 	if (changes.state && 'session' in changes.state) {
 		const { session } = changes.state;
 
@@ -56,9 +58,7 @@ bus.on('postchange', changes => {
 	}
 });
 
-bus.on('state:init', state => (state.session = '@@loading'));
-
-subscribe({ type: 'state', path: 'connectionStatus', source: 'session' }, status => {
+store.observe({ type: 'state', path: 'connectionStatus', source: 'session' }).forEach(status => {
 	if (status === 'online') {
 		saveAndInitializeSession();
 	}

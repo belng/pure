@@ -34,6 +34,9 @@
     "ReactPropsChainableTypeChecker": false,
     "ReactPropTypes": false,
     "SyntheticEvent": false,
+
+    "Observable": false,
+    "Subscription": false,
   },
 
   "rules": {
