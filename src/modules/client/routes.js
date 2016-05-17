@@ -1,9 +1,11 @@
 /* @flow */
 
+import fs from 'fs';
+import path from 'path';
+import handlebars from 'handlebars';
 import route from 'koa-route';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import Home from '../../ui/components/views/Home.web';
 import ServerHTML from './ServerHTML';
 import promisify from '../../lib/promisify';
 import { convertURLToRoute } from '../../lib/Route';
@@ -11,6 +13,7 @@ import { bus, cache, config } from '../../core-server';
 
 const PLAY_STORE_LINK = `https://play.google.com/store/apps/details?id=${config.package_name}`;
 
+const promo = handlebars.compile(fs.readFileSync(path.join(__dirname, '../../../templates/promo.hbs')).toString());
 const getEntityAsync = promisify(cache.getEntity.bind(cache));
 
 bus.on('http/init', app => {
@@ -28,7 +31,7 @@ bus.on('http/init', app => {
 
 		if (props) {
 			switch (name) {
-			case 'room':
+			case 'room': {
 				const room = yield getEntityAsync(props.room);
 
 				if (room) {
@@ -37,7 +40,8 @@ bus.on('http/init', app => {
 				}
 
 				break;
-			case 'chat':
+			}
+			case 'chat': {
 				const thread = yield getEntityAsync(props.thread);
 
 				if (thread) {
@@ -47,6 +51,7 @@ bus.on('http/init', app => {
 
 				break;
 			}
+			}
 		}
 
 		this.body = '<!DOCTYPE html>' + ReactDOMServer.renderToStaticMarkup(
@@ -54,16 +59,16 @@ bus.on('http/init', app => {
 				locale='en'
 				title={title || config.app_name}
 				description={description || ''}
-				body={ReactDOMServer.renderToString(
-					<Home
-						title={title}
-						description={description}
-						url={PLAY_STORE_LINK}
-						radiumConfig={{ userAgent: this.headers['user-agent'] }}
-					/>
-				)}
+				body={promo({
+					title,
+					description,
+				})}
 				image={`${this.request.origin}/s/assets/thumbnail.png`}
 				permalink={this.request.href}
+				styles={[
+					'//fonts.googleapis.com/css?family=Alegreya+Sans:300,500,900',
+					'/s/styles/home.css'
+				]}
 			/>
 		);
 	}));

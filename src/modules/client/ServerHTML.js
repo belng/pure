@@ -1,7 +1,7 @@
 /* @flow */
 /* eslint-disable react/no-danger */
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 type Props = {
 	locale?: string;
@@ -10,9 +10,10 @@ type Props = {
 	body: string;
 	image: string;
 	permalink: string;
+	styles?: Array<string>;
 };
 
-const ServerHTML = ({ locale, title, description, body, image, permalink }: Props) => (
+const ServerHTML = ({ locale, title, description, body, image, permalink, styles }: Props) => (
 	<html lang={locale}>
 		<head>
 			<meta charSet='utf-8' />
@@ -37,9 +38,13 @@ const ServerHTML = ({ locale, title, description, body, image, permalink }: Prop
 
 			<link rel='image_src' href={image} />
 
-			<link rel='stylesheet' type='text/css' href=
-				'//fonts.googleapis.com/css?family=Alegreya+Sans:300,500,900' />
-			<link rel='stylesheet' href='/s/css/home.css' />
+			{styles ? styles.map(url => (
+				<link
+					key={url}
+					href={url}
+					rel='stylesheet'
+				/>
+			)) : null}
 		</head>
 		<body>
 			<div id='root' dangerouslySetInnerHTML={{ __html: body }} />
@@ -48,12 +53,13 @@ const ServerHTML = ({ locale, title, description, body, image, permalink }: Prop
 );
 
 ServerHTML.propTypes = {
-	locale: React.PropTypes.string,
-	title: React.PropTypes.string.isRequired,
-	description: React.PropTypes.string.isRequired,
-	body: React.PropTypes.string.isRequired,
-	image: React.PropTypes.string.isRequired,
-	permalink: React.PropTypes.string.isRequired,
+	locale: PropTypes.string,
+	title: PropTypes.string.isRequired,
+	description: PropTypes.string.isRequired,
+	body: PropTypes.string.isRequired,
+	image: PropTypes.string.isRequired,
+	permalink: PropTypes.string.isRequired,
+	styles: PropTypes.arrayOf(PropTypes.string),
 };
 
 ServerHTML.defaultProps = {

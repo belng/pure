@@ -4,7 +4,6 @@ export default {
 	grey: '#999',
 	lightGrey: '#eee',
 	darkGrey: '#444',
-	darkerGrey: '#333',
 	primary: '#6644bb',
 	accent: '#ff1144',
 	info: '#2196f3',
