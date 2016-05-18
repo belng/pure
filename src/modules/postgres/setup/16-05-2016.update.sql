@@ -8,6 +8,8 @@ UPDATE texts SET body = '' WHERE body IS NULL;
 UPDATE notes SET count = DEFAULT WHERE count IS NULL;
 UPDATE notes SET data = DEFAULT WHERE data IS NULL;
 UPDATE items SET tags = '{}' WHERE tags IS NULL;
+UPDATE items SET createtime = extract(epoch from now())*1000 WHERE createtime IS NULL;
+UPDATE users SET createtime = extract(epoch from now())*1000 WHERE createtime IS NULL;
 
 ALTER TABLE contacts ALTER COLUMN createtime SET NOT NULL;
 ALTER TABLE contacts ALTER COLUMN createtime SET DEFAULT extract(epoch from now());
