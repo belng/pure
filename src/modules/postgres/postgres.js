@@ -174,10 +174,10 @@ bus.on('change', (changes, next) => {
 
 	if (changes.queries) {
 		const cb = (key, range, err, results) => {
-				if (err) { jsonop(response, { state: { error: err } }); }
+				if (err) { jsonop.apply(response, { state: { error: err } }); }
 				const newRange = cache.countedToBounded(range, results);
 
-				jsonop(response, {
+				jsonop.apply(response, {
 					indexes: { [key]: results },
 					knowledge: { [key]: newRange },
 				});
@@ -185,7 +185,7 @@ bus.on('change', (changes, next) => {
 			},
 
 			entityCallback = (id, err, result) => {
-				if (err) { jsonop(response, { state: { error: err } }); }
+				if (err) { jsonop.apply(response, { state: { error: err } }); }
 				if (result && result.id) {
 					response.entities = response.entities ? response.entities : {};
 					response.entities[result.id] = result;

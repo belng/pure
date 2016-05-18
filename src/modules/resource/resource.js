@@ -13,8 +13,8 @@ bus.on('presence/offline', presence => {
 			}
 
 			u.resources = u.resources || {};
-			u.resources.__op__ = {
-				[presence.resource]: 'delete',
+			u.resources = {
+				[presence.resource]: '$delete',
 			};
 
 			bus.emit('change', {

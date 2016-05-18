@@ -37,18 +37,8 @@ bus.on('change', (changes, next) => {
 
 			const parent = changes.entities[entity.parents[0]] || {};
 			parent.counts = parent.counts || {};
-			parent.counts.__op__ = parent.counts.__op__ || {};
-			parent.counts.__op__.children = 'inc';
-			parent.counts.children = 1;
+			parent.counts.children = [ inc, '$add' ];
 
-
-			//
-			// parent.counts = {
-			// 	children: 1,
-			// 	__op__: {
-			// 		children: 'inc'
-			// 	}
-			// };
 			parent.id = entity.parents[0];
 			parent.type = (entity.type === Constants.TYPE_TEXT) ?
 				Constants.TYPE_THREAD : Constants.TYPE_ROOM;
@@ -64,9 +54,7 @@ bus.on('change', (changes, next) => {
 			const user = changes.entities[entity.creator] || new User({ id: entity.creator });
 
 			user.counts = user.counts || {};
-			user.counts.__op__ = user.counts.__op__ || {};
-			user.counts.__op__[TABLES[entity.type]] = 'inc';
-			user.counts[TABLES[entity.type]] = inc;
+			user.counts[TABLES[entity.type]] = [ inc, '$add' ];
 			user.id = entity.creator;
 			changes.entities[entity.creator] = user;
 		}
@@ -107,7 +95,6 @@ bus.on('change', (changes, next) => {
 				const item = changes.entities[entity.item] || {};
 
 				item.counts = item.counts || {};
-				item.counts.__op__ = item.counts.__op__ || {};
 				// if (entity.__op__ && entity.__op__.role && entity.__op__.roles[0] === 'union') {
 				// 	const rem = entity.__op__.roles[0].slice(1);
 				//
@@ -120,10 +107,8 @@ bus.on('change', (changes, next) => {
 				// }
 				// console.log("exist: entity.roles: ", exist, entity.roles );
 				exist.forEach((role) => {
-					// console.log("got role: ", role);
 					if (ROLES[role]) {
-						item.counts[ROLES[role]] = 1;
-						item.counts.__op__[ROLES[role]] = 'inc';
+						item.counts[ROLES[role]] = [ 1, '$add' ];
 					}
 				});
 

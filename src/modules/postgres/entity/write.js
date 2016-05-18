@@ -1,8 +1,6 @@
 import * as pg from '../../../lib/pg';
 import { TABLES, COLUMNS, RELATION_TYPES } from '../../../lib/schema';
 import * as Constants from '../../../lib/Constants';
-import jsonop from 'jsonop';
-import defaultOps from '../../../lib/defaultOps';
 
 function shouldInsert(entity) {
 	if (!('createTime' in entity)) return false;
@@ -21,8 +19,6 @@ export default function (entity) {
 			name => COLUMNS[entity.type].indexOf(name) >= 0 &&
 			typeof entity[name] !== 'undefined'
 		);
-
-	const ops = jsonop(defaultOps, entity.__op__ || {});
 
 	if (entity.type === Constants.TYPE_ROOM) {
 		names.push('terms');
@@ -65,7 +61,7 @@ export default function (entity) {
 				case 'resources':
 				case 'counts':
 					return {
-						$: `jsonop('{}'::jsonb, &{${name}}, '{}'::jsonb)`,
+						$: `jsonop('{}'::jsonb, &{${name}})`,
 						[name]: entity[name],
 					};
 				default:
@@ -108,7 +104,7 @@ export default function (entity) {
 					};
 				case 'counts':
 					return {
-						$: `"${name}" = jsonop("${name}"::jsonb, &{${name}}::jsonb, &{defaultOps}::jsonb)`,
+						$: `"${name}" = jsonop("${name}"::jsonb, &{${name}}::jsonb)`,
 						[name]: entity[name],
 					};
 				case 'meta':
@@ -116,9 +112,8 @@ export default function (entity) {
 				case 'data':
 				case 'resources':
 					return {
-						$: `"${name}" = jsonop("${name}"::jsonb, &{${name}}::jsonb, &{${name}_op}::jsonb)`,
-						[name]: entity[name],
-						[name + '_op']: ops[name] || null,
+						$: `"${name}" = jsonop("${name}"::jsonb, &{${name}}::jsonb)`,
+						[name]: entity[name]
 					};
 				default:
 					return {
