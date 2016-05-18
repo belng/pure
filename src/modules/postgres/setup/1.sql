@@ -10,7 +10,7 @@ DROP TABLE IF EXISTS contacts;
 
 CREATE TABLE contacts (
 	referrer text,
-	createtime bigint DEFAULT extract(epoch from now()) NOT NULL,
+	createtime bigint DEFAULT extract(epoch from now())*1000 NOT NULL,
 	contact jsonb
 );
 
@@ -24,7 +24,7 @@ CREATE TABLE users (
 	id text PRIMARY KEY,
 	name text, -- user display name
 	identities text[] NOT NULL, -- user-private
-	createtime bigint DEFAULT extract(epoch from now()) NOT NULL,
+	createtime bigint DEFAULT extract(epoch from now())*1000 NOT NULL,
 	deletetime bigint,
 	tags smallint[] DEFAULT '{}' NOT NULL, -- e.g. admin, manager
 	locale smallint,
@@ -46,7 +46,7 @@ CREATE TABLE items (
 	type smallint,
 	parents uuid[] DEFAULT '{}' NOT NULL, -- room or thread
 	tags smallint[] DEFAULT '{}' NOT NULL, -- e.g. image, hidden, sticky, city, area, spot
-	createtime bigint DEFAULT extract(epoch from now()) NOT NULL,
+	createtime bigint DEFAULT extract(epoch from now())*1000 NOT NULL,
 	creator text,
 	deletetime bigint,
 	meta jsonb, -- guides, image dimensions, counts
@@ -80,7 +80,7 @@ CREATE TABLE rels (
 	item uuid NOT NULL,
 	"user" text NOT NULL,
 	roles smallint[], -- mute, upvote, home, work
-	createtime bigint DEFAULT extract(epoch from now()) NOT NULL,
+	createtime bigint DEFAULT extract(epoch from now())*1000 NOT NULL,
 	updatetime bigint,
 	admin text,
 	expiretime bigint,
@@ -109,7 +109,7 @@ CREATE TABLE notes (
 	count integer DEFAULT 1 NOT NULL, -- this event in this group id
 	data jsonb DEFAULT '{}' NOT NULL, -- information like
 	event smallint NOT NULL, -- e.g. mention, invite, request
-	createtime bigint DEFAULT extract(epoch from now()) NOT NULL,
+	createtime bigint DEFAULT extract(epoch from now())*1000 NOT NULL,
 	updatetime bigint,
 	deletetime bigint
 );

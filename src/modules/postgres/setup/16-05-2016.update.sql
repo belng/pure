@@ -5,26 +5,26 @@ UPDATE rooms SET name = '' WHERE name IS NULL;
 UPDATE threads SET name = '' WHERE name IS NULL;
 UPDATE threads SET body = '' WHERE body IS NULL;
 UPDATE texts SET body = '' WHERE body IS NULL;
-UPDATE notes SET count = DEFAULT WHERE count IS NULL;
-UPDATE notes SET data = DEFAULT WHERE data IS NULL;
+UPDATE notes SET count = 1 WHERE count IS NULL;
+UPDATE notes SET data = '{}' WHERE data IS NULL;
 UPDATE items SET tags = '{}' WHERE tags IS NULL;
 UPDATE items SET createtime = extract(epoch from now())*1000 WHERE createtime IS NULL;
 UPDATE users SET createtime = extract(epoch from now())*1000 WHERE createtime IS NULL;
 
 ALTER TABLE contacts ALTER COLUMN createtime SET NOT NULL;
-ALTER TABLE contacts ALTER COLUMN createtime SET DEFAULT extract(epoch from now());
+ALTER TABLE contacts ALTER COLUMN createtime SET DEFAULT extract(epoch from now())*1000;
 
 ALTER TABLE users ALTER COLUMN identities SET NOT NULL;
 ALTER TABLE users ALTER COLUMN createtime SET NOT NULL;
 ALTER TABLE users ALTER COLUMN tags SET NOT NULL;
-ALTER TABLE users ALTER COLUMN createtime SET DEFAULT extract(epoch from now());
+ALTER TABLE users ALTER COLUMN createtime SET DEFAULT extract(epoch from now())*1000;
 ALTER TABLE users ALTER COLUMN tags SET DEFAULT '{}';
 
 ALTER TABLE items ALTER COLUMN parents SET NOT NULL;
 ALTER TABLE items ALTER COLUMN createtime SET NOT NULL;
 ALTER TABLE items ALTER COLUMN tags SET NOT NULL;
 ALTER TABLE items ALTER COLUMN parents SET DEFAULT '{}';
-ALTER TABLE items ALTER COLUMN createtime SET DEFAULT extract(epoch from now());
+ALTER TABLE items ALTER COLUMN createtime SET DEFAULT extract(epoch from now())*1000;
 ALTER TABLE items ALTER COLUMN tags SET DEFAULT '{}';
 
 ALTER TABLE rooms ALTER COLUMN name SET NOT NULL;
@@ -39,7 +39,7 @@ ALTER TABLE texts ALTER COLUMN body SET NOT NULL;
 ALTER TABLE rels ALTER COLUMN item SET NOT NULL;
 ALTER TABLE rels ALTER COLUMN "user" SET NOT NULL;
 ALTER TABLE rels ALTER COLUMN createtime SET NOT NULL;
-ALTER TABLE rels ALTER COLUMN createtime SET DEFAULT extract(epoch from now());
+ALTER TABLE rels ALTER COLUMN createtime SET DEFAULT extract(epoch from now())*1000;
 
 ALTER TABLE notes ALTER COLUMN "group" SET NOT NULL;
 ALTER TABLE notes ALTER COLUMN score SET NOT NULL;
@@ -49,9 +49,7 @@ ALTER TABLE notes ALTER COLUMN event SET NOT NULL;
 ALTER TABLE notes ALTER COLUMN createtime SET NOT NULL;
 ALTER TABLE notes ALTER COLUMN count SET DEFAULT 1;
 ALTER TABLE notes ALTER COLUMN data SET DEFAULT '{}';
-ALTER TABLE notes ALTER COLUMN createtime SET DEFAULT extract(epoch from now());
-
-
+ALTER TABLE notes ALTER COLUMN createtime SET DEFAULT extract(epoch from now())*1000;
 
 DROP FUNCTION IF EXISTS jsonop(jsonb, jsonb, jsonb);
 DROP FUNCTION IF EXISTS jsonop(jsonb, jsonb);
@@ -220,3 +218,25 @@ CREATE FUNCTION jsonop(oa jsonb, ob jsonb) RETURNS jsonb AS $$
 
 	return JSON.stringify(fn(oa, ob));
 $$ LANGUAGE plv8 IMMUTABLE;
+
+DROP OPERATOR CLASS IF EXISTS _uuid_ops USING gin;
+
+CREATE OPERATOR CLASS _uuid_ops DEFAULT FOR TYPE _uuid USING gin AS
+OPERATOR 1 &&(anyarray, anyarray),
+OPERATOR 2 @>(anyarray, anyarray),
+OPERATOR 3 <@(anyarray, anyarray),
+OPERATOR 4 =(anyarray, anyarray),
+FUNCTION 1 uuid_cmp(uuid, uuid),
+FUNCTION 2 ginarrayextract(anyarray, internal, internal),
+FUNCTION 3 ginqueryarrayextract(anyarray, internal, smallint, internal, internal, internal, internal),
+FUNCTION 4 ginarrayconsistent(internal, smallint, anyarray, integer, internal, internal, internal, internal),
+STORAGE uuid;
+
+CREATE INDEX CONCURRENTLY ON texts USING GIN (parents);
+CREATE INDEX CONCURRENTLY ON threads USING GIN (parents);
+CREATE INDEX CONCURRENTLY ON texts (creator);
+CREATE INDEX CONCURRENTLY ON threads (creator);
+CREATE INDEX CONCURRENTLY ON threadrels USING GIN (roles);
+CREATE INDEX CONCURRENTLY ON roomrels USING GIN (roles);
+CREATE INDEX CONCURRENTLY ON threadrels (item);
+CREATE INDEX CONCURRENTLY ON roomrels (item);
