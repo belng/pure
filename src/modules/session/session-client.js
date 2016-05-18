@@ -7,7 +7,7 @@ import PersistentStorage from '../../lib/PersistentStorage';
 const sessionStorage = new PersistentStorage('session');
 
 async function saveAndInitializeSession() {
-	let session;
+	let session = null;
 
 	try {
 		session = await sessionStorage.getItem('id');
@@ -42,19 +42,19 @@ bus.on('error', changes => {
 
 bus.on('state:init', state => (state.session = '@@loading'));
 
-store.on('change', changes => {
-	if (changes.state && 'session' in changes.state) {
-		const { session } = changes.state;
+store.observe({ type: 'state', path: 'session', source: 'session' }).forEach(session => {
+	if (session === '@@loading') {
+		return;
+	}
 
-		if (session === '@@loading') {
-			return;
-		}
+	if (typeof session === 'string' && session) {
+		sessionStorage.setItem('id', session);
+	}
 
-		if (session && typeof changes.state.session === 'string') {
-			sessionStorage.setItem('id', changes.state.session);
-		} else {
-			sessionStorage.removeItem('id');
-		}
+	// remove session from storage only when explicitly removed from cache
+	// session might be undefined instead of null if not initialized yet
+	if (session === null) {
+		sessionStorage.removeItem('id');
 	}
 });
 
