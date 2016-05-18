@@ -1,6 +1,6 @@
 /* @flow */
 
-import config from '../../core-client';
+import { config } from '../../core-client';
 
 type AuthCode = {
     code: string;
