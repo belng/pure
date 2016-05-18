@@ -117,204 +117,171 @@ CREATE EXTENSION plv8;
 
 INSERT INTO rooms (id, name) VALUES ('e8d0a3b8-6c00-4871-84ad-1078b1265c08', 'Support');
 
-DROP FUNCTION IF EXISTS jsonop(jsonb, jsonb,jsonb);
-CREATE FUNCTION jsonop(oa jsonb, ob jsonb, oop jsonb) RETURNS jsonb AS $$
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+DROP FUNCTION IF EXISTS jsonop(jsonb, jsonb, jsonb);
+DROP FUNCTION IF EXISTS jsonop(jsonb, jsonb);
+CREATE FUNCTION jsonop(oa jsonb, ob jsonb) RETURNS jsonb AS $$
+	function fn(left, right, doMerge) {
 
-	function j(oa, ob, oop) {
-		var el = { _: oa },
-		    stack = [{ a: el, b: { _: ob }, op: { _: oop } }];
+		var opfn;
 
-		var opfn = {
-			keep: function keep(a) {
-				return a;
-			},
-			inc: function inc(a, b, params) {
-				return params && params[0] ? (a + b) % params[0] : a + b;
-			},
-			mul: function mul(a, b, params) {
-				return params && params[0] ? a * b % params[0] : a * b;
-			},
-			min: function min(a, b) {
-				return Math.min(a, b);
-			},
-			max: function max(a, b) {
-				return Math.max(a, b);
-			},
-			mavg: function mavg(a, b, params) {
-				return (a * (params[0] - 1) + b) / params[0];
-			},
-			union: function union(a, b, p) {
-				var arr = Array.isArray(b) ? a.concat(b) : a,
-				    result = [],
-				    map = {},
-				    params = p || [];
+		function isArray(arr) {
+			return Object.prototype.toString.call(arr) === "[object Array]";
+		}
 
-				arr.forEach(function (e) {
-					if (!map[e] && params.indexOf(e) < 0) result.push(e);
-					map[e] = true;
-				});
+		function updater(fn) {
+			return function (a, b) {
+				return typeof a === "undefined" ? deop(b) : fn(a, b);
+			};
+		}
 
+		opfn = {
+			$delete: function (a) { return; },
+			$default: updater(function (a, b) { return a; }),
+			$replace: function (a, b) { return deop(b); },
+
+			$add: updater(function (a, b) { return a + b; }),
+			$mul: updater(function (a, b) { return a * b; }),
+			$min: updater(function (a, b) { return Math.min(a, b); }),
+			$max: updater(function (a, b) { return Math.max(a, b); }),
+			$mod: updater(function (a, b) { return a % b; }),
+
+			$union: updater(function (a, b) {
+				var result = a.slice(0), i = 0, l = b.length;
+				for (; i < l; i++) if (a.indexOf(b[i]) === -1) result.push(b[i]);
 				return result;
-			},
-			inter: function inter(a, b, params) {
-				var map = {};
+			}),
+			$inter: updater(function (a, b) {
+				var result = [], i = 0, l = b.length;
+				for (; i < l; i++) if (a.indexOf(b[i]) >= 0) result.push(b[i]);
+				return result;
+			}),
+			$remove: updater(function (a, b) {
+				var pos = a.indexOf(b);
+				if (pos >= 0) return a.slice(0, pos).concat(a.slice(pos + 1));
+			}),
 
-				for (var _iterator = b, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-					var _ref;
+			$push: function (a, pos, b) {
+				if (typeof a === "undefined") return;
+				if (pos === null) return a.concat(deop(b));
+				return a.slice(0, pos).concat(deop(b), a.slice(pos));
+			},
+			$chop: function (a, pos, num) {
+				if (typeof a === "undefined") return [];
+				if (pos === null) return a.slice(0, a.length + num);
+				if (pos < 0) pos = a.length + pos;
+				if (num < 0) { pos += num; num = -num; }
+				if (pos < 0) { num += pos; pos = 0; }
+				return a.slice(0, pos).concat(a.slice(pos + num));
+			},
 
-					if (_isArray) {
-						if (_i >= _iterator.length) break;
-						_ref = _iterator[_i++];
-					} else {
-						_i = _iterator.next();
-						if (_i.done) break;
-						_ref = _i.value;
-					}
+			$merge: updater(function (a, b) {
+				var i = 0, l = b.length, r = a.slice(0);
+				for (; i < l; i++) if (b[i] !== null) r[i] = jsonop(r[i], b[i]);
+				return r;
+			}),
 
-					var _i2 = _ref;
-					if (_i2 in a) {
-						map[_i2] = true;
-					}
-				}
-				if (params) for (var i in params) {
-					map[i] = true;
-				}
+			$append: updater(function (a, b) { return a + b; }),
 
-				return Object.keys(map);
-			},
-			splice: function splice(a, b, params) {
-				if (!params || !params.length) {
-					return a.concat(b);
-				}
-
-				if (params.length >= 4) {
-					return a.slice(params[2] === null ? Infinity : params[2], params[3] === null ? Infinity : params[3]);
-				}
-
-				if (params.length >= 2) {
-					return a.splice.apply(a, [params[0] === null ? Infinity : params[0], params[1]].concat(b));
-				}
-
-				return a;
-			},
-			replace: function replace(a, b) {
-				return b;
-			},
-			append: function append(a, b, params) {
-				return a + (params[0] || "") + b;
-			},
-			band: function band(a, b) {
-				return a & b;
-			},
-			bor: function bor(a, b) {
-				return a | b;
-			},
-			bxor: function bxor(a, b) {
-				return a ^ b;
-			},
-			and: function and(a, b) {
-				return a && b;
-			},
-			or: function or(a, b) {
-				return a || b;
-			},
-			not: function not(a) {
-				return !a;
-			}
-			// delete and merge are handled separately below
+			$and: updater(function (a, b) { return a && b; }),
+			$or: updater(function (a, b) { return a || b; }),
+			$not: function (a) { return !a; }
 		};
 
-		function deleteOps(obj) {
-			var stack = [obj];
-
-			do {
-				var o = stack.pop();
-
-				delete stack.__op__;
-				for (var i in o) {
-					if (_typeof(o[i]) === "object" && o[i] !== null) {
-						stack.push(o[i]);
-					}
-				}
-			} while (stack.length);
-			return obj;
+		function isOperator(value) {
+			return (typeof value === "string" && value[0] === "$");
 		}
 
-		function isOp(op) {
-			return typeof op === "string" || Array.isArray(op);
-		}
-
-		function opval(a, b, i, op, stack) {
-			if (op === "delete" || op && op[0] === "delete") {
-				delete a[i];
-			} else if (typeof a[i] !== "undefined" && op && isOp(op) && op !== "merge" && op[0] !== "merge") {
-				if (Array.isArray(op)) {
-					a[i] = deleteOps(opfn[op[0]](a[i], b[i], op.slice(1)));
-				} else {
-					a[i] = deleteOps(opfn[op](a[i], b[i]));
+		function isOperation(value) {
+			var i, l;
+			if (isOperator(value)) return true;
+			if (isArray(value)) {
+				for (i = 0, l = value.length; i < l; i++) {
+					if (isOperator(value[i])) return true;
 				}
-			} else if (Array.isArray(b[i]) && Array.isArray(a[i]) && (op === "merge" || op && op[0] === "merge")) {
-				stack.push({ a: a[i], b: b[i] });
-			} else if (Array.isArray(b) && b[i] === null) {
-				// While merging arrays, skip nulls
-			} else if (_typeof(b[i]) === "object" && _typeof(a[i]) === "object" && b[i] !== null && a[i] !== null && !Array.isArray(a[i]) && !Array.isArray(b[i])) {
-					stack.push({ a: a[i], b: b[i], op: op });
-				} else {
-					a[i] = b[i];
-				}
-		}
-
-		var count = 0;
-		do {
-			var frame = stack.pop(),
-			    a = frame.a,
-			    b = frame.b;
-			var op = void 0,
-			    map = void 0;
-
-			count++;
-			if (count > 1000) {
-				throw Error('Cycle?');
 			}
-			if (frame.op && b.__op__) {
-				op = j(frame.op, b.__op__);
+			return false;
+		}
+
+		function execute(tokens) {
+			var stack = [], i = 0, l = tokens.length, j, fn, args;
+			for(; i < l; i++) if (isOperator(tokens[i])) {
+				fn = opfn[tokens[i]]; args = [];
+				if (typeof fn !== "function") throw Error("NoSuchOp " + tokens[i]);
+				for (j = 0; j < fn.length; j++) args.unshift(stack.pop());
+				stack.push(fn.apply(null, args));
 			} else {
-				op = b.__op__ || frame.op;
+				stack.push(tokens[i]);
 			}
+			if (stack.length !== 1) throw Error("OpRun " + JSON.stringify(tokens));
+			return stack[0];
+		}
 
-			map = op ? {} : b;
-
-			if (op) {
-				for (var i in b) {
-					if (i !== "__op__") {
-						map[i] = true;
-					}
-				}
-
-				if (op.__all__) {
-					for (var _i3 in a) {
-						map[_i3] = true;
-					}
+		function merge(left, right) {
+			var i, result = {}, res;
+			for (i in left) result[i] = left[i];
+			for (i in right) {
+				res = jsonop(result[i], right[i]);
+				if (typeof res === "undefined") {
+					delete result[i];
 				} else {
-					for (var _i4 in op) {
-						map[_i4] = true;
+					result[i] = res;
+				}
+			}
+			return result;
+		}
+
+		function deop(object) {
+			var i, j, clone = object, cloned = false, val;
+
+			if (doMerge) return object;
+			if (isOperation(object)) return execute([ undefined ].concat(object));
+			if (typeof object !== "object" || object === null) return object;
+
+			for (i in object) {
+				val = deop(object[i]);
+				if (val !== object[i]) {
+					if (!cloned) {
+						clone = Array.isArray(object) ? [] : {};
+						for (j in object) {
+							if (j === i) break;
+							clone[j] = object[j];
+						}
+						cloned = true;
 					}
+				}
+				if (cloned) clone[i] = val;
+			}
+
+			return clone;
+		}
+
+		function jsonop(left, right) {
+			if (isOperation(right)) {
+				right = isArray(right) ? right : [ right ];
+				if (isOperation(left)) {
+					left = isArray(left) ? left : [ left ];
+					if (doMerge) return left.concat(right);
+					return execute([ undefined ].concat(left, right));
+				}
+
+				if (doMerge && typeof left === "undefined") return right;
+				return execute([ left ].concat(right));
+			}
+
+			if (typeof left === "object" && left !== null && !isArray(left)) {
+				if (typeof right === "object" && right !== null && !isArray(right)){
+					return merge(left, right);
 				}
 			}
 
-			for (var _i5 in map) {
-				opval(a, b, _i5, b[_i5] && isOp(b[_i5].__op__) ? b[_i5].__op__ : op && (op[_i5] || op.__all__), stack);
-			}
-		} while (stack.length);
+			return typeof right !== "undefined" ? deop(right) : left;
+		}
 
-		return el._;
+		return jsonop(left, right);
 	}
-
 	if (typeof oa !== 'object') oa = JSON.parse(oa);
 	if (typeof ob !== 'object') ob = JSON.parse(ob);
-	if (typeof oop !== 'object') oop = JSON.parse(oop);
 
-	return JSON.stringify(j(oa, ob, oop));
+	return JSON.stringify(fn(oa, ob, oop));
 $$ LANGUAGE plv8 IMMUTABLE;
