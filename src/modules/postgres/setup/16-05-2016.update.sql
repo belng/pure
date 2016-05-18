@@ -218,5 +218,5 @@ CREATE FUNCTION jsonop(oa jsonb, ob jsonb) RETURNS jsonb AS $$
 	if (typeof oa !== 'object') oa = JSON.parse(oa);
 	if (typeof ob !== 'object') ob = JSON.parse(ob);
 
-	return JSON.stringify(fn(oa, ob, oop));
+	return JSON.stringify(fn(oa, ob));
 $$ LANGUAGE plv8 IMMUTABLE;
