@@ -9,4 +9,7 @@ node_js:
   - 'stable'
   - '5'
 before_script:
+  - echo '{}' > config/server.json
+  - echo '{}' > config/client.json
+  - npm run flow -- check
   - npm run build

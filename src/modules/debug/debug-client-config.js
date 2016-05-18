@@ -1,5 +1,3 @@
-/* @flow */
-
 import jsonop from 'jsonop';
 import defaults from '../../../config/debug-client-defaults.json';
 
@@ -10,4 +8,5 @@ try {
 } catch (e) {
 	// ignore
 }
+
 export default config;
