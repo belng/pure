@@ -1,25 +1,29 @@
 /* @flow */
 
 import { config } from '../../core-client';
+import { open } from '../../lib/Popup';
 
 type AuthCode = {
     code: string;
 }
 
+const url = config.server.protocol + '//' + config.server.host + config.google.login_url;
+
 export default class Google {
-	static signIn(): Promise<AuthCode> {
-		return new Promise(resolve => {
-			function listener({ data }) {
-				if (data && data.type === 'auth' && data.provider === 'google') {
-					resolve({
-						code: data.code,
-					});
-					window.removeEventListener('message', listener);
-				}
+	static async signIn(): Promise<AuthCode> {
+		let code;
+
+		await open(url).forEach(({ data }) => {
+			if (data && data.type === 'auth' && data.provider === 'google') {
+				code = data.code;
 			}
-			window.addEventListener('message', listener);
-			window.open(config.server.protocol + '//' + config.server.host + config.google.login_url);
 		});
+
+		if (code) {
+			return { code };
+		} else {
+			throw new Error('Failed to get auth token');
+		}
 	}
 
 	static signOut() {
