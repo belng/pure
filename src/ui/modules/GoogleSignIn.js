@@ -9,7 +9,7 @@ type AuthCode = {
 
 const url = config.server.protocol + '//' + config.server.host + config.google.login_url;
 
-export default class Google {
+export default class GoogleSignIn {
 	static async signIn(): Promise<AuthCode> {
 		let code;
 
