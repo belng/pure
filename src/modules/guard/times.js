@@ -11,6 +11,7 @@ function validateTime(changes, next) {
 	for (const id in changes.entities) {
 		const entity = changes.entities[id];
 		if (!entity) {
+			delete changes.entities[id];
 			continue;
 		}
 		counter.inc();

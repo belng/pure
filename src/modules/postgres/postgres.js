@@ -124,19 +124,22 @@ cache.onChange((changes) => {
 pg.listen(config.connStr, channel, (payload) => {
 	const entity = packer.decode(payload);
 	const isRel = (RELATION_TYPES.indexOf(entity.type) >= 0);
-	if (isRel) {
-		entity.id = entity.user + '_' + entity.item;
-	} else if (entity.type === TYPE_NOTE) {
-		entity.id = entity.user + '_' + entity.event + '_' + entity.group;
+	if (!entity.id) {
+		if (isRel) {
+			entity.id = entity.user + '_' + entity.item;
+		} else if (entity.type === TYPE_NOTE) {
+			entity.id = entity.user + '_' + entity.event + '_' + entity.group;
+		}
 	}
+
 	const change = { entities: { [entity.id]: entity } };
 	bus.emit('postchange', change);
 	cache.put(change);
 });
 
 bus.on('change', (changes, next) => {
-	const counter = new Counter(), response = changes.response = changes.response || {}, ids = [];
-
+	const counter = new Counter(), ids = [];
+	let response = changes.response || {};
 	if (!response.entities) response.entities = {};
 	if (changes.source === 'postgres') {
 		next();
@@ -180,24 +183,28 @@ bus.on('change', (changes, next) => {
 
 	if (changes.queries) {
 		const cb = (key, range, err, results) => {
-				if (err) { jsonop.apply(response, { state: { error: err } }); }
+				if (err) {
+					response = jsonop.merge(response, { state: { error: err } }); }
 				const newRange = cache.countedToBounded(range, results);
-
-				jsonop.apply(response, {
+				response = jsonop.merge(response, {
 					indexes: { [key]: results },
 					knowledge: { [key]: newRange },
 				});
+
+				changes.response = response;
 				counter.dec();
 			},
 
 			entityCallback = (id, err, result) => {
-				if (err) { jsonop.apply(response, { state: { error: err } }); }
+				if (err) { response = jsonop.merge(response, { state: { error: err } }); }
 				if (result && result.id) {
 					response.entities = response.entities ? response.entities : {};
 					response.entities[result.id] = result;
 				} else if (result === false) {
 					response.entities[id] = false;
 				}
+
+				changes.response = response;
 
 				counter.dec();
 			};
