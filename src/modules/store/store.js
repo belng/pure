@@ -37,13 +37,15 @@ const watch = (options: SubscriptionOptions, callback: Function) => {
 				unWatchMe();
 			}
 
-			unWatchMe = cache.watchEntity(user, data => {
-				if (data && data.type === 'loading') {
-					callback(LOADING);
-				} else {
-					callback(data || null);
-				}
-			});
+			if (user) {
+				unWatchMe = cache.watchEntity(user, data => {
+					if (data && data.type === 'loading') {
+						callback(LOADING);
+					} else {
+						callback(data || null);
+					}
+				});
+			}
 		});
 
 		return () => {

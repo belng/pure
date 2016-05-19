@@ -166,7 +166,7 @@ export function subscribe (userRel: Object) {
 
 function mapRelsAndSubscriptions(entity) {
 	cache.getEntity(entity.user, (err, user) => {
-		if (err || !user) return;
+		if (err || !user || !user.params || !user.params.gcm) return;
 		const tokens = values(user.params.gcm);
 		cache.query({
 			type: 'roomrel',
