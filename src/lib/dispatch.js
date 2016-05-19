@@ -7,7 +7,7 @@ import winston from 'winston';
 function makeQuery(key, parent, cb) {
 	cb(pg.cat([ {
 		id: key,
-		$: 'SELECT resources FROM rels WHERE item = &{id} or item = &{parent} and NOT(roles && &{excludeRoles}) and presence > &{presence}',
+		$: 'SELECT distinct jsonb_object_keys(resources) as resource,rels.resources->jsonb_object_keys(resources) as presence FROM rels WHERE item = &{id} or item = &{parent} and NOT(roles && &{excludeRoles})',
 		parent,
 		excludeRoles: [ Constants.ROLE_BANNED ],
 		presence: Constants.STATUS_NONE,
@@ -25,7 +25,7 @@ export default function(changes, cache, config) {
 			case Constants.TYPE_NOTE:
 			case Constants.TYPE_USER:
 				cb(pg.cat([ {
-					$: 'SELECT resources FROM users WHERE id = &{user}',
+					$: 'SELECT distinct jsonb_object_keys(resources) as resource,resources->jsonb_object_keys(resources) as presence FROM users WHERE id = &{user}',
 					user: entity.id || entity.user,
 				} ]));
 				break;
@@ -52,9 +52,9 @@ export default function(changes, cache, config) {
 			case Constants.TYPE_PRIVREL:
 				winston.debug('DISPATCHING RELS');
 				cb(pg.cat([ {
-					$: 'SELECT resources FROM users WHERE id = &{user} UNION ' +
-					'SELECT resources FROM rels WHERE item = &{item}' +
-					'AND NOT(roles <@ &{excludeRoles}) AND presence > &{presence}',
+					$: 'select distinct r.resource, r.presence from (SELECT distinct jsonb_object_keys(resources) as resource,resources->jsonb_object_keys(resources) as presence FROM users WHERE id = &{user} UNION ' +
+					'SELECT distinct jsonb_object_keys(resources) as resource,rels.resources->jsonb_object_keys(resources) as presence FROM rels WHERE item = &{item}' +
+					'AND NOT(roles <@ &{excludeRoles}) AND presence > &{presence}) as r',
 					user: entity.user,
 					item: entity.item,
 					excludeRoles: [ Constants.ROLE_BANNED ],
