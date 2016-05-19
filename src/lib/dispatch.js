@@ -52,9 +52,9 @@ export default function(changes, cache, config) {
 			case Constants.TYPE_PRIVREL:
 				winston.debug('DISPATCHING RELS');
 				cb(pg.cat([ {
-					$: 'SELECT distinct jsonb_object_keys(resources) as resource,rels.resources->jsonb_object_keys(resources) as presence FROM users WHERE id = &{user} UNION ' +
+					$: 'select distinct r.resource, r.presence (SELECT distinct jsonb_object_keys(resources) as resource,rels.resources->jsonb_object_keys(resources) as presence FROM users WHERE id = &{user} UNION ' +
 					'SELECT distinct jsonb_object_keys(resources) as resource,rels.resources->jsonb_object_keys(resources) as presence FROM rels WHERE item = &{item}' +
-					'AND NOT(roles <@ &{excludeRoles}) AND presence > &{presence}',
+					'AND NOT(roles <@ &{excludeRoles}) AND presence > &{presence}) r',
 					user: entity.user,
 					item: entity.item,
 					excludeRoles: [ Constants.ROLE_BANNED ],
