@@ -25,7 +25,7 @@ export default function(changes, cache, config) {
 			case Constants.TYPE_NOTE:
 			case Constants.TYPE_USER:
 				cb(pg.cat([ {
-					$: 'SELECT distinct jsonb_object_keys(resources) as resource,rels.resources->jsonb_object_keys(resources) as presence FROM users WHERE id = &{user}',
+					$: 'SELECT distinct jsonb_object_keys(resources) as resource,resources->jsonb_object_keys(resources) as presence FROM users WHERE id = &{user}',
 					user: entity.id || entity.user,
 				} ]));
 				break;
@@ -52,7 +52,7 @@ export default function(changes, cache, config) {
 			case Constants.TYPE_PRIVREL:
 				winston.debug('DISPATCHING RELS');
 				cb(pg.cat([ {
-					$: 'select distinct r.resource, r.presence from (SELECT distinct jsonb_object_keys(resources) as resource,rels.resources->jsonb_object_keys(resources) as presence FROM users WHERE id = &{user} UNION ' +
+					$: 'select distinct r.resource, r.presence from (SELECT distinct jsonb_object_keys(resources) as resource,resources->jsonb_object_keys(resources) as presence FROM users WHERE id = &{user} UNION ' +
 					'SELECT distinct jsonb_object_keys(resources) as resource,rels.resources->jsonb_object_keys(resources) as presence FROM rels WHERE item = &{item}' +
 					'AND NOT(roles <@ &{excludeRoles}) AND presence > &{presence}) as r',
 					user: entity.user,
