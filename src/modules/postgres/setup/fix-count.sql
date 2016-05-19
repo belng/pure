@@ -1,3 +1,7 @@
+UPDATE rooms set counts = '{}';
+UPDATE threads set counts = '{}';
+UPDATE users set counts = '{}';
+
 UPDATE rooms SET counts = json_cat(counts, json_build_object(
   'children',
   (SELECT count(*) FROM threads WHERE parents @> ARRAY[rooms.id])
