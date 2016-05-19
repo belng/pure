@@ -4,10 +4,11 @@ import * as Constants from './Constants';
 import winston from 'winston';
 // import util from 'util';
 
-function makeQuery(key, cb) {
+function makeQuery(key, parent, cb) {
 	cb(pg.cat([ {
 		id: key,
-		$: 'SELECT resources FROM rels WHERE item = &{id} and NOT(roles && &{excludeRoles}) and presence > &{presence}',
+		$: 'SELECT distinct jsonb_object_keys(resources) as resource,rels.resources->jsonb_object_keys(resources) as presence FROM rels WHERE item = &{id} or item = &{parent} and NOT(roles && &{excludeRoles})',
+		parent,
 		excludeRoles: [ Constants.ROLE_BANNED ],
 		presence: Constants.STATUS_NONE,
 	} ]));
@@ -20,29 +21,27 @@ export default function(changes, cache, config) {
 		const e = changes.entities[key];
 
 		((entity, cb) => {
-			let parent;
 			switch (entity.type) {
 			case Constants.TYPE_NOTE:
 			case Constants.TYPE_USER:
 				cb(pg.cat([ {
-					$: 'SELECT resources FROM users WHERE id = &{user}',
+					$: 'SELECT distinct jsonb_object_keys(resources) as resource,rels.resources->jsonb_object_keys(resources) as presence FROM users WHERE id = &{user}',
 					user: entity.id || entity.user,
 				} ]));
 				break;
 			case Constants.TYPE_ROOM:
-				makeQuery(entity.id, cb);
-				break;
 			case Constants.TYPE_TEXT:
 			case Constants.TYPE_THREAD:
 			case Constants.TYPE_TOPIC:
 			case Constants.TYPE_PRIV:
-				parent = entity.parents && entity.parents[0];
-				if (parent) {
-					makeQuery(parent, cb);
+				winston.debug('DISPATCHING ITEMS');
+				const parent = entity.parents && entity.parents[0];
+				if (entity.parents) {
+					makeQuery(key, parent, cb);
 				} else {
 					cache.getEntity(key, (err, item) => {
 						if (err) cb(null);
-						else makeQuery(item.parents && item.parents[0], cb);
+						else makeQuery(key, item.parents && item.parents[0], cb);
 					});
 				}
 				break;
@@ -53,8 +52,8 @@ export default function(changes, cache, config) {
 			case Constants.TYPE_PRIVREL:
 				winston.debug('DISPATCHING RELS');
 				cb(pg.cat([ {
-					$: 'SELECT resources FROM users WHERE id = &{user} UNION ' +
-					'SELECT resources FROM rels WHERE item = &{item}' +
+					$: 'SELECT distinct jsonb_object_keys(resources) as resource,rels.resources->jsonb_object_keys(resources) as presence FROM users WHERE id = &{user} UNION ' +
+					'SELECT distinct jsonb_object_keys(resources) as resource,rels.resources->jsonb_object_keys(resources) as presence FROM rels WHERE item = &{item}' +
 					'AND NOT(roles <@ &{excludeRoles}) AND presence > &{presence}',
 					user: entity.user,
 					item: entity.item,
