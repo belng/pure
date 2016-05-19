@@ -10,7 +10,7 @@ function shouldInsert(entity) {
 
 export default function (entity) {
 	// TODO: add validation for type else this code crashes.
-
+	if (!entity) return [];
 	const isRel = (RELATION_TYPES.indexOf(entity.type) >= 0), now = Date.now();
 
 	if (entity.presence) entity.presenceTime = now;
