@@ -10,7 +10,9 @@ function validateTime(changes, next) {
 
 	for (const id in changes.entities) {
 		const entity = changes.entities[id];
-
+		if (!entity) {
+			continue;
+		}
 		counter.inc();
 		cache.getEntity(id, (err, result) => { // eslint-disable-line no-loop-func
 			if (err) {
