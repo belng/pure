@@ -12,5 +12,9 @@
 
 	"facebook": {
 		"login_url": "/r/facebook/login"
+	},
+
+	"google": {
+		"login_url": "/r/google/login"
 	}
 }
