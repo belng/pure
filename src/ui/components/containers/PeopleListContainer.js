@@ -3,6 +3,9 @@
 import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import PeopleList from '../views/PeopleList';
+import {
+	ROLE_FOLLOWER,
+} from '../../../lib/Constants';
 
 const filterInvalidRels = data => data.filter(result => (
 	typeof result.type === 'string' ||
@@ -22,6 +25,7 @@ const PeopleListContainer = (props: any) => (
 						},
 						filter: {
 							item: props.thread,
+							roles_cts: [ ROLE_FOLLOWER ],
 						},
 						order: 'presenceTime',
 					},
