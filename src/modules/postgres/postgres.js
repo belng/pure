@@ -6,7 +6,8 @@ import Know from '../../submodules/know/lib/Cache';
 import * as pg from '../../lib/pg';
 import presenceHandler from './presence';
 import queryHandler from './query';
-import { TYPE_NAMES } from '../../lib/schema';
+import { TYPE_NOTE } from '../../lib/Constants';
+import { TYPE_NAMES, RELATION_TYPES } from '../../lib/schema';
 import * as Types from '../../models/models';
 import winston from 'winston';
 import packer from '../../lib/packer';
@@ -122,8 +123,13 @@ cache.onChange((changes) => {
 
 pg.listen(config.connStr, channel, (payload) => {
 	const entity = packer.decode(payload);
+	const isRel = (RELATION_TYPES.indexOf(entity.type) >= 0);
+	if (isRel) {
+		entity.id = entity.user + '_' + entity.item;
+	} else if (entity.type === TYPE_NOTE) {
+		entity.id = entity.user + '_' + entity.event + '_' + entity.group;
+	}
 	const change = { entities: { [entity.id]: entity } };
-
 	bus.emit('postchange', change);
 	cache.put(change);
 });

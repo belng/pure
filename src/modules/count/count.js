@@ -68,6 +68,7 @@ bus.on('change', (changes, next) => {
 			entity.type === Constants.TYPE_PRIVREL ||
 			entity.type === Constants.TYPE_TOPICREL
 		) {
+			entity.id = entity.user + '_' + entity.item;
 			// console.log('roomrel: , entity: ', entity);
 			counter.inc();
 			cache.getEntity(entity.id, (err, result) => {
