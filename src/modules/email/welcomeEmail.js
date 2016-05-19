@@ -16,9 +16,15 @@ let lastEmailSent, end;
 
 function initMailSending(cUserRel) {
 	const counter = new Counter();
+	const user = cUserRel.user;
+	console.log(user);
+	if (!user.identities || !Array.isArray(user.identities)) {
+		log.info('No identities found for user: ', user);
+		return;
+	}
 
-	const user = cUserRel.user,
-		rels = cUserRel.rels,
+
+	const rels = cUserRel.rels,
 		mailIds = user.identities.filter((el) => {
 			return /mailto:/.test(el);
 		});

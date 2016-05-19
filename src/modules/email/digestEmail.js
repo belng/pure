@@ -26,8 +26,12 @@ function getSubject() {
 export function initMailSending (userRel) {
 	// console.log("init mio djf: ", userRel)
 	// console.log("counter1.pending: ", counter1.pending)
-	const user = userRel.currentUser,
-		rels = userRel.currentRels,
+	const user = userRel.currentUser;
+	if (!user.identities || !Array.isArray(user.identities)) {
+		log.info('No identities found for user: ', user);
+		return;
+	}
+	const	rels = userRel.currentRels,
 		mailIds = user.identities.filter((el) => {
 			return /mailto:/.test(el);
 		});

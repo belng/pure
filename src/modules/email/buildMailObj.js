@@ -1,4 +1,4 @@
-import { short } from '../../lib/Time';
+import { formatShort } from '../../lib/Time';
 import { config } from '../../core-server';
 let currentU = false,
 	currentR = false;
@@ -31,7 +31,7 @@ function relFromUserRel(rel) {
 		room: rel.roomName,
 		roomId: rel.roomId,
 		count: rel.textCount || rel.counts.children,
-		displayTime: short(rel.threadTime || rel.tctime),
+		displayTime: formatShort(rel.threadTime || rel.tctime),
 	};
 }
 
