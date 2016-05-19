@@ -74,7 +74,7 @@ def enableSeparateBuildPerCPUArchitecture = true
 /**
  * Run Proguard to shrink the Java bytecode in release builds.
  */
-def enableProguardInReleaseBuilds = false
+def enableProguardInReleaseBuilds = true
 
 def getConfigField(name) {
     def slurper = new JsonSlurper()
@@ -118,7 +118,7 @@ android {
         applicationId "chat.belong.hello"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 57
+        versionCode 59
         versionName "1.6"
         ndk {
             abiFilters "armeabi-v7a", "x86"
