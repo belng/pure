@@ -121,6 +121,7 @@ cache.onChange((changes) => {
 });
 
 pg.listen(config.connStr, channel, (payload) => {
+	if (!payload) return;
 	const entity = packer.decode(payload);
 	const change = { entities: { [entity.id]: entity } };
 
