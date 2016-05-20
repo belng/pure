@@ -220,21 +220,7 @@ CREATE FUNCTION jsonop(oa jsonb, ob jsonb) RETURNS jsonb AS $$
 	return JSON.stringify(fn(oa, ob));
 $$ LANGUAGE plv8 IMMUTABLE;
 
-DROP OPERATOR CLASS IF EXISTS _uuid_ops USING gin;
 
-CREATE OPERATOR CLASS _uuid_ops DEFAULT FOR TYPE _uuid USING gin AS
-OPERATOR 1 &&(anyarray, anyarray),
-OPERATOR 2 @>(anyarray, anyarray),
-OPERATOR 3 <@(anyarray, anyarray),
-OPERATOR 4 =(anyarray, anyarray),
-FUNCTION 1 uuid_cmp(uuid, uuid),
-FUNCTION 2 ginarrayextract(anyarray, internal, internal),
-FUNCTION 3 ginqueryarrayextract(anyarray, internal, smallint, internal, internal, internal, internal),
-FUNCTION 4 ginarrayconsistent(internal, smallint, anyarray, integer, internal, internal, internal, internal),
-STORAGE uuid;
-
-CREATE INDEX CONCURRENTLY ON texts USING GIN (parents);
-CREATE INDEX CONCURRENTLY ON threads USING GIN (parents);
 CREATE INDEX CONCURRENTLY ON texts (creator);
 CREATE INDEX CONCURRENTLY ON threads (creator);
 CREATE INDEX CONCURRENTLY ON threadrels USING GIN (roles);
