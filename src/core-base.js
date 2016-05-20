@@ -53,7 +53,6 @@ export const cache = new Know({
 		case Constants.TYPE_TEXT:
 		case Constants.TYPE_USER:
 		case Constants.TYPE_ROOM:
-		case Constants.TYPE_NOTE:
 		case Constants.TYPE_TOPIC:
 			return entity.id;
 		case Constants.TYPE_REL:
@@ -63,6 +62,8 @@ export const cache = new Know({
 		case Constants.TYPE_ROOMREL:
 		case Constants.TYPE_USERREL:
 			return entity.user + '_' + entity.item;
+		case Constants.TYPE_NOTE:
+			return [ entity.user, entity.event, entity.group ].join('_');
 		}
 		return entity.id;
 	},
