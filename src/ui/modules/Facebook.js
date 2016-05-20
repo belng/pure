@@ -1,21 +1,44 @@
 /* @flow */
 
-type AccessToken = {
-	access_token: ?string;
-	user_id: ?string;
-	expires: ?number;
-	permissions_granted: Array<string>;
-	permissions_declined: Array<string>;
+import { config } from '../../core-client';
+import { open } from '../../lib/Popup';
+
+type AuthCode = {
+	code: string;
 }
 
+const url = config.server.protocol + '//' + config.server.host + config.facebook.login_url;
+
 export default class Facebook {
-	static logInWithReadPermissions: (permissions: Array<string>) => Promise<AccessToken>;
-	static logInWithPublishPermissions: (permissions: Array<string>) => Promise<AccessToken>;
-	static logOut: () => Promise<boolean>;
-	static getCurrentAccessToken: () => Promise<AccessToken>;
-	static sendGraphRequest: (
-		method: 'GET' | 'POST' | 'DELETE',
-		path: string,
-		params: { [key: string]: string }
-	) => void;
+	static async logInWithReadPermissions(): Promise<AuthCode> {
+		let code;
+
+		await open(url).forEach(({ data }) => {
+			if (data && data.type === 'auth' && data.provider === 'facebook') {
+				code = data.code;
+			}
+		});
+
+		if (code) {
+			return { code };
+		} else {
+			throw new Error('Failed to get auth token');
+		}
+	}
+
+	static logInWithPublishPermissions() {
+		return Promise.reject(new Error('Not implemented'));
+	}
+
+	static logOut() {
+		return Promise.resolve(true);
+	}
+
+	static getCurrentAccessToken() {
+		return Promise.reject(new Error('Not implemented'));
+	}
+
+	static sendGraphRequest() {
+		return Promise.reject(new Error('Not implemented'));
+	}
 }

@@ -134,22 +134,20 @@ bus.on('http/init', app => {
 });
 
 bus.on('postchange', changes => {
-	notify(changes, core.cache, core.config).on('data', (change, rel) => {
-		if (!rel || !rel.resources || typeof rel.resources !== 'object') return;
-		Object.keys(rel.resources).forEach(e => {
-			if (!sockets[e]) return;
+	notify(changes, core.cache, core.config).on('data', (change, res) => {
+		if (!res || !res.resource) return;
+		if (!sockets[res.resource]) return;
 
-			if (rel.resources[e] > Constants.PRESENCE_NONE) {
-				const toDispatch = {
-						type: 'change',
-						message: change,
-						info: 'sent by dispatch',
-					}, encoded = packer.encode(toDispatch);
+		if (res.presence > Constants.PRESENCE_NONE) {
+			const toDispatch = {
+					type: 'change',
+					message: change,
+					info: 'sent by dispatch',
+				}, encoded = packer.encode(toDispatch);
 
-				winston.debug('SOCKET-DN: Dispatching: ' + e, JSON.stringify(toDispatch));
-				winston.debug('Encoded string: ', encoded);
-				sockets[e].send(encoded);
-			}
-		});
+			winston.debug('SOCKET-DN: Dispatching: ' + res.resource, JSON.stringify(toDispatch));
+			winston.debug('Encoded string: ', encoded);
+			sockets[res.resource].send(encoded);
+		}
 	});
 });

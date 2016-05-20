@@ -1,16 +1,36 @@
 /* @flow */
 
-type Account = {
-	id: ?string;
-	display_name: ?string;
-	email: ?string;
-	id_token: ?string;
-	auth_code: ?string;
-	photo_url?: string;
+import { config } from '../../core-client';
+import { open } from '../../lib/Popup';
+
+type AuthCode = {
+    code: string;
 }
 
-export default class Facebook {
-	static signIn: () => Promise<Account>;
-	static signOut: () => Promise<boolean>;
-	static revokeAccess: () => Promise<boolean>;
+const url = config.server.protocol + '//' + config.server.host + config.google.login_url;
+
+export default class GoogleSignIn {
+	static async signIn(): Promise<AuthCode> {
+		let code;
+
+		await open(url).forEach(({ data }) => {
+			if (data && data.type === 'auth' && data.provider === 'google') {
+				code = data.code;
+			}
+		});
+
+		if (code) {
+			return { code };
+		} else {
+			throw new Error('Failed to get auth token');
+		}
+	}
+
+	static signOut() {
+		return Promise.resolve(true);
+	}
+
+	static revokeAccess() {
+		return Promise.resolve(true);
+	}
 }

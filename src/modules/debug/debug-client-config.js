@@ -1,13 +1,12 @@
-/* @flow */
-
 import jsonop from 'jsonop';
 import defaults from '../../../config/debug-client-defaults.json';
 
-let config = jsonop({}, defaults);
+let config = jsonop.apply({}, defaults);
 
 try {
-	config = jsonop(config, require('../../../config/debug-client.json'));
+	config = jsonop.apply(config, require('../../../config/debug-client.json'));
 } catch (e) {
 	// ignore
 }
+
 export default config;
