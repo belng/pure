@@ -336,8 +336,12 @@ export function listen (connStr, channel, callback) {
 			return callback(error);
 		}
 		client.on('notification', (data) => {
-			logger.log('Heard Notification', data);
-			callback(packer.decode(data.payload));
+			logger.info('Heard Notification', data);
+			try {
+				callback(packer.decode(data.payload));
+			} catch (e) {
+				logger.info('Error decoding:', e.message);
+			}
 		});
 		client.query('LISTEN ' + channel);
 		return null;
@@ -351,7 +355,7 @@ export function notify (connStr, channel, data, callback) {
 			done();
 			return callback(error);
 		}
-		logger.log("PgNotify '" + JSON.stringify(data));
+		logger.info("PgNotify '" + JSON.stringify(data));
 		client.query('SELECT pg_notify($1, $2)', [ channel, packer.encode(data) ]);
 
 		return done();
