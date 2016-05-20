@@ -60,6 +60,7 @@ export const cache = new Know({
 		case Constants.TYPE_TEXTREL:
 		case Constants.TYPE_THREADREL:
 		case Constants.TYPE_TOPICREL:
+		case Constants.TYPE_ROOMREL:
 		case Constants.TYPE_USERREL:
 			return entity.user + '_' + entity.item;
 		}
