@@ -122,6 +122,7 @@ cache.onChange((changes) => {
 });
 
 pg.listen(config.connStr, channel, (payload) => {
+	if (!payload) return;
 	const entity = packer.decode(payload);
 	const isRel = (RELATION_TYPES.indexOf(entity.type) >= 0);
 	if (!entity.id) {
