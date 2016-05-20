@@ -105,7 +105,8 @@ function updateRels(change, user, updateable) {
 
 function removeRels(change, removable) {
 	for (const rel of removable) {
-		change[rel.id] = new RoomRel({ id: rel.id, roles: [], item: rel.item, user: rel.user });
+		const c = new RoomRel({ roles: [], item: rel.item, user: rel.user });
+		change[c.id] = c;
 	}
 }
 
