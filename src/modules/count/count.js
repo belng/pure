@@ -69,7 +69,7 @@ bus.on('change', (changes, next) => {
 			entity.type === Constants.TYPE_TOPICREL
 		) {
 			if (!entity.id) entity.id = entity.user + '_' + entity.item;
-			console.log('roomrel: , entity: ', entity);
+			// console.log('roomrel: , entity: ', entity);
 			// if (entity.roles.length === 0) {
 			// 	decrementCount(changes, entity);
 			// 	continue;
@@ -81,7 +81,7 @@ bus.on('change', (changes, next) => {
 					counter.err(err);
 					return;
 				}
-				console.log("result: ", result);
+				// console.log("result: ", result);
 				if (result) {
 					entity.roles.forEach((role) => {
 						if (result.roles.indexOf(role) === -1) {
@@ -90,7 +90,7 @@ bus.on('change', (changes, next) => {
 					});
 
 					if (entity.roles.length === 0) {
-						console.log('got roles empty');
+						// console.log('got roles empty');
 						inc = -1;
 						exist = result.roles;
 					}
