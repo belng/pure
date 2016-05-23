@@ -10,7 +10,7 @@ type Account = {
 	photo_url?: string;
 }
 
-export default class Facebook {
+export default class GoogleSignIn {
 	static signIn: () => Promise<Account>;
 	static signOut: () => Promise<boolean>;
 	static revokeAccess: () => Promise<boolean>;

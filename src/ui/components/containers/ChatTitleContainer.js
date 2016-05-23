@@ -3,7 +3,10 @@
 import React, { PropTypes } from 'react';
 import Connect from '../../../modules/store/Connect';
 import ChatTitle from '../views/ChatTitle';
-import { PRESENCE_FOREGROUND } from '../../../lib/Constants';
+import {
+	ROLE_FOLLOWER,
+	PRESENCE_FOREGROUND,
+} from '../../../lib/Constants';
 
 const getOnlineCount = result => {
 	if (result) {
@@ -36,6 +39,7 @@ const ChatTitleContainer = (props: any) => {
 							},
 							filter: {
 								item: props.thread,
+								roles_cts: [ ROLE_FOLLOWER ],
 							},
 							order: 'presenceTime',
 						},

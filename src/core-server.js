@@ -5,10 +5,10 @@ import defaults from '../config/server-defaults.json';
 
 export * from './core-base';
 
-export let config = jsonop({}, defaults);
+export let config = jsonop.apply({}, defaults);
 
 try {
-	config = jsonop(config, require('../config/server.json'));
+	config = jsonop.apply(config, require('../config/server.json'));
 } catch (e) {
 	// ignore
 }

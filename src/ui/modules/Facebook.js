@@ -1,25 +1,29 @@
 /* @flow */
 
 import { config } from '../../core-client';
+import { open } from '../../lib/Popup';
 
 type AuthCode = {
 	code: string;
 }
 
+const url = config.server.protocol + '//' + config.server.host + config.facebook.login_url;
+
 export default class Facebook {
-	static logInWithReadPermissions(): Promise<AuthCode> {
-		return new Promise(resolve => {
-			function listener({ data }) {
-				if (data && data.type === 'auth' && data.provider === 'facebook') {
-					resolve({
-						code: data.code,
-					});
-					window.removeEventListener('message', listener);
-				}
+	static async logInWithReadPermissions(): Promise<AuthCode> {
+		let code;
+
+		await open(url).forEach(({ data }) => {
+			if (data && data.type === 'auth' && data.provider === 'facebook') {
+				code = data.code;
 			}
-			window.addEventListener('message', listener);
-			window.open(config.server.protocol + '//' + config.server.host + config.facebook.login_url);
 		});
+
+		if (code) {
+			return { code };
+		} else {
+			throw new Error('Failed to get auth token');
+		}
 	}
 
 	static logInWithPublishPermissions() {
