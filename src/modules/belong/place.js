@@ -85,7 +85,7 @@ function handleError(message, reject) {
 	return;
 }
 
-function callApi(api, params) {
+export function callApi(api, params) {
 	return new Promise((resolve, reject) => {
 		request(
 			'https://maps.googleapis.com/maps/api/' + api +
@@ -119,12 +119,19 @@ function callApi(api, params) {
 
 function placeToStub(place) {
 	const { tag } = getScore(place.types);
-	return {
+	const stub = {
 		identity: 'place:' + place.place_id,
 		name: place.name ? place.name : place.address_components && place.address_components[0].long_name,
 		type: tag,
 		parents: place.parents,
+		meta: {
+			geometry: place.geometry,
+			photos: place.photos
+		}
 	};
+
+	if ('photos' in place) stub.meta.photos = place.photos;
+	return stub;
 }
 
 export function getStubset(placeid: string, rel: number): Promise<Object> {
