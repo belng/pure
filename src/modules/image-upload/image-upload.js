@@ -1,10 +1,8 @@
 import crypto from 'crypto';
-import fs from 'fs';
 import winston from 'winston';
 import buildAvatarURLForSize from '../../lib/buildAvatarURLForSize';
 import EnhancedError from '../../lib/EnhancedError';
 import request from 'request';
-import path from 'path';
 import { APP_PRIORITIES, TYPE_USER } from '../../lib/Constants';
 import { bus, config } from '../../core-server';
 import { uploadImageToS3 } from './uploadToS3';
@@ -89,7 +87,7 @@ export function getResponse(policyReq) {
 	};
 }
 
-if (!config.s3) {	
+if (!config.s3) {
 	winston.info('Image upload is disabled');
 	bus.on('s3/getPolicy', (policyReq, next) => {
 		policyReq.response = {};
