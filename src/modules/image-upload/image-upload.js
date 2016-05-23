@@ -114,8 +114,9 @@ if (config.s3) {
 		if (entities) {
 			for (var id in entities) {
 				const entity = entities[id];
-				if (entity.type !== TYPE_USER) continue;
-				else {
+				if (entity.type !== TYPE_USER) {
+					continue;
+				} else {
 					if (!isS3Url(entity.meta.picture)) {
 						let imageName = 'avatar';
 						const url = entity.meta.picture;
