@@ -104,39 +104,38 @@ if (!config.s3) {
 	winston.info('Image upload is ready');
 }
 
-var isS3Url = (url) => {
-	if (/https?\:\/\/.*\.amazonaws\.com\//.test(url)) {
-		return true;
-	}
-	return false;
+const isS3Url = (url) => {
+	return /https?\:\/\/.*\.amazonaws\.com\//.test(url);
 };
 
 
-bus.on('postchange', async ({ entities }) => {
-	if (entities) {
-		for (var id in entities) {
-			const entity = entities[id];
-			if (entity.type !== TYPE_USER) continue;
-			else {
-				if (!isS3Url(entity.meta.picture)) {
-					let   imageName 	  = 'avatar';
-					const url 			  = entity.meta.picture;
-					const userName  	  = entity.id;
-					const imageReadStream = request.get(buildAvatarURLForSize(url, 1024));
-					const upload 		  = await uploadImageToS3(userName, imageName, imageReadStream);
-					bus.emit('change', {
-						entities: {
-							[entity.id]: {
-								id: userName,
-								type: entity.type,
-								meta: {
-									picture: upload.Location
+if (config.s3) {
+	bus.on('postchange', async ({ entities }) => {
+		if (entities) {
+			for (var id in entities) {
+				const entity = entities[id];
+				if (entity.type !== TYPE_USER) continue;
+				else {
+					if (!isS3Url(entity.meta.picture)) {
+						let imageName = 'avatar';
+						const url = entity.meta.picture;
+						const userName = entity.id;
+						const imageReadStream = request.get(buildAvatarURLForSize(url, 1024));
+						const upload = await uploadImageToS3(userName, imageName, imageReadStream);
+						bus.emit('change', {
+							entities: {
+								[entity.id]: {
+									id: userName,
+									type: entity.type,
+									meta: {
+										picture: upload.Location
+									}
 								}
 							}
-						}
-					});
-				} else continue;
+						});
+					}
+				}
 			}
 		}
-	}
-});
+	});
+}

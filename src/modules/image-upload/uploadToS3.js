@@ -1,3 +1,5 @@
+/* @flow */
+
 import AWS from 'aws-sdk';
 import fs from 'fs';
 import promisify from '../../lib/promisify';
@@ -5,7 +7,7 @@ import { PassThrough } from 'stream';
 import { config } from '../../core-server';
 
 
-var configureAmazonS3 = () => {
+const configureAmazonS3 = () => {
 	AWS.config.update({
 		accessKeyId: config.s3.accessKey, 
 		secretAccessKey: config.s3.secretKey, 
@@ -22,7 +24,7 @@ var configureAmazonS3 = () => {
 const s3 = configureAmazonS3();
 const uploadFile = promisify(s3.upload.bind(s3));
 
-export var uploadImageToS3 = (userName, imageName, imageReadStream) => {
+export const uploadImageToS3 = (userName, imageName, imageReadStream) => {
 	const passthrough = new PassThrough();
 	imageReadStream.pipe(passthrough);
 
@@ -33,6 +35,3 @@ export var uploadImageToS3 = (userName, imageName, imageReadStream) => {
 	};
 	return uploadFile(data);
 };
-
-
-
