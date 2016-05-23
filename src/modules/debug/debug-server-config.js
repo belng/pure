@@ -1,5 +1,3 @@
-/* @flow */
-
 import jsonop from 'jsonop';
 import defaults from '../../../config/debug-server-defaults.json';
 
