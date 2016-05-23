@@ -5,6 +5,7 @@
   "main": "server.js",
   "private": true,
   "dependencies": {
+    "aws-sdk": "^2.3.12",
     "babel-polyfill": "^6.8.0",
     "big-integer": "^1.6.15",
     "casual": "^1.5.3",

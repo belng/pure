@@ -3,9 +3,12 @@
 import AWS from 'aws-sdk';
 import fs from 'fs';
 import promisify from '../../lib/promisify';
-import { PassThrough } from 'stream';
+import Stream, { PassThrough } from 'stream';
 import { config } from '../../core-server';
 
+type UploadResult = {
+    Location: string
+};
 
 const configureAmazonS3 = () => {
 	AWS.config.update({
@@ -24,7 +27,7 @@ const configureAmazonS3 = () => {
 const s3 = configureAmazonS3();
 const uploadFile = promisify(s3.upload.bind(s3));
 
-export const uploadImageToS3 = (userName, imageName, imageReadStream) => {
+export const uploadImageToS3 = (userName: string, imageName: string, imageReadStream: Stream): Promise<UploadResult> => {
 	const passthrough = new PassThrough();
 	imageReadStream.pipe(passthrough);
 
