@@ -87,7 +87,7 @@ export function getResponse(policyReq) {
 	};
 }
 
-if (!config.s3) {
+if (!config.s3) {	
 	winston.info('Image upload is disabled');
 	bus.on('s3/getPolicy', (policyReq, next) => {
 		policyReq.response = {};
