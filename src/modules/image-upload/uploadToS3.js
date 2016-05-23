@@ -1,7 +1,6 @@
 /* @flow */
 
 import AWS from 'aws-sdk';
-import fs from 'fs';
 import promisify from '../../lib/promisify';
 import { PassThrough } from 'stream';
 import { config } from '../../core-server';
