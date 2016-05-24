@@ -32,8 +32,12 @@ const styles = StyleSheet.create({
 	cover: {
 		height: null,
 		width: null,
-		alignItems: 'center',
+		alignItems: 'stretch',
 		justifyContent: 'center',
+	},
+
+	avatarContainer: {
+		alignItems: 'center',
 		padding: 16,
 	},
 
@@ -49,6 +53,31 @@ const styles = StyleSheet.create({
 
 	info: {
 		padding: 8,
+	},
+
+	achievements: {
+		flexDirection: 'row',
+		backgroundColor: 'rgba(0, 0, 0, .1)',
+		paddingHorizontal: 32,
+	},
+
+	score: {
+		flex: 1,
+		alignItems: 'center',
+		padding: 8,
+	},
+
+	scoreCount: {
+		color: Colors.white,
+		fontSize: 24,
+		lineHeight: 36,
+	},
+
+	scoreLabel: {
+		color: Colors.white,
+		fontSize: 8,
+		lineHeight: 12,
+		opacity: 0.7,
 	},
 
 	id: {
@@ -147,18 +176,34 @@ export default class Profile extends Component<void, Props, void> {
 				<ScrollView>
 					<Image style={styles.cover} source={require('../../../../../assets/profile-cover.jpg')}>
 						<View style={styles.tint} />
-						<View style={styles.coverInner}>
-							<AvatarRound
-								style={styles.avatar}
-								user={user.id}
-								size={160}
-							/>
-							<View style={styles.info}>
-								<AppText style={styles.id}>{user.id}</AppText>
-								{user.name ?
-									<AppText style={styles.name}>{user.name}</AppText> :
-									null
-								}
+						<View>
+							<View style={styles.avatarContainer}>
+								<AvatarRound
+									style={styles.avatar}
+									user={user.id}
+									size={160}
+								/>
+								<View style={styles.info}>
+									<AppText style={styles.id}>{user.id}</AppText>
+									{user.name ?
+										<AppText style={styles.name}>{user.name}</AppText> :
+										null
+									}
+								</View>
+							</View>
+							<View style={styles.achievements}>
+								<View style={styles.score}>
+									<AppText style={styles.scoreCount}>
+										{user.counts && user.counts.texts ? user.counts.texts : 0}
+									</AppText>
+									<AppText style={styles.scoreLabel}>MESSAGES</AppText>
+								</View>
+								<View style={styles.score}>
+									<AppText style={styles.scoreCount}>
+										{user.counts && user.counts.threads ? user.counts.threads : 0}
+									</AppText>
+									<AppText style={styles.scoreLabel}>DISCUSSIONS</AppText>
+								</View>
 							</View>
 						</View>
 					</Image>
