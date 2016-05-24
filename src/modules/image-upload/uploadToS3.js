@@ -11,8 +11,8 @@ type UploadResult = {
 
 const configureAmazonS3 = () => {
 	AWS.config.update({
-		accessKeyId: config.s3.accessKey, 
-		secretAccessKey: config.s3.secretKey, 
+		accessKeyId: config.s3.accessKey,
+		secretAccessKey: config.s3.secretKey,
 		region: config.s3.region
 	});
 

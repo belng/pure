@@ -103,38 +103,51 @@ if (!config.s3) {
 }
 
 const isS3Url = (url) => {
-	return /https?\:\/\/.*\.amazonaws\.com\//.test(url);
+	return /https?:\/\/.*\.amazonaws\.com\//.test(url);
 };
 
 
 if (config.s3) {
 	bus.on('postchange', async ({ entities }) => {
+		const promises = [];
 		if (entities) {
-			for (var id in entities) {
+			for (const id in entities) {
 				const entity = entities[id];
 				if (entity.type !== TYPE_USER) {
 					continue;
 				} else {
 					if (!isS3Url(entity.meta.picture)) {
-						let imageName = 'avatar';
+						const imageName = 'avatar';
 						const url = entity.meta.picture;
 						const userName = entity.id;
 						const imageReadStream = request.get(buildAvatarURLForSize(url, 1024));
-						const upload = await uploadImageToS3(userName, imageName, imageReadStream);
-						bus.emit('change', {
-							entities: {
-								[entity.id]: {
-									id: userName,
-									type: entity.type,
-									meta: {
-										picture: upload.Location
-									}
-								}
-							}
-						});
+						promises.push(
+							uploadImageToS3(userName, imageName, imageReadStream)
+							.then(upload => ({
+								upload,
+								id: userName
+							}))
+						);
 					}
 				}
 			}
 		}
+
+		const results = await Promise.all(promises);
+		const chnages = {
+			entities: {}
+		};
+
+		for (const result of results) {
+			changes.entities[result.id] = {
+				id: result.id,
+				type: TYPE_USER,
+				meta: {
+					picture: result.upload.Location
+				}
+			};
+		}
+
+		bus.emit('change', changes);
 	});
 }
