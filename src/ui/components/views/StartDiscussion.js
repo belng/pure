@@ -8,7 +8,6 @@ import ImageChooser from 'react-native-image-chooser';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import AppTextInput from './AppTextInput';
-import StatusbarWrapper from './StatusbarWrapper';
 import AppbarSecondary from './AppbarSecondary';
 import AppbarTouchable from './AppbarTouchable';
 import AppbarIcon from './AppbarIcon';
@@ -20,7 +19,6 @@ import StartDiscussionDone from '../containers/StartDiscussionDoneContainer';
 import AvatarRound from './AvatarRound';
 import Banner from './Banner';
 import ImageUploadDiscussion from './ImageUploadDiscussion';
-import KeyboardSpacer from './KeyboardSpacer';
 import Facebook from '../../modules/Facebook';
 import NavigationActions from '../../navigation-rfc/Navigation/NavigationActions';
 import { convertRouteToURL } from '../../../lib/Route';
@@ -455,8 +453,6 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 
 		return (
 			<View style={styles.container}>
-				<StatusbarWrapper />
-
 				<AppbarSecondary>
 					<AppbarTouchable type='secondary' onPress={this.props.dismiss}>
 						<AppbarIcon name='close' style={styles.icon} />
@@ -544,7 +540,6 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 						}
 					</View>
 				</View>
-				<KeyboardSpacer />
 				<StartDiscussionDone thread={this.props.thread} onPosted={this._handlePosted} />
 			</View>
 		);

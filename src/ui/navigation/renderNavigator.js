@@ -2,7 +2,7 @@
 
 import React from 'react';
 import ReactNative from 'react-native';
-import Modal from '../components/views/Modal';
+import ModalHost from '../components/views/ModalHost';
 import renderOverlay from './renderOverlay';
 import renderScene from './renderScene';
 import NavigationAnimatedView from '../navigation-rfc/Navigation/NavigationAnimatedView';
@@ -22,8 +22,8 @@ const styles = StyleSheet.create({
 let _navState, _onNavigation;
 
 BackAndroid.addEventListener('hardwareBackPress', () => {
-	if (Modal.isShown()) {
-		Modal.renderChild(null);
+	if (ModalHost.isOpen()) {
+		ModalHost.requestClose();
 
 		return true;
 	}
