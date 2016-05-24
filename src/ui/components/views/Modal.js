@@ -7,7 +7,7 @@ import ModalHost from './ModalHost';
 
 type Props = {
 	visible: boolean;
-	animationType: 'fade';
+	animationType: 'fade' | 'none';
 	onRequestClose: Function;
 	children?: any;
 }
@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
 export default class Modal extends Component<void, Props, State> {
 	static propTypes = {
 		visible: PropTypes.bool.isRequired,
-		animationType: PropTypes.oneOf([ 'fade' ]),
+		animationType: PropTypes.oneOf([ 'fade', 'none' ]),
 		onRequestClose: PropTypes.func.isRequired,
 		children: PropTypes.element.isRequired,
 	}
@@ -72,13 +72,16 @@ export default class Modal extends Component<void, Props, State> {
 			this._handle = null;
 		}
 
-		const { visible } = props;
+		const {
+			visible,
+			onRequestClose,
+		} = props;
 
 		if (visible) {
-			const child = this._getChild(props);
+			const element = this._getChild(props);
 			this._handle = ModalHost.render({
-				element: child,
-				onRequestClose: this.props.onRequestClose,
+				element,
+				onRequestClose,
 			}, cb);
 		}
 	};
