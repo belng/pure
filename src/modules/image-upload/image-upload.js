@@ -126,7 +126,7 @@ if (config.s3) {
 							.then(upload => ({
 								upload,
 								id: userName
-							}));
+							}))
 						);
 					}
 				}
@@ -135,7 +135,7 @@ if (config.s3) {
 
 		const results = await Promise.all(promises);
 		const chnages = {
-			entities = {}
+			entities: {}
 		};
 
 		for (const result of results) {
