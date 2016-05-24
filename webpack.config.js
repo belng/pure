@@ -15,7 +15,7 @@ const plugins = [
 	}),
 	new webpack.LoaderOptionsPlugin({
 		minimize: !__DEV__,
-		debug: __DEV__
+		debug: __DEV__,
 	}),
 ];
 
@@ -29,30 +29,27 @@ module.exports = {
 	devtool: 'source-map',
 	entry: __DEV__ ? [ ...entry, 'webpack-hot-middleware/client' ] : [ ...entry ],
 	output: {
-		path: path.resolve(__dirname, 'static/dist/scripts'),
-		publicPath: '/s/dist/scripts/',
-		filename: 'bundle.min.js',
-		sourceMapFilename: 'bundle.min.js.map'
+		path: path.resolve(__dirname, 'static/dist/'),
+		publicPath: '/s/dist/',
+		filename: 'scripts/bundle.min.js',
+		sourceMapFilename: 'scripts/bundle.min.js.map',
 	},
 	plugins: plugins.concat(__DEV__ ? [
 		new webpack.HotModuleReplacementPlugin(),
 	] : [
 		new webpack.optimize.DedupePlugin(),
-		new webpack.optimize.UglifyJsPlugin()
+		new webpack.optimize.UglifyJsPlugin(),
 	]),
 	resolve: {
 		extensions: [ '', '.js', ],
-		alias: {
-			'react-native': 'react-native-web'
-		}
 	},
 	module: {
 		preLoaders: [
 			{
 				test: /\.js$/,
 				loader: 'eslint?quiet=true',
-				exclude: /node_modules/
-			}
+				exclude: /node_modules/,
+			},
 		],
 		loaders: [
 			{
@@ -64,18 +61,21 @@ module.exports = {
 						developement: {
 							presets: [ 'react-hmre' ],
 						},
-					}
-				})
+					},
+				}),
 			},
 			{
 				test: /\.(gif|jpe?g|png|svg)$/,
 				loader: 'url-loader',
-				query: { name: '[name].[hash:16].[ext]' }
+				query: {
+					limit: 10000,
+					name: 'assets/[name].[hash:16].[ext]',
+				},
 			},
 			{
 				test: /\.json$/,
-				loader: 'json'
-			}
-		]
-	}
+				loader: 'json',
+			},
+		],
+	},
 };

@@ -1,12 +1,8 @@
 /* @flow */
 
 import './Client-base';
-import { Component } from 'react';
-import ReactNative from 'react-native';
-
-const {
-	AppRegistry,
-} = ReactNative;
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 
 export default class Belong extends Component {
 	render() {
@@ -14,4 +10,4 @@ export default class Belong extends Component {
 	}
 }
 
-AppRegistry.registerComponent('Belong', () => Belong);
+ReactDOM.render(<Belong />, document.getElementById('root'));
