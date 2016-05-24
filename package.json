@@ -84,7 +84,7 @@
     "lodash-webpack-plugin": "^0.7.0",
     "node-fetch": "^1.5.2",
     "quik": "^0.4.8",
-    "react-addons-test-utils": "^15.0.2",
+    "react-addons-test-utils": "~15.0.2",
     "secure-random": "^1.1.1",
     "url-loader": "^0.5.7",
     "webpack": "^2.1.0-beta.4",
