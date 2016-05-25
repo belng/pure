@@ -18,14 +18,14 @@ import { bus, config } from '../../core-server';
 import encodeURITemplate from '../../lib/encodeURITemplate';
 import * as Constants from '../../lib/Constants';
 
-const redirectURL = `https://${config.host}${config.google.redirect_path}`;
+const redirectURL = `${config.server.protocol}//${config.server.host}:${config.server.port}${config.google.redirect_path}`;
 
 const SCRIPT_REDIRECT = `\
 location.href = 'https://accounts.google.com/o/oauth2/auth?\
 scope=https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile&\
 client_id=${config.google.client_id}&\
 redirect_uri=${redirectURL}&\
-response_type=code&access_type=offline`;
+response_type=code&access_type=offline'`;
 
 const SCRIPT_MESSAGE = `
 	var code = (location.search.substring(1).split("&").filter(function(seg) {
@@ -67,8 +67,7 @@ function getTokenFromCode(code) {
 			}
 
 			try {
-				const tokenBody = JSON.parse(t), token = tokenBody.access_token;
-
+				const tokenBody = JSON.parse(t), token = tokenBody.id_token;
 				if (!token) throw new Error('INVALID_GOOGLE_CODE');
 				resolve(token);
 			} catch (e) {
