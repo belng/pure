@@ -5,7 +5,7 @@ import EnhancedError from '../../lib/EnhancedError';
 import request from 'request';
 import { APP_PRIORITIES, TYPE_USER } from '../../lib/Constants';
 import { bus, config } from '../../core-server';
-import { uploadImageToS3 } from './uploadToS3';
+import { uploadImageToS3 } from '../../lib/upload';
 
 function getDate(long) {
 	const date = new Date();
@@ -87,7 +87,7 @@ export function getResponse(policyReq) {
 	};
 }
 
-if (!config.s3) {	
+if (!config.s3) {
 	winston.info('Image upload is disabled');
 	bus.on('s3/getPolicy', (policyReq, next) => {
 		policyReq.response = {};
@@ -122,7 +122,7 @@ if (config.s3) {
 						const userName = entity.id;
 						const imageReadStream = request.get(buildAvatarURLForSize(url, 1024));
 						promises.push(
-							uploadImageToS3(userName, imageName, imageReadStream)
+							uploadImageToS3('uploaded/avatar/' + userName + '/' + imageName, imageReadStream)
 							.then(upload => ({
 								upload,
 								id: userName
@@ -134,7 +134,7 @@ if (config.s3) {
 		}
 
 		const results = await Promise.all(promises);
-		const chnages = {
+		const changes = {
 			entities: {}
 		};
 
