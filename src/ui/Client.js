@@ -1,17 +1,23 @@
 /* @flow */
 
 import './Client-base';
-import { Component } from 'react';
-import ReactNative from 'react-native';
-
-const {
-	AppRegistry,
-} = ReactNative;
+import React, { Component } from 'react';
+import { StyleRoot } from 'radium';
+import ReactDOM from 'react-dom';
+import AppContainer from './components/containers/AppContainer';
+import Provider from '../modules/store/Provider';
+import store from '../modules/store/store';
 
 export default class Belong extends Component {
 	render() {
-		return null;
+		return (
+			<StyleRoot>
+				<Provider store={store}>
+					<AppContainer />
+				</Provider>
+			</StyleRoot>
+		);
 	}
 }
 
-AppRegistry.registerComponent('Belong', () => Belong);
+ReactDOM.render(<Belong />, document.getElementById('root'));

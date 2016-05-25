@@ -1,29 +1,23 @@
 /* @flow */
 
 import React, { Component } from 'react';
-import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
-import Colors from '../../Colors';
+import Radium from 'radium';
 import Loading from './Loading';
+import Colors from '../../Colors';
 
-const {
-	StatusBar,
-	StyleSheet,
-	View,
-	Image,
-} = ReactNative;
-
-const styles = StyleSheet.create({
+const styles = {
 	container: {
-		flex: 1,
-		justifyContent: 'center',
+		display: 'flex',
+		flexDirection: 'column',
 		alignItems: 'center',
+		justifyContent: 'center',
+		height: '100%',
+		width: '100%',
+		textAlign: 'center',
 		backgroundColor: Colors.primary,
 	},
 	logo: {
-		flex: 1,
-		resizeMode: 'contain',
-		marginTop: 240,
+		margin: 120,
 	},
 	loading: {
 		height: 24,
@@ -31,20 +25,17 @@ const styles = StyleSheet.create({
 		marginVertical: 96,
 		marginHorizontal: 16,
 	},
-});
+};
 
-export default class Splash extends Component<void, any, void> {
-	shouldComponentUpdate(nextProps: any): boolean {
-		return !shallowEqual(this.props, nextProps);
-	}
-
+class Splash extends Component<void, any, void> {
 	render() {
 		return (
-			<View style={styles.container}>
-				<StatusBar backgroundColor={Colors.primaryDark} />
-				<Image style={styles.logo} source={require('../../../../assets/logo-white.png')} />
-				<Loading style={styles.loading} />
-			</View>
+			<div style={styles.container}>
+				<img style={styles.logo} src={require('../../../../assets/logo-white.png')} />
+				<Loading style={styles.loading} color={Colors.white} />
+			</div>
 		);
 	}
 }
+
+export default Radium(Splash);

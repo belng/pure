@@ -1,29 +1,31 @@
 /* @flow */
 
 import React, { PropTypes, Component } from 'react';
+import ReactNative from 'react-native';
 import shallowEqual from 'shallowequal';
-import Radium from 'radium';
 
-const styles = {
+const {
+	StyleSheet,
+	View,
+} = ReactNative;
+
+const styles = StyleSheet.create({
 	page: {
-		display: 'flex',
-		flexDirection: 'column',
+		flex: 1,
 		alignItems: 'center',
 		justifyContent: 'center',
-		height: '100%',
-		width: '100%',
 	},
-};
+});
 
 type Props = {
 	children?: Element;
 	style?: any;
 }
 
-class Page extends Component<void, Props, void> {
+export default class Page extends Component<void, Props, void> {
 	static propTypes = {
 		children: PropTypes.node.isRequired,
-		style: PropTypes.any,
+		style: View.propTypes.style,
 	};
 
 	shouldComponentUpdate(nextProps: Props): boolean {
@@ -32,11 +34,9 @@ class Page extends Component<void, Props, void> {
 
 	render() {
 		return (
-			<div style={[ styles.page, this.props.style ]}>
+			<View style={[ styles.page, this.props.style ]}>
 				{this.props.children}
-			</div>
+			</View>
 		);
 	}
 }
-
-export default Radium(Page);
