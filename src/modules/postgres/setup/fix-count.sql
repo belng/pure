@@ -55,10 +55,13 @@ $$ LANGUAGE plv8 IMMUTABLE;
 
 CREATE OPERATOR || ( PROCEDURE = json_cat, leftarg = jsonb, rightarg = jsonb );
 
+CREATE INDEX CONCURRENTLY ON threads ((parents[1]));
+CREATE INDEX CONCURRENTLY ON texts ((parents[1]));
+
 UPDATE rooms SET counts = json_cat(counts, json_build_object(
   'children',
-  (SELECT count(*) FROM threads WHERE parents @> ARRAY[rooms.id])
-)::jsonb) WHERE (SELECT count(*) FROM threads WHERE parents @> ARRAY[rooms.id]) <> 0;
+  (SELECT count(*) FROM threads WHERE parents[1] = rooms.id)
+)::jsonb) WHERE (SELECT count(*) FROM threads WHERE parents[1] = rooms.id) <> 0;
 
 UPDATE rooms SET counts = json_cat(counts, json_build_object(
   'follower',
@@ -88,8 +91,8 @@ UPDATE rooms SET counts = json_cat(counts, json_build_object(
 
 UPDATE threads SET counts = json_cat(counts, json_build_object(
   'children',
-  (SELECT count(*) FROM texts WHERE parents @> ARRAY[threads.id])
-)::jsonb) WHERE (SELECT count(*) FROM texts WHERE parents @> ARRAY[threads.id]) <> 0;
+  (SELECT count(*) FROM texts WHERE parents[1] = threads.id)
+)::jsonb) WHERE (SELECT count(*) FROM texts WHERE parents[1]=threads.id) <> 0;
 
 UPDATE threads SET counts = json_cat(counts, json_build_object(
 'follower',

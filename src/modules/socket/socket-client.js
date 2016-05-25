@@ -105,7 +105,7 @@ bus.on('postchange', changes => {
 
 bus.on('state:init', state => {
 	state.connectionStatus = 'connecting';
-	connect();
+	setTimeout(connect, 0);
 });
 
 bus.on('signout', () => {

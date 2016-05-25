@@ -5,12 +5,12 @@
  * description of configuration variables and their potential values.
  */
 
-var config;
-if (process.env.NODE_ENV === 'development') {
-	config = require('./src/core-server').config;
-} else if (process.env.NODE_ENV === 'production') {
-	config = require('./build/core-server').config;
-}
+ let config;
+ if (process.env.NODE_ENV === 'production') {
+	 config = require('./build/core-server').config;
+ } else {
+	 config = require('./src/core-server').config;
+ }
 
 if (config.newrelic.key) {
 	console.log('Starting newrelic.');

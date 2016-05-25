@@ -1,193 +1,120 @@
 /* @flow */
 
-import React, { Component } from 'react';
-import ReactNative from 'react-native';
+import React, { Component, PropTypes, Children } from 'react';
+import { Animated, StyleSheet } from 'react-native';
 import shallowEqual from 'shallowequal';
-import Colors from '../../Colors';
-import AppText from './AppText';
-import ModalSheet from './ModalSheet';
-import TouchFeedback from './TouchFeedback';
-import KeyboardSpacer from './KeyboardSpacer';
-import VersionCodes from '../../modules/VersionCodes';
+import ModalHost from './ModalHost';
 
-const {
-	StyleSheet,
-	Platform,
-	Dimensions,
-	TouchableWithoutFeedback,
-	Animated,
-	PixelRatio,
-	View,
-} = ReactNative;
+type Props = {
+	visible: boolean;
+	animationType: 'fade' | 'none';
+	onRequestClose: Function;
+	children?: any;
+}
+
+type State = {
+	fadeAnim: Animated.Value;
+}
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		position: 'absolute',
-		top: 0,
-		left: 0,
-	},
-	overlay: {
-		flex: 1,
-		alignItems: 'stretch',
-		justifyContent: 'flex-end',
-		backgroundColor: Colors.fadedBlack,
-	},
-	menuItem: {
-		borderColor: Colors.separator,
-		borderTopWidth: 1 / PixelRatio.get(),
-	},
-	menuItemFirst: {
-		borderTopWidth: 0,
-	},
-	menuItemText: {
-		fontSize: 16,
-		lineHeight: 24,
-		color: Colors.darkGrey,
-		margin: 20,
-		paddingHorizontal: 4,
 	},
 });
 
-type State = {
-	element: ?Element;
-	fadeAnim: ?Animated.Value
-}
-
-export default class Modal extends Component<void, any, State> {
-	static isShown() {
-		if (Modal._isShown) {
-			return Modal._isShown();
-		}
-
-		return false;
+export default class Modal extends Component<void, Props, State> {
+	static propTypes = {
+		visible: PropTypes.bool.isRequired,
+		animationType: PropTypes.oneOf([ 'fade', 'none' ]),
+		onRequestClose: PropTypes.func.isRequired,
+		children: PropTypes.element.isRequired,
 	}
-
-	static renderChild(element) {
-		if (Modal._renderChild) {
-			Modal._renderChild(element);
-
-			return true;
-		}
-
-		return false;
-	}
-
-	static renderModal(element) {
-		return Modal.renderChild(
-
-			/* $FlowFixMe: Not sure what's happening here */
-			<TouchableWithoutFeedback onPress={() => Modal.renderChild(null)}>
-				<View style={styles.overlay}>
-					<ModalSheet>
-						{element}
-					</ModalSheet>
-
-					<KeyboardSpacer />
-				</View>
-			</TouchableWithoutFeedback>
-		);
-	}
-
-	static showActionSheetWithItems(items, callback) {
-		const options = [];
-		const actions = [];
-
-		for (const k in items) {
-			options.push(k);
-			actions.push(items[k]);
-		}
-
-		Modal.showActionSheetWithOptions({ options }, index => actions[index](), callback);
-	}
-
-	static showActionSheetWithOptions = (options, callback) => {
-		return Modal.renderModal(options.options.map((item, index) => (
-			<TouchFeedback
-				key={index}
-				onPress={() =>
-					global.requestAnimationFrame(() => {
-						callback(index);
-
-						Modal.renderChild(null);
-					}
-				)}
-			>
-				<View style={[ styles.menuItem, index === 0 ? styles.menuItemFirst : null ]}>
-					<AppText style={styles.menuItemText}>{item}</AppText>
-				</View>
-			</TouchFeedback>
-		)));
-	};
-
-	static _renderChild: ?Function;
-	static _isShown: ?Function;
 
 	state: State = {
-		element: null,
-		fadeAnim: null,
+		fadeAnim: new Animated.Value(0),
 	};
 
-	componentDidMount() {
-		Modal._renderChild = this._renderChild;
-		Modal._isShown = this._isShown;
+	componentWillMount() {
+		this._renderChild(this.props);
 	}
 
-	shouldComponentUpdate(nextProps: any, nextState: State): boolean {
+	componentWillReceiveProps(nextProps: Props) {
+		this._renderChild(nextProps);
+	}
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
 		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
 
 	componentWillUnmount() {
-		Modal._renderChild = null;
-		Modal._isShown = null;
+		this._updateChild(this.props);
 	}
 
-	_element: ?Element;
+	_handle: ?{ remove: Function; } = null;
 
-	_renderChild: Function = element => {
-		if (element === this._element) {
-			return;
+	_fadeIn: Function = (cb: Function) => {
+		Animated.timing(this.state.fadeAnim, {
+			toValue: 1,
+			duration: this.props.animationType === 'fade' ? 300 : 0,
+		}).start(cb);
+	};
+
+	_fadeOut: Function = (cb: Function) => {
+		Animated.timing(this.state.fadeAnim, {
+			toValue: 0,
+			duration: this.props.animationType === 'fade' ? 300 : 0,
+		}).start(cb);
+	};
+
+	_updateChild: Function = (props, cb) => {
+		if (this._handle) {
+			this._handle.remove();
+			this._handle = null;
 		}
 
-		this._element = element;
+		const {
+			visible,
+			onRequestClose,
+		} = props;
 
-		if (element) {
-			this.setState({
+		if (visible) {
+			const element = this._getChild(props);
+			this._handle = ModalHost.render({
 				element,
-				fadeAnim: new Animated.Value(0),
-			}, () => Animated.timing(this.state.fadeAnim, {
-				toValue: 1,
-				duration: 300,
-			}).start());
-		} else if (this.state.element) {
-			Animated.timing(this.state.fadeAnim, {
-				toValue: 0,
-				duration: 300,
-			}).start(() => this.setState({ element: null }));
+				onRequestClose,
+			}, cb);
 		}
 	};
 
-	_isShown: Function = () => {
-		return !!this.state.element;
+	_renderChild: Function = (props) => {
+		const { visible } = props;
+
+		if (visible) {
+			this._updateChild(props, () => {
+				this._fadeIn();
+			});
+		} else {
+			this._fadeOut(() => {
+				this._updateChild(props);
+			});
+		}
 	};
 
-	render(): ?React.Element {
-		if (!this.state.element) {
-			return null;
-		}
-
-		let { height, width } = Dimensions.get('window');
-
-		// Android < 4.4 seems to include statusbar height also
-		if (Platform.OS === 'android' && Platform.Version < VersionCodes.KITKAT) {
-			height -= 25;
-			width -= 0;
-		}
-
+	_getChild: Function = ({ visible, children }) => {
 		return (
-			<Animated.View style={[ styles.container, { height, width, opacity: this.state.fadeAnim } ]}>
-				{this.state.element}
+			<Animated.View
+				pointerEvents={visible ? 'auto' : 'none'}
+				style={[
+					styles.container,
+					{ opacity: this.state.fadeAnim },
+				]}
+			>
+				{Children.only(children)}
 			</Animated.View>
 		);
+	};
+
+	render() {
+		return null;
 	}
 }

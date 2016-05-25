@@ -1,15 +1,20 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import Radium from 'radium';
+import ReactNative from 'react-native';
+import AppText from '../AppText';
 import TouchFeedback from '../TouchFeedback';
 import Loading from '../Loading';
 import Colors from '../../../Colors';
 
-const styles = {
+const {
+	StyleSheet,
+	View,
+} = ReactNative;
+
+const styles = StyleSheet.create({
 	container: {
-		marginTop: 16,
-		marginBottom: 16,
+		marginVertical: 16,
 	},
 	loader: {
 		height: 21,
@@ -17,7 +22,6 @@ const styles = {
 		marginHorizontal: 16,
 	},
 	button: {
-		display: 'flex',
 		backgroundColor: Colors.info,
 		padding: 12,
 		borderRadius: 3,
@@ -30,7 +34,7 @@ const styles = {
 		textAlign: 'center',
 		paddingHorizontal: 4,
 	},
-};
+});
 
 type Props = {
 	label: string;
@@ -40,28 +44,26 @@ type Props = {
 	style?: any;
 }
 
-class LargeButton extends Component<void, Props, void> {
+export default class LargeButton extends Component<void, Props, void> {
 	static propTypes = {
 		label: PropTypes.string.isRequired,
 		onPress: PropTypes.func.isRequired,
 		spinner: PropTypes.bool,
 		disabled: PropTypes.bool,
-		style: PropTypes.any,
+		style: View.propTypes.style,
 	};
 
 	render() {
 		return (
-			<div style={styles.container}>
+			<View style={styles.container}>
 				<TouchFeedback onPress={this.props.disabled ? null : this.props.onPress}>
-					<div style={[ styles.button, this.props.style ]}>
+					<View style={[ styles.button, this.props.style ]}>
 						{this.props.spinner ? <Loading style={styles.loader} /> : null}
 
-						<div style={styles.buttonText}>{this.props.label.toUpperCase()}</div>
-					</div>
+						<AppText style={styles.buttonText}>{this.props.label.toUpperCase()}</AppText>
+					</View>
 				</TouchFeedback>
-			</div>
+			</View>
 		);
 	}
 }
-
-export default Radium(LargeButton);

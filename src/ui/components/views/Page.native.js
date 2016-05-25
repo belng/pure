@@ -1,9 +1,8 @@
 /* @flow */
 
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import ReactNative from 'react-native';
 import shallowEqual from 'shallowequal';
-import Colors from '../../Colors';
 
 const {
 	StyleSheet,
@@ -11,9 +10,10 @@ const {
 } = ReactNative;
 
 const styles = StyleSheet.create({
-	sheet: {
-		backgroundColor: Colors.white,
-		elevation: 16,
+	page: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 });
 
@@ -22,7 +22,7 @@ type Props = {
 	style?: any;
 }
 
-export default class ModalSheet extends Component<void, Props, void> {
+export default class Page extends Component<void, Props, void> {
 	static propTypes = {
 		children: PropTypes.node.isRequired,
 		style: View.propTypes.style,
@@ -34,7 +34,7 @@ export default class ModalSheet extends Component<void, Props, void> {
 
 	render() {
 		return (
-			<View {...this.props} style={[ styles.sheet, this.props.style ]}>
+			<View style={[ styles.page, this.props.style ]}>
 				{this.props.children}
 			</View>
 		);

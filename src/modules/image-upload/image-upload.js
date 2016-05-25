@@ -1,8 +1,11 @@
 import crypto from 'crypto';
 import winston from 'winston';
+import buildAvatarURLForSize from '../../lib/buildAvatarURLForSize';
 import EnhancedError from '../../lib/EnhancedError';
-import { APP_PRIORITIES } from '../../lib/Constants';
+import request from 'request';
+import { APP_PRIORITIES, TYPE_USER } from '../../lib/Constants';
 import { bus, config } from '../../core-server';
+import { uploadImageToS3 } from './uploadToS3';
 
 function getDate(long) {
 	const date = new Date();
@@ -84,7 +87,7 @@ export function getResponse(policyReq) {
 	};
 }
 
-if (!config.s3) {
+if (!config.s3) {	
 	winston.info('Image upload is disabled');
 	bus.on('s3/getPolicy', (policyReq, next) => {
 		policyReq.response = {};
@@ -97,4 +100,54 @@ if (!config.s3) {
 		next();
 	}, APP_PRIORITIES.IMAGE_UPLOAD);
 	winston.info('Image upload is ready');
+}
+
+const isS3Url = (url) => {
+	return /https?:\/\/.*\.amazonaws\.com\//.test(url);
+};
+
+
+if (config.s3) {
+	bus.on('postchange', async ({ entities }) => {
+		const promises = [];
+		if (entities) {
+			for (const id in entities) {
+				const entity = entities[id];
+				if (entity.type !== TYPE_USER) {
+					continue;
+				} else {
+					if (!isS3Url(entity.meta.picture)) {
+						const imageName = 'avatar';
+						const url = entity.meta.picture;
+						const userName = entity.id;
+						const imageReadStream = request.get(buildAvatarURLForSize(url, 1024));
+						promises.push(
+							uploadImageToS3(userName, imageName, imageReadStream)
+							.then(upload => ({
+								upload,
+								id: userName
+							}))
+						);
+					}
+				}
+			}
+		}
+
+		const results = await Promise.all(promises);
+		const chnages = {
+			entities: {}
+		};
+
+		for (const result of results) {
+			changes.entities[result.id] = {
+				id: result.id,
+				type: TYPE_USER,
+				meta: {
+					picture: result.upload.Location
+				}
+			};
+		}
+
+		bus.emit('change', changes);
+	});
 }
