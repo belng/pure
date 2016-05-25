@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default class Splash extends Component<void, void, void> {
+export default class Splash extends Component<void, any, void> {
 	render() {
 		return (
 			<View style={styles.container}>

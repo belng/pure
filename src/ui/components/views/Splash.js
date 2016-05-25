@@ -27,7 +27,7 @@ const styles = {
 	},
 };
 
-class Splash extends Component<void, void, void> {
+class Splash extends Component<void, any, void> {
 	render() {
 		return (
 			<div style={styles.container}>

@@ -1,60 +1,52 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import Radium from 'radium';
+import ReactNative from 'react-native';
+import AppText from '../AppText';
 import LargeButton from './LargeButton';
 import GoogleSignIn from '../../../modules/GoogleSignIn';
 import Facebook from '../../../modules/Facebook';
 import Colors from '../../../Colors';
 
-const styles = {
+const {
+	StatusBar,
+	StyleSheet,
+	View,
+	ToastAndroid,
+	Image,
+} = ReactNative;
+
+const styles = StyleSheet.create({
 	container: {
-		display: 'flex',
-		flexDirection: 'column',
+		flex: 1,
+		flexDirection: 'row',
 		alignItems: 'stretch',
-		justifyContent: 'center',
-		height: '100%',
-		width: '100%',
-		textAlign: 'center',
 		backgroundColor: Colors.primary,
-		backgroundImage: `url(${require('../../../../../assets/signin_bg.jpg')})`, // eslint-disable-line import/no-commonjs
-		backgroundSize: 'cover',
-		backgroundRepeat: 'no-repeat',
+	},
+	cover: {
+		flex: 1,
+		width: null,
+		height: null,
 	},
 	overlay: {
-		display: 'flex',
-		flexDirection: 'column',
-		flex: 1,
-		alignItems: 'center',
-		backgroundColor: Colors.fadedBlack,
-	},
-	inner: {
-		display: 'flex',
-		flexDirection: 'column',
 		flex: 1,
 		alignItems: 'stretch',
 		padding: 32,
-		width: '100%',
-		maxWidth: 480,
-	},
-	error: {
-		padding: 8,
-		backgroundColor: Colors.error,
-		color: Colors.white,
-		borderTopLeftRadius: 3,
-		borderTopRightRadius: 3,
-		width: '100%',
-		maxWidth: 480 - (32 * 2),
-	},
-	phantom: {
-		visibility: 'hidden',
+		backgroundColor: Colors.fadedBlack,
 	},
 	image: {
-		display: 'block',
+		resizeMode: 'contain',
 		margin: 8,
 	},
+	imageLogo: {
+		height: 60,
+		width: 51,
+	},
+	imageLogoType: {
+		height: 39,
+		width: 111,
+	},
 	logoContainer: {
-		display: 'flex',
 		flex: 1,
 		flexDirection: 'row',
 		alignItems: 'center',
@@ -77,7 +69,7 @@ const styles = {
 	google: {
 		backgroundColor: Colors.google,
 	},
-};
+});
 
 const PROVIDER_GOOGLE = 'google';
 const PROVIDER_FACEBOOK = 'facebook';
@@ -93,10 +85,9 @@ type Props = {
 type State = {
 	googleLoading: boolean;
 	facebookLoading: boolean;
-	failureMessage: ?string;
 }
 
-class SignIn extends Component<void, Props, State> {
+export default class SignIn extends Component<void, Props, State> {
 	static propTypes = {
 		signIn: PropTypes.func.isRequired,
 	};
@@ -104,28 +95,22 @@ class SignIn extends Component<void, Props, State> {
 	state: State = {
 		googleLoading: false,
 		facebookLoading: false,
-		failureMessage: null,
-	};
-
-	_setFailureMessage: Function = (message: string) => {
-		this.setState({
-			failureMessage: message,
-		}, () => {
-			setTimeout(() => {
-				if (this.state.failureMessage === message) {
-					this.setState({
-						failureMessage: null,
-					});
-				}
-			}, 3000);
-		});
 	};
 
 	_showFailureMessage: Function = () => {
-		this._setFailureMessage('Failed to sign in');
+		ToastAndroid.show('Failed to sign in', ToastAndroid.SHORT);
 	};
 
 	_onSignInSuccess: Function = (provider: string, auth: Token) => {
+		switch (provider) {
+		case PROVIDER_GOOGLE:
+			ToastAndroid.show('Signing in with Google', ToastAndroid.SHORT);
+			break;
+		case PROVIDER_FACEBOOK:
+			ToastAndroid.show('Signing in with Facebook', ToastAndroid.SHORT);
+			break;
+		}
+
 		this.props.signIn(provider, auth);
 	};
 
@@ -214,15 +199,16 @@ class SignIn extends Component<void, Props, State> {
 
 	render() {
 		return (
-			<div style={styles.container}>
-				<div style={styles.overlay}>
-					<div style={styles.inner}>
-						<div style={styles.logoContainer}>
-							<img src={require('../../../../../assets/logo-white.png')} style={styles.image} />
-							<img src={require('../../../../../assets/logotype-white.png')} style={styles.image} />
-						</div>
-						<div style={styles.buttonContainer}>
-							<div style={styles.tip}>SIGN IN OR SIGN UP WITH</div>
+			<View style={styles.container}>
+				<StatusBar backgroundColor={Colors.black} />
+				<Image source={require('../../../../../assets/signin_bg.jpg')} style={styles.cover}>
+					<View style={styles.overlay}>
+						<View style={styles.logoContainer}>
+							<Image source={require('../../../../../assets/logo-white.png')} style={[ styles.image, styles.imageLogo ]} />
+							<Image source={require('../../../../../assets/logotype-white.png')} style={[ styles.image, styles.imageLogoType ]} />
+						</View>
+						<View style={styles.buttonContainer}>
+							<AppText style={styles.tip}>SIGN IN OR SIGN UP WITH</AppText>
 							<LargeButton
 								style={styles.facebook}
 								spinner={this.state.facebookLoading}
@@ -237,15 +223,10 @@ class SignIn extends Component<void, Props, State> {
 								label={this.state.googleLoading ? '' : 'Google'}
 								onPress={this._handleGooglePress}
 							/>
-						</div>
-					</div>
-					<div style={[ styles.error, this.state.failureMessage ? null : styles.phantom ]}>
-						{this.state.failureMessage || '&nbsp;'}
-					</div>
-				</div>
-			</div>
+						</View>
+					</View>
+				</Image>
+			</View>
 		);
 	}
 }
-
-export default Radium(SignIn);
