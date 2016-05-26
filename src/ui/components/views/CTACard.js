@@ -157,7 +157,7 @@ export default class CTACard extends Component<void, Props, State> {
 
 		if (data && data.content) {
 			try {
-				Share.shareItem(data.title ? template(data.title)({ room, user }) : 'Share with…', template(data.content)({ room, user }));
+				Share.shareItem(data.title ? template(data.title)({ room, user }) : 'Share…', template(data.content)({ room, user }));
 			} catch (e) {
 				// ignore
 			}
