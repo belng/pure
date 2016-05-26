@@ -95,6 +95,10 @@ export default class Discussions extends Component<void, Props, State> {
 		this.props.loadMore(this.props.data.length);
 	};
 
+	_isWide: Function = () => {
+		return Dimensions.get('window').width > 400;
+	};
+
 	_renderRow: Function = thread => {
 		if (!thread) {
 			return null;
@@ -104,14 +108,14 @@ export default class Discussions extends Component<void, Props, State> {
 		case 'loading':
 			return <LoadingItem />;
 		case 'cta':
-			return <CTACardContainerRoom room={this.props.room} />;
+			return <CTACardContainerRoom room={this.props.room} style={this._isWide() ? styles.gridItem : styles.columnItem} />;
 		default:
 			return (
 				<DiscussionItemContainer
 					key={thread.id}
 					thread={thread.id}
 					onNavigation={this.props.onNavigation}
-					style={Dimensions.get('window').width > 400 ? styles.gridItem : styles.columnItem}
+					style={this._isWide() ? styles.gridItem : styles.columnItem}
 				/>
 			);
 		}
