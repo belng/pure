@@ -72,7 +72,21 @@ export default class CTACard extends Component<void, Props, State> {
 		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
 
-	_setImage: Function = (props: Props) => {
+	_checkImageExists: Function = (url: string): Promise<boolean> => {
+		return new Promise(resolve => {
+			const req = new XMLHttpRequest();
+
+			req.open('HEAD', url, true); // Avoid doing a GET request to prevent OOM
+			req.onreadystatechange = () => {
+				if (req.readyState === req.DONE) {
+					resolve(req.status === 200);
+				}
+			};
+			req.send();
+		});
+	};
+
+	_setImage: Function = async (props: Props) => {
 		const {
 			data,
 			room,
@@ -80,9 +94,14 @@ export default class CTACard extends Component<void, Props, State> {
 		} = props;
 
 		if (data && data.image) {
-			this.setState({
-				image: template(data.image)({ room, user }),
-			});
+			const link = template(data.image)({ room, user });
+			const exists = await this._checkImageExists(link);
+
+			if (exists) {
+				this.setState({
+					image: link,
+				});
+			}
 		}
 	};
 
