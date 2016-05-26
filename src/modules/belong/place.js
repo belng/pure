@@ -85,13 +85,12 @@ function handleError(message, reject) {
 	return;
 }
 
-export function callApi(api, params) {
+export function callApi(api: string, params: Object) {
 	return new Promise((resolve, reject) => {
 		request(
 			'https://maps.googleapis.com/maps/api/' + api +
 			'/json?key=' + config.google.api_key + '&' +
 
-			/* $FlowFixMe : We don't need all keys to be present */
 			Object.keys(params).map(name => name + '=' + params[name])
 			.join('&'),
 			(error, response, body) => {

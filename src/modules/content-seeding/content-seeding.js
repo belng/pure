@@ -6,6 +6,7 @@ import uuid from 'node-uuid';
 import template from 'lodash/template';
 import { bus } from '../../core-server';
 import Thread from '../../models/thread';
+import * as places from '../../lib/places';
 import { TYPE_ROOM,
 	TYPE_THREAD,
 	TAG_ROOM_AREA,
@@ -100,14 +101,62 @@ function seedContent(room) {
 		bus.emit('change', changes);
 	});
 }
+function seedGAPIContent(room) {
+	console.log("seed content");
+	if (room.meta && room.meta.geometry) {
+		places.getNearByPlaces(
+			room.meta.geometry.location.lat,
+			room.meta.geometry.location.lng,
+			2000,
+			'school'
+		).then(e => {
+			const textList = [], changes = {
+					entities: {}
+				}, id = uuid.v4();
+
+			if (!e.length) return;
+			changes.entities[id] = new Thread({
+				id,
+				type: TYPE_THREAD,
+				name: 'Schools around ' + room.name,
+				body: 'These are the schools near by ' + room.name,
+				parents: [ room.id ],
+				creator: e.creator,
+				createTime: Date.now(),
+			});
+
+			e.forEach(school => {
+				textList.push({
+					body: school.name + (school.rating ? (', rated: ' + school.rating) : ''),
+				});
+			});
+
+			console.log(textList);
+		});
+	}
+}
 
 bus.on('postchange', (changes, next) => {
 	const entities = changes && changes.entities || {};
 	Object.keys(entities).filter(e => (
         entities[e].type === TYPE_ROOM && entities[e].createTime &&
         entities[e].createTime === entities[e].updateTime
-	)).map(e => entities[e]).forEach(seedContent);
+	)).map(e => entities[e]).forEach((room) => {
+		seedGAPIContent(room);
+		seedContent(room);
+	});
 	next();
 });
+//
+// seedGAPIContent({
+// 	meta: {
+// 		geometry: {
+// 			"location": {
+// 				"lat": 12.9568777,
+// 				"lng": 77.6596726
+// 			}
+// 		}
+// 	}
+// });
 
 log.info('Content seeding module ready.');
