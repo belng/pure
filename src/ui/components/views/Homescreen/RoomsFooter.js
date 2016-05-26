@@ -17,7 +17,11 @@ const {
 
 const styles = StyleSheet.create({
 	footer: {
-		marginTop: 8,
+		marginVertical: 4,
+	},
+
+	footerInner: {
+		marginVertical: 4,
 	},
 
 	footerItem: {
@@ -135,8 +139,8 @@ export default class RoomsFooter extends Component<void, Props, State> {
 		} = this.state;
 
 		return (
-			<View>
-				<View style={styles.footer}>
+			<View style={styles.footer}>
+				<View style={styles.footerInner}>
 					<ListItem containerStyle={styles.footerItem} onPress={this._handleManagePlaces}>
 						<Icon
 							style={[ styles.footerIcon, button.highlight ? styles.highlightLabel : null ]}
@@ -164,7 +168,7 @@ export default class RoomsFooter extends Component<void, Props, State> {
 						<AppText style={styles.footerLabel}>REPORT AN ISSUE</AppText>
 					</ListItem>
 				</View>
-				<CTACardContainerHome style={styles.footer} />
+				<CTACardContainerHome style={styles.footerInner} />
 			</View>
 		);
 	}

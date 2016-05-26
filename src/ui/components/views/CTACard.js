@@ -34,7 +34,8 @@ type Props = {
 	room: ?Room;
 	data: ?{
 		id: string;
-		image: string;
+		image?: string;
+		images?: Array<string>;
 		title: string;
 		content: ?string;
 		url: ?string;
@@ -48,7 +49,8 @@ export default class CTACard extends Component<void, Props, State> {
 		user: PropTypes.object.isRequired,
 		data: PropTypes.shape({
 			id: PropTypes.string.isRequired,
-			image: PropTypes.string.isRequired,
+			image: PropTypes.string,
+			images: PropTypes.arrayOf(PropTypes.string),
 			title: PropTypes.string.isRequired,
 			content: PropTypes.string,
 			url: PropTypes.string,
@@ -60,23 +62,87 @@ export default class CTACard extends Component<void, Props, State> {
 		image: null,
 	};
 
-	componentWillReceiveProps(nextProps: Props) {
-		const {
-			data,
-			room,
-			user,
-		} = nextProps;
+	componentWillMount() {
+		this._setImage(this.props);
+	}
 
-		if (data && data.image) {
-			this.setState({
-				image: template(data.image)({ room, user }),
-			});
-		}
+	componentWillReceiveProps(nextProps: Props) {
+		this._setImage(nextProps);
 	}
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
 		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
 	}
+
+	_checkImageExists: Function = (url: string): Promise<boolean> => {
+		return new Promise(resolve => {
+			const req = new XMLHttpRequest();
+
+			req.open('HEAD', url, true); // Avoid doing a GET request to prevent OOM
+			req.onreadystatechange = () => {
+				if (req.readyState === req.DONE) {
+					resolve(req.status === 200);
+				}
+			};
+			req.send();
+		});
+	};
+
+	_checkImageList: Function = function(urls: Array<string>): Observable {
+		return new Observable(observer => {
+			const promises = urls.map(async url => {
+				const exists = await this._checkImageExists(url);
+				return {
+					url,
+					exists,
+				};
+			});
+
+			Promise
+				.all(promises)
+				.then(
+					results => {
+						results.forEach(result => {
+							if (result.exists) {
+								observer.next(result.url);
+							}
+						});
+						observer.complete();
+					},
+					e => observer.error(e)
+				);
+		});
+	}
+
+	_setImage: Function = (props: Props) => {
+		const {
+			data,
+		} = props;
+
+		if (data) {
+			let images;
+
+			if (data.images) {
+				images = data.images;
+			} else if (data.image) {
+				images = [ data.image ];
+			} else {
+				images = [];
+			}
+
+			let done;
+
+			this._checkImageList(images).forEach(image => {
+				if (done) {
+					return;
+				}
+				done = true;
+				this.setState({
+					image,
+				});
+			});
+		}
+	};
 
 	_handleShare: Function = () => {
 		const {
@@ -141,7 +207,10 @@ export default class CTACard extends Component<void, Props, State> {
 		return (
 			<Card {...this.props}>
 				<TouchableOpacity style={styles.container} onPress={this._handlePress}>
-					<Image style={styles.cover} source={{ uri: this.state.image }} />
+					<Image
+						style={styles.cover}
+						source={{ uri: this.state.image }}
+					/>
 				</TouchableOpacity>
 			</Card>
 		);

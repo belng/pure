@@ -100,10 +100,9 @@ export default class Modal extends Component<void, Props, State> {
 		}
 	};
 
-	_getChild: Function = ({ visible, children }) => {
+	_getChild: Function = ({ children }) => {
 		return (
 			<Animated.View
-				pointerEvents={visible ? 'auto' : 'none'}
 				style={[
 					styles.container,
 					{ opacity: this.state.fadeAnim },
