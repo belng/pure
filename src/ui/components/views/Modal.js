@@ -34,7 +34,7 @@ export default class Modal extends Component<void, Props, State> {
 		fadeAnim: new Animated.Value(0),
 	};
 
-	componentWillMount() {
+	componentDidMount() {
 		this._renderChild(this.props);
 	}
 
@@ -94,9 +94,11 @@ export default class Modal extends Component<void, Props, State> {
 				this._fadeIn();
 			});
 		} else {
-			this._fadeOut(() => {
-				this._updateChild(props);
-			});
+			if (this._handle) {
+				this._fadeOut(() => {
+					this._updateChild(props);
+				});
+			}
 		}
 	};
 
