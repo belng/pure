@@ -60,23 +60,31 @@ export default class CTACard extends Component<void, Props, State> {
 		image: null,
 	};
 
+	componentWillMount() {
+		this._setImage(this.props);
+	}
+
 	componentWillReceiveProps(nextProps: Props) {
+		this._setImage(nextProps);
+	}
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+	}
+
+	_setImage: Function = (props: Props) => {
 		const {
 			data,
 			room,
 			user,
-		} = nextProps;
+		} = props;
 
 		if (data && data.image) {
 			this.setState({
 				image: template(data.image)({ room, user }),
 			});
 		}
-	}
-
-	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
-	}
+	};
 
 	_handleShare: Function = () => {
 		const {
@@ -141,7 +149,10 @@ export default class CTACard extends Component<void, Props, State> {
 		return (
 			<Card {...this.props}>
 				<TouchableOpacity style={styles.container} onPress={this._handlePress}>
-					<Image style={styles.cover} source={{ uri: this.state.image }} />
+					<Image
+						style={styles.cover}
+						source={{ uri: this.state.image }}
+					/>
 				</TouchableOpacity>
 			</Card>
 		);
