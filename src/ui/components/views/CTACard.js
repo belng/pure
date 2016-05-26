@@ -34,7 +34,8 @@ type Props = {
 	room: ?Room;
 	data: ?{
 		id: string;
-		image: string;
+		image?: string;
+		images?: Array<string>;
 		title: string;
 		content: ?string;
 		url: ?string;
@@ -48,7 +49,8 @@ export default class CTACard extends Component<void, Props, State> {
 		user: PropTypes.object.isRequired,
 		data: PropTypes.shape({
 			id: PropTypes.string.isRequired,
-			image: PropTypes.string.isRequired,
+			image: PropTypes.string,
+			images: PropTypes.arrayOf(PropTypes.string),
 			title: PropTypes.string.isRequired,
 			content: PropTypes.string,
 			url: PropTypes.string,
@@ -86,22 +88,59 @@ export default class CTACard extends Component<void, Props, State> {
 		});
 	};
 
-	_setImage: Function = async (props: Props) => {
+	_checkImageList: Function = function(urls: Array<string>): Observable {
+		return new Observable(observer => {
+			const promises = urls.map(async url => {
+				const exists = await this._checkImageExists(url);
+				return {
+					url,
+					exists,
+				};
+			});
+
+			Promise
+				.all(promises)
+				.then(
+					results => {
+						results.forEach(result => {
+							if (result.exists) {
+								observer.next(result.url);
+							}
+						});
+						observer.complete();
+					},
+					e => observer.error(e)
+				);
+		});
+	}
+
+	_setImage: Function = (props: Props) => {
 		const {
 			data,
-			room,
-			user,
 		} = props;
 
-		if (data && data.image) {
-			const link = template(data.image)({ room, user });
-			const exists = await this._checkImageExists(link);
+		if (data) {
+			let images;
 
-			if (exists) {
-				this.setState({
-					image: link,
-				});
+			if (data.images) {
+				images = data.images;
+			} else if (data.image) {
+				images = [ data.image ];
+			} else {
+				images = [];
 			}
+
+			let done;
+
+			this._checkImageList(images).forEach(image => {
+				if (done) {
+					return;
+				}
+				done = true;
+				this.setState({
+					image,
+				});
+			});
 		}
 	};
 
