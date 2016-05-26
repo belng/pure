@@ -116,6 +116,8 @@ export default class CTACard extends Component<void, Props, State> {
 
 	_setImage: Function = (props: Props) => {
 		const {
+			room,
+			user,
 			data,
 		} = props;
 
@@ -129,6 +131,8 @@ export default class CTACard extends Component<void, Props, State> {
 			} else {
 				images = [];
 			}
+
+			images = images.map(url => template(url)({ room, user }));
 
 			let done;
 
@@ -153,7 +157,7 @@ export default class CTACard extends Component<void, Props, State> {
 
 		if (data && data.content) {
 			try {
-				Share.shareItem(data.title || '', template(data.content)({ room, user }));
+				Share.shareItem(data.title ? template(data.title)({ room, user }) : 'Share with…', template(data.content)({ room, user }));
 			} catch (e) {
 				// ignore
 			}
