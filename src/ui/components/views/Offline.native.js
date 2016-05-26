@@ -10,6 +10,7 @@ import Page from './Page';
 const {
 	StyleSheet,
 	Image,
+	StatusBar,
 } = ReactNative;
 
 const styles = StyleSheet.create({
@@ -47,6 +48,7 @@ export default class Offline extends Component<void, Props, void> {
 	render() {
 		return (
 			<Page {...this.props} style={[ styles.container, this.props.style ]}>
+				<StatusBar backgroundColor={Colors.primaryDark} />
 				<AppText style={styles.header}>Network unavailable!</AppText>
 				<Image style={styles.image} source={require('../../../../assets/astronaut.png')} />
 				<AppText style={styles.footer}>Waiting for connection…</AppText>
