@@ -20,6 +20,7 @@ type ThreadTemplate = {
 	creator: string;
 }
 
+consts types = []
 function tagStringToNumber(tag) {
 	switch (tag) {
 	case 'city':
@@ -101,40 +102,78 @@ function seedContent(room) {
 		bus.emit('change', changes);
 	});
 }
+
+function getPlacesByType(geometry, type) {
+	console.log("looking for schools:");
+	return places.getNearByPlaces(
+		geometry.location.lat,
+		geometry.location.lng,
+		2000,
+		type
+	).then(results => {
+		const detailsPromises = [];
+
+		results.slice(0, 3).forEach(result => {
+			console.log('Looking for details of: ', result.place_id);
+			detailsPromises.push(places.getPlaceDetails(result.place_id));
+		});
+
+		return Promise.all(detailsPromises)
+		.then(detailedPlaces => {
+			console.log('getting photos of places: ', detailedPlaces.length);
+			for (let i = 0; i < detailedPlaces.length; i++) {
+				const place = detailedPlaces[i], details = {
+						name: place.name,
+						website: place.website,
+						address: place.formatted_address,
+						phone: place.formatted_phone_number
+					};
+				console.log('got details of name', place.name);
+				if (place.photos && place.photos.length) {
+					detailedPlaces[i] = places.getPhotoFromReference(place.photos[0].photo_reference, 300)
+					.then(photo => ({
+						details,
+						photo: {
+							attributions: place.photos[0].html_attributions,
+							url: photo.location
+						}
+					}));
+				} else {
+					detailedPlaces[i] = Promise.resolve({
+						details,
+						photo: null
+					});
+				}
+			}
+
+			return Promise.all(detailedPlaces);
+		});
+	});
+}
+
 function seedGAPIContent(room) {
 	console.log("seed content");
-	if (room.meta && room.meta.geometry) {
-		places.getNearByPlaces(
-			room.meta.geometry.location.lat,
-			room.meta.geometry.location.lng,
-			2000,
-			'school'
-		).then(e => {
-			const textList = [], changes = {
-					entities: {}
-				}, id = uuid.v4();
+	const geometry = room.params.placeDetails.geometry;
+	if (geometry) {
 
-			if (!e.length) return;
-			changes.entities[id] = new Thread({
-				id,
-				type: TYPE_THREAD,
-				name: 'Schools around ' + room.name,
-				body: 'These are the schools near by ' + room.name,
-				parents: [ room.id ],
-				creator: e.creator,
-				createTime: Date.now(),
-			});
-
-			e.forEach(school => {
-				textList.push({
-					body: school.name + (school.rating ? (', rated: ' + school.rating) : ''),
-				});
-			});
-
-			console.log(textList);
-		});
+		getPlacesByType({
+			location: {
+				lat: 13.1315386,
+				lng: 77.60205690000001
+			}
+		}, 'grocery_or_supermarket').then(e => {
+			console.log("Response: ", JSON.stringify(e));
+		})
 	}
 }
+
+seedGAPIContent({
+	params: {
+		placeDetails: {
+			geometry: 1
+		}
+	}
+});
 
 bus.on('postchange', (changes, next) => {
 	const entities = changes && changes.entities || {};
@@ -147,16 +186,5 @@ bus.on('postchange', (changes, next) => {
 	});
 	next();
 });
-//
-// seedGAPIContent({
-// 	meta: {
-// 		geometry: {
-// 			"location": {
-// 				"lat": 12.9568777,
-// 				"lng": 77.6596726
-// 			}
-// 		}
-// 	}
-// });
 
 log.info('Content seeding module ready.');
