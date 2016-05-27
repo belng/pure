@@ -4,6 +4,7 @@ import AWS from 'aws-sdk';
 import promisify from './promisify';
 import { PassThrough } from 'stream';
 import { config } from '../core-server';
+import request from 'request';
 
 type UploadResult = {
     Location: string
@@ -25,15 +26,19 @@ const configureAmazonS3 = () => {
 
 const s3 = configureAmazonS3();
 const uploadFile = promisify(s3.upload.bind(s3));
-
-export const uploadImageToS3 = (url: string, imageReadStream: any): Promise<UploadResult> => {
+export function streamTos3(imageReadStream: any, destinationURL: string):Promise<UploadResult> {
 	const passthrough = new PassThrough();
 	imageReadStream.pipe(passthrough);
 
 	const data = {
 		Bucket: config.s3.bucket,
-		Key: url,
+		Key: destinationURL,
 		Body: passthrough
 	};
 	return uploadFile(data);
-};
+}
+
+export function urlTos3(source, dest) {
+	const imageReadStream = request.get(source);
+	return streamTos3(imageReadStream, dest);
+}

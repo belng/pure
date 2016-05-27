@@ -1,7 +1,28 @@
 import { bus } from '../../core-server';
-import jsonop from 'jsonop';
-import * as places from './place';
+import winston from 'winston';
+import * as places from '../../lib/places';
 import { TYPE_ROOM } from '../../lib/Constants';
+import * as models from '../../models/models';
+
+function addMeta(room) {
+	places.getPlaceDetails(room.identities[0])
+	.then(e => {
+		const newRoom = {
+			...room
+		};
+		newRoom.params = newRoom.params || {};
+		newRoom.params.placeDetails = e;
+		return new models.room(newRoom);
+	});
+}
+
+function saveEntity(entity) {
+	bus.emit('change', {
+		entities: {
+			[entity.id]: entity
+		}
+	});
+}
 
 bus.on('postchange', (changes) => {
 	if (!changes.entities) return;
@@ -14,22 +35,28 @@ bus.on('postchange', (changes) => {
 			!entity.identities.length
 		) continue;
 
-		places.callApi('place/details', {
-			placeid: entity.identities[0]
-		}).then(place => {
-			if (place && place.photos) {
-				const photos = place.photos;
-				const newEntity = jsonop(entity, {
-					meta: {
-						photos
-					}
-				});
 
-				bus.emit('change', {
-					entities: {
-						[newEntity.id]: newEntity
-					}
+		addMeta(entity).then(newEntity => {
+			const params = newEntity.params;
+			if (
+				params.placeDetails &&
+				params.placeDetails.photos &&
+				params.placeDetails.photos.length
+			) {
+				const reference = params.placeDetails.photos[0].photo_reference;
+				places.getPhotoFromReference(reference, 300).then(photo => {
+					newEntity.meta = newEntity.meta || {};
+					newEntity.meta.photo = newEntity.meta.photo || {};
+					newEntity.meta.photo.url = photo.location;
+					newEntity.meta.photo.attributions = params.placeDetails.photos[0].html_attributions;
+					newEntity.meta.photo.height = params.placeDetails.photos[0].height;
+					newEntity.meta.photo.width = params.placeDetails.photos[0].width;
+					saveEntity(newEntity);
+				}).catch(err => {
+					winston.info('Error getting photo: ', err.message);
 				});
+			} else {
+				saveEntity(newEntity);
 			}
 		});
 	}

@@ -117,11 +117,48 @@ export function callApi(api: string, params: Object) {
 	});
 }
 
+export function getPhotoFromReference(photoreference: string, maxwidth: number) {
+
+	return new Promise((resolve, reject) => {
+		const params = {
+			key: config.google.api_key,
+			photoreference,
+			maxwidth
+		};
+		const p = 'https://maps.googleapis.com/maps/api/place/photo?' +
+		Object.keys(params).map(name => name + '=' + params[name])
+		.join('&');
+
+		request({
+			url: p,
+			followRedirect: false
+		},
+			(error, response) => {
+				if (error) {
+					return handleError(
+						'GAPI  HTTP ERROR: ' + error.message, reject
+					);
+				}
+
+				return resolve({
+					location: response.headers.location
+				});
+			}
+		);
+	});
+}
+
 export function getNearByPlaces(lat: number, long: number, radius: number, type: string) {
 	return callApi('place/nearbysearch', {
 		location: lat + ',' + long,
 		radius,
 		type
+	});
+}
+
+export function getPlaceDetails(placeid) {
+	return callApi('place/details', {
+		placeid
 	});
 }
 
