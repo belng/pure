@@ -20,7 +20,8 @@ type ThreadTemplate = {
 	creator: string;
 }
 
-consts types = []
+const types = [ 'hospital', 'restaurant', 'school', 'grocery_or_supermarket' ];
+
 function tagStringToNumber(tag) {
 	switch (tag) {
 	case 'city':
@@ -104,7 +105,6 @@ function seedContent(room) {
 }
 
 function getPlacesByType(geometry, type) {
-	console.log("looking for schools:");
 	return places.getNearByPlaces(
 		geometry.location.lat,
 		geometry.location.lng,
@@ -113,14 +113,12 @@ function getPlacesByType(geometry, type) {
 	).then(results => {
 		const detailsPromises = [];
 
-		results.slice(0, 3).forEach(result => {
-			console.log('Looking for details of: ', result.place_id);
+		results.slice(0, 4).forEach(result => {
 			detailsPromises.push(places.getPlaceDetails(result.place_id));
 		});
 
 		return Promise.all(detailsPromises)
 		.then(detailedPlaces => {
-			console.log('getting photos of places: ', detailedPlaces.length);
 			for (let i = 0; i < detailedPlaces.length; i++) {
 				const place = detailedPlaces[i], details = {
 						name: place.name,
@@ -128,14 +126,15 @@ function getPlacesByType(geometry, type) {
 						address: place.formatted_address,
 						phone: place.formatted_phone_number
 					};
-				console.log('got details of name', place.name);
 				if (place.photos && place.photos.length) {
 					detailedPlaces[i] = places.getPhotoFromReference(place.photos[0].photo_reference, 300)
 					.then(photo => ({
 						details,
 						photo: {
 							attributions: place.photos[0].html_attributions,
-							url: photo.location
+							url: photo.location,
+							width: photo.width,
+							height: photo.height
 						}
 					}));
 				} else {
@@ -146,24 +145,29 @@ function getPlacesByType(geometry, type) {
 				}
 			}
 
-			return Promise.all(detailedPlaces);
+			return Promise.all(detailedPlaces).then(res => ({
+				[type]: res
+			}));
 		});
 	});
 }
 
 function seedGAPIContent(room) {
-	console.log("seed content");
 	const geometry = room.params.placeDetails.geometry;
 	if (geometry) {
 
-		getPlacesByType({
-			location: {
-				lat: 13.1315386,
-				lng: 77.60205690000001
-			}
-		}, 'grocery_or_supermarket').then(e => {
-			console.log("Response: ", JSON.stringify(e));
-		})
+		const promises = types.map(type => {
+			return getPlacesByType({
+				location: {
+					lat: 13.1315386,
+					lng: 77.60205690000001
+				}
+			}, type);
+		});
+
+		return Promise.all(promises);
+	} else {
+		return Promise.resolve([]);
 	}
 }
 
@@ -173,7 +177,14 @@ seedGAPIContent({
 			geometry: 1
 		}
 	}
-});
+}).then(results => {
+	const group = {};
+	results.forEach(e => {
+		group[Object.keys(e)[0]] = e[Object.keys(e)[0]];
+	});
+
+	console.log('Final details:', group);
+})
 
 bus.on('postchange', (changes, next) => {
 	const entities = changes && changes.entities || {};
