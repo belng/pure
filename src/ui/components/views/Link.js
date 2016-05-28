@@ -2,7 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import Colors from '../../Colors';
 import AppText from './AppText';
 
@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	children?: Element;
+	children?: React.Element;
 	url?: string;
 	onPress?: Function;
 	onOpen?: Function;
@@ -42,8 +42,8 @@ export default class Link extends Component<DefaultProps, Props, void> {
 		style: AppText.propTypes.style,
 	};
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	_openLink: Function = url => {

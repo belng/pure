@@ -2,13 +2,13 @@
 
 import React, { Component, PropTypes } from 'react';
 import Radium from 'radium';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 
 type Props = {
 	onPress?: ?Function;
 	borderless?: boolean;
 	pressColor?: string;
-	children?: Element;
+	children?: React.Element;
 	style?: any;
 }
 
@@ -28,8 +28,8 @@ class TouchFeedback extends Component<void, Props, void> {
 		style: PropTypes.any,
 	};
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	render() {

@@ -1,7 +1,7 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import RoomListForModeration from './RoomListForModeration';
 import RoomListContainer from '../../containers/RoomListContainer';
 
@@ -14,8 +14,8 @@ export default class Rooms extends Component<void, Props, void> {
 		rooms: PropTypes.array,
 	};
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	render() {

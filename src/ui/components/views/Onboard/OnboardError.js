@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import AppText from '../AppText';
 import Colors from '../../../Colors';
 
@@ -34,6 +35,10 @@ export default class OnboardError extends Component<void, Props, void> {
 		message: PropTypes.string,
 		hint: PropTypes.string,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	render() {
 		const message = this.props.message || this.props.hint || '';

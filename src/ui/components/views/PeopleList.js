@@ -2,7 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import PeopleListItem from './PeopleListItem';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
@@ -48,7 +48,7 @@ export default class PeopleList extends Component<void, Props, State> {
 	}
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	_dataSource: ListView.DataSource = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });

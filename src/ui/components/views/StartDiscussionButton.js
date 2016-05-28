@@ -2,7 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import FloatingActionButton from './FloatingActionButton';
 import StartDiscussionContainer from '../containers/StartDiscussionContainer';
 import Modal from './Modal';
@@ -44,7 +44,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 	};
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	_handleRequestClose: Function = () => {

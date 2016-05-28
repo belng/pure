@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import NextButton from './NextButton';
 import OnboardTitle from './OnboardTitle';
 import OnboardParagraph from './OnboardParagraph';
@@ -88,6 +89,10 @@ export default class GetStarted extends Component<void, Props, void> {
 			}),
 		}),
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	_handleInvitePress: Function = () => {
 		this.props.onChangeField('invite', !this.props.fields.invite.value);

@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Component } from 'react';
+import shallowCompare from 'react-addons-shallow-compare';
 import Radium from 'radium';
 import Loading from './Loading';
 import Colors from '../../Colors';
@@ -28,6 +29,10 @@ const styles = {
 };
 
 class Splash extends Component<void, any, void> {
+	shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
+
 	render() {
 		return (
 			<div style={styles.container}>

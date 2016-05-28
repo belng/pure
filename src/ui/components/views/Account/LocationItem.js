@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import ListItem from '../ListItem';
 import AppText from '../AppText';
 import Colors from '../../../Colors';
@@ -46,6 +47,10 @@ export default class LocationItem extends Component<void, Props, void> {
 			fullText: PropTypes.string,
 		}),
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	render() {
 		const { place } = this.props;

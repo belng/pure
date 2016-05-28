@@ -1,13 +1,13 @@
 /* @flow */
 
 import React, { Component } from 'react';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import LoadingItem from './LoadingItem';
 import Page from './Page';
 
 export default class PageLoading extends Component<void, any, void> {
-	shouldComponentUpdate(nextProps: any): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	render() {

@@ -2,7 +2,7 @@
 
 import React, { PropTypes, Component } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import PageLoading from './PageLoading';
 import PageEmpty from './PageEmpty';
 import DiscussionDetailsCard from './DiscussionDetailsCard';
@@ -24,8 +24,8 @@ export default class DiscussionDetails extends Component<void, Props, void> {
 		onNavigation: PropTypes.func.isRequired,
 	};
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	render() {

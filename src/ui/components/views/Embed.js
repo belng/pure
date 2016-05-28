@@ -2,7 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import EmbedThumbnail from './EmbedThumbnail';
 import EmbedTitle from './EmbedTitle';
 import EmbedSummary from './EmbedSummary';
@@ -67,7 +67,7 @@ export default class Embed extends Component<DefaultProps, Props, State> {
 	}
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	componentWillUnmount() {

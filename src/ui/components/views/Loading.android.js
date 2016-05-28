@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 
 const {
 	ProgressBarAndroid,
@@ -17,8 +17,8 @@ export default class Loading extends Component<void, Props, void> {
 		style: ProgressBarAndroid.propTypes.style,
 	};
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	setNativeProps(nativeProps: any) {

@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 
 const {
 	StyleSheet,
@@ -26,8 +26,8 @@ export default class AppTextInput extends Component<void, Props, void> {
 		style: TextInput.propTypes.style,
 	};
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	_root: Object;

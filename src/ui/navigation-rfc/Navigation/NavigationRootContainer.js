@@ -86,7 +86,7 @@ const NavigationRootContainer = React.createClass({
       AsyncStorage.setItem(this.props.persistenceKey, this.props.stateToString(navState));
     }
   },
-  render: function(): Element {
+  render: function(): React.Element {
     var navigator = this.props.renderNavigator(
       this.state.navState,
       this.handleNavigation

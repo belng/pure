@@ -1,7 +1,7 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import Connect from './Connect';
 
 const mapSubscriptionToProps = {
@@ -19,8 +19,8 @@ export default function(component: ReactClass<any>): ReactClass<any> {
 			user: PropTypes.string,
 		};
 
-		shouldComponentUpdate(nextProps: any): boolean {
-			return !shallowEqual(this.props, nextProps);
+		shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+			return shallowCompare(this, nextProps, nextState);
 		}
 
 		render() {

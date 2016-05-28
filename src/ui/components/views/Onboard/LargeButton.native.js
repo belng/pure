@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import AppText from '../AppText';
 import TouchFeedback from '../TouchFeedback';
 import Loading from '../Loading';
@@ -52,6 +53,10 @@ export default class LargeButton extends Component<void, Props, void> {
 		disabled: PropTypes.bool,
 		style: View.propTypes.style,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	render() {
 		return (

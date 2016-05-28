@@ -1,7 +1,7 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import Connect from '../../../modules/store/Connect';
 import ChatSuggestions from '../views/ChatSuggestions';
 
@@ -31,8 +31,8 @@ export default class ChatSuggestionsContainer extends Component<void, Props, Sta
 		}
 	}
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	render() {

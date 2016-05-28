@@ -2,7 +2,7 @@
 
 import React, { PropTypes, Component } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 
 const {
 	Animated,
@@ -35,8 +35,8 @@ export default class KeyboardSpacer extends Component<Props, Props, State> {
 		this._registerEvents();
 	}
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	componentWillUnmount() {

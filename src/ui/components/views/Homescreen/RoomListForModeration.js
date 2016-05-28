@@ -1,7 +1,7 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import RoomListContainer from '../../containers/RoomListContainer';
 import SearchableList from '../SearchableList';
 import RoomItem from './RoomItem';
@@ -21,8 +21,8 @@ export default class RoomListForModeration extends Component<void, Props, void> 
 		onNavigation: PropTypes.func.isRequired,
 	};
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	_handleSelectLocality: Function = room => {

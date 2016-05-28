@@ -1,6 +1,7 @@
 /* @flow */
 
 import { Component, PropTypes } from 'react';
+import shallowCompare from 'react-addons-shallow-compare';
 import type { Item } from '../../../lib/schemaTypes';
 
 type Props = {
@@ -13,6 +14,10 @@ class StartDiscussionDone extends Component<void, Props, void> {
 		onPosted: PropTypes.func.isRequired,
 		thread: PropTypes.object,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	_done: boolean = false;
 

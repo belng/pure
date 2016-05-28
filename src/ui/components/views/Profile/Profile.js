@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import ProfileField from './ProfileField';
 import AppText from '../AppText';
 import AvatarRound from '../AvatarRound';
@@ -143,6 +144,10 @@ export default class Profile extends Component<void, Props, void> {
 		places: PropTypes.any.isRequired,
 		onNavigation: PropTypes.func.isRequired,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	_goToAccount: Function = () => {
 		this.props.onNavigation(new NavigationActions.Push({

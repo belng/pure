@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import AppText from '../AppText';
 import LargeButton from './LargeButton';
 import GoogleSignIn from '../../../modules/GoogleSignIn';
@@ -96,6 +97,10 @@ export default class SignIn extends Component<void, Props, State> {
 		googleLoading: false,
 		facebookLoading: false,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	_showFailureMessage: Function = () => {
 		ToastAndroid.show('Failed to sign in', ToastAndroid.SHORT);

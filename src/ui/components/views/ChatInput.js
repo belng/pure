@@ -2,7 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import ImageChooser from 'react-native-image-chooser';
 import Colors from '../../Colors';
 import Icon from './Icon';
@@ -81,7 +81,7 @@ export default class ChatInput extends Component<void, Props, State> {
 	};
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	setQuotedText: Function = (text) => {

@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
+import shallowCompare from 'react-addons-shallow-compare';
 import AppbarTouchable from '../AppbarTouchable';
 import AppbarIcon from '../AppbarIcon';
 import NavigationActions from '../../../navigation-rfc/Navigation/NavigationActions';
@@ -17,6 +18,10 @@ export default class AccountButton extends Component<void, Props, void> {
 		currentUser: PropTypes.string.isRequired,
 		onNavigation: PropTypes.func.isRequired,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	_handlePress: Function = () => {
 		this.props.onNavigation(new NavigationActions.Push({

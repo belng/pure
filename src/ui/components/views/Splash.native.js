@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import Colors from '../../Colors';
 import Loading from './Loading';
 
@@ -33,6 +34,10 @@ const styles = StyleSheet.create({
 });
 
 export default class Splash extends Component<void, any, void> {
+	shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
+
 	render() {
 		return (
 			<View style={styles.container}>
