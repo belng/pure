@@ -25,9 +25,11 @@ const styles = StyleSheet.create({
 	},
 });
 
+type SearchResults = Array<any> | '@@blankslate' | '@@loading' | '@@failed';
+
 type Props = {
 	autoFocus?: boolean;
-	getResults: (filter: string) => any | Promise<any>;
+	getResults: (filter: string) => SearchResults | Observable | Promise<SearchResults>;
 	renderRow: (data: any) => React.Element;
 	renderHeader?: ?(filter: string, data: any) => ?Element;
 	renderFooter?: ?(filter: string, data: any) => ?Element;
@@ -39,7 +41,7 @@ type Props = {
 
 type State = {
 	filter: string;
-	data: Array<any> | '@@blankslate' | '@@loading' | '@@failed';
+	data: SearchResults;
 }
 
 export default class SearchableList extends Component<void, Props, State> {
@@ -64,20 +66,52 @@ export default class SearchableList extends Component<void, Props, State> {
 		return shallowCompare(this, nextProps, nextState);
 	}
 
+	_subscription: ?Subscription;
 	_cachedResults: Object = {};
 
 	_dataSource: ListView.DataSource = new ListView.DataSource({
 		rowHasChanged: (r1, r2) => r1 !== r2,
 	});
 
-	_fetchResults: Function = debounce(async (filter: string): Promise => {
-		try {
-			const data = this._cachedResults[filter] = await this.props.getResults(filter);
+	_cacheResults: Function = (filter: string, results: Array<any> | string) => {
+		if (Array.isArray(results)) {
+			this._cachedResults[filter] = results;
+		}
+	}
 
-			if (filter === this.state.filter) {
-				this.setState({
-					data,
+	_fetchResults: Function = debounce(async (filter: string): Promise<void> => {
+		try {
+			const data = this.props.getResults(filter);
+
+			if (data && data instanceof Observable) {
+				this._subscription = data.subscribe({
+					next: (results) => {
+						if (filter === this.state.filter) {
+							this._cacheResults(filter, results);
+							this.setState({
+								data: results,
+							});
+						}
+					},
+
+					error: () => {
+						if (filter === this.state.filter) {
+							this.setState({
+								data: '@@failed',
+							});
+						}
+					},
 				});
+			} else {
+				const results = await data;
+
+				this._cacheResults(filter, results);
+
+				if (filter === this.state.filter) {
+					this.setState({
+						data: results,
+					});
+				}
 			}
 		} catch (e) {
 			if (filter === this.state.filter) {
@@ -99,6 +133,11 @@ export default class SearchableList extends Component<void, Props, State> {
 
 			if (data) {
 				return;
+			}
+
+			if (this._subscription) {
+				this._subscription.unsubscribe();
+				this._subscription = null;
 			}
 
 			this._fetchResults(filter);
