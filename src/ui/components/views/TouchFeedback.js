@@ -1,27 +1,31 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import ReactNative from 'react-native';
+import Radium from 'radium';
 import shallowEqual from 'shallowequal';
-import VersionCodes from '../../modules/VersionCodes';
-
-const {
-	TouchableNativeFeedback,
-	TouchableHighlight,
-	Platform,
-} = ReactNative;
 
 type Props = {
+	onPress?: ?Function;
 	borderless?: boolean;
 	pressColor?: string;
-	children?: Element
+	children?: Element;
+	style?: any;
 }
 
-export default class TouchFeedback extends Component<void, Props, void> {
+const styles = {
+	button: {
+		position: 'relative',
+		cursor: 'pointer',
+	},
+};
+
+class TouchFeedback extends Component<void, Props, void> {
 	static propTypes = {
+		onPress: PropTypes.func,
 		borderless: PropTypes.bool,
 		pressColor: PropTypes.string,
 		children: PropTypes.node.isRequired,
+		style: PropTypes.any,
 	};
 
 	shouldComponentUpdate(nextProps: Props): boolean {
@@ -29,18 +33,16 @@ export default class TouchFeedback extends Component<void, Props, void> {
 	}
 
 	render() {
-		if (Platform.OS === 'android' && Platform.Version >= VersionCodes.LOLLIPOP) {
-			return (
-				<TouchableNativeFeedback {...this.props} background={TouchableNativeFeedback.Ripple(this.props.pressColor, this.props.borderless)}>
-					{this.props.children}
-				</TouchableNativeFeedback>
-			);
-		} else {
-			return (
-				<TouchableHighlight {...this.props} underlayColor={this.props.pressColor || 'rgba(0, 0, 0, .12)'}>
-					{this.props.children}
-				</TouchableHighlight>
-			);
-		}
+		return (
+			<div
+				{...this.props}
+				style={[ styles.button, this.props.style ]}
+				onClick={this.props.onPress}
+			>
+				{this.props.children}
+			</div>
+		);
 	}
 }
+
+export default Radium(TouchFeedback);

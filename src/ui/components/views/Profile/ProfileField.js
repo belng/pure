@@ -55,7 +55,7 @@ type Props = {
 	action?: ?string;
 	header: string;
 	value: ?string;
-	onEdit: Function;
+	onEdit?: ?Function;
 }
 
 export default class Profile extends Component<void, Props, void> {
@@ -63,7 +63,7 @@ export default class Profile extends Component<void, Props, void> {
 		action: PropTypes.string,
 		header: PropTypes.string.isRequired,
 		value: PropTypes.string,
-		onEdit: PropTypes.func.isRequired,
+		onEdit: PropTypes.func,
 	};
 
 	render() {
