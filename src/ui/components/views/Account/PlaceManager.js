@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import PlacesSelectorContainer from '../../containers/PlaceSelectorContainer';
 import PlaceItem from './PlaceItem';
 import PlaceButton from './PlaceButton';
@@ -62,6 +63,10 @@ export default class PlaceManager extends Component<void, Props, State> {
 	state: State = {
 		currentType: null,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	_handleRequestClose: Function = () => {
 		this.setState({

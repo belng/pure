@@ -1,7 +1,8 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import AppText from '../AppText';
 import Colors from '../../../Colors';
 
@@ -20,15 +21,21 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	children: Element;
+	children?: Element;
 	style?: any;
 }
 
-const OnboardParagraph = (props: Props) => <AppText style={[ styles.paragraph, props.style ]}>{props.children}</AppText>;
+export default class OnboardParagraph extends Component<void, Props, void> {
+	static propTypes = {
+		children: PropTypes.node.isRequired,
+		style: AppText.propTypes.style,
+	};
 
-OnboardParagraph.propTypes = {
-	children: PropTypes.node.isRequired,
-	style: AppText.propTypes.style,
-};
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
-export default OnboardParagraph;
+	render() {
+		return <AppText style={[ styles.paragraph, this.props.style ]}>{this.props.children}</AppText>;
+	}
+}

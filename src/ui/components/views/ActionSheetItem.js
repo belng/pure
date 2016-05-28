@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
+import shallowCompare from 'react-addons-shallow-compare';
 import ReactNative from 'react-native';
 import AppText from './AppText';
 import TouchFeedback from './TouchFeedback';
@@ -48,6 +49,10 @@ export default class ActionSheetItem extends Component<void, Props, void> {
 			}
 		});
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	render() {
 		return (

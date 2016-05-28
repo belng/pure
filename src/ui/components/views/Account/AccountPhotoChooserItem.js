@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import Colors from '../../../Colors';
 
 const {
@@ -37,6 +38,10 @@ export default class AccountPhotoChooserItem extends Component<void, Props, void
 		uri: PropTypes.string.isRequired,
 		onPress: PropTypes.func.isRequired,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	_handlePress: Function = () => {
 		this.props.onPress(this.props.uri);

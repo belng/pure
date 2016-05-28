@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import Radium from 'radium';
+import shallowCompare from 'react-addons-shallow-compare';
 import LargeButton from './LargeButton';
 import GoogleSignIn from '../../../modules/GoogleSignIn';
 import Facebook from '../../../modules/Facebook';
@@ -106,6 +107,10 @@ class SignIn extends Component<void, Props, State> {
 		facebookLoading: false,
 		failureMessage: null,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	_setFailureMessage: Function = (message: string) => {
 		this.setState({

@@ -2,7 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import Icon from './Icon';
 import Colors from '../../Colors';
 import type { Embed } from '../../../modules/oembed/oEmbedTypes';
@@ -68,7 +68,7 @@ export default class EmbedThumbnail extends Component<void, Props, State> {
 	}
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	_getOptimalDimensions: Function = (embed) => {

@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import ReactNative from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 
 const {
 	Text,
@@ -18,8 +18,8 @@ export default class Icon extends Component<void, Props, void> {
 		style: Text.propTypes.style,
 	};
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	setNativeProps(nativeProps: Props) {

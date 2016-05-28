@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Children, Component, PropTypes } from 'react';
+import shallowCompare from 'react-addons-shallow-compare';
 import ReactNative from 'react-native';
 import Modal from './Modal';
 import Colors from '../../Colors';
@@ -36,6 +37,10 @@ export default class ActionSheet extends Component<void, Props, void> {
 		visible: PropTypes.bool.isRequired,
 		children: PropTypes.node.isRequired,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	render() {
 		const {

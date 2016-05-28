@@ -3,7 +3,7 @@
 
 import React, { PropTypes, Component } from 'react';
 import isEmpty from 'lodash/isEmpty';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import Connect from '../../../modules/store/Connect';
 import Onboard from '../views/Onboard/Onboard';
 import { validate } from '../../../lib/UserValidator';
@@ -41,7 +41,7 @@ type Fields = {
 
 type State = {
 	fields: Fields;
-	page: string;
+	page: 'PAGE_SIGN_IN' | 'PAGE_USER_DETAILS' | 'PAGE_PLACES' | 'PAGE_GET_STARTED' | 'PAGE_HOME' | 'PAGE_LOADING';
 	onboarding: boolean;
 }
 
@@ -101,7 +101,7 @@ class OnboardContainer extends Component<void, Props, State> {
 	}
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	_setUserDetails: Function = (props: Props) => {

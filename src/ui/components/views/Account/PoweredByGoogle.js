@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import AppText from '../AppText';
 import Colors from '../../../Colors';
 
@@ -47,10 +48,18 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default class PoweredByGoogle extends Component<void, { style?: any }, void> {
+type Props = {
+	style?: any;
+}
+
+export default class PoweredByGoogle extends Component<void, Props, void> {
 	static propTypes = {
 		style: View.propTypes.style,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	render() {
 		return (

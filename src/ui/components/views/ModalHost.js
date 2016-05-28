@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 
 const {
 	StyleSheet,
@@ -77,7 +77,7 @@ export default class ModalHost extends Component<void, any, State> {
 	}
 
 	shouldComponentUpdate(nextProps: any, nextState: State): boolean {
-		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	componentWillUnmount() {

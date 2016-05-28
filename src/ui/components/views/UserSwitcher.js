@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import AvatarRound from './AvatarRound';
 import AppText from './AppText';
 import Colors from '../../Colors';
@@ -53,6 +54,10 @@ export default class UserSwitcher extends Component<void, Props, void> {
 		user: PropTypes.string.isRequired,
 		switchUser: PropTypes.func.isRequired,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	render() {
 		const {

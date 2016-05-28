@@ -2,6 +2,7 @@
 
 import React, { PropTypes, Component } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import PlaceManager from './PlaceManager';
 import PageLoading from '../PageLoading';
 import Colors from '../../../Colors';
@@ -41,6 +42,10 @@ export default class MyPlaces extends Component<void, Props, void> {
 
 	componentDidMount() {
 		InteractionManager.runAfterInteractions(() => LocationListener.requestEnableLocation(null));
+	}
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	render() {

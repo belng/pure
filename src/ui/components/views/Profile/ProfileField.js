@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import AppText from '../AppText';
 import RichText from '../RichText';
 import Icon from '../Icon';
@@ -65,6 +66,10 @@ export default class Profile extends Component<void, Props, void> {
 		value: PropTypes.string,
 		onEdit: PropTypes.func,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	render() {
 		const {

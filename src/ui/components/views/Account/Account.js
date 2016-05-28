@@ -3,6 +3,7 @@
 import React, { Component, PropTypes } from 'react';
 import debounce from 'lodash/debounce';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import Colors from '../../../Colors';
 import AppText from '../AppText';
 import PageLoading from '../PageLoading';
@@ -119,6 +120,10 @@ export default class Account extends Component<void, Props, State> {
 
 	componentWillMount() {
 		this._updateGCMValue();
+	}
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	_saveUser: Function = debounce(user => this.props.saveUser(user), 1000);

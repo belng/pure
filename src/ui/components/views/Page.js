@@ -1,7 +1,7 @@
 /* @flow */
 
 import React, { PropTypes, Component } from 'react';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import Radium from 'radium';
 
 const styles = {
@@ -26,8 +26,8 @@ class Page extends Component<void, Props, void> {
 		style: PropTypes.any,
 	};
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	render() {

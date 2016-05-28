@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import NextButton from './NextButton';
 import AppTextInput from '../AppTextInput';
 import KeyboardSpacer from '../KeyboardSpacer';
@@ -94,6 +95,10 @@ export default class UserDetails extends Component<void, Props, void> {
 			}),
 		})).isRequired,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	_handleChangeNick: Function = (nick: string): void => {
 		this.props.onChangeField('nick', nick.toLowerCase());

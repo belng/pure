@@ -2,7 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import PageLoading from './PageLoading';
 import ChatMessagesContainer from '../containers/ChatMessagesContainer';
 import ChatInput from './ChatInput';
@@ -35,8 +35,8 @@ export default class Chat extends Component<void, Props, void> {
 		onNavigation: PropTypes.func.isRequired,
 	};
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	_input: Object;

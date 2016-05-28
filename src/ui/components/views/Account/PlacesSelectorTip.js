@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import AppText from '../AppText';
 import Colors from '../../../Colors';
 
@@ -79,6 +80,10 @@ export default class PlacesSelectorTip extends Component<void, Props, void> {
 		type: PropTypes.oneOf([ 'home', 'work', 'hometown' ]).isRequired,
 		style: View.propTypes.style,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	render() {
 		const data = TYPES[this.props.type];

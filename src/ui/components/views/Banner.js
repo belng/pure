@@ -2,7 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import Colors from '../../Colors';
 import AppText from './AppText';
 import Icon from './Icon';
@@ -105,7 +105,7 @@ export default class Banner extends Component<DefaultProps, Props, State> {
 	}
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	_animateIn: Function = cb => {

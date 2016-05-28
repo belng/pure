@@ -8,7 +8,7 @@
 import React, { Component, PropTypes } from 'react';
 import debounce from 'lodash/debounce';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import SearchBar from './Searchbar';
 import PageEmpty from './PageEmpty';
 import PageLoading from './PageLoading';
@@ -61,7 +61,7 @@ export default class SearchableList extends Component<void, Props, State> {
 	};
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	_cachedResults: Object = {};

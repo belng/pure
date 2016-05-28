@@ -1,13 +1,12 @@
 /* @flow */
 
 import React, { Component } from 'react';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import AvatarRound from './AvatarRound';
 
 export default class UserIcon extends Component<void, any, void> {
-
-	shouldComponentUpdate(nextProps: any): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	render() {

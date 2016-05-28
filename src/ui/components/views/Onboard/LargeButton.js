@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import Radium from 'radium';
+import shallowCompare from 'react-addons-shallow-compare';
 import TouchFeedback from '../TouchFeedback';
 import Loading from '../Loading';
 import Colors from '../../../Colors';
@@ -48,6 +49,10 @@ class LargeButton extends Component<void, Props, void> {
 		disabled: PropTypes.bool,
 		style: PropTypes.any,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	render() {
 		return (

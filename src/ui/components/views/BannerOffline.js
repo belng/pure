@@ -1,7 +1,7 @@
 /* @flow */
 
 import React, { PropTypes, Component } from 'react';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import Banner from './Banner';
 
 type Props = {
@@ -13,8 +13,8 @@ export default class BannerOffline extends Component<void, Props, void> {
 		status: PropTypes.oneOf([ 'connecting', 'offline', 'online' ]),
 	};
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	render() {
