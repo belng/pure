@@ -90,7 +90,7 @@ type Props = {
 	showAuthor?: boolean;
 	showArrow?: boolean;
 	onPress?: Function;
-	children?: Element;
+	children?: React.Element;
 	style?: any;
 }
 

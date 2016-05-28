@@ -28,11 +28,11 @@ const styles = StyleSheet.create({
 type Props = {
 	autoFocus?: boolean;
 	getResults: (filter: string) => any | Promise<any>;
-	renderRow: (data: any) => Element;
+	renderRow: (data: any) => React.Element;
 	renderHeader?: ?(filter: string, data: any) => ?Element;
 	renderFooter?: ?(filter: string, data: any) => ?Element;
 	renderBlankslate?: ?() => ?Element;
-	onCancel?: ?(data: any) => Element;
+	onCancel?: ?(data: any) => React.Element;
 	searchHint: string;
 	style?: any;
 }

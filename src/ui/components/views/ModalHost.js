@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
 });
 
 type Options = {
-	element: Element;
+	element: React.Element;
 	onRequestClose: Function;
 }
 

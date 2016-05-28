@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
 type Props = {
 	onRequestClose: Function;
 	visible: boolean;
-	children?: any;
+	children?: React.Element;
 }
 
 export default class ActionSheet extends Component<void, Props, void> {

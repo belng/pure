@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	children?: Element;
+	children?: React.Element;
 	url?: string;
 	onPress?: Function;
 	onOpen?: Function;

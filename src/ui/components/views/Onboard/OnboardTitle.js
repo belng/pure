@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	children?: Element;
+	children?: React.Element;
 	style?: any;
 }
 

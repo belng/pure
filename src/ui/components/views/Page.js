@@ -16,7 +16,7 @@ const styles = {
 };
 
 type Props = {
-	children?: Element;
+	children?: React.Element;
 	style?: any;
 }
 
