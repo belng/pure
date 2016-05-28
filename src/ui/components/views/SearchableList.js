@@ -42,6 +42,7 @@ type Props = {
 type State = {
 	filter: string;
 	data: SearchResults;
+	dataSource: ListView.DataSource;
 }
 
 export default class SearchableList extends Component<void, Props, State> {
@@ -60,6 +61,9 @@ export default class SearchableList extends Component<void, Props, State> {
 	state: State = {
 		filter: '',
 		data: '@@blankslate',
+		dataSource: new ListView.DataSource({
+			rowHasChanged: (r1, r2) => r1 !== r2,
+		}),
 	};
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
@@ -69,15 +73,27 @@ export default class SearchableList extends Component<void, Props, State> {
 	_subscription: ?Subscription;
 	_cachedResults: Object = {};
 
-	_dataSource: ListView.DataSource = new ListView.DataSource({
-		rowHasChanged: (r1, r2) => r1 !== r2,
-	});
-
-	_cacheResults: Function = (filter: string, results: Array<any> | string) => {
-		if (Array.isArray(results)) {
-			this._cachedResults[filter] = results;
+	_cacheResults: Function = (filter: string, data: SearchResults) => {
+		if (Array.isArray(data)) {
+			this._cachedResults[filter] = data;
 		}
-	}
+	};
+
+	_setFilterAndResults: Function = (filter: string, data: SearchResults) => {
+		this.setState({
+			filter,
+			data,
+			dataSource: this.state.dataSource.cloneWithRows(Array.isArray(data) ? data : []),
+		});
+	};
+
+	_cacheAndSetResults: Function = (filter: string, data: SearchResults) => {
+		this._cacheResults(filter, data);
+
+		if (filter === this.state.filter) {
+			this._setFilterAndResults(filter, data);
+		}
+	};
 
 	_fetchResults: Function = debounce(async (filter: string): Promise<void> => {
 		try {
@@ -86,39 +102,20 @@ export default class SearchableList extends Component<void, Props, State> {
 			if (data && data instanceof Observable) {
 				this._subscription = data.subscribe({
 					next: (results) => {
-						if (filter === this.state.filter) {
-							this._cacheResults(filter, results);
-							this.setState({
-								data: results,
-							});
-						}
+						this._cacheAndSetResults(filter, results);
 					},
 
 					error: () => {
-						if (filter === this.state.filter) {
-							this.setState({
-								data: '@@failed',
-							});
-						}
+						this._cacheAndSetResults(filter, '@@failed');
 					},
 				});
 			} else {
 				const results = await data;
 
-				this._cacheResults(filter, results);
-
-				if (filter === this.state.filter) {
-					this.setState({
-						data: results,
-					});
-				}
+				this._cacheAndSetResults(filter, results);
 			}
 		} catch (e) {
-			if (filter === this.state.filter) {
-				this.setState({
-					data: '@@failed',
-				});
-			}
+			this._cacheAndSetResults(filter, '@@failed');
 		}
 	});
 
@@ -126,10 +123,7 @@ export default class SearchableList extends Component<void, Props, State> {
 		if (filter) {
 			const data = this._cachedResults[filter];
 
-			this.setState({
-				filter,
-				data: data || '@@loading',
-			});
+			this._setFilterAndResults(filter, data || '@@loading');
 
 			if (data) {
 				return;
@@ -142,15 +136,8 @@ export default class SearchableList extends Component<void, Props, State> {
 
 			this._fetchResults(filter);
 		} else {
-			this.setState({
-				filter,
-				data: '@@blankslate',
-			});
+			this._setFilterAndResults(filter, '@@blankslate');
 		}
-	};
-
-	_getDataSource: Function = (): ListView.DataSource => {
-		return this._dataSource.cloneWithRows(this.state.data);
 	};
 
 	_renderHeader: Function = (): ?Element => {
@@ -191,7 +178,7 @@ export default class SearchableList extends Component<void, Props, State> {
 				placeHolder = (
 					<ListView
 						keyboardShouldPersistTaps
-						dataSource={this._getDataSource()}
+						dataSource={this.state.dataSource}
 						renderRow={this.props.renderRow}
 						renderHeader={this._renderHeader}
 						renderFooter={this._renderFooter}
