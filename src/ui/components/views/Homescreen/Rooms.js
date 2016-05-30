@@ -2,16 +2,16 @@
 
 import React, { Component, PropTypes } from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
-import RoomListForModeration from './RoomListForModeration';
+import RoomListForModerationContainer from '../../containers/RoomListForModerationContainer';
 import RoomListContainer from '../../containers/RoomListContainer';
 
 type Props = {
-	rooms: ?Array<Object>;
+	moderator: boolean;
 }
 
 export default class Rooms extends Component<void, Props, void> {
 	static propTypes = {
-		rooms: PropTypes.array,
+		moderator: PropTypes.bool.isRequired,
 	};
 
 	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
@@ -19,12 +19,8 @@ export default class Rooms extends Component<void, Props, void> {
 	}
 
 	render() {
-		const {
-			rooms,
-		} = this.props;
-
-		if (rooms && rooms.length) {
-			return <RoomListForModeration {...this.props} data={rooms} />;
+		if (this.props.moderator) {
+			return <RoomListForModerationContainer {...this.props} />;
 		} else {
 			return <RoomListContainer {...this.props} />;
 		}
