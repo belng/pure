@@ -63,7 +63,7 @@ export default class LargeButton extends Component<void, Props, void> {
 			<View style={styles.container}>
 				<TouchFeedback onPress={this.props.disabled ? null : this.props.onPress}>
 					<View style={[ styles.button, this.props.style ]}>
-						{this.props.spinner ? <Loading style={styles.loader} /> : null}
+						{this.props.spinner ? <Loading style={styles.loader} color={Colors.white} /> : null}
 
 						<AppText style={styles.buttonText}>{this.props.label.toUpperCase()}</AppText>
 					</View>

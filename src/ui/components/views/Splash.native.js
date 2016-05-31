@@ -43,7 +43,7 @@ export default class Splash extends Component<void, any, void> {
 			<View style={styles.container}>
 				<StatusBar backgroundColor={Colors.primaryDark} />
 				<Image style={styles.logo} source={require('../../../../assets/logo-white.png')} />
-				<Loading style={styles.loading} />
+				<Loading style={styles.loading} color={Colors.white} />
 			</View>
 		);
 	}
