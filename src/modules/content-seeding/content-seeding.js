@@ -165,14 +165,11 @@ function buildTexts(place, thread) {
 		createTime: Date.now(),
 	});
 
-	console.log('Text object so far:', JSON.stringify(text));
 
 	if (!place.photo) {
 		console.log('No photo:');
 		return Promise.resolve(text);
 	} else {
-		console.log("there is a photo to upload: ", place.photo);
-		console.log('Uploading:', place.photo.url, 'to: ', url);
 		return upload.urlTos3(place.photo.url, url).then(() => {
 			text.meta = {
 				photo: {

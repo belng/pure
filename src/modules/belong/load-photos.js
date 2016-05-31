@@ -3,6 +3,7 @@ import winston from 'winston';
 import * as places from '../../lib/places';
 import { TYPE_ROOM } from '../../lib/Constants';
 import * as models from '../../models/models';
+import * as upload from '../../lib/upload';
 
 function addMeta(room) {
 	places.getPlaceDetails(room.identities[0])
@@ -47,11 +48,15 @@ bus.on('postchange', (changes) => {
 				places.getPhotoFromReference(reference, 300).then(photo => {
 					newEntity.meta = newEntity.meta || {};
 					newEntity.meta.photo = newEntity.meta.photo || {};
-					newEntity.meta.photo.url = photo.location;
 					newEntity.meta.photo.attributions = params.placeDetails.photos[0].html_attributions;
 					newEntity.meta.photo.height = params.placeDetails.photos[0].height;
 					newEntity.meta.photo.width = params.placeDetails.photos[0].width;
-					saveEntity(newEntity);
+
+					return upload.urlTos3(photo.location, 'banner/' + i + '/image')
+					.then(() => {
+						newEntity.meta.photo.url = 'banner/' + i + '/image';
+						saveEntity(newEntity);
+					});
 				}).catch(err => {
 					winston.info('Error getting photo: ', err.message);
 				});
