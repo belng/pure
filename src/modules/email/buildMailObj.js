@@ -5,40 +5,39 @@ let currentU = false,
 
 function userFromUserRel(user) {
 	return {
-		id: user.user,
+		id: user.userid,
 		identities: user.identities,
-		createTime: user.createTime,
-		params: user.params,
-		tags: user.tags,
-		timezone: user.timezone,
+		createTime: user.createTime
 	};
 }
 
 function relFromUserRel(rel) {
 	// console.log("rel: ", rel)
 	return {
-		user: rel.user, // id or identity
+		user: rel.user || rel.userid, // id or identity
 		topics: rel.topics,
-		threadTitle: rel.name || rel.threadTitle,
+		threadTitle: rel.name || rel.threadtitle,
 		threadId: rel.threadid, // room display name or thread title
 		text: rel.teext || rel.body,
 		parents: rel.textparents || rel.parents,
 		item: rel.titem || rel.item,
 		roles: rel.trole || rel.roles,
-		status: rel.status,
-		interest: rel.interest,
-		reputation: rel.reputation,
-		room: rel.roomName,
-		roomId: rel.roomId,
-		count: rel.textCount || rel.counts.children,
+		score: rel.score,
+		// interest: rel.interest,
+		// reputation: rel.reputation,
+		room: rel.roomname,
+		roomId: rel.roomid,
+		count: rel.textCount || rel.children,
 		displayTime: formatShort(rel.threadTime || rel.tctime),
 	};
 }
 
 function buildMailObj(userRel) {
+	// console.log("sajdh hjadf: ", userRel)
 	const rel = relFromUserRel(userRel),
 		user = userFromUserRel(userRel);
-
+// console.log('rel: ', rel);
+// console.log('user: ', user)
 	let cUserRel = false;
 
 	if (user.id !== currentU.id) {
@@ -90,7 +89,8 @@ function buildMailObj(userRel) {
 
 		for (const i in cUserRel.currentRels) {
 			cUserRel.currentRels[i].threads.sort((a, b) => { // sort threads according to interest
-				return b.interest - a.interest;
+				// return b.score - a.score;
+				return b.count - a.count;
 			});
 		}
 	}
@@ -98,7 +98,7 @@ function buildMailObj(userRel) {
 }
 
 export default function (userRel) {
-//	console.log(userRel)
+	// console.log(userRel.user)
 
 	if (Object.keys(userRel).length === 0) {
 		const cu = currentU, cr = currentR;
