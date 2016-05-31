@@ -123,21 +123,24 @@ export const getLongURL = (shortURL: string): Promise<string> => {
 	});
 };
 
-// getShortURL('https://ict4kids.files.wordpress.com/2013/05/mrc-2.png')
-// 	.then((result) => {
-// 		console.log(result);
-// 	})
-// 	.catch((error) => {
-// 		console.log(`something went wrong while getting the short URL, ${error}`);
-// 	});
+/*
+Demo api call
+	getShortURL('https://ict4kids.files.wordpress.com/2013/05/mrc-2.png')
+		.then((result) => {
+			console.log(result);
+		})
+		.catch((error) => {
+			console.log(`something went wrong while getting the short URL, ${error}`);
+		});
 
-// getLongURL('LzIwMT')
-// 	.then((result) => {
-// 		console.log(result);
-// 	})
-// 	.catch((error) => {
-// 		console.log(`something went wrong while getting the long URL, ${error}`);
-// 	});
+	getLongURL('LzIwMT')
+		.then((result) => {
+			console.log(result);
+		})
+		.catch((error) => {
+			console.log(`something went wrong while getting the long URL, ${error}`);
+		});
+*/
 
 bus.on('http/init', app => {
 	app.use(route.get('*', function *() {
