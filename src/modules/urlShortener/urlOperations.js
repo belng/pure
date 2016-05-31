@@ -82,7 +82,7 @@ export const getShortURL = (longURL: string): Promise<string> => {
 						if (result.length > 0) {
 							const sortedResults = result.sort();
 							const lastElement = sortedResults[sortedResults.length - 1];
-							if (lastElement.length > 6) {
+							if (lastElement.length === 7) {
 								const indexInChar = chars.indexOf(lastElement[6]);
 								if (indexInChar < chars.length - 1) {
 									return shortURL + chars[indexInChar + 1];
