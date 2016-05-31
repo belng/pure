@@ -2,9 +2,10 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import LocationItem from './LocationItem';
 import PoweredByGoogle from './PoweredByGoogle';
-import SearchableList from '../SearchableList';
+import SearchableList from '../Search/SearchableList';
 import Colors from '../../../Colors';
 import GooglePlaces from '../../../modules/GooglePlaces';
 
@@ -48,6 +49,10 @@ export default class PlacesSelector extends Component<void, Props, void> {
 		renderBlankslate: PropTypes.func,
 		searchHint: PropTypes.string.isRequired,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	_getResults: Function = (query: string) => GooglePlaces.getAutoCompletePredictions(
 		query, [ this.props.location ], []

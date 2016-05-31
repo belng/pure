@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import AccountPhotoChooserItem from './AccountPhotoChooserItem';
 
 const {
@@ -27,6 +28,10 @@ export default class AccountPhotoChooser extends Component<void, Props, void> {
 		photos: PropTypes.arrayOf(PropTypes.string).isRequired,
 		onSelect: PropTypes.func.isRequired,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	render() {
 		const { photos } = this.props;

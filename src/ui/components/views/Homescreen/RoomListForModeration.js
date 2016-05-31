@@ -1,28 +1,25 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import RoomListContainer from '../../containers/RoomListContainer';
-import SearchableList from '../SearchableList';
+import SearchableList from '../Search/SearchableList';
 import RoomItem from './RoomItem';
 import NavigationActions from '../../../navigation-rfc/Navigation/NavigationActions';
 
 type Props = {
-	data: Array<{ id: string; name: string; }>;
+	getResults: Function;
 	onNavigation: Function;
 }
 
 export default class RoomListForModeration extends Component<void, Props, void> {
 	static propTypes = {
-		data: PropTypes.arrayOf(PropTypes.shape({
-			id: PropTypes.string.isRequired,
-			name: PropTypes.string.isRequired,
-		})).isRequired,
+		getResults: PropTypes.func.isRequired,
 		onNavigation: PropTypes.func.isRequired,
 	};
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	_handleSelectLocality: Function = room => {
@@ -45,35 +42,31 @@ export default class RoomListForModeration extends Component<void, Props, void> 
 	};
 
 	_getResults: Function = (filter: string) => {
-		const query = filter.toLowerCase();
+		return new Observable(observer => {
+			return this.props.getResults(filter).subscribe({
+				next(results) {
+					if (results.length) {
+						const data = results.filter(item => typeof item.type !== 'string');
 
-		return this.props.data
-			.filter(room => room.name.toLowerCase().indexOf(query) > -1)
-			.sort((a, b) => {
-				let isA, isB;
-
-				if (a.name.toLowerCase().indexOf(query) === 0) {
-					isA = true;
-				}
-
-				if (b.name.toLowerCase().indexOf(query) === 0) {
-					isB = true;
-				}
-
-				if (isA && isB) {
-					return 0;
-				} else {
-					if (isA) {
-						return -1;
+						observer.next(data.length ? data : '@@loading');
 					} else {
-						return 1;
+						observer.next(results);
 					}
-				}
+				},
+
+				error(e) {
+					observer.error(e);
+				},
+
+				complete(value) {
+					observer.complete(value);
+				},
 			});
+		});
 	};
 
 	_renderBlankslate: Function = () => {
-		const { data, ...rest } = this.props; // eslint-disable-line no-unused-vars
+		const { getResults, ...rest } = this.props; // eslint-disable-line no-unused-vars
 
 		return <RoomListContainer {...rest} />;
 	};

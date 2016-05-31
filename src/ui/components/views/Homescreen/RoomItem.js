@@ -2,15 +2,15 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
-import Colors from '../../../Colors';
-import AppText from '../AppText';
-import ListItem from '../ListItem';
-import Icon from '../Icon';
-import Time from '../Time';
-import ActionSheet from '../ActionSheet';
-import ActionSheetItem from '../ActionSheetItem';
+import shallowCompare from 'react-addons-shallow-compare';
+import AppText from '../Core/AppText';
+import ListItem from '../Core/ListItem';
+import Icon from '../Core/Icon';
+import Time from '../Core/Time';
+import ActionSheet from '../Core/ActionSheet';
+import ActionSheetItem from '../Core/ActionSheetItem';
 import Share from '../../../modules/Share';
+import Colors from '../../../Colors';
 import { convertRouteToURL } from '../../../../lib/Route';
 import { config } from '../../../../core-client';
 
@@ -93,18 +93,28 @@ export default class RoomItem extends Component<void, Props, State> {
 	};
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+		return shallowCompare(this, nextProps, nextState);
 	}
 
-	_handleShareGroup: Function = () => {
+	_getRoomLink: Function = () => {
 		const { room } = this.props;
 
-		Share.shareItem('Share group', config.server.protocol + '//' + config.server.host + convertRouteToURL({
+		return config.server.protocol + '//' + config.server.host + convertRouteToURL({
 			name: 'room',
 			props: {
 				room: room.id,
 			},
-		}));
+		});
+	};
+
+	_getShareText: Function = () => {
+		const { room } = this.props;
+
+		return `Hey! Join me in the ${room.name} group on ${config.app_name}.\n${this._getRoomLink()}`;
+	};
+
+	_handleInvite: Function = () => {
+		Share.shareItem('Share group', this._getShareText());
 	};
 
 	_handleShowMenu: Function = () => {
@@ -174,8 +184,8 @@ export default class RoomItem extends Component<void, Props, State> {
 				</TouchableOpacity>
 
 				<ActionSheet visible={this.state.actionSheetVisible} onRequestClose={this._handleRequestClose}>
-					<ActionSheetItem onPress={this._handleShareGroup}>
-						Share group
+					<ActionSheetItem onPress={this._handleInvite}>
+						Invite friends to group
 					</ActionSheetItem>
 				</ActionSheet>
 			</ListItem>

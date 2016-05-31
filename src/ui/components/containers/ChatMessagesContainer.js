@@ -1,9 +1,9 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import Connect from '../../../modules/store/Connect';
-import ChatMessages from '../views/ChatMessages';
+import ChatMessages from '../views/Chat/ChatMessages';
 import { TAG_POST_HIDDEN, TAG_USER_ADMIN } from '../../../lib/Constants';
 import type { SubscriptionRange } from '../../../modules/store/SimpleStoreTypes';
 
@@ -84,7 +84,7 @@ export default class ChatMessagesContainer extends Component<void, any, State> {
 	};
 
 	shouldComponentUpdate(nextProps: any, nextState: State): boolean {
-		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	componentWillUpdate() {

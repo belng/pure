@@ -1,18 +1,24 @@
 declare interface Subscription {
     // Cancels the subscription
     unsubscribe(): void;
+
+    // A boolean value indicating whether the subscription is closed
+    closed: Boolean;
 }
 
 declare interface Observer {
 
+    // Receives the subscription object when `subscribe` is called
+    start?: (subscription: Subscription) => void;
+
     // Sends the next value in the sequence
-    next(value: any): void;
+    next?: (value: any) => void;
 
     // Sends the sequence error
-    error(errorValue: any): void;
+    error?: (errorValue: any) => void;
 
     // Sends the sequence completion value
-    complete(completeValue: any): void;
+    complete?: (completeValue: any) => void;
 }
 
 declare interface SubscriptionObserver {
@@ -25,6 +31,9 @@ declare interface SubscriptionObserver {
 
     // Sends the sequence completion value
     complete(completeValue: any): void;
+
+    // A boolean value indicating whether the subscription is closed
+    closed: Boolean;
 }
 
 declare function SubscriberFunction(observer: SubscriptionObserver) : Function | Subscription;

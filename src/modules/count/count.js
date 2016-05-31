@@ -68,11 +68,15 @@ bus.on('change', (changes, next) => {
 			entity.type === Constants.TYPE_PRIVREL ||
 			entity.type === Constants.TYPE_TOPICREL
 		) {
-			if(!entity.id) entity.id = entity.user + '_' + entity.item;
+			if (!entity.id) entity.id = entity.user + '_' + entity.item;
 			// console.log('roomrel: , entity: ', entity);
+			// if (entity.roles.length === 0) {
+			// 	decrementCount(changes, entity);
+			// 	continue;
+			// }
 			counter.inc();
 			cache.getEntity(entity.id, (err, result) => {
-				let exist = [];
+				let exist = [], inc = 1;
 				if (err) {
 					counter.err(err);
 					return;
@@ -84,6 +88,12 @@ bus.on('change', (changes, next) => {
 							exist.push(role);
 						}
 					});
+
+					if (entity.roles.length === 0) {
+						// console.log('got roles empty');
+						inc = -1;
+						exist = result.roles;
+					}
 
 					if (exist.length === 0) {
 						counter.dec();
@@ -109,7 +119,7 @@ bus.on('change', (changes, next) => {
 				// console.log("exist: entity.roles: ", exist, entity.roles );
 				exist.forEach((role) => {
 					if (ROLES[role]) {
-						item.counts[ROLES[role]] = [ 1, '$add' ];
+						item.counts[ROLES[role]] = [ inc, '$add' ];
 					}
 				});
 
@@ -133,7 +143,7 @@ bus.on('change', (changes, next) => {
 					break;
 				}
 				changes.entities[entity.item] = item;
-				// console.log("item count module: ", item);
+				console.log("item count module: ", item);
 				counter.dec();
 			});
 		}

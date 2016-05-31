@@ -2,11 +2,11 @@
 
 import React, { PropTypes, Component } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import PersistentNavigator from '../../navigation/PersistentNavigator';
 import UserSwitcherContainer from '../containers/UserSwitcherContainer';
 import NavigationState from '../../navigation-rfc/Navigation/NavigationState';
-import ModalHost from './ModalHost';
+import ModalHost from './Core/ModalHost';
 import Colors from '../../Colors';
 import { convertRouteToState, convertURLToState } from '../../../lib/Route';
 
@@ -37,8 +37,8 @@ export default class Home extends Component<void, Props, void> {
 		initialURL: PropTypes.string,
 	};
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	render() {

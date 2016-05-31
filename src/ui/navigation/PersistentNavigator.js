@@ -18,7 +18,7 @@ const stringToState = (navString) => {
 	return new NavigationState(routes.map(JSON.parse), index);
 };
 
-const PersistentNavigator = (props: Object): Element => (
+const PersistentNavigator = (props: Object): React.Element => (
 	<NavigationContainer.RootContainer
 		initialState={props.initialState}
 		persistenceKey={props.persistenceKey}

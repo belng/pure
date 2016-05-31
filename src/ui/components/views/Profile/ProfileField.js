@@ -2,9 +2,10 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
-import AppText from '../AppText';
-import RichText from '../RichText';
-import Icon from '../Icon';
+import shallowCompare from 'react-addons-shallow-compare';
+import AppText from '../Core/AppText';
+import RichText from '../Core/RichText';
+import Icon from '../Core/Icon';
 import Colors from '../../../Colors';
 
 const {
@@ -55,7 +56,7 @@ type Props = {
 	action?: ?string;
 	header: string;
 	value: ?string;
-	onEdit: Function;
+	onEdit?: ?Function;
 }
 
 export default class Profile extends Component<void, Props, void> {
@@ -63,8 +64,12 @@ export default class Profile extends Component<void, Props, void> {
 		action: PropTypes.string,
 		header: PropTypes.string.isRequired,
 		value: PropTypes.string,
-		onEdit: PropTypes.func.isRequired,
+		onEdit: PropTypes.func,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	render() {
 		const {

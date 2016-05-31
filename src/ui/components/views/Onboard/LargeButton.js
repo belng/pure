@@ -1,20 +1,16 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import ReactNative from 'react-native';
-import AppText from '../AppText';
-import TouchFeedback from '../TouchFeedback';
-import Loading from '../Loading';
+import Radium from 'radium';
+import shallowCompare from 'react-addons-shallow-compare';
+import TouchFeedback from '../Core/TouchFeedback';
+import Loading from '../Core/Loading';
 import Colors from '../../../Colors';
 
-const {
-	StyleSheet,
-	View,
-} = ReactNative;
-
-const styles = StyleSheet.create({
+const styles = {
 	container: {
-		marginVertical: 16,
+		marginTop: 16,
+		marginBottom: 16,
 	},
 	loader: {
 		height: 21,
@@ -22,6 +18,7 @@ const styles = StyleSheet.create({
 		marginHorizontal: 16,
 	},
 	button: {
+		display: 'flex',
 		backgroundColor: Colors.info,
 		padding: 12,
 		borderRadius: 3,
@@ -34,7 +31,7 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		paddingHorizontal: 4,
 	},
-});
+};
 
 type Props = {
 	label: string;
@@ -44,26 +41,32 @@ type Props = {
 	style?: any;
 }
 
-export default class LargeButton extends Component<void, Props, void> {
+class LargeButton extends Component<void, Props, void> {
 	static propTypes = {
 		label: PropTypes.string.isRequired,
 		onPress: PropTypes.func.isRequired,
 		spinner: PropTypes.bool,
 		disabled: PropTypes.bool,
-		style: View.propTypes.style,
+		style: PropTypes.any,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	render() {
 		return (
-			<View style={styles.container}>
+			<div style={styles.container}>
 				<TouchFeedback onPress={this.props.disabled ? null : this.props.onPress}>
-					<View style={[ styles.button, this.props.style ]}>
+					<div style={[ styles.button, this.props.style ]}>
 						{this.props.spinner ? <Loading style={styles.loader} /> : null}
 
-						<AppText style={styles.buttonText}>{this.props.label.toUpperCase()}</AppText>
-					</View>
+						<div style={styles.buttonText}>{this.props.label.toUpperCase()}</div>
+					</div>
 				</TouchFeedback>
-			</View>
+			</div>
 		);
 	}
 }
+
+export default Radium(LargeButton);
