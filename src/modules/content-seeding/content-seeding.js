@@ -68,7 +68,7 @@ type ThreadTemplate = {
 	creator: string;
 }
 
-const types = [ /*'hospital', 'restaurant', 'school',*/ 'grocery_or_supermarket' ];
+const types = [ 'hospital', 'restaurant', 'school', 'grocery_or_supermarket' ];
 
 function tagStringToNumber(tag) {
 	switch (tag) {
@@ -195,7 +195,7 @@ function buildTexts(place, thread) {
 	const id = uuid.v4();
 	const id2 = uuid.v4();
 	const name = Object.keys(details).reduce((prev, cur) => {
-		if (details[cur]) prev.push(cur + ': ' + details[cur]);
+		if (details[cur]) prev.push(details[cur]);
 		return prev;
 	}, []).join(', ');
 	const url = 'c/' + id + '/image.jpeg';
@@ -263,7 +263,7 @@ function getPlacesByType(room, type) {
 	).then(results => {
 		const detailsPromises = [];
 
-		results.slice(0, 1).forEach(result => {
+		results.slice(0, 4).forEach(result => {
 			detailsPromises.push(places.getPlaceDetails(result.place_id));
 		});
 
@@ -344,14 +344,16 @@ function seedGAPIContent(room) {
 log.info('Content seeding module ready.');
 
 function addMeta(room) {
-	places.getPlaceDetails(room.identities[0])
+	return places.getPlaceDetails(room.identities[0].replace(/^place:/, ''))
 	.then(e => {
 		const newRoom = {
 			...room
 		};
 		newRoom.params = newRoom.params || {};
 		newRoom.params.placeDetails = e;
-		return Room(newRoom);
+		return new Room(newRoom);
+	}).catch(e => {
+		log.warn("Error in getting meta data: ",e.message);
 	});
 }
 
@@ -361,7 +363,7 @@ function saveEntity(entity) {
 			[entity.id]: entity
 		}
 	});
-	console.log('seeding google content for: ', entity);
+
 	seedGAPIContent(entity).then(finalChanges => {
 		let time = Date.now();
 		for (const i in finalChanges.entities) {
@@ -371,25 +373,17 @@ function saveEntity(entity) {
 			}
 		}
 
-		console.log(finalChanges);
 		setTimeout(() => {
 			bus.emit('change', finalChanges);
-		}, 60 * 1000);
+		},  60 * 1000);
 
 	});
 }
 
 bus.on('postchange', (changes) => {
 	if (!changes.entities) return;
-	console.log('Postchange', changes);
 	for (const i in changes.entities) {
 		const entity = changes.entities[i];
-		console.log('Room: ', entity, entity.identities);
-		console.log(entity.type !== TYPE_ROOM);
-		console.log(!entity.createTime);
-		console.log(entity.createTime !== entity.updateTime);
-		console.log(!entity.identities);
-		console.log(!entity.identities.length);
 
 		if (entity.type !== TYPE_ROOM ||
 			!entity.createTime ||
@@ -397,10 +391,8 @@ bus.on('postchange', (changes) => {
 			!entity.identities ||
 			!entity.identities.length
 		) continue;
-		console.log('seeding for room: ', entity);
 		seedContent(entity);
 		addMeta(entity).then(newEntity => {
-			console.log('With place details:', newEntity.params);
 			const params = newEntity.params;
 			if (
 				params.placeDetails &&

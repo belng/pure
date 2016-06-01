@@ -28,7 +28,9 @@ const s3 = configureAmazonS3();
 const uploadFile = promisify(s3.upload.bind(s3));
 export function streamTos3(imageReadStream: any, destinationURL: string):Promise<UploadResult> {
 	const passthrough = new PassThrough();
-	imageReadStream.pipe(passthrough);
+	imageReadStream.pipe(passthrough).on('error', e => {
+		console.log('Error in piping image stream: ', e.message);
+	});
 
 	const data = {
 		Bucket: config.s3.uploadBucket,

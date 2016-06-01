@@ -88,7 +88,6 @@ export function callApi(api: string, params: Object) {
 	return new Promise((resolve, reject) => {
 		const p = 'https://maps.googleapis.com/maps/api/' + api +
 		'/json?key=' + config.google.api_key + '&' +
-
 		Object.keys(params).map(name => name + '=' + params[name])
 		.join('&');
 
