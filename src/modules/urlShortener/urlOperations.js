@@ -94,7 +94,7 @@ export const getShortURL = (longURL: string): Promise<string> => {
 						if (indexInChar >= maxIndex) {
 							if (indexInChar < chars.length - 1) {
 								maxIndex = indexInChar + 1;
-							} else if (indexInChar === chars.length - 1) {
+							} else {
 								throw new Error(`Max collisions exceeded for hash: ${shortURL}`);
 							}
 						}
