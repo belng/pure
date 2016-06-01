@@ -115,13 +115,7 @@ export const getLongURL = (shortURL: string): Promise<string> => {
 	})
 	.then((result) => {
 		if (result.length > 0) {
-			return doWriteQuery([ {
-				$: 'UPDATE urls SET count = count + 1 WHERE shorturl = &{shortURL}',
-				shortURL
-			} ])
-			.then(() => {
-				return result[0].longurl;
-			});
+			return result[0].longurl;
 		} else {
 			return null;
 		}

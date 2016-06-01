@@ -123,8 +123,7 @@ DROP TABLE IF EXISTS urls;
 
 CREATE TABLE urls (
 	shorturl text PRIMARY KEY,
-	longurl text NOT NULL,
-	count integer DEFAULT 0 NOT NULL
+	longurl text NOT NULL
 );
 
 INSERT INTO jobs VALUES (1), (2), (3);
