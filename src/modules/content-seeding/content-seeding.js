@@ -34,13 +34,13 @@ function getThumbnailObject(type, id, aspectRation) {
 
 	switch (type) {
 	case 'avatar':
-		url = baseUrl + 'a/' + id + '/256.jpg';
+		url = baseUrl + 'a/' + id + '/256.jpeg';
 		width = 256;
 		height = 256;
 		break;
 	case 'content':
 	case 'banner':
-		url = baseUrl + (type === 'banner' ? 'b' : 'c') + '/' + id + '/480.jpg';
+		url = baseUrl + (type === 'banner' ? 'b' : 'c') + '/' + id + '/480.jpeg';
 		width = 480;
 		height = Math.floor(480 / aspectRation);
 		break;
@@ -67,7 +67,7 @@ type ThreadTemplate = {
 	creator: string;
 }
 
-const types = [ 'hospital', 'restaurant', 'school', 'grocery_or_supermarket' ];
+const types = [ /*'hospital', 'restaurant', 'school', */'grocery_or_supermarket' ];
 
 function tagStringToNumber(tag) {
 	switch (tag) {
@@ -197,7 +197,7 @@ function buildTexts(place, thread) {
 		if (details[cur]) prev.push(cur + ': ' + details[cur]);
 		return prev;
 	}, []).join(', ');
-	const url = 'c/' + id + '/image.jpg';
+	const url = 'c/' + id + '/image.jpeg';
 
 	const text = new Text({
 		id: id2,
@@ -260,7 +260,7 @@ function getPlacesByType(room, type) {
 	).then(results => {
 		const detailsPromises = [];
 
-		results.slice(0, 4).forEach(result => {
+		results.slice(0, 1).forEach(result => {
 			detailsPromises.push(places.getPlaceDetails(result.place_id));
 		});
 
@@ -308,9 +308,11 @@ function buildChange(changes, room) {
 			return prev;
 		}, {});
 	}).then((typeToContent) => {
+		let time = Date.now();
 		const promises = [];
 		for (const i in typeToContent) {
 			const thread = buildThread(room, i);
+			thread.createTime = thread.updateTime = ++time;
 			changes.entities[thread.id] = thread;
 			for (const part of typeToContent[i]) {
 				promises.push(buildTexts(part, thread));
@@ -335,27 +337,39 @@ function seedGAPIContent(room) {
 		return Promise.resolve({});
 	}
 }
-//
-// seedGAPIContent({
-// 	name: 'paris',
-// 	params: {
-// 		placeDetails: {
-// 			geometry: {
-// 				location: {
-// 					lat: 13.1315386,
-// 					lng: 77.60205690000001
-// 				}
-// 			}
-// 		}
-// 	},
-// 	id: 'skdjnckasjdnfaskdjn'
-// }).then(changes => {
-// 	console.log("final changes:", JSON.stringify(changes));
-// }).catch(e => {
-// 	log.error('final error',e.message);
-// });
 
-bus.on('postchange', (changes, next) => {
+seedGAPIContent({
+	name: 'paris',
+	params: {
+		placeDetails: {
+			geometry: {
+				location: {
+					lat: 13.1315386,
+					lng: 77.60205690000001
+				}
+			}
+		}
+	},
+	id: 'skdjnckasjdnfaskdjn'
+}).then(changes => {
+	setTimeout(() => {
+		let time = Date.now();
+		for (const i in changes.entities) {
+			const entity = changes.entities[i];
+			if (entity.type === TYPE_TEXT) {
+				entity.createTime = entity.updateTime = ++time;
+			}
+
+		}
+		bus.emit('change', changes);
+	}, 1);
+
+	console.log("final changes:", JSON.stringify(changes));
+}).catch(e => {
+	log.error('final error',e.message);
+});
+
+bus.on('postchange', (changes) => {
 	const entities = changes && changes.entities || {};
 	Object.keys(entities).filter(e => (
         entities[e].type === TYPE_ROOM && entities[e].createTime &&
@@ -366,7 +380,15 @@ bus.on('postchange', (changes, next) => {
 			room.tags.indexOf(TAG_ROOM_SPOT) === -1
 		) {
 			seedGAPIContent(room).then(finalChanges => {
-				setTimeout(function(){
+				setTimeout(() => {
+					let time = Date.now();
+					for (const i in finalChanges.entities) {
+						const entity = finalChanges.entities[i];
+						if (entity.type === TYPE_TEXT) {
+							entity.createTime = entity.updateTime = ++time;
+						}
+
+					}
 					bus.emit('change', finalChanges);
 				}, 60 * 1000);
 
@@ -375,7 +397,6 @@ bus.on('postchange', (changes, next) => {
 
 		seedContent(room);
 	});
-	next();
 });
 
 log.info('Content seeding module ready.');
