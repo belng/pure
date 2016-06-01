@@ -1,15 +1,16 @@
 /* @flow */
 /* eslint-disable no-console */
 
+import crypto from 'crypto';
 import route from 'koa-route';
-import URLSafebase64URL from 'base64-url';
+import winston from 'winston';
 import { bus, config } from '../../core-server';
 import * as pg from '../../lib/pg';
 import promisify from '../../lib/promisify';
 
 /*
 	IMPLEMENTATION DETAILS:
-		- extract path regex (/https?:\/\/[^\/]+/)
+		- extract path from the long URL { regex (/https?:\/\/[^\/]+/) }.
 		- Short URL will be 6 characters url safe base64 hash.
 		- In case of a collision, the first 6 characters will be a substring of the base64 hash
 		  and the 7th character will be appended from the chars string in a sequential manner.
@@ -32,9 +33,20 @@ const doWriteQuery = promisify(pg.write.bind(pg, config.connStr));
 
 const isShortURL = (shortURL: string): boolean => {
 	if (shortURL.length === 6 || shortURL.length === 7) {
-		return /[a-zA-Z-_]+$/.test(shortURL);
+		return /^[A-Za-z0-9\-_]+$/.test(shortURL);
 	}
 	return false;
+};
+
+const getPathFromURL = (longURL: string): string => {
+	return longURL.replace(/https?:\/\/[^\/]+/, '');
+};
+
+const makeURLSafeHash = (pathFromLongURL: string): string => {
+	const md5Hash = crypto.createHash('md5').update(pathFromLongURL).digest('base64');
+	// regex to make url safe hash, converts '+' to '-', '/' to '_', removes "=" from the end
+	const urlSafeHash = md5Hash.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+	return urlSafeHash.slice(0, 6);
 };
 
 const insertLongURL = (shortURL: string, longURL: string): Promise<Array<{rowCount: number}>> => {
@@ -50,54 +62,45 @@ const insertLongURL = (shortURL: string, longURL: string): Promise<Array<{rowCou
 };
 
 export const getShortURL = (longURL: string): Promise<string> => {
-	const pathFromLongURL = longURL.replace(/https?:\/\/[^\/]+/, '');
-	const shortURL = URLSafebase64URL.encode(pathFromLongURL).slice(0, 6);
+	const pathFromLongURL = getPathFromURL(longURL);
+	const shortURL = makeURLSafeHash(pathFromLongURL);
 	// Try inserting long URL and its hash as the short URL.
 	return insertLongURL(shortURL, pathFromLongURL)
 		// in case of a successful insertion, simply return the hash.
 		.then((result) => {
+			// result: [{.., rowcount: _, ...}, ..]
 			if (result[0].rowCount === 1) {
-				console.log('Insert operation performed successfully.');
+				winston.info('Insert operation performed successfully.');
 				return shortURL;
 			}
 			return null;
 		})
 		// in case of an error, take proper measures.
 		.catch((error) => {
-			console.log(`something went wrong while perfoming insertion, ${error}`);
+			winston.error(`something went wrong while perfoming insertion, ${error}`);
 			return doReadQuery({
-				$: 'SELECT shorturl FROM urls WHERE longurl = &{pathFromLongURL}',
-				pathFromLongURL
+				$: 'SELECT shorturl, longurl FROM urls WHERE shorturl LIKE &{shortURL}',
+				shortURL: shortURL + '%'
 			})
-			.then((data) => {
-				const results = data.map(item => item.shorturl);
-
-				if (results.length === 0) {
-					// case 1: we have a collision
-					return doReadQuery({
-						$: 'SELECT shorturl FROM urls WHERE shorturl LIKE &{shortURL}',
-						shortURL: shortURL + '%'
-					})
-					.then((result) => {
-						if (result.length > 0) {
-							const sortedResults = result.sort();
-							const lastElement = sortedResults[sortedResults.length - 1];
-							if (lastElement.length === 7) {
-								const indexInChar = chars.indexOf(lastElement[6]);
-								if (indexInChar < chars.length - 1) {
-									return shortURL + chars[indexInChar + 1];
-								}
-							} else {
-								return shortURL + chars[0];
+			.then((urlsList) => {
+				// urlsList: [{shorturl: _, longurl: _}, ...]
+				let maxIndex = 0;
+				for (const urls of urlsList) {
+					if (urls.longurl === pathFromLongURL) {
+						winston.info('The long url already exists');
+						return urls.shorturl;
+					} else if (urls.shorturl.length === 7) {
+						const indexInChar = chars.indexOf(urls.shorturl[6]);
+						if (indexInChar >= maxIndex) {
+							if (indexInChar < chars.length - 1) {
+								maxIndex = indexInChar + 1;
+							} else if (indexInChar === chars.length - 1) {
+								maxIndex = -1;
 							}
 						}
-						return null;
-					});
-				} else {
-					// case 2: we already have the long url
-					console.log('The long url already exists');
-					return results[0];
+					}
 				}
+				return maxIndex >= 0 ? shortURL + chars[maxIndex] : null;
 			});
 		});
 };
@@ -110,8 +113,7 @@ export const getLongURL = (shortURL: string): Promise<string> => {
 	.then((result) => {
 		if (result.length > 0) {
 			return doWriteQuery([ {
-				$: 'UPDATE urls SET count = &{count} WHERE shorturl = &{shortURL}',
-				count: result[0].count + 1,
+				$: 'UPDATE urls SET count = count + 1 WHERE shorturl = &{shortURL}',
 				shortURL
 			} ])
 			.then(() => {
@@ -124,27 +126,27 @@ export const getLongURL = (shortURL: string): Promise<string> => {
 };
 
 /*
-Demo api call
-	getShortURL('https://ict4kids.files.wordpress.com/2013/05/mrc-2.png')
-		.then((result) => {
-			console.log(result);
-		})
-		.catch((error) => {
-			console.log(`something went wrong while getting the short URL, ${error}`);
-		});
+	Demo api call
+		getShortURL('https://ict4kids.files.wordpress.com/2013/05/mrc-2.png')
+			.then((result) => {
+				console.log(result);
+			})
+			.catch((error) => {
+				console.error(`something went wrong while getting the short URL, ${error}`);
+			});
 
-	getLongURL('LzIwMT')
-		.then((result) => {
-			console.log(result);
-		})
-		.catch((error) => {
-			console.log(`something went wrong while getting the long URL, ${error}`);
-		});
+		getLongURL('28XYe8')
+			.then((result) => {
+				console.log(result);
+			})
+			.catch((error) => {
+				console.error(`something went wrong while getting the long URL, ${error}`);
+			});
 */
 
 bus.on('http/init', app => {
 	app.use(route.get('*', function *() {
-		const path = this.request.url.slice(1);
+		const path = this.request.url.slice(1).match(/^[^\/?]*/, '')[0];
 		try {
 			if (isShortURL(path)) {
 				const longURL = yield getLongURL(path);
