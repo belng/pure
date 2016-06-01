@@ -122,7 +122,7 @@ if (config.s3) {
 						promises.push(
 							upload.urlTos3(
 								buildAvatarURLForSize(url, 1024),
-								'uploaded/avatar/' + userName + '/' + imageName
+								'/a/' + userName + '/' + imageName
 							).then(res => ({
 								upload: res,
 								id: userName
