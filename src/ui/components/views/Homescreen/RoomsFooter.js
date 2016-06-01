@@ -2,11 +2,11 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import CTACardContainerHome from '../../containers/CTACardContainerHome';
-import ListItem from '../ListItem';
-import AppText from '../AppText';
-import Icon from '../Icon';
+import ListItem from '../Core/ListItem';
+import AppText from '../Core/AppText';
+import Icon from '../Core/Icon';
 import Colors from '../../../Colors';
 import NavigationActions from '../../../navigation-rfc/Navigation/NavigationActions';
 
@@ -17,7 +17,11 @@ const {
 
 const styles = StyleSheet.create({
 	footer: {
-		marginTop: 8,
+		marginVertical: 4,
+	},
+
+	footerInner: {
+		marginVertical: 4,
 	},
 
 	footerItem: {
@@ -87,7 +91,7 @@ export default class RoomsFooter extends Component<void, Props, State> {
 	}
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	_getPlaceLabel: Function = ({ places }: Props) => {
@@ -135,8 +139,8 @@ export default class RoomsFooter extends Component<void, Props, State> {
 		} = this.state;
 
 		return (
-			<View>
-				<View style={styles.footer}>
+			<View style={styles.footer}>
+				<View style={styles.footerInner}>
 					<ListItem containerStyle={styles.footerItem} onPress={this._handleManagePlaces}>
 						<Icon
 							style={[ styles.footerIcon, button.highlight ? styles.highlightLabel : null ]}
@@ -164,7 +168,7 @@ export default class RoomsFooter extends Component<void, Props, State> {
 						<AppText style={styles.footerLabel}>REPORT AN ISSUE</AppText>
 					</ListItem>
 				</View>
-				<CTACardContainerHome style={styles.footer} />
+				<CTACardContainerHome style={styles.footerInner} />
 			</View>
 		);
 	}

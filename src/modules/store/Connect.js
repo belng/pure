@@ -2,7 +2,7 @@
 /* eslint-disable react/sort-comp */
 
 import React, { Component, PropTypes } from 'react';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import isEqual from 'lodash/isEqual';
 import storeShape from './storeShape';
 
@@ -136,7 +136,7 @@ export default class Connect extends Component<void, Props, State> {
 	}
 
 	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
-		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	render(): ?React.Element<any> {

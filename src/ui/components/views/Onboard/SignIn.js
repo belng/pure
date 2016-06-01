@@ -2,6 +2,7 @@
 
 import React, { Component, PropTypes } from 'react';
 import Radium from 'radium';
+import shallowCompare from 'react-addons-shallow-compare';
 import LargeButton from './LargeButton';
 import GoogleSignIn from '../../../modules/GoogleSignIn';
 import Facebook from '../../../modules/Facebook';
@@ -84,7 +85,7 @@ const PROVIDER_FACEBOOK = 'facebook';
 const PERMISSION_PUBLIC_PROFILE = 'public_profile';
 const PERMISSION_EMAIL = 'email';
 
-type Token = { accessToken: string; } | { idToken: string; };
+type Token = { accessToken: string; } | { idToken: string; } | { code: string; };
 
 type Props = {
 	signIn: (provider: string, token: Token) => void
@@ -106,6 +107,10 @@ class SignIn extends Component<void, Props, State> {
 		facebookLoading: false,
 		failureMessage: null,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	_setFailureMessage: Function = (message: string) => {
 		this.setState({
@@ -151,24 +156,15 @@ class SignIn extends Component<void, Props, State> {
 			]);
 
 			const {
-				permissions_granted,
-				access_token,
+				code,
 			} = result;
 
-			if (
-				permissions_granted.length &&
-				permissions_granted.indexOf(PERMISSION_PUBLIC_PROFILE) > -1 &&
-				permissions_granted.indexOf(PERMISSION_EMAIL) > -1
-			) {
-
-				if (access_token) {
-					this._onSignInSuccess(PROVIDER_FACEBOOK, { accessToken: access_token });
-				} else {
-					this._onSignInFailure(PROVIDER_FACEBOOK);
-				}
+			if (code) {
+				this._onSignInSuccess(PROVIDER_FACEBOOK, { code });
 			} else {
 				this._onSignInFailure(PROVIDER_FACEBOOK);
 			}
+
 		} catch (e) {
 			if (e.code !== 'ERR_SIGNIN_CANCELLED') {
 				this._showFailureMessage();
@@ -182,8 +178,8 @@ class SignIn extends Component<void, Props, State> {
 		try {
 			const result = await GoogleSignIn.signIn();
 
-			if (result.id_token) {
-				this._onSignInSuccess(PROVIDER_GOOGLE, { idToken: result.id_token });
+			if (result.code) {
+				this._onSignInSuccess(PROVIDER_GOOGLE, { code: result.code });
 			} else {
 				this._onSignInFailure(PROVIDER_GOOGLE);
 			}

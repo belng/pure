@@ -2,13 +2,14 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import NextButton from './NextButton';
-import AppTextInput from '../AppTextInput';
-import KeyboardSpacer from '../KeyboardSpacer';
+import AppTextInput from '../Core/AppTextInput';
+import KeyboardSpacer from '../Core/KeyboardSpacer';
+import Icon from '../Core/Icon';
 import OnboardTitle from './OnboardTitle';
 import OnboardParagraph from './OnboardParagraph';
 import OnboardError from './OnboardError';
-import Icon from '../Icon';
 import Colors from '../../../Colors';
 import { config } from '../../../../core-client';
 
@@ -94,6 +95,10 @@ export default class UserDetails extends Component<void, Props, void> {
 			}),
 		})).isRequired,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	_handleChangeNick: Function = (nick: string): void => {
 		this.props.onChangeField('nick', nick.toLowerCase());

@@ -4,6 +4,11 @@ import React from 'react';
 import Connect from '../../../modules/store/Connect';
 import PassUserProp from '../../../modules/store/PassUserProp';
 import Rooms from '../views/Homescreen/Rooms';
+import { TAG_USER_CONTENT, TAG_USER_ADMIN } from '../../../lib/Constants';
+
+const isModerator = user => {
+	return user && user.tags && (user.tags.indexOf(TAG_USER_ADMIN) > -1 || user.tags.indexOf(TAG_USER_CONTENT) > -1);
+};
 
 const mapSubscriptionToProps = {
 	rooms: {
@@ -11,6 +16,10 @@ const mapSubscriptionToProps = {
 			type: 'state',
 			path: 'roomList',
 		},
+	},
+	moderator: {
+		key: 'me',
+		transform: isModerator
 	},
 };
 

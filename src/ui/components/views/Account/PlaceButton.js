@@ -2,8 +2,9 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
-import AppText from '../AppText';
-import Icon from '../Icon';
+import shallowCompare from 'react-addons-shallow-compare';
+import AppText from '../Core/AppText';
+import Icon from '../Core/Icon';
 import Colors from '../../../Colors';
 
 const {
@@ -59,8 +60,17 @@ type Props = {
 	onPress: Function;
 }
 
-export default class PlaceButton extends Component<void, Props, any> {
-	props: Props;
+export default class PlaceButton extends Component<void, Props, void> {
+	static propTypes = {
+		label: PropTypes.string.isRequired,
+		hint: PropTypes.string.isRequired,
+		type: PropTypes.string.isRequired,
+		onPress: PropTypes.func.isRequired,
+	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	_handlePress = () => {
 		global.requestAnimationFrame(() =>	this.props.onPress(this.props.type));
@@ -86,10 +96,3 @@ export default class PlaceButton extends Component<void, Props, any> {
 		);
 	}
 }
-
-PlaceButton.propTypes = {
-	label: PropTypes.string.isRequired,
-	hint: PropTypes.string.isRequired,
-	type: PropTypes.string.isRequired,
-	onPress: PropTypes.func.isRequired,
-};

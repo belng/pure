@@ -6,11 +6,16 @@
  * @flow
  */
 
-import { Component, Children, PropTypes } from 'react';
+import React, { Component, Children, PropTypes } from 'react';
 import SimpleStore from './SimpleStore';
 import storeShape from './storeShape';
 
-export default class Provider extends Component<void, { children?: Element; store: SimpleStore }, void> {
+type Props = {
+	children?: React.Element;
+	store: SimpleStore;
+}
+
+export default class Provider extends Component<void, Props, void> {
 	static propTypes = {
 		children: PropTypes.element.isRequired,
 		store: storeShape.isRequired,

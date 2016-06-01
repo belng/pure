@@ -2,8 +2,9 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
-import AppbarTouchable from '../AppbarTouchable';
-import AvatarRound from '../AvatarRound';
+import shallowCompare from 'react-addons-shallow-compare';
+import AppbarTouchable from '../Appbar/AppbarTouchable';
+import AvatarRound from '../Avatar/AvatarRound';
 import NavigationActions from '../../../navigation-rfc/Navigation/NavigationActions';
 import Colors from '../../../Colors';
 
@@ -29,6 +30,10 @@ export default class ProfileButton extends Component<void, Props, void> {
 		user: PropTypes.string.isRequired,
 		onNavigation: PropTypes.func.isRequired,
 	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
 	_handlePress: Function = () => {
 		this.props.onNavigation(new NavigationActions.Push({

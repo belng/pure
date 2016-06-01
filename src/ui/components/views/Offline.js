@@ -2,9 +2,9 @@
 
 import React, { Component } from 'react';
 import Radium from 'radium';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import Colors from '../../Colors';
-import Page from './Page';
+import Page from './Page/Page';
 
 const styles = {
 	container: {
@@ -35,8 +35,8 @@ class Offline extends Component<void, Props, void> {
 		style: Page.propTypes.style,
 	};
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	render() {

@@ -2,14 +2,15 @@
 
 import React, { Component } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import Colors from '../../Colors';
-import AppText from './AppText';
-import Page from './Page';
+import AppText from './Core/AppText';
+import Page from './Page/Page';
 
 const {
 	StyleSheet,
 	Image,
+	StatusBar,
 } = ReactNative;
 
 const styles = StyleSheet.create({
@@ -40,13 +41,14 @@ export default class Offline extends Component<void, Props, void> {
 		style: Page.propTypes.style,
 	};
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	render() {
 		return (
 			<Page {...this.props} style={[ styles.container, this.props.style ]}>
+				<StatusBar backgroundColor={Colors.primaryDark} />
 				<AppText style={styles.header}>Network unavailable!</AppText>
 				<Image style={styles.image} source={require('../../../../assets/astronaut.png')} />
 				<AppText style={styles.footer}>Waiting for connection…</AppText>
