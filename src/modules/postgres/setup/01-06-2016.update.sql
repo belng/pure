@@ -1,1 +1,1 @@
-insert into users(id, name,identities,params,meta) values('bot', 'bot', '{}','{}','{}');
+INSERT INTO users(id, name,identities,params,meta) VALUES('belongbot', 'belongbot', '{}','{}','{}');

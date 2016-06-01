@@ -22,6 +22,7 @@ import { TYPE_ROOM,
 	TAG_POST_AUTO_SEED
 } from '../../lib/Constants';
 
+const botName = 'belongbot';
 function parseAttributions(html) {
 	return {
 		author_url: html.match(/"(.*?)"/)[1],
@@ -29,7 +30,7 @@ function parseAttributions(html) {
 	};
 }
 
-function getThumbnailObject(type, id, aspectRation) {
+function getThumbnailObject(type, id, aspectRatio) {
 	const baseUrl = 'https://' + (config.s3.generateHostname || (config.s3.generateBucket + '.s3.amazonaws.com')) + '/';
 	let url, width, height;
 
@@ -43,7 +44,7 @@ function getThumbnailObject(type, id, aspectRation) {
 	case 'banner':
 		url = baseUrl + (type === 'banner' ? 'b' : 'c') + '/' + id + '/480.jpeg';
 		width = 480;
-		height = Math.floor(480 / aspectRation);
+		height = Math.floor(480 / aspectRatio);
 		break;
 	}
 
@@ -179,7 +180,7 @@ function buildThread(room, type) {
 		body: name,
 		parents: [ room.id ],
 		tags: [ TAG_POST_GAPI_SEED ],
-		creator: 'bot',
+		creator: botName,
 		createTime: Date.now(),
 	});
 }
@@ -206,7 +207,7 @@ function buildTexts(place, thread) {
 		name: '',
 		body: name,
 		parents: [ thread.id ],
-		creator: 'bot',
+		creator: botName,
 		createTime: Date.now(),
 		tags: [ TAG_POST_GAPI_SEED ]
 	});
@@ -221,7 +222,7 @@ function buildTexts(place, thread) {
 				name: '',
 				body: name,
 				parents: [ thread.id ],
-				creator: 'bot',
+				creator: botName,
 				createTime: Date.now(),
 				tags: [ TAG_POST_GAPI_SEED ]
 			});
