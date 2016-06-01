@@ -77,30 +77,33 @@ export const getShortURL = (longURL: string): Promise<string> => {
 		})
 		// in case of an error, take proper measures.
 		.catch((error) => {
-			winston.error(`something went wrong while perfoming insertion, ${error}`);
+			winston.info(`something went wrong while perfoming insertion, ${error}`);
 			return doReadQuery({
 				$: 'SELECT shorturl, longurl FROM urls WHERE shorturl LIKE &{shortURL}',
 				shortURL: shortURL + '%'
 			})
-			.then((urlsList) => {
-				// urlsList: [{shorturl: _, longurl: _}, ...]
+			.then((links) => {
+				// links: [{shorturl: _, longurl: _}, ...]
 				let maxIndex = 0;
-				for (const urls of urlsList) {
-					if (urls.longurl === pathFromLongURL) {
+				for (const link of links) {
+					if (link.longurl === pathFromLongURL) {
 						winston.info('The long url already exists');
-						return urls.shorturl;
-					} else if (urls.shorturl.length === 7) {
-						const indexInChar = chars.indexOf(urls.shorturl[6]);
+						return link.shorturl;
+					} else if (link.shorturl.length === 7) {
+						const indexInChar = chars.indexOf(link.shorturl[6]);
 						if (indexInChar >= maxIndex) {
 							if (indexInChar < chars.length - 1) {
 								maxIndex = indexInChar + 1;
 							} else if (indexInChar === chars.length - 1) {
-								maxIndex = -1;
+								throw new Error(`Max collisions exceeded for hash: ${shortURL}`);
 							}
 						}
 					}
 				}
-				return maxIndex >= 0 ? shortURL + chars[maxIndex] : null;
+				return insertLongURL(shortURL + chars[maxIndex], pathFromLongURL)
+					.then(() => {
+						return shortURL + chars[maxIndex];
+					});
 			});
 		});
 };
