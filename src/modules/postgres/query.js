@@ -90,20 +90,19 @@ function wherePart (f) {
 		}
 	}
 
+	switch (TABLES[TYPES[f.type]]) {
+	case 'items':
+	case 'rooms':
+	case 'texts':
+	case 'threads':
+	case 'topics':
+	case 'privs':
+	case 'users':
+	case 'notes':
+		sql.push(`"${TABLES[TYPES[f.type]]}".deletetime IS NULL`);
+	}
+
 	if (sql.length) {
-
-		switch (TABLES[TYPES[f.type]]) {
-		case 'items':
-		case 'rooms':
-		case 'texts':
-		case 'threads':
-		case 'topics':
-		case 'privs':
-		case 'users':
-		case 'notes':
-			sql.push(`"${TABLES[TYPES[f.type]]}".deletetime IS NULL`);
-		}
-
 		filter.$ = 'WHERE ' + sql.join(' AND ');
 		return filter;
 	} else {
@@ -113,9 +112,9 @@ function wherePart (f) {
 
 function orderPart(type, order, limit) {
 	if (limit < 0) {
-		return `ORDER BY "${TABLES[TYPES[type]]}".${order.toLowerCase()} DESC LIMIT ${-limit}`;
+		return { $: `ORDER BY "${TABLES[TYPES[type]]}".${order.toLowerCase()} DESC LIMIT &{limit}`, limit: -limit };
 	} else {
-		return `ORDER BY "${TABLES[TYPES[type]]}".${order.toLowerCase()} ASC LIMIT ${limit}`;
+		return { $: `ORDER BY "${TABLES[TYPES[type]]}".${order.toLowerCase()} ASC LIMIT &{limit}`, limit };
 	}
 }
 
