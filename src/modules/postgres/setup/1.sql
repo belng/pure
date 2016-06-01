@@ -119,6 +119,13 @@ CREATE TABLE jobs (
 	lastrun bigint DEFAULT extract(epoch from now())*1000
 );
 
+DROP TABLE IF EXISTS urls;
+
+CREATE TABLE urls (
+	shorturl text PRIMARY KEY,
+	longurl text NOT NULL
+);
+
 INSERT INTO jobs VALUES (1), (2), (3);
 CREATE EXTENSION plv8;
 
