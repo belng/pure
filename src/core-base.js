@@ -13,7 +13,7 @@ export type Bus = {
 }
 
 export const bus: Bus = new Ebus();
-
+bus.setDebug(11);
 export const cache = new Know({
 	is: (entity, type) => {
 		if (!entity) return false;

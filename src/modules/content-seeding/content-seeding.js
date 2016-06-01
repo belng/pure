@@ -7,6 +7,7 @@ import template from 'lodash/template';
 import { bus, config } from '../../core-server';
 import Thread from '../../models/thread';
 import Text from '../../models/text';
+import Room from '../../models/room';
 
 import * as places from '../../lib/places';
 import * as upload from '../../lib/upload';
@@ -67,7 +68,7 @@ type ThreadTemplate = {
 	creator: string;
 }
 
-const types = [ /*'hospital', 'restaurant', 'school', */'grocery_or_supermarket' ];
+const types = [ /*'hospital', 'restaurant', 'school',*/ 'grocery_or_supermarket' ];
 
 function tagStringToNumber(tag) {
 	switch (tag) {
@@ -202,6 +203,7 @@ function buildTexts(place, thread) {
 	const text = new Text({
 		id: id2,
 		type: TYPE_TEXT,
+		name: '',
 		body: name,
 		parents: [ thread.id ],
 		creator: 'bot',
@@ -216,6 +218,7 @@ function buildTexts(place, thread) {
 			const text2 = new Text({
 				id,
 				type: TYPE_TEXT,
+				name: '',
 				body: name,
 				parents: [ thread.id ],
 				creator: 'bot',
@@ -319,12 +322,13 @@ function buildChange(changes, room) {
 			}
 		}
 		return Promise.all(promises).then(results => {
-			return results.reduce((prev, cur) => {
+			results.reduce((prev, cur) => {
 				return prev.concat(cur);
 			}, []).reduce((prev, cur) => {
 				prev[cur.id] = cur;
 				return prev;
 			}, changes.entities);
+			return changes;
 		});
 	});
 }
@@ -337,66 +341,89 @@ function seedGAPIContent(room) {
 		return Promise.resolve({});
 	}
 }
+log.info('Content seeding module ready.');
 
-seedGAPIContent({
-	name: 'paris',
-	params: {
-		placeDetails: {
-			geometry: {
-				location: {
-					lat: 13.1315386,
-					lng: 77.60205690000001
-				}
-			}
+function addMeta(room) {
+	places.getPlaceDetails(room.identities[0])
+	.then(e => {
+		const newRoom = {
+			...room
+		};
+		newRoom.params = newRoom.params || {};
+		newRoom.params.placeDetails = e;
+		return Room(newRoom);
+	});
+}
+
+function saveEntity(entity) {
+	bus.emit('change', {
+		entities: {
+			[entity.id]: entity
 		}
-	},
-	id: 'skdjnckasjdnfaskdjn'
-}).then(changes => {
-	setTimeout(() => {
+	});
+	console.log('seeding google content for: ', entity);
+	seedGAPIContent(entity).then(finalChanges => {
 		let time = Date.now();
-		for (const i in changes.entities) {
-			const entity = changes.entities[i];
-			if (entity.type === TYPE_TEXT) {
-				entity.createTime = entity.updateTime = ++time;
+		for (const i in finalChanges.entities) {
+			const newEntity = finalChanges.entities[i];
+			if (newEntity.type === TYPE_TEXT) {
+				newEntity.createTime = newEntity.updateTime = ++time;
 			}
-
 		}
-		bus.emit('change', changes);
-	}, 1);
 
-	console.log("final changes:", JSON.stringify(changes));
-}).catch(e => {
-	log.error('final error',e.message);
-});
+		console.log(finalChanges);
+		setTimeout(() => {
+			bus.emit('change', finalChanges);
+		}, 60 * 1000);
+
+	});
+}
 
 bus.on('postchange', (changes) => {
-	const entities = changes && changes.entities || {};
-	Object.keys(entities).filter(e => (
-        entities[e].type === TYPE_ROOM && entities[e].createTime &&
-        entities[e].createTime === entities[e].updateTime
-	)).map(e => entities[e]).forEach((room) => {
-		if (
-			room.tags.indexOf(TAG_ROOM_CITY) === -1 &&
-			room.tags.indexOf(TAG_ROOM_SPOT) === -1
-		) {
-			seedGAPIContent(room).then(finalChanges => {
-				setTimeout(() => {
-					let time = Date.now();
-					for (const i in finalChanges.entities) {
-						const entity = finalChanges.entities[i];
-						if (entity.type === TYPE_TEXT) {
-							entity.createTime = entity.updateTime = ++time;
-						}
+	if (!changes.entities) return;
+	console.log('Postchange', changes);
+	for (const i in changes.entities) {
+		const entity = changes.entities[i];
+		console.log('Room: ', entity, entity.identities);
+		console.log(entity.type !== TYPE_ROOM);
+		console.log(!entity.createTime);
+		console.log(entity.createTime !== entity.updateTime);
+		console.log(!entity.identities);
+		console.log(!entity.identities.length);
 
-					}
-					bus.emit('change', finalChanges);
-				}, 60 * 1000);
-
-			});
-		}
-
-		seedContent(room);
-	});
+		if (entity.type !== TYPE_ROOM ||
+			!entity.createTime ||
+			entity.createTime !== entity.updateTime ||
+			!entity.identities ||
+			!entity.identities.length
+		) continue;
+		console.log('seeding for room: ', entity);
+		seedContent(entity);
+		addMeta(entity).then(newEntity => {
+			console.log('With place details:', newEntity.params);
+			const params = newEntity.params;
+			if (
+				params.placeDetails &&
+				params.placeDetails.photos &&
+				params.placeDetails.photos.length
+			) {
+				const reference = params.placeDetails.photos[0].photo_reference;
+				places.getPhotoFromReference(reference, 300).then(photo => {
+					newEntity.meta = newEntity.meta || {};
+					newEntity.meta.photo = newEntity.meta.photo || {};
+					newEntity.meta.photo.attributions = params.placeDetails.photos[0].html_attributions;
+					newEntity.meta.photo.height = params.placeDetails.photos[0].height;
+					newEntity.meta.photo.width = params.placeDetails.photos[0].width;
+					return upload.urlTos3(photo.location, 'b/' + i + '/image.jpg');
+				}).then(() => {
+					newEntity.meta.photo.url = 'b/' + i + '/image.jpg';
+					saveEntity(newEntity);
+				});
+			} else {
+				saveEntity(newEntity);
+			}
+		}).catch(err => {
+			log.info('Error getting photo: ', err.message);
+		});
+	}
 });
-
-log.info('Content seeding module ready.');

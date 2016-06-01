@@ -147,7 +147,6 @@ bus.on('change', (changes, next) => {
 		return;
 	}
 
-	console.log("Postgress got change", Object.keys(changes.entities).length);
 	if (changes.entities) {
 		const sql = [];
 
@@ -227,4 +226,4 @@ bus.on('change', (changes, next) => {
 	}
 
 	counter.then(next);
-});
+}, 500);
