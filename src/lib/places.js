@@ -118,7 +118,6 @@ export function callApi(api: string, params: Object) {
 }
 
 export function getPhotoFromReference(photoreference: string, maxwidth: number) {
-	console.log('getPhotoFromReference: ', photoreference);
 	return new Promise((resolve, reject) => {
 		const params = {
 			key: config.google.api_key,

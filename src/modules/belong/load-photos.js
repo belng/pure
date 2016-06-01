@@ -18,11 +18,13 @@ function addMeta(room) {
 }
 
 function saveEntity(entity) {
-	bus.emit('change', {
-		entities: {
-			[entity.id]: entity
-		}
-	});
+	setTimeout(() => {
+		bus.emit('change', {
+			entities: {
+				[entity.id]: entity
+			}
+		});
+	}, 60 * 1000);
 }
 
 bus.on('postchange', (changes) => {
@@ -51,18 +53,16 @@ bus.on('postchange', (changes) => {
 					newEntity.meta.photo.attributions = params.placeDetails.photos[0].html_attributions;
 					newEntity.meta.photo.height = params.placeDetails.photos[0].height;
 					newEntity.meta.photo.width = params.placeDetails.photos[0].width;
-
-					return upload.urlTos3(photo.location, 'banner/' + i + '/image')
-					.then(() => {
-						newEntity.meta.photo.url = 'banner/' + i + '/image';
-						saveEntity(newEntity);
-					});
-				}).catch(err => {
-					winston.info('Error getting photo: ', err.message);
+					return upload.urlTos3(photo.location, 'b/' + i + '/image.jpg');
+				}).then(() => {
+					newEntity.meta.photo.url = 'b/' + i + '/image.jpg';
+					saveEntity(newEntity);
 				});
 			} else {
 				saveEntity(newEntity);
 			}
+		}).catch(err => {
+			winston.info('Error getting photo: ', err.message);
 		});
 	}
 });

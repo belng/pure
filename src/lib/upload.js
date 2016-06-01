@@ -31,14 +31,15 @@ export function streamTos3(imageReadStream: any, destinationURL: string):Promise
 	imageReadStream.pipe(passthrough);
 
 	const data = {
-		Bucket: config.s3.bucket,
+		Bucket: config.s3.uploadBucket,
 		Key: destinationURL,
-		Body: passthrough
+		Body: passthrough,
+		acl: 'public-read'
 	};
 	return uploadFile(data);
 }
 
-export function urlTos3(source, dest) {
+export function urlTos3(source: string, dest: string) {
 	const imageReadStream = request.get(source);
 	return streamTos3(imageReadStream, dest);
 }

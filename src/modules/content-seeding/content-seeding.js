@@ -4,7 +4,7 @@ import log from 'winston';
 import fs from 'fs';
 import uuid from 'node-uuid';
 import template from 'lodash/template';
-import { bus } from '../../core-server';
+import { bus, config } from '../../core-server';
 import Thread from '../../models/thread';
 import Text from '../../models/text';
 
@@ -13,10 +13,53 @@ import * as upload from '../../lib/upload';
 import { TYPE_ROOM,
 	TYPE_TEXT,
 	TYPE_THREAD,
+	TAG_POST_PHOTO,
 	TAG_ROOM_AREA,
 	TAG_ROOM_CITY,
-	TAG_ROOM_SPOT
+	TAG_ROOM_SPOT,
+	TAG_POST_GAPI_SEED,
+	TAG_POST_AUTO_SEED
 } from '../../lib/Constants';
+
+function parseAttributions(html) {
+	return {
+		author_url: html.match(/"(.*?)"/)[1],
+		author_name: html.match(/>(.*?)</)[1]
+	};
+}
+
+function getThumbnailObject(type, id, aspectRation) {
+	const baseUrl = 'https://' + (config.s3.generateHostname || (config.s3.generateBucket + '.s3.amazonaws.com')) + '/';
+	let url, width, height;
+
+	switch (type) {
+	case 'avatar':
+		url = baseUrl + 'a/' + id + '/256.jpg';
+		width = 256;
+		height = 256;
+		break;
+	case 'content':
+	case 'banner':
+		url = baseUrl + (type === 'banner' ? 'b' : 'c') + '/' + id + '/480.jpg';
+		width = 480;
+		height = Math.floor(480 / aspectRation);
+		break;
+	}
+
+	return {
+		url,
+		width,
+		height
+	};
+}
+
+function getImageUrl(type, id, filename, generated) {
+	const mode = generated ? 'generate' : 'upload';
+	const host = config.s3[mode + 'Hostname'];
+	const bucket = config.s3[mode + 'Bucket'] + '.s3.amazonaws.com';
+	const baseUrl = 'https://' + (host || bucket) + '/';
+	return baseUrl + (type === 'banner' ? 'b' : 'c') + '/' + id + '/' + filename;
+}
 
 type ThreadTemplate = {
 	title: string;
@@ -24,7 +67,7 @@ type ThreadTemplate = {
 	creator: string;
 }
 
-const types = [ /* 'hospital', 'restaurant', 'school',*/ 'grocery_or_supermarket' ];
+const types = [ 'hospital', 'restaurant', 'school', 'grocery_or_supermarket' ];
 
 function tagStringToNumber(tag) {
 	switch (tag) {
@@ -98,6 +141,7 @@ function seedContent(room) {
 				body: template(e.body)({
 					name: room.name
 				}),
+				tags: [ TAG_POST_AUTO_SEED ],
 				parents: [ room.id ],
 				creator: e.creator,
 				createTime: Date.now(),
@@ -133,14 +177,13 @@ function buildThread(room, type) {
 		name,
 		body: name,
 		parents: [ room.id ],
+		tags: [ TAG_POST_GAPI_SEED ],
 		creator: 'bot',
 		createTime: Date.now(),
 	});
-
 }
 
 function buildTexts(place, thread) {
-	console.log('place: ',place);
 	const details = {
 		name: place.details.name,
 		website: place.details.website,
@@ -149,45 +192,60 @@ function buildTexts(place, thread) {
 	};
 
 	const id = uuid.v4();
+	const id2 = uuid.v4();
 	const name = Object.keys(details).reduce((prev, cur) => {
 		if (details[cur]) prev.push(cur + ': ' + details[cur]);
 		return prev;
 	}, []).join(', ');
-	console.log('name: ',name);
-	const url = 'content/' + id + '/image';
+	const url = 'c/' + id + '/image.jpg';
 
 	const text = new Text({
-		id,
+		id: id2,
 		type: TYPE_TEXT,
 		body: name,
 		parents: [ thread.id ],
 		creator: 'bot',
 		createTime: Date.now(),
+		tags: [ TAG_POST_GAPI_SEED ]
 	});
 
-
 	if (!place.photo) {
-		console.log('No photo:');
-		return Promise.resolve(text);
+		return Promise.resolve([ text ]);
 	} else {
 		return upload.urlTos3(place.photo.url, url).then(() => {
+			const text2 = new Text({
+				id,
+				type: TYPE_TEXT,
+				body: name,
+				parents: [ thread.id ],
+				creator: 'bot',
+				createTime: Date.now(),
+				tags: [ TAG_POST_GAPI_SEED ]
+			});
 			text.meta = {
 				photo: {
 					width: place.photo.width,
 					height: place.photo.height,
-					title: name,
-					type: 'photo',
-					thumbnail_height: Math.min(480, width) * aspectRatio,
-					thumbnail_width: Math.min(480, width),
-					thumbnail_url: result.thumbnail,
-				},
+					title: 'image.jpeg',
+					type: 'photo'
+				}
 			};
 
-			text.meta.attributions = place.photo.attributions;
-			text.meta.photo.url = url;
-			text.body = '📷 ' + url;
-			text.name = name;
-			return text;
+			const thumbnail = getThumbnailObject('content', id, place.photo.width / place.photo.height);
+			text.meta.photo.url = getImageUrl('content', id, 'image.jpeg', false);
+			text.meta.photo.thumbnail_url = thumbnail.url;
+			text.meta.photo.thumbnail_width = thumbnail.width;
+			text.meta.photo.thumbnail_height = thumbnail.height;
+
+			if (place.photo.attributions && place.photo.attributions.length) {
+				const attributions = parseAttributions(place.photo.attributions[0]);
+				text.meta.photo.author_name = attributions.author_name;
+				text.meta.photo.author_url = attributions.author_url;
+			}
+
+			text.tags.push(TAG_POST_PHOTO);
+			text.body = '📷 ' + text.meta.photo.url;
+			return [ text, text2 ];
 		});
 	}
 }
@@ -202,12 +260,13 @@ function getPlacesByType(room, type) {
 	).then(results => {
 		const detailsPromises = [];
 
-		results.slice(0, 1).forEach(result => {
+		results.slice(0, 4).forEach(result => {
 			detailsPromises.push(places.getPlaceDetails(result.place_id));
 		});
 
 		return Promise.all(detailsPromises)
 		.then(detailedPlaces => {
+			const photoPromises = [];
 			for (let i = 0; i < detailedPlaces.length; i++) {
 				const place = detailedPlaces[i], details = {
 						name: place.name,
@@ -216,26 +275,26 @@ function getPlacesByType(room, type) {
 						phone: place.formatted_phone_number
 					};
 				if (place.photos && place.photos.length) {
-					detailedPlaces[i] = places.getPhotoFromReference(place.photos[0].photo_reference, 300)
+					photoPromises.push(places.getPhotoFromReference(place.photos[0].photo_reference, 960)
 					.then(photo => ({
 						details,
 						photo: {
 							attributions: place.photos[0].html_attributions,
 							url: photo.location,
-							width: photo.width,
-							height: photo.height,
+							width: 960,
+							height: Math.floor(place.photos[0].height / place.photos[0].width * 960),
 							reference: place.photos[0].photo_reference
 						}
-					}));
+					})));
 				} else {
-					detailedPlaces[i] = Promise.resolve({
+					photoPromises.push(Promise.resolve({
 						details,
 						photo: null
-					});
+					}));
 				}
 			}
 
-			return Promise.all(detailedPlaces).then(res => [ type, res ]);
+			return Promise.all(photoPromises).then(res => [ type, res ]);
 		});
 	});
 }
@@ -293,7 +352,7 @@ function seedGAPIContent(room) {
 // }).then(changes => {
 // 	console.log("final changes:", JSON.stringify(changes));
 // }).catch(e => {
-// 	log.error(e.message);
+// 	log.error('final error',e.message);
 // });
 
 bus.on('postchange', (changes, next) => {
@@ -306,8 +365,11 @@ bus.on('postchange', (changes, next) => {
 			room.tags.indexOf(TAG_ROOM_CITY) === -1 &&
 			room.tags.indexOf(TAG_ROOM_SPOT) === -1
 		) {
-			seedGAPIContent(room).then(changes => {
-				bus.emit('change', changes);
+			seedGAPIContent(room).then(finalChanges => {
+				setTimeout(function(){
+					bus.emit('change', finalChanges);
+				}, 60 * 1000);
+
 			});
 		}
 
