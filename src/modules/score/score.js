@@ -6,13 +6,17 @@ import jsonop from 'jsonop';
 
 const getEntityAsync = promisify(cache.getEntity.bind(cache));
 
-function getScore(entity) {
-	let upvote = typeof (entity.counts.upvote) === 'number' ? entity.counts.upvote : 0,
-		children = typeof (entity.counts.children) === 'number' ? entity.counts.children : 0,
-		follower = typeof (entity.counts.follower) === 'number' ? entity.counts.follower : 0;
+export function getScore(entity) {
+	let upvote = 0, children = 0, follower = 0;
 
-	const updateTime = (entity.updateTime - 1.45E12) / 600000,
-		createTime = (entity.createTime - 1.45E12) / 600000;
+	if (entity.counts) {
+		upvote = typeof (entity.counts.upvote) === 'number' ? entity.counts.upvote : 0;
+		children = typeof (entity.counts.children) === 'number' ? entity.counts.children : 0;
+		follower = typeof (entity.counts.follower) === 'number' ? entity.counts.follower : 0;
+	}
+
+	const updateTime = entity.updateTime ? (entity.updateTime - 1.45E12) / 600000 : 0,
+		createTime = entity.createTime ? (entity.createTime - 1.45E12) / 600000 : 0;
 
 	upvote = 2 * Math.atan(upvote / 1) / Math.PI;
 	children = 2 * Math.atan(children / 5) / Math.PI;
