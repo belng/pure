@@ -6,6 +6,7 @@ import * as Constants from '../../lib/Constants';
 import log from 'winston';
 import User from '../../models/user';
 import Counter from '../../lib/counter';
+import jsonop from 'jsonop';
 
 bus.on('change', (changes, next) => {
 	if (!changes.entities) {
@@ -40,16 +41,17 @@ bus.on('change', (changes, next) => {
 			parent.id = entity.parents[0];
 			parent.type = (entity.type === Constants.TYPE_TEXT) ?
 				Constants.TYPE_THREAD : Constants.TYPE_ROOM;
-			changes.entities[entity.parents[0]] = parent;
+
+			changes.entities[entity.parents[0]] = jsonop.merge(changes.entities[entity.parents[0]], parent);
 
 			// 2. Increment text/thread count of user
 
-			const user = changes.entities[entity.creator] || new User({ id: entity.creator });
+			const user = new User({ id: entity.creator });
 
-			user.counts = user.counts || {};
+			user.counts = {};
 			user.counts[TABLES[entity.type]] = [ inc, '$add' ];
 			user.id = entity.creator;
-			changes.entities[entity.creator] = user;
+			changes.entities[entity.creator] = jsonop.merge(changes.entities[entity.creator], user);
 		}
 
 		 // 3. Increment related counts on items
@@ -94,6 +96,7 @@ bus.on('change', (changes, next) => {
 				const item = changes.entities[entity.item] || {};
 
 				item.counts = item.counts || {};
+
 				exist.forEach((role) => {
 					if (ROLES[role]) {
 						item.counts[ROLES[role]] = [ inc, '$add' ];
