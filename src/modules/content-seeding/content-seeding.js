@@ -358,6 +358,8 @@ function addMeta(room) {
 		};
 		newRoom.params = newRoom.params || {};
 		newRoom.params.placeDetails = e;
+		delete e.address_components;
+		if (e.photos && e.photos.length) e.photos = e.photos.slice(0, 1);
 		return new Room(newRoom);
 	}).catch(e => {
 		log.warn("Error in getting meta data: ",e.message);
