@@ -336,12 +336,18 @@ function buildChange(changes, room) {
 
 function seedGAPIContent(room) {
 	const geometry = room.params.placeDetails.geometry;
-	if (geometry) {
+	if (
+		room.tags &&
+		room.tags.indexOf(TAG_ROOM_CITY) === -1 &&
+		room.tags.indexOf(TAG_ROOM_CITY) === -1 &&
+		geometry
+	) {
 		return buildChange({ entities: {} }, room);
 	} else {
 		return Promise.resolve({});
 	}
 }
+
 log.info('Content seeding module ready.');
 
 function addMeta(room) {
@@ -376,7 +382,7 @@ function saveEntity(entity) {
 
 		setTimeout(() => {
 			bus.emit('change', finalChanges);
-		},  60 * 1000);
+		}, 60000);
 
 	});
 }
