@@ -2,9 +2,10 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
-import AppText from '../AppText';
-import TouchFeedback from '../TouchFeedback';
-import Loading from '../Loading';
+import shallowCompare from 'react-addons-shallow-compare';
+import AppText from '../Core/AppText';
+import TouchFeedback from '../Core/TouchFeedback';
+import Loading from '../Core/Loading';
 import Colors from '../../../Colors';
 
 const {
@@ -53,12 +54,16 @@ export default class LargeButton extends Component<void, Props, void> {
 		style: View.propTypes.style,
 	};
 
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
+
 	render() {
 		return (
 			<View style={styles.container}>
 				<TouchFeedback onPress={this.props.disabled ? null : this.props.onPress}>
 					<View style={[ styles.button, this.props.style ]}>
-						{this.props.spinner ? <Loading style={styles.loader} /> : null}
+						{this.props.spinner ? <Loading style={styles.loader} color={Colors.white} /> : null}
 
 						<AppText style={styles.buttonText}>{this.props.label.toUpperCase()}</AppText>
 					</View>

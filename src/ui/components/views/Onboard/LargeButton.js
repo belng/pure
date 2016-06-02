@@ -2,8 +2,9 @@
 
 import React, { Component, PropTypes } from 'react';
 import Radium from 'radium';
-import TouchFeedback from '../TouchFeedback';
-import Loading from '../Loading';
+import shallowCompare from 'react-addons-shallow-compare';
+import TouchFeedback from '../Core/TouchFeedback';
+import Loading from '../Core/Loading';
 import Colors from '../../../Colors';
 
 const styles = {
@@ -49,12 +50,16 @@ class LargeButton extends Component<void, Props, void> {
 		style: PropTypes.any,
 	};
 
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
+
 	render() {
 		return (
 			<div style={styles.container}>
 				<TouchFeedback onPress={this.props.disabled ? null : this.props.onPress}>
 					<div style={[ styles.button, this.props.style ]}>
-						{this.props.spinner ? <Loading style={styles.loader} /> : null}
+						{this.props.spinner ? <Loading style={styles.loader} color={Colors.white} /> : null}
 
 						<div style={styles.buttonText}>{this.props.label.toUpperCase()}</div>
 					</div>

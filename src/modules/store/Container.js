@@ -3,7 +3,11 @@
 import React, { Component, PropTypes, Children } from 'react';
 import storeShape from './storeShape';
 
-export default class Container extends Component<void, { children: Element }, void> {
+type Props = {
+	children: React.Element;
+}
+
+export default class Container extends Component<void, Props, void> {
 	static contextTypes = {
 		store: storeShape.isRequired,
 	};

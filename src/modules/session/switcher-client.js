@@ -1,12 +1,11 @@
 /* @flow */
 
-import { TAG_USER_CONTENT, TAG_USER_ADMIN } from '../../lib/Constants';
+import { TAG_USER_CONTENT } from '../../lib/Constants';
 import { cache, config } from '../../core-client';
 import store from '../store/store';
 import PersistentStorage from '../../lib/PersistentStorage';
 
 const sessionListStorage = new PersistentStorage('sessionList');
-const roomListStorage = new PersistentStorage('allRoomsList');
 
 const {
 	server: {
@@ -23,15 +22,6 @@ function saveSessionList(list) {
 function removeSessionList() {
 	store.put({ state: { sessionList: null } });
 }
-
-function saveRoomList(list) {
-	store.put({ state: { roomList: list } });
-}
-
-function removeRoomList() {
-	store.put({ state: { sessionList: null } });
-}
-
 
 /*
  * When the user changes, we look for a tag in the user object
@@ -93,33 +83,8 @@ async function fetchUsers(user) {
 	}
 }
 
-async function fetchRooms(user) {
-	if (user.tags && (user.tags.indexOf(TAG_USER_CONTENT) > -1 || user.tags.indexOf(TAG_USER_ADMIN) > -1)) {
-		const currentList = await roomListStorage.getItem('list');
-
-		if (currentList) {
-			saveRoomList(currentList);
-		}
-
-		global.requestIdleCallback(async () => {
-			const res = await fetch(`${protocol}//${host}/s/all_rooms_list.json`);
-
-			try {
-				const list = await res.json();
-
-				roomListStorage.setItem('list', list);
-				saveRoomList(list);
-			} catch (e) {
-				roomListStorage.removeItem('list');
-				removeRoomList();
-			}
-		});
-	}
- }
-
 store.observe({ type: 'me', source: 'sessionswitcher' }).forEach(user => {
 	 if (user) {
 		fetchUsers(user);
-		fetchRooms(user);
 	 }
  });

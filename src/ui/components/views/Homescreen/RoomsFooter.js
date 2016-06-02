@@ -2,11 +2,11 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
+import shallowCompare from 'react-addons-shallow-compare';
 import CTACardContainerHome from '../../containers/CTACardContainerHome';
-import ListItem from '../ListItem';
-import AppText from '../AppText';
-import Icon from '../Icon';
+import ListItem from '../Core/ListItem';
+import AppText from '../Core/AppText';
+import Icon from '../Core/Icon';
 import Colors from '../../../Colors';
 import NavigationActions from '../../../navigation-rfc/Navigation/NavigationActions';
 
@@ -91,7 +91,7 @@ export default class RoomsFooter extends Component<void, Props, State> {
 	}
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-		return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	_getPlaceLabel: Function = ({ places }: Props) => {
