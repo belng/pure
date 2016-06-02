@@ -1,8 +1,10 @@
 import { bus, cache } from '../../core-server';
 import { TYPE_THREAD, TAG_POST_STICKY, APP_PRIORITIES } from '../../lib/Constants';
-import Counter from '../../lib/counter';
+import promisify from '../../lib/promisify';
 import log from 'winston';
 import jsonop from 'jsonop';
+
+const getEntityAsync = promisify(cache.getEntity.bind(cache));
 
 function getScore(entity) {
 	let upvote = typeof (entity.counts.upvote) === 'number' ? entity.counts.upvote : 0,
@@ -22,31 +24,30 @@ function getScore(entity) {
 	return score;
 }
 
-bus.on('change', (changes, next) => {
+bus.on('change', async (changes, next) => {
 	if (!changes.entities) {
 		next();
 		return;
 	}
-	const counter = new Counter();
-	for (const id in changes.entities) {
-		const entity = changes.entities[id];
 
-		if (entity.type === TYPE_THREAD) {
-			counter.inc();
-			cache.getEntity(entity.id, (err, result) => {
-				if (err) {
-					counter.err();
-					return;
-				}
-				const newThread = jsonop.apply(entity, result || {});
-				entity.score = getScore(newThread);
-				counter.dec();
-			});
+	try {
+		const promises = [];
+
+		for (const id in changes.entities) {
+			const entity = changes.entities[id];
+
+			if (entity.type === TYPE_THREAD) {
+				promises.push(getEntityAsync(entity.id).then(result => {
+					const newThread = jsonop.apply(entity, result || {});
+					entity.score = getScore(newThread);
+				}));
+			}
 		}
-	}
-	counter.then(() => {
+		await Promise.all(promises);
 		next();
-	});
+	} catch (e) {
+		next(e);
+	}
 }, APP_PRIORITIES.SCORE);
 
 log.info('Score module ready.');
