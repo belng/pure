@@ -31,7 +31,7 @@ export function initMailSending (userRel) {
 		log.info('No identities found for user: ', user);
 		return;
 	}
-	const	rels = userRel.currentRels.splice(0, 4),
+	const	rels = userRel.currentRels,
 		mailIds = user.identities.filter((el) => {
 			return /mailto:/.test(el);
 		});
@@ -44,9 +44,8 @@ export function initMailSending (userRel) {
 				rooms: rels,
 			}),
 			emailSub = getSubject(rels);
-			console.log('Digest email to: ', emailAdd)
 // console.log("rels[0].threads: ", rels)
-		send(conf.from, /*emailAdd*/'ja.chandrakant@gmail.com', emailSub, emailHtml, (e) => {
+		send(conf.from, emailAdd, emailSub, emailHtml, (e) => {
 			if (!e) {
 				log.info('Digest email successfully sent');
 				counter1.dec();
@@ -68,8 +67,9 @@ export function initMailSending (userRel) {
 function sendDigestEmail () {
 	log.info('Starting digest email');
 	const startPoint = Date.now() - 2 * DIGEST_DELAY,
+		counter = new Counter();
 
-		end = Date.now() - DIGEST_DELAY;
+	end = Date.now() - DIGEST_DELAY;
 	let	start = lastEmailSent < startPoint ? lastEmailSent : startPoint;
 
 	function getTimezone(hour) {
@@ -86,29 +86,42 @@ function sendDigestEmail () {
 	const timeZone = getTimezone(conf.digestEmailTime);
 
 	log.info('timezone: ', timeZone);
-	// if (conf.debug) {
-	// 	start = 0; end = Date.now(); /* tz.min = 0; tz.max = 1000; */
-	// }
+	if (conf.debug) {
+		start = 0; end = Date.now(); /* tz.min = 0; tz.max = 1000; */
+	}
 
 	pg.readStream(config.connStr, {
-		$: 'with urel as (select rrls.presencetime ptime, users.name uname, * from users join roomrels rrls on users.id=rrls.user where params->> \'email\' <> \'{"frequency": "never", "notifications": false}\' and roles @> \'{3}\' and rrls.presencetime >= &{start} and rrls.presencetime < &{end} and timezone >= &{min} and timezone < &{max}) select threads.counts->>\'children\' children, urel.identities, urel.id userid, threads.body threadbody, threads.score, threads.name threadtitle, threads.createtime tctime, threads.id threadId, rooms.name roomname, rooms.id roomid from urel, threads, rooms where threads.parents[1]=urel.item and urel.item=rooms.id order by urel.id', // where threads.createtime > urel.ptime
+		$: 'with urel as (select rrls.presencetime ptime, users.name uname, * from users join roomrels rrls on users.id=rrls.user where NOT(params  @> \'{"email":{"frequency": "never", "notifications": false}}\') and roles @> \'{3}\' and rrls.presencetime >= &{start} and rrls.presencetime < &{end} and timezone >= &{min} and timezone < &{max}) select threads.counts, urel.params, urel.tags, threads.createtime tctime, threads.id threadId, * from urel join threads on threads.parents[1]=urel.item order by urel.id', // where threads.createtime > urel.ptime
 		start,
 		end,
 		follower: Constants.ROLE_FOLLOWER,
 		min: timeZone.min,
 		max: timeZone.max,
 	}).on('row', (urel) => {
-	// console.log('Got user for digest email: ', urel.userid);
-			console.log(urel)
-		const emailObj = getMailObj(urel) || {};
+	// console.log('Got user for digest email: ', urel);
+		counter.inc();
+		pg.read(config.connStr, {
+			$: 'select * from rooms where id=&{id} ', // and presencetime<&{roletime}
+			id: urel.parents[0],
+		}, (err, room) => {
+			if (err) throw err;
+			urel.roomName = room[0].name;
+			urel.roomId = room[0].id;
+			// console.log(urel)
+			const emailObj = getMailObj(urel) || {};
 
-		if (Object.keys(emailObj).length !== 0) {
-			// console.log('send email now: ', emailObj);
-			initMailSending(emailObj);
-		}
+// console.log(emailObj)
+			if (Object.keys(emailObj).length !== 0) {
+				initMailSending(emailObj);
+			}
+			counter.dec();
+			counter.then(() => {
+				const c = getMailObj({});
+
+				initMailSending(c);
+			});
+		});
 	}).on('end', () => {
-		const c = getMailObj({});
-		initMailSending(c);
 		log.info('ended digest email');
 	});
 }
