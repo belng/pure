@@ -43,13 +43,13 @@ export default class PageEmpty extends Component<void, Props, void> {
 	_getImageSource: Function = name => {
 		switch (name) {
 		case 'cool':
-			return require('../../../../assets/monkey-cool.png');
+			return require('../../../../../assets/monkey-cool.png');
 		case 'happy':
-			return require('../../../../assets/monkey-happy.png');
+			return require('../../../../../assets/monkey-happy.png');
 		case 'meh':
-			return require('../../../../assets/monkey-meh.png');
+			return require('../../../../../assets/monkey-meh.png');
 		case 'sad':
-			return require('../../../../assets/monkey-sad.png');
+			return require('../../../../../assets/monkey-sad.png');
 		default:
 			return null;
 		}
