@@ -12,6 +12,7 @@
 	 config = require('./src/core-server').config;
  }
 
+
 if (config.newrelic.key) {
 	console.log('Starting newrelic.');
 	exports.config = {
