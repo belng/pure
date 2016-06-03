@@ -30,7 +30,7 @@ import '../modules/belong/belong';
 import '../modules/content-seeding/content-seeding';
 
 // Email server
-// import '../modules/email/email-daemon';
+import '../modules/email/email-daemon';
 // Moderator UI
 import '../modules/modui/modui-server';
 

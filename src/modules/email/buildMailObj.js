@@ -7,7 +7,7 @@ function userFromUserRel(user) {
 	return {
 		id: user.userid,
 		identities: user.identities,
-		createTime: user.createTime
+		// createTime: user.createTime
 	};
 }
 
@@ -92,8 +92,11 @@ function buildMailObj(userRel) {
 				// return b.score - a.score;
 				return b.count - a.count;
 			});
+			// cUserRel.currentRels[i].threads.slice(0, 4);
 		}
+		console.log("cuserrel: ", cUserRel)
 	}
+
 	return cUserRel;
 }
 

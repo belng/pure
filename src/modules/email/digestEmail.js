@@ -24,17 +24,18 @@ function getSubject() {
 }
 
 export function initMailSending (userRel) {
-	// console.log("init mio djf: ", userRel)
+	console.log("init mio djf: ", userRel)
 	// console.log("counter1.pending: ", counter1.pending)
 	const user = userRel.currentUser;
 	if (!user.identities || !Array.isArray(user.identities)) {
 		log.info('No identities found for user: ', user);
 		return;
 	}
-	const	rels = userRel.currentRels.splice(0, 4),
+	const	rels = userRel.currentRels,
 		mailIds = user.identities.filter((el) => {
 			return /mailto:/.test(el);
 		});
+		// console.log("rels[0].threads: ", rels);
 	mailIds.forEach((mailId) => {
 		counter1.inc();
 		const emailAdd = mailId.slice(7),
@@ -45,7 +46,7 @@ export function initMailSending (userRel) {
 			}),
 			emailSub = getSubject(rels);
 			console.log('Digest email to: ', emailAdd)
-// console.log("rels[0].threads: ", rels)
+//
 		send(conf.from, /*emailAdd*/'ja.chandrakant@gmail.com', emailSub, emailHtml, (e) => {
 			if (!e) {
 				log.info('Digest email successfully sent');
@@ -55,13 +56,14 @@ export function initMailSending (userRel) {
 		});
 	});
 	counter1.then(() => {
-		pg.write(connStr, [ {
-			$: 'UPDATE jobs SET lastrun=&{end} WHERE id=&{jid}',
-			end,
-			jid: Constants.JOB_EMAIL_DIGEST,
-		} ], (error) => {
-			if (!error) log.info('successfully updated jobs for digest email');
-		});
+		log.info('successfully updated jobs for digest email');
+		// pg.write(connStr, [ {
+		// 	$: 'UPDATE jobs SET lastrun=&{end} WHERE id=&{jid}',
+		// 	end,
+		// 	jid: Constants.JOB_EMAIL_DIGEST,
+		// } ], (error) => {
+		// 	if (!error) log.info('successfully updated jobs for digest email');
+		// });
 	});
 }
 
@@ -80,7 +82,8 @@ function sendDigestEmail () {
 			tzMin = tz - 30,
 			tzMax = tz + 30;
 
-		return { min: parseInt(tzMin), max: parseInt(tzMax) };
+		// return { min: parseInt(tzMin), max: parseInt(tzMax) };
+		return { min: 300, max: 500 };
 	}
 
 	const timeZone = getTimezone(conf.digestEmailTime);
@@ -99,7 +102,7 @@ function sendDigestEmail () {
 		max: timeZone.max,
 	}).on('row', (urel) => {
 	// console.log('Got user for digest email: ', urel.userid);
-			console.log(urel)
+			// console.log(urel)
 		const emailObj = getMailObj(urel) || {};
 
 		if (Object.keys(emailObj).length !== 0) {
