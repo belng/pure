@@ -2,8 +2,6 @@ import test from 'ava';
 import query from '../query';
 
 test('bounds query', t => {
-	t.plan(1);
-
 	t.deepEqual(query({
 		type: 'room',
 		join: { rel: 'room' },
@@ -18,7 +16,6 @@ test('bounds query', t => {
 });
 
 test('before/after query', (t) => {
-	t.plan(1);
 	t.deepEqual(query({
 		type: 'room',
 		join: { rel: 'room' },
@@ -33,7 +30,6 @@ test('before/after query', (t) => {
 });
 
 test('Should handle column name conflicts', (t) => {
-	t.plan(1);
 	t.deepEqual(query({
 		type: 'room',
 		join: { rel: 'room' },
