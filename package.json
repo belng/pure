@@ -16,6 +16,7 @@
     "eslint": "^2.10.2",
     "handlebars": "^4.0.5",
     "immutable": "^3.8.1",
+    "invariant": "^2.2.1",
     "jsonop": "^3.0.1",
     "jsonwebtoken": "^5.7.0",
     "juri": "^1.0.2",

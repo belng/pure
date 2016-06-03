@@ -14,7 +14,6 @@ function validateTime(changes, next) {
 			delete changes.entities[id];
 			continue;
 		}
-		console.log("time module1: ", entity)
 		counter.inc();
 		cache.getEntity(id, (err, result) => { // eslint-disable-line no-loop-func
 			if (err) {
@@ -37,7 +36,6 @@ function validateTime(changes, next) {
 					}
 				}
 			}
-			console.log("time module2: ", entity)
 			counter.dec();
 		});
 	}
