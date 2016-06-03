@@ -2,11 +2,12 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import ProfileField from './ProfileField';
-import AppText from '../AppText';
-import AvatarRound from '../AvatarRound';
-import PageLoading from '../PageLoading';
-import PageEmpty from '../PageEmpty';
+import AppText from '../Core/AppText';
+import AvatarRound from '../Avatar/AvatarRound';
+import PageLoading from '../Page/PageLoading';
+import PageEmpty from '../Page/PageEmpty';
 import NavigationActions from '../../../navigation-rfc/Navigation/NavigationActions';
 import Colors from '../../../Colors';
 import {
@@ -21,6 +22,7 @@ const {
 	StyleSheet,
 	ScrollView,
 	View,
+	PixelRatio,
 } = ReactNative;
 
 const styles = StyleSheet.create({
@@ -32,8 +34,12 @@ const styles = StyleSheet.create({
 	cover: {
 		height: null,
 		width: null,
-		alignItems: 'center',
+		alignItems: 'stretch',
 		justifyContent: 'center',
+	},
+
+	avatarContainer: {
+		alignItems: 'center',
 		padding: 16,
 	},
 
@@ -49,6 +55,32 @@ const styles = StyleSheet.create({
 
 	info: {
 		padding: 8,
+	},
+
+	achievements: {
+		flexDirection: 'row',
+		paddingHorizontal: 32,
+		borderBottomColor: Colors.separator,
+		borderBottomWidth: 1 / PixelRatio.get(),
+	},
+
+	score: {
+		flex: 1,
+		alignItems: 'center',
+		padding: 8,
+	},
+
+	scoreCount: {
+		color: Colors.primary,
+		fontSize: 24,
+		lineHeight: 36,
+	},
+
+	scoreLabel: {
+		color: Colors.darkGrey,
+		fontSize: 8,
+		lineHeight: 12,
+		opacity: 0.7,
 	},
 
 	id: {
@@ -113,6 +145,10 @@ export default class Profile extends Component<void, Props, void> {
 		onNavigation: PropTypes.func.isRequired,
 	};
 
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
+
 	_goToAccount: Function = () => {
 		this.props.onNavigation(new NavigationActions.Push({
 			name: 'account',
@@ -147,21 +183,37 @@ export default class Profile extends Component<void, Props, void> {
 				<ScrollView>
 					<Image style={styles.cover} source={require('../../../../../assets/profile-cover.jpg')}>
 						<View style={styles.tint} />
-						<View style={styles.coverInner}>
-							<AvatarRound
-								style={styles.avatar}
-								user={user.id}
-								size={160}
-							/>
-							<View style={styles.info}>
-								<AppText style={styles.id}>{user.id}</AppText>
-								{user.name ?
-									<AppText style={styles.name}>{user.name}</AppText> :
-									null
-								}
+						<View>
+							<View style={styles.avatarContainer}>
+								<AvatarRound
+									style={styles.avatar}
+									user={user.id}
+									size={160}
+								/>
+								<View style={styles.info}>
+									<AppText style={styles.id}>{user.id}</AppText>
+									{user.name ?
+										<AppText style={styles.name}>{user.name}</AppText> :
+										null
+									}
+								</View>
 							</View>
 						</View>
 					</Image>
+					<View style={styles.achievements}>
+						<View style={styles.score}>
+							<AppText style={styles.scoreCount}>
+								{user.counts && user.counts.texts ? user.counts.texts : 0}
+							</AppText>
+							<AppText style={styles.scoreLabel}>MESSAGES</AppText>
+						</View>
+						<View style={styles.score}>
+							<AppText style={styles.scoreCount}>
+								{user.counts && user.counts.threads ? user.counts.threads : 0}
+							</AppText>
+							<AppText style={styles.scoreLabel}>DISCUSSIONS</AppText>
+						</View>
+					</View>
 					<View style={styles.info}>
 						<ProfileField
 							action={own ? 'Add status' : null}
@@ -203,7 +255,7 @@ export default class Profile extends Component<void, Props, void> {
 						}
 					</View>
 				</ScrollView>
-				</View>
-			);
+			</View>
+		);
 	}
 }

@@ -2,23 +2,22 @@
 
 import './Client-base';
 import React, { Component } from 'react';
-import ReactNative from 'react-native';
+import ReactDOM from 'react-dom';
+import { StyleRoot } from 'radium';
 import AppContainer from './components/containers/AppContainer';
 import Provider from '../modules/store/Provider';
 import store from '../modules/store/store';
 
-const {
-	AppRegistry,
-} = ReactNative;
-
 export default class Belong extends Component {
 	render() {
 		return (
-			<Provider store={store}>
-				<AppContainer />
-			</Provider>
+			<StyleRoot>
+				<Provider store={store}>
+					<AppContainer />
+				</Provider>
+			</StyleRoot>
 		);
 	}
 }
 
-AppRegistry.registerComponent('Belong', () => Belong);
+ReactDOM.render(<Belong />, document.getElementById('root'));

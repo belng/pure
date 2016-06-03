@@ -2,15 +2,15 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import PlacesSelectorContainer from '../../containers/PlaceSelectorContainer';
 import PlaceItem from './PlaceItem';
 import PlaceButton from './PlaceButton';
 import PlacesSelectorTip from './PlacesSelectorTip';
-import Modal from '../Modal';
+import Modal from '../Core/Modal';
 
 const {
 	View,
-	InteractionManager,
 } = ReactNative;
 
 const TYPES = [
@@ -49,42 +49,68 @@ type Props = {
 	}
 }
 
-export default class PlaceManager extends Component<void, Props, void> {
+type State = {
+	currentType: ?'home' | 'work' | 'hometown';
+}
+
+export default class PlaceManager extends Component<void, Props, State> {
 	static propTypes = {
 		onPlaceAdded: PropTypes.func.isRequired,
 		onPlaceRemoved: PropTypes.func.isRequired,
 		places: PropTypes.objectOf(PropTypes.object).isRequired,
 	};
 
-	_handleDismissModal: Function = () => {
-		Modal.renderChild(null);
+	state: State = {
+		currentType: null,
 	};
 
-	_handleSelectItem: Function = (type: string, place) => {
-		this._handleDismissModal();
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
 
-		InteractionManager.runAfterInteractions(() => {
-			this.props.onPlaceAdded(type, {
-				id: place.placeId,
-				title: place.primaryText || '',
-				description: place.secondaryText || '',
-			});
+	_handleRequestClose: Function = () => {
+		this.setState({
+			currentType: null,
 		});
+	};
+
+	_handleSelectItem: Function = (place) => {
+		this.props.onPlaceAdded(this.state.currentType, {
+			id: place.placeId,
+			title: place.primaryText || '',
+			description: place.secondaryText || '',
+		});
+		this._handleRequestClose();
 	};
 
 	_handleRemoveLocality: Function = (type: string) => {
 		this.props.onPlaceRemoved(type, this.props.places[type]);
 	};
 
-	_handlePress: Function = type => {
-		Modal.renderChild(
-			<PlacesSelectorContainer
-				onCancel={this._handleDismissModal}
-				onSelectPlace={place => this._handleSelectItem(type, place)}
-				renderBlankslate={() => <PlacesSelectorTip type={type} />}
-				searchHint={TYPES.filter(c => c.type === type)[0].search}
-			/>
-		);
+	_handlePress: Function = currentType => {
+		this.setState({
+			currentType,
+		});
+	};
+
+	_renderBlankSlate: Function = () => {
+		const type = this.state.currentType;
+
+		if (type) {
+			return <PlacesSelectorTip type={type} />;
+		}
+
+		return null;
+	};
+
+	_getSearchHint: Function = () => {
+		const types = TYPES.filter(c => c.type === this.state.currentType);
+
+		if (types && types.length) {
+			return types[0].search;
+		}
+
+		return null;
 	};
 
 	render() {
@@ -114,6 +140,19 @@ export default class PlaceManager extends Component<void, Props, void> {
 						/>
 					);
 				})}
+
+				<Modal
+					visible={!!this.state.currentType}
+					animationType='fade'
+					onRequestClose={this._handleRequestClose}
+				>
+					<PlacesSelectorContainer
+						onCancel={this._handleRequestClose}
+						onSelectPlace={this._handleSelectItem}
+						renderBlankslate={this._renderBlankSlate}
+						searchHint={this._getSearchHint()}
+					/>
+				</Modal>
 			</View>
 		);
 	}

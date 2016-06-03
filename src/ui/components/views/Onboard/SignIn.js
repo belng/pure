@@ -1,53 +1,61 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import ReactNative from 'react-native';
-import AppText from '../AppText';
+import Radium from 'radium';
+import shallowCompare from 'react-addons-shallow-compare';
 import LargeButton from './LargeButton';
 import GoogleSignIn from '../../../modules/GoogleSignIn';
 import Facebook from '../../../modules/Facebook';
 import Colors from '../../../Colors';
 
-global.GoogleSignIn = GoogleSignIn;
-
-const {
-	StyleSheet,
-	View,
-	ToastAndroid,
-	Image,
-} = ReactNative;
-
-const styles = StyleSheet.create({
+const styles = {
 	container: {
-		flex: 1,
-		flexDirection: 'row',
+		display: 'flex',
+		flexDirection: 'column',
 		alignItems: 'stretch',
+		justifyContent: 'center',
+		height: '100%',
+		width: '100%',
+		textAlign: 'center',
 		backgroundColor: Colors.primary,
-	},
-	cover: {
-		flex: 1,
-		width: null,
-		height: null,
+		backgroundImage: `url(${require('../../../../../assets/signin_bg.jpg')})`, // eslint-disable-line import/no-commonjs
+		backgroundSize: 'cover',
+		backgroundRepeat: 'no-repeat',
 	},
 	overlay: {
+		display: 'flex',
+		flexDirection: 'column',
+		flex: 1,
+		alignItems: 'center',
+		backgroundColor: Colors.fadedBlack,
+	},
+	inner: {
+		display: 'flex',
+		flexDirection: 'column',
 		flex: 1,
 		alignItems: 'stretch',
 		padding: 32,
-		backgroundColor: Colors.fadedBlack,
+		width: '100%',
+		maxWidth: 480,
+	},
+	error: {
+		padding: 8,
+		backgroundColor: Colors.error,
+		color: Colors.white,
+		borderTopLeftRadius: 3,
+		borderTopRightRadius: 3,
+		width: '100%',
+		maxWidth: 480 - (32 * 2),
+	},
+	phantom: {
+		visibility: 'hidden',
 	},
 	image: {
-		resizeMode: 'contain',
+		display: 'block',
 		margin: 8,
 	},
-	imageLogo: {
-		height: 60,
-		width: 51,
-	},
-	imageLogoType: {
-		height: 39,
-		width: 111,
-	},
 	logoContainer: {
+		display: 'flex',
 		flex: 1,
 		flexDirection: 'row',
 		alignItems: 'center',
@@ -70,14 +78,14 @@ const styles = StyleSheet.create({
 	google: {
 		backgroundColor: Colors.google,
 	},
-});
+};
 
 const PROVIDER_GOOGLE = 'google';
 const PROVIDER_FACEBOOK = 'facebook';
 const PERMISSION_PUBLIC_PROFILE = 'public_profile';
 const PERMISSION_EMAIL = 'email';
 
-type Token = { accessToken: string; } | { idToken: string; };
+type Token = { accessToken: string; } | { idToken: string; } | { code: string; };
 
 type Props = {
 	signIn: (provider: string, token: Token) => void
@@ -86,9 +94,10 @@ type Props = {
 type State = {
 	googleLoading: boolean;
 	facebookLoading: boolean;
+	failureMessage: ?string;
 }
 
-export default class SignIn extends Component<void, Props, State> {
+class SignIn extends Component<void, Props, State> {
 	static propTypes = {
 		signIn: PropTypes.func.isRequired,
 	};
@@ -96,22 +105,32 @@ export default class SignIn extends Component<void, Props, State> {
 	state: State = {
 		googleLoading: false,
 		facebookLoading: false,
+		failureMessage: null,
+	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
+
+	_setFailureMessage: Function = (message: string) => {
+		this.setState({
+			failureMessage: message,
+		}, () => {
+			setTimeout(() => {
+				if (this.state.failureMessage === message) {
+					this.setState({
+						failureMessage: null,
+					});
+				}
+			}, 3000);
+		});
 	};
 
 	_showFailureMessage: Function = () => {
-		ToastAndroid.show('Failed to sign in', ToastAndroid.SHORT);
+		this._setFailureMessage('Failed to sign in');
 	};
 
 	_onSignInSuccess: Function = (provider: string, auth: Token) => {
-		switch (provider) {
-		case PROVIDER_GOOGLE:
-			ToastAndroid.show('Signing in with Google', ToastAndroid.SHORT);
-			break;
-		case PROVIDER_FACEBOOK:
-			ToastAndroid.show('Signing in with Facebook', ToastAndroid.SHORT);
-			break;
-		}
-
 		this.props.signIn(provider, auth);
 	};
 
@@ -137,24 +156,15 @@ export default class SignIn extends Component<void, Props, State> {
 			]);
 
 			const {
-				permissions_granted,
-				access_token,
+				code,
 			} = result;
 
-			if (
-				permissions_granted.length &&
-				permissions_granted.indexOf(PERMISSION_PUBLIC_PROFILE) > -1 &&
-				permissions_granted.indexOf(PERMISSION_EMAIL) > -1
-			) {
-
-				if (access_token) {
-					this._onSignInSuccess(PROVIDER_FACEBOOK, { accessToken: access_token });
-				} else {
-					this._onSignInFailure(PROVIDER_FACEBOOK);
-				}
+			if (code) {
+				this._onSignInSuccess(PROVIDER_FACEBOOK, { code });
 			} else {
 				this._onSignInFailure(PROVIDER_FACEBOOK);
 			}
+
 		} catch (e) {
 			if (e.code !== 'ERR_SIGNIN_CANCELLED') {
 				this._showFailureMessage();
@@ -168,8 +178,8 @@ export default class SignIn extends Component<void, Props, State> {
 		try {
 			const result = await GoogleSignIn.signIn();
 
-			if (result.id_token) {
-				this._onSignInSuccess(PROVIDER_GOOGLE, { idToken: result.id_token });
+			if (result.code) {
+				this._onSignInSuccess(PROVIDER_GOOGLE, { code: result.code });
 			} else {
 				this._onSignInFailure(PROVIDER_GOOGLE);
 			}
@@ -200,15 +210,15 @@ export default class SignIn extends Component<void, Props, State> {
 
 	render() {
 		return (
-			<View style={styles.container}>
-				<Image source={require('../../../../../assets/signin_bg.jpg')} style={styles.cover}>
-					<View style={styles.overlay}>
-						<View style={styles.logoContainer}>
-							<Image source={require('../../../../../assets/logo-white.png')} style={[ styles.image, styles.imageLogo ]} />
-							<Image source={require('../../../../../assets/logotype-white.png')} style={[ styles.image, styles.imageLogoType ]} />
-						</View>
-						<View style={styles.buttonContainer}>
-							<AppText style={styles.tip}>SIGN IN OR SIGN UP WITH</AppText>
+			<div style={styles.container}>
+				<div style={styles.overlay}>
+					<div style={styles.inner}>
+						<div style={styles.logoContainer}>
+							<img src={require('../../../../../assets/logo-white.png')} style={styles.image} />
+							<img src={require('../../../../../assets/logotype-white.png')} style={styles.image} />
+						</div>
+						<div style={styles.buttonContainer}>
+							<div style={styles.tip}>SIGN IN OR SIGN UP WITH</div>
 							<LargeButton
 								style={styles.facebook}
 								spinner={this.state.facebookLoading}
@@ -223,10 +233,15 @@ export default class SignIn extends Component<void, Props, State> {
 								label={this.state.googleLoading ? '' : 'Google'}
 								onPress={this._handleGooglePress}
 							/>
-						</View>
-					</View>
-				</Image>
-			</View>
+						</div>
+					</div>
+					<div style={[ styles.error, this.state.failureMessage ? null : styles.phantom ]}>
+						{this.state.failureMessage || '&nbsp;'}
+					</div>
+				</div>
+			</div>
 		);
 	}
 }
+
+export default Radium(SignIn);

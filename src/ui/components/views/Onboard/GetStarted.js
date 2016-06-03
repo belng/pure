@@ -2,17 +2,18 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import NextButton from './NextButton';
-import StatusbarWrapper from '../StatusbarWrapper';
 import OnboardTitle from './OnboardTitle';
 import OnboardParagraph from './OnboardParagraph';
-import TouchFeedback from '../TouchFeedback';
-import Icon from '../Icon';
-import AppText from '../AppText';
+import TouchFeedback from '../Core/TouchFeedback';
+import Icon from '../Core/Icon';
+import AppText from '../Core/AppText';
 import Colors from '../../../Colors';
 
 const {
 	View,
+	StatusBar,
 	StyleSheet,
 	Image,
 } = ReactNative;
@@ -89,6 +90,10 @@ export default class GetStarted extends Component<void, Props, void> {
 		}),
 	};
 
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
+
 	_handleInvitePress: Function = () => {
 		this.props.onChangeField('invite', !this.props.fields.invite.value);
 	};
@@ -100,7 +105,7 @@ export default class GetStarted extends Component<void, Props, void> {
 
 		return (
 			<View style={styles.container}>
-				<StatusbarWrapper />
+				<StatusBar backgroundColor={Colors.grey} />
 				<View style={[ styles.container, styles.inner ]}>
 					<OnboardTitle style={styles.text}>
 						You are all set!

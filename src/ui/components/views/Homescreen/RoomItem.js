@@ -2,14 +2,15 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
-import shallowEqual from 'shallowequal';
-import Colors from '../../../Colors';
-import AppText from '../AppText';
-import ListItem from '../ListItem';
-import Icon from '../Icon';
-import Modal from '../Modal';
-import Time from '../Time';
+import shallowCompare from 'react-addons-shallow-compare';
+import AppText from '../Core/AppText';
+import ListItem from '../Core/ListItem';
+import Icon from '../Core/Icon';
+import Time from '../Core/Time';
+import ActionSheet from '../Core/ActionSheet';
+import ActionSheetItem from '../Core/ActionSheetItem';
 import Share from '../../../modules/Share';
+import Colors from '../../../Colors';
 import { convertRouteToURL } from '../../../../lib/Route';
 import { config } from '../../../../core-client';
 
@@ -73,7 +74,11 @@ type Props = {
 	onSelect: Function;
 }
 
-export default class RoomItem extends Component<void, Props, void> {
+type State = {
+	actionSheetVisible: boolean;
+}
+
+export default class RoomItem extends Component<void, Props, State> {
 	static propTypes = {
 		room: PropTypes.shape({
 			id: PropTypes.string.isRequired,
@@ -83,27 +88,45 @@ export default class RoomItem extends Component<void, Props, void> {
 		onSelect: PropTypes.func,
 	};
 
-	shouldComponentUpdate(nextProps: Props): boolean {
-		return !shallowEqual(this.props, nextProps);
+	state: State = {
+		actionSheetVisible: false,
+	};
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
-	_handleShowMenu: Function = () => {
+	_getRoomLink: Function = () => {
 		const { room } = this.props;
 
-		const options = [];
-		const actions = [];
-
-		options.push('Share group');
-		actions.push(() => {
-			Share.shareItem('Share group', config.server.protocol + '//' + config.server.host + convertRouteToURL({
-				name: 'room',
-				props: {
-					room: room.id,
-				},
-			}));
+		return config.server.protocol + '//' + config.server.host + convertRouteToURL({
+			name: 'room',
+			props: {
+				room: room.id,
+			},
 		});
+	};
 
-		Modal.showActionSheetWithOptions({ options }, index => actions[index]());
+	_getShareText: Function = () => {
+		const { room } = this.props;
+
+		return `Hey! Join me in the ${room.name} group on ${config.app_name}.\n${this._getRoomLink()}`;
+	};
+
+	_handleInvite: Function = () => {
+		Share.shareItem('Share group', this._getShareText());
+	};
+
+	_handleShowMenu: Function = () => {
+		this.setState({
+			actionSheetVisible: true,
+		});
+	};
+
+	_handleRequestClose: Function = () => {
+		this.setState({
+			actionSheetVisible: false,
+		});
 	};
 
 	_handlePress: Function = () => {
@@ -159,6 +182,12 @@ export default class RoomItem extends Component<void, Props, void> {
 						size={20}
 					/>
 				</TouchableOpacity>
+
+				<ActionSheet visible={this.state.actionSheetVisible} onRequestClose={this._handleRequestClose}>
+					<ActionSheetItem onPress={this._handleInvite}>
+						Invite friends to group
+					</ActionSheetItem>
+				</ActionSheet>
 			</ListItem>
 		);
 	}

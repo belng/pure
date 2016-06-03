@@ -3,13 +3,16 @@
 import React, { Component, PropTypes } from 'react';
 import debounce from 'lodash/debounce';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
+import AppText from '../Core/AppText';
+import Icon from '../Core/Icon';
+import PageLoading from '../Page/PageLoading';
+import PageEmpty from '../Page/PageEmpty';
+import TouchFeedback from '../Core/TouchFeedback';
+import AppTextInput from '../Core/AppTextInput';
+import ActionSheet from '../Core/ActionSheet';
+import ActionSheetItem from '../Core/ActionSheetItem';
 import Colors from '../../../Colors';
-import AppText from '../AppText';
-import PageLoading from '../PageLoading';
-import PageEmpty from '../PageEmpty';
-import Modal from '../Modal';
-import Icon from '../Icon';
-import TouchFeedback from '../TouchFeedback';
 import GCMPreferences from '../../../modules/GCMPreferences';
 import type { User } from '../../../../lib/schemaTypes';
 
@@ -18,7 +21,6 @@ const {
 	ScrollView,
 	View,
 	PixelRatio,
-	TextInput,
 	Switch,
 } = ReactNative;
 
@@ -90,6 +92,7 @@ type Props = {
 
 type State = {
 	GCMEnabled: boolean;
+	frequencySheetVisible: boolean;
 }
 
 const PUSH_NOTIFICATION_ENABLED_KEY = 'enabled';
@@ -112,10 +115,15 @@ export default class Account extends Component<void, Props, State> {
 
 	state: State = {
 		GCMEnabled: true,
+		frequencySheetVisible: false,
 	};
 
 	componentWillMount() {
 		this._updateGCMValue();
+	}
+
+	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+		return shallowCompare(this, nextProps, nextState);
 	}
 
 	_saveUser: Function = debounce(user => this.props.saveUser(user), 1000);
@@ -192,12 +200,20 @@ export default class Account extends Component<void, Props, State> {
 		this.props.saveParams({ ...params, email });
 	};
 
-	_handleSelectFrequency: Function = () => {
-		const options = [ 'Daily', 'Never' ];
+	_getSelectFrequencyHandler: Function = value => {
+		return () => this._handleEmailFrequencyChange(value);
+	};
 
-		Modal.showActionSheetWithOptions({ options }, i =>
-			this._handleEmailFrequencyChange(options[i].toLowerCase())
-		);
+	_handleShowFrequencySheet: Function = () => {
+		this.setState({
+			frequencySheetVisible: true,
+		});
+	};
+
+	_handleRequestCloseFrequencySheet: Function = () => {
+		this.setState({
+			frequencySheetVisible: false,
+		});
 	};
 
 	_handleSignOut: Function = () => {
@@ -231,7 +247,7 @@ export default class Account extends Component<void, Props, State> {
 							name='face'
 							size={18}
 						/>
-						<TextInput
+						<AppTextInput
 							style={[ styles.input, styles.growing ]}
 							defaultValue={user.name}
 							placeholder='Full name'
@@ -246,7 +262,7 @@ export default class Account extends Component<void, Props, State> {
 							name='short-text'
 							size={18}
 						/>
-						<TextInput
+						<AppTextInput
 							style={[ styles.input, styles.growing ]}
 							defaultValue={user.meta ? user.meta.description : ''}
 							placeholder='Status'
@@ -262,7 +278,7 @@ export default class Account extends Component<void, Props, State> {
 							name='business-center'
 							size={18}
 						/>
-						<TextInput
+						<AppTextInput
 							style={[ styles.input, styles.growing ]}
 							defaultValue={user.meta ? user.meta.occupation : ''}
 							placeholder='Occupation'
@@ -292,7 +308,7 @@ export default class Account extends Component<void, Props, State> {
 							onValueChange={this._handleEmailNotificationChange}
 						/>
 					</View>
-					<TouchFeedback onPress={this._handleSelectFrequency}>
+					<TouchFeedback onPress={this._handleShowFrequencySheet}>
 						<View style={styles.item}>
 							<View style={styles.itemLabel}>
 								<AppText style={styles.itemText}>Email digest frequency</AppText>
@@ -303,6 +319,18 @@ export default class Account extends Component<void, Props, State> {
 									}
 								</AppText>
 							</View>
+
+							<ActionSheet
+								visible={this.state.frequencySheetVisible}
+								onRequestClose={this._handleRequestCloseFrequencySheet}
+							>
+								<ActionSheetItem onPress={this._getSelectFrequencyHandler('daily')}>
+									Daily
+								</ActionSheetItem>
+								<ActionSheetItem onPress={this._getSelectFrequencyHandler('never')}>
+									Never
+								</ActionSheetItem>
+							</ActionSheet>
 						</View>
 					</TouchFeedback>
 				</View>

@@ -2,11 +2,10 @@
 
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
+import shallowCompare from 'react-addons-shallow-compare';
 import LocationItem from './LocationItem';
 import PoweredByGoogle from './PoweredByGoogle';
-import KeyboardSpacer from '../KeyboardSpacer';
-import StatusbarWrapper from '../StatusbarWrapper';
-import SearchableList from '../SearchableList';
+import SearchableList from '../Search/SearchableList';
 import Colors from '../../../Colors';
 import GooglePlaces from '../../../modules/GooglePlaces';
 
@@ -51,6 +50,10 @@ export default class PlacesSelector extends Component<void, Props, void> {
 		searchHint: PropTypes.string.isRequired,
 	};
 
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
+		return shallowCompare(this, nextProps, nextState);
+	}
+
 	_getResults: Function = (query: string) => GooglePlaces.getAutoCompletePredictions(
 		query, [ this.props.location ], []
 	);
@@ -60,7 +63,6 @@ export default class PlacesSelector extends Component<void, Props, void> {
 	render() {
 		return (
 			<View style={styles.container}>
-				<StatusbarWrapper />
 				<SearchableList
 					getResults={this._getResults}
 					renderRow={this._renderRow}
@@ -68,7 +70,6 @@ export default class PlacesSelector extends Component<void, Props, void> {
 					onCancel={this.props.onCancel}
 					searchHint={this.props.searchHint}
 				/>
-				<KeyboardSpacer offset={36} />
 				<PoweredByGoogle style={styles.poweredBy} />
 			</View>
 		);

@@ -1,8 +1,10 @@
 import crypto from 'crypto';
 import winston from 'winston';
+import buildAvatarURLForSize from '../../lib/buildAvatarURLForSize';
 import EnhancedError from '../../lib/EnhancedError';
-import { APP_PRIORITIES } from '../../lib/Constants';
+import { APP_PRIORITIES, TYPE_USER } from '../../lib/Constants';
 import { bus, config } from '../../core-server';
+import upload from '../../lib/upload';
 
 function getDate(long) {
 	const date = new Date();
@@ -97,4 +99,55 @@ if (!config.s3) {
 		next();
 	}, APP_PRIORITIES.IMAGE_UPLOAD);
 	winston.info('Image upload is ready');
+}
+
+const isS3Url = (url) => {
+	return /https?:\/\/.*\.amazonaws\.com\//.test(url);
+};
+
+
+if (config.s3) {
+	bus.on('postchange', async ({ entities }) => {
+		const promises = [];
+		if (entities) {
+			for (const id in entities) {
+				const entity = entities[id];
+				if (entity.type !== TYPE_USER) {
+					continue;
+				} else {
+					if (!isS3Url(entity.meta.picture)) {
+						const imageName = 'avatar';
+						const url = entity.meta.picture;
+						const userName = entity.id;
+						promises.push(
+							upload.urlTos3(
+								buildAvatarURLForSize(url, 1024),
+								'/a/' + userName + '/' + imageName
+							).then(res => ({
+								upload: res,
+								id: userName
+							}))
+						);
+					}
+				}
+			}
+		}
+
+		const results = await Promise.all(promises);
+		const changes = {
+			entities: {}
+		};
+
+		for (const result of results) {
+			changes.entities[result.id] = {
+				id: result.id,
+				type: TYPE_USER,
+				meta: {
+					picture: result.upload.Location
+				}
+			};
+		}
+
+		bus.emit('change', changes);
+	});
 }
