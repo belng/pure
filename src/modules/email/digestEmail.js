@@ -14,7 +14,16 @@ const DIGEST_INTERVAL = 60 * 60 * 1000, DIGEST_DELAY = 24 * 60 * 60 * 1000,
 	connStr = config.connStr, conf = config.email, counter1 = new Counter();
 
 let lastEmailSent, end;
-
+const fields = [
+		'roomrels.presencetime', 'users.name', 'threads.counts->>\'children\' children', 'users.identities', 'users.id userid', 'threads.score', 'threads.name threadtitle', 'threads.createtime', 'threads.id threadid', 'rooms.name roomname', 'rooms.id roomid'
+	], joins = [
+		'users', 'roomrels', 'threads', 'rooms'
+	], conditions = [
+		'users.id=roomrels.user', 'threads.parents[1]=roomrels.item', 'roomrels.item=rooms.id', 'users.params->> \'email\' <> \'{"frequency": "never", "notifications": false}\'', 'roles @> \'{3}\'', 'roomrels.presencetime >= &{start}', 'roomrels.presencetime < &{end}', 'timezone >= &{min}', 'timezone < &{max}'
+	]; // where threads.createtime > urel.ptime
+const query = pg.cat(
+		[ 'SELECT ', pg.cat(fields, ', '), 'FROM ', pg.cat(joins, ', '), 'WHERE ', pg.cat(conditions, ' AND ') ]
+	).$ /*+ 'limit 40'*/;
 
 function getSubject() {
 	// const counts = rels.length - 1;
@@ -80,7 +89,7 @@ function sendDigestEmail () {
 			tzMin = tz - 30,
 			tzMax = tz + 30;
 
-		return { min: parseInt(tzMin), max: parseInt(tzMax) };
+		return { min: 300, max: 500 };
 	}
 
 	const timeZone = getTimezone(conf.digestEmailTime);
@@ -91,23 +100,23 @@ function sendDigestEmail () {
 	// }
 
 	pg.readStream(config.connStr, {
-		$: 'with urel as (select rrls.presencetime ptime, users.name uname, * from users join roomrels rrls on users.id=rrls.user where params->> \'email\' <> \'{"frequency": "never", "notifications": false}\' and roles @> \'{3}\' and rrls.presencetime >= &{start} and rrls.presencetime < &{end} and timezone >= &{min} and timezone < &{max}) select threads.counts->>\'children\' children, urel.identities, urel.id userid, threads.body threadbody, threads.score, threads.name threadtitle, threads.createtime tctime, threads.id threadId, rooms.name roomname, rooms.id roomid from urel, threads, rooms where threads.parents[1]=urel.item and urel.item=rooms.id order by urel.id', // where threads.createtime > urel.ptime
+		$: query,
 		start,
 		end,
-		follower: Constants.ROLE_FOLLOWER,
 		min: timeZone.min,
 		max: timeZone.max,
 	}).on('row', (urel) => {
 	// console.log('Got user for digest email: ', urel.userid);
-			console.log(urel)
+			// console.log(urel)
 		const emailObj = getMailObj(urel) || {};
 
 		if (Object.keys(emailObj).length !== 0) {
-			// console.log('send email now: ', emailObj);
+			console.log('send email now: ', emailObj);
 			initMailSending(emailObj);
 		}
 	}).on('end', () => {
 		const c = getMailObj({});
+		console.log('got c: ', c)
 		initMailSending(c);
 		log.info('ended digest email');
 	});

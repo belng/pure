@@ -7,7 +7,6 @@ function userFromUserRel(user) {
 	return {
 		id: user.userid,
 		identities: user.identities,
-		createTime: user.createTime
 	};
 }
 
@@ -28,7 +27,7 @@ function relFromUserRel(rel) {
 		room: rel.roomname,
 		roomId: rel.roomid,
 		count: rel.textCount || rel.children,
-		displayTime: formatShort(rel.threadTime || rel.tctime),
+		displayTime: formatShort(rel.threadTime || rel.createtime),
 	};
 }
 
@@ -39,6 +38,13 @@ function buildMailObj(userRel) {
 // console.log('rel: ', rel);
 // console.log('user: ', user)
 	let cUserRel = false;
+	const thread = {
+		id: rel.threadId,
+		title: rel.threadTitle,
+		score: rel.score,
+		counts: rel.count,
+		displayTime: rel.displayTime
+	};
 
 	if (user.id !== currentU.id) {
 		if (currentU) {
@@ -51,8 +57,8 @@ function buildMailObj(userRel) {
 		currentR = [
 			{
 				id: rel.roomId,
-				room: rel.room ? rel.room : rel.parent,
-				threads: [ rel ],
+				room: rel.room,
+				threads: [ thread ],
 				domain: config.server.protocol + '//' + config.server.host,
 			},
 		];
@@ -62,7 +68,7 @@ function buildMailObj(userRel) {
 		for (const item of currentR) {
 			// console.log("item: ", item)
 			if (rel.room === item.room) {
-				item.threads.push(rel);
+				item.threads.push(thread);
 				sameRoom = true;
 				break;
 			}
@@ -72,19 +78,16 @@ function buildMailObj(userRel) {
 			currentR.push({
 				id: rel.roomId,
 				room: rel.room ? rel.room : rel.parent,
-				threads: [ rel ],
+				threads: [ thread ],
 				domain: config.server.protocol + '//' + config.server.host,
 			});
 		}
 
-		// console.log("currentR after: ", currentR)
 	}
-	if (cUserRel) {
+	if (cUserRel) {		// sortAndTrim()
 
 		cUserRel.currentRels.sort((a, b) => { // sort according to the no of threads in a room
-			if (a.threads.length > b.threads.length) return -1;
-			if (a.threads.length < b.threads.length) return 1;
-			return 0;
+			return b.threads.length - a.threads.length;
 		});
 
 		for (const i in cUserRel.currentRels) {
@@ -92,7 +95,11 @@ function buildMailObj(userRel) {
 				// return b.score - a.score;
 				return b.count - a.count;
 			});
+			if (cUserRel.currentRels[i].threads.length > 4) {
+				cUserRel.currentRels[i].threads = cUserRel.currentRels[i].threads.slice(0, 4);
+			}
 		}
+		// console.log('cUserRel: ', cUserRel.currentRels);
 	}
 	return cUserRel;
 }
