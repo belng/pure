@@ -8,6 +8,10 @@ import { TAG_POST_HIDDEN, TAG_USER_ADMIN } from '../../../lib/Constants';
 import type { SubscriptionRange } from '../../../modules/store/SimpleStoreTypes';
 
 const transformTexts = (texts, thread) => {
+	if (texts.length === 1 && texts[0] && texts[0].type === 'loading') {
+		return texts;
+	}
+
 	const data = [];
 
 	for (let l = texts.length - 1, i = l; i >= 0; i--) {

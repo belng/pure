@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import shallowCompare from 'react-addons-shallow-compare';
 
@@ -15,6 +15,7 @@ type Props = {
 export default class Loading extends Component<void, Props, void> {
 	static propTypes = {
 		style: ProgressBarAndroid.propTypes.style,
+		color: PropTypes.string,
 	};
 
 	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
@@ -28,6 +29,12 @@ export default class Loading extends Component<void, Props, void> {
 	_root: Object;
 
 	render() {
-		return <ProgressBarAndroid ref={c => (this._root = c)} style={this.props.style} />;
+		return (
+			<ProgressBarAndroid
+				ref={c => (this._root = c)}
+				style={this.props.style}
+				color={this.props.color}
+			/>
+		);
 	}
 }

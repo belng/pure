@@ -3,18 +3,19 @@
 import { TABLES, ROLES } from '../../lib/schema';
 import { bus, cache } from '../../core-server';
 import * as Constants from '../../lib/Constants';
+import promisify from '../../lib/promisify';
 import log from 'winston';
 import User from '../../models/user';
-import Counter from '../../lib/counter';
-// import ThreadRel from '../../models/threadrel';
-// import RoomRel from '../../models/roomrel';
+import jsonop from 'jsonop';
+
+const getEntityAsync = promisify(cache.getEntity.bind(cache));
 
 bus.on('change', (changes, next) => {
 	if (!changes.entities) {
 		next();
 		return;
 	}
-	const counter = new Counter();
+	const promises = [];
 	for (const id in changes.entities) {
 		const entity = changes.entities[id];
 
@@ -43,20 +44,16 @@ bus.on('change', (changes, next) => {
 			parent.type = (entity.type === Constants.TYPE_TEXT) ?
 				Constants.TYPE_THREAD : Constants.TYPE_ROOM;
 
-			// if (entity.type === Constants.TYPE_TEXT) {
-			//
-			// }
-			// console.log('parents count module: ', parent);
-			changes.entities[entity.parents[0]] = parent;
+			changes.entities[entity.parents[0]] = jsonop.merge(changes.entities[entity.parents[0]], parent);
 
 			// 2. Increment text/thread count of user
 
-			const user = changes.entities[entity.creator] || new User({ id: entity.creator });
+			const user = new User({ id: entity.creator });
 
-			user.counts = user.counts || {};
+			user.counts = {};
 			user.counts[TABLES[entity.type]] = [ inc, '$add' ];
 			user.id = entity.creator;
-			changes.entities[entity.creator] = user;
+			changes.entities[entity.creator] = jsonop.merge(changes.entities[entity.creator], user);
 		}
 
 		 // 3. Increment related counts on items
@@ -69,18 +66,9 @@ bus.on('change', (changes, next) => {
 			entity.type === Constants.TYPE_TOPICREL
 		) {
 			if (!entity.id) entity.id = entity.user + '_' + entity.item;
-			// console.log('roomrel: , entity: ', entity);
-			// if (entity.roles.length === 0) {
-			// 	decrementCount(changes, entity);
-			// 	continue;
-			// }
-			counter.inc();
-			cache.getEntity(entity.id, (err, result) => {
+			promises.push(getEntityAsync(entity.id).then(result => {
 				let exist = [], inc = 1;
-				if (err) {
-					counter.err(err);
-					return;
-				}
+
 				// console.log("result: ", result);
 				if (result) {
 					entity.roles.forEach((role) => {
@@ -96,7 +84,6 @@ bus.on('change', (changes, next) => {
 					}
 
 					if (exist.length === 0) {
-						counter.dec();
 						return;
 					}
 				} else {
@@ -106,17 +93,7 @@ bus.on('change', (changes, next) => {
 				const item = changes.entities[entity.item] || {};
 
 				item.counts = item.counts || {};
-				// if (entity.__op__ && entity.__op__.role && entity.__op__.roles[0] === 'union') {
-				// 	const rem = entity.__op__.roles[0].slice(1);
-				//
-				// 	rem.forEach((role) => {
-				// 		if (ROLES[role]) {
-				// 			item.counts[ROLES[role]] = -1;
-				// 			item.counts.__op__[ROLES[role]] = 'inc';
-				// 		}
-				// 	});
-				// }
-				// console.log("exist: entity.roles: ", exist, entity.roles );
+
 				exist.forEach((role) => {
 					if (ROLES[role]) {
 						item.counts[ROLES[role]] = [ inc, '$add' ];
@@ -143,11 +120,13 @@ bus.on('change', (changes, next) => {
 					break;
 				}
 				changes.entities[entity.item] = item;
-				console.log("item count module: ", item);
-				counter.dec();
-			});
+			}));
 		}
 	}
-	counter.then(next);
+
+	Promise.all(promises).then(
+		() => next(),
+		err => next(err),
+	);
 }, Constants.APP_PRIORITIES.COUNT);
 log.info('Count module ready.');

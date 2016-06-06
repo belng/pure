@@ -2,10 +2,9 @@ import crypto from 'crypto';
 import winston from 'winston';
 import buildAvatarURLForSize from '../../lib/buildAvatarURLForSize';
 import EnhancedError from '../../lib/EnhancedError';
-import request from 'request';
 import { APP_PRIORITIES, TYPE_USER } from '../../lib/Constants';
 import { bus, config } from '../../core-server';
-import { uploadImageToS3 } from './uploadToS3';
+import { urlTos3 } from '../../lib/upload';
 
 function getDate(long) {
 	const date = new Date();
@@ -120,11 +119,12 @@ if (config.s3) {
 						const imageName = 'avatar';
 						const url = entity.meta.picture;
 						const userName = entity.id;
-						const imageReadStream = request.get(buildAvatarURLForSize(url, 1024));
 						promises.push(
-							uploadImageToS3(userName, imageName, imageReadStream)
-							.then(upload => ({
-								upload,
+							urlTos3(
+								buildAvatarURLForSize(url, 1024),
+								'/a/' + userName + '/' + imageName
+							).then(res => ({
+								upload: res,
 								id: userName
 							}))
 						);
