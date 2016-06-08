@@ -171,8 +171,10 @@ function mapRelsAndSubscriptions(entity) {
 		cache.query({
 			type: 'roomrel',
 			filter: {
-				user: user.id,
-				roles_cts: [ Constants.ROLE_FOLLOWER ]
+				roomrel: {
+					user: user.id,
+					roles_cts: [ Constants.ROLE_FOLLOWER ]
+				}
 			},
 			order: 'createTime',
 		}, [ -Infinity, Infinity ], (error, rels) => {

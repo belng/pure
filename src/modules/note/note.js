@@ -97,7 +97,7 @@ export function createNote(
 }
 
 export function isMentioned(entity: Object): boolean {
-	return !!(entity.type === TYPE_TEXTREL && entity.roles && entity.roles.includes(ROLE_MENTIONED));
+	return !!(entity.type === TYPE_TEXTREL && entity.roles && entity.roles.indexOf(ROLE_MENTIONED) > -1);
 }
 
 function isUpvote(entity: Object): boolean {
