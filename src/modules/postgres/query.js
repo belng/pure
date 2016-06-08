@@ -268,6 +268,91 @@ function wherePartForSegmentedFilters(f) {
 	return filter;
 }
 
+function fromPart (slice) {
+	const fields = [], joins = [];
+
+	fields.push('row_to_json("' + TABLES[TYPES[slice.type]] + '".*)::jsonb as "' + slice.type + '"');
+	joins.push('"' + TABLES[TYPES[slice.type]] + '"');
+
+	if (slice.join) {
+		for (const type in slice.join) {
+			joins.push('LEFT OUTER JOIN (', pg.cat([ {
+				$: `SELECT * from ${TABLES[TYPES[type]]} `
+			}, wherePart({
+				type,
+				filter: slice.filter[type] || {}
+			}),
+			`) as ${TABLES[TYPES[type]]}`,
+			' ON "' + TABLES[TYPES[type]] + '"."' + slice.join[type] + '" = "' +
+			TABLES[TYPES[slice.type]] + '"."id"'
+		]));
+			fields.push('row_to_json("' + TABLES[TYPES[type]] + '".*)::jsonb as "' + type + '"');
+		}
+	}
+
+	if (slice.link) {
+		for (const type in slice.link) {
+			joins.push(
+				'LEFT OUTER JOIN "' + TABLES[TYPES[type]] + '" ON "' +
+				TABLES[TYPES[slice.type]] + '"."' + slice.link[type] + '" = "' +
+				TABLES[TYPES[type]] + '"."id"'
+			);
+
+			fields.push('row_to_json("' + TABLES[TYPES[type]] + '".*)::jsonb as "' + type + '"');
+		}
+	}
+
+	return pg.cat([ 'SELECT ', pg.cat(fields, ','), 'FROM', pg.cat(joins, ' ') ], ' ');
+}
+
+// get better function name.
+function wherePartForSegmentedFilters(f) {
+	const sql = [];
+	const filter = Object.create(f.filter);
+
+	for (const segment in f.filter) {
+		for (const prop in filter[segment]) {
+			if (f.join && segment in f.join) continue;
+			const opName = getPropOp(prop);
+			const op = opName[0];
+			const name = opName[1];
+
+			let tableName = TABLES[TYPES[segment]];
+
+			if (Number.POSITIVE_INFINITY === filter[segment][prop] || Number.NEGATIVE_INFINITY === filter[segment][prop]) {
+				continue;
+			}
+
+			const filterPlaceHolder = segment + '.' + prop;
+			filter[filterPlaceHolder] = filter[segment][prop];
+
+			switch (op) {
+			case 'pref':
+				filter[prop] = filter[prop].toLowerCase() + '%';
+				sql.push(`lower(${tableName}"${name.toLowerCase()}") ${operators[op]} &{${filterPlaceHolder.toLowerCase()}}`);
+				break;
+			case 'gt':
+			case 'lt':
+			case 'neq':
+			case 'gte':
+			case 'lte':
+			case 'in':
+			case 'cts':
+			case 'olp':
+			case 'ctd':
+				sql.push(`${tableName}."${name.toLowerCase()}" ${operators[op]} &{${filterPlaceHolder.toLowerCase()}}`);
+				break;
+			default:
+				tableName = TABLES[TYPES[segment]];
+				sql.push(`${tableName}."${prop}" = &{${filterPlaceHolder.toLowerCase()}}`);
+			}
+		}
+	}
+
+	filter.$ = 'WHERE ' + sql.join(' AND ');
+	return filter;
+}
+
 function orderPart(type, order, limit) {
 	const parts = order.split('.');
 	const field = (parts.length === 2) ? parts[1] : parts[0];

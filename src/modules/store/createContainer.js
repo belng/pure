@@ -10,7 +10,7 @@ import type {
 	DispatchPropsMap,
 } from './createContainerTypes';
 
-type MapSubscriptionToProps = (props: any) => SubscriptionPropsMap;
+type MapSubscriptionToProps = SubscriptionPropsMap | (props: any) => SubscriptionPropsMap;
 type MapDispatchToProps = (dispatch: Function) => DispatchPropsMap;
 
 type State = {
@@ -18,7 +18,7 @@ type State = {
 }
 
 export default function(mapSubscriptionToProps?: ?MapSubscriptionToProps, mapDispatchToProps?: ?MapDispatchToProps) {
-	return function(ChildComponent: any) {
+	return function(ChildComponent: ReactClass<any>): ReactClass<any> {
 		class Container extends Component<void, any, State> {
 			static contextTypes = {
 				store: storeShape.isRequired,
@@ -36,18 +36,30 @@ export default function(mapSubscriptionToProps?: ?MapSubscriptionToProps, mapDis
 				}
 
 				if (mapSubscriptionToProps) {
-					this._mapSubscriptionToProps = memoize(mapSubscriptionToProps);
-					this._currentSubscriptionPropsMap = mapSubscriptionToProps(this.props);
+					switch (typeof mapSubscriptionToProps) {
+					case 'function':
+						this._mapSubscriptionToProps = memoize(mapSubscriptionToProps);
+						this._currentSubscriptionPropsMap = mapSubscriptionToProps(this.props);
+						break;
+					case 'object':
+						this._currentSubscriptionPropsMap = mapSubscriptionToProps;
+						break;
+					default:
+						throw new Error(`Invalid "mapSubscriptionToProps" ${mapSubscriptionToProps}. It must be a function or an object`);
+					}
+
 					this._addSubscriptions(store, this._currentSubscriptionPropsMap);
 				}
 			}
 
 			componentWillReceiveProps(nextProps: any) {
-				const nextSubscriptionPropsMap = this._mapSubscriptionToProps(nextProps);
+				if (this._mapSubscriptionToProps === 'function') {
+					const nextSubscriptionPropsMap = this._mapSubscriptionToProps(nextProps);
 
-				if (this._currentSubscriptionPropsMap !== nextSubscriptionPropsMap) {
-					this._currentSubscriptionPropsMap = nextSubscriptionPropsMap;
-					this._renewSubscriptions(this.context.store, nextSubscriptionPropsMap);
+					if (this._currentSubscriptionPropsMap !== nextSubscriptionPropsMap) {
+						this._currentSubscriptionPropsMap = nextSubscriptionPropsMap;
+						this._renewSubscriptions(this.context.store, nextSubscriptionPropsMap);
+					}
 				}
 			}
 
@@ -60,8 +72,8 @@ export default function(mapSubscriptionToProps?: ?MapSubscriptionToProps, mapDis
 			}
 
 			_currentSubscriptionPropsMap: ?SubscriptionPropsMap;
-			_mapSubscriptionToProps: Function;
-			_actions: { [key: string]: Function };
+			_mapSubscriptionToProps: ?Function;
+			_actions: ?{ [key: string]: Function };
 			_subscriptions: Array<Subscription> = [];
 
 			_addSubscriptions: Function = (store, subscriptionPropsMap) => {
@@ -91,11 +103,11 @@ export default function(mapSubscriptionToProps?: ?MapSubscriptionToProps, mapDis
 							listener = store.observe(
 								typeof sub.key === 'string' ? { type: sub.key, source, defer } : { ...sub.key, source, defer },
 							).subscribe(
-								this._createUpdateObserver(item, sub.transform),
+								this._createUpdateObserver(item),
 							);
 							break;
 						default:
-							throw new Error(`Invalid subscription ${item}. Subscription must be a string or an object.`);
+							throw new Error(`Invalid subscription ${item}. It must be a string or an object.`);
 						}
 
 						if (listener) {
@@ -120,10 +132,10 @@ export default function(mapSubscriptionToProps?: ?MapSubscriptionToProps, mapDis
 				this._addSubscriptions(store, subscriptionPropsMap);
 			};
 
-			_createUpdateObserver: Function = (name, transform) => {
+			_createUpdateObserver: Function = (name) => {
 				const next = data => {
 					this.setState({
-						[name]: transform ? transform(data, this.props) : data,
+						[name]: data,
 					});
 				};
 

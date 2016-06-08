@@ -41,7 +41,7 @@ test('should not render connected component without data', t => {
 	});
 
 	const Container = createContainer(
-		() => ({ name: 'name' })
+		{ name: 'name' }
 	)(NameComponent);
 	const wrapper = mount(
 		<Provider store={store}>
@@ -82,7 +82,6 @@ test('should update connected component with data', t => {
 		firstName: props.firstName,
 		middleName: {
 			key: props.middleName,
-			transform: name => name ? `'${name}'` : '',
 		},
 		lastName: {
 			key: {
@@ -104,11 +103,11 @@ test('should update connected component with data', t => {
 	firstNameCallback('first');
 	t.is(wrapper.text(), 'first  ');
 	middleNameCallback('middle');
-	t.is(wrapper.text(), 'first \'middle\' ');
+	t.is(wrapper.text(), 'first middle ');
 	lastNameCallback('last');
-	t.is(wrapper.text(), 'first \'middle\' last');
+	t.is(wrapper.text(), 'first middle last');
 	middleNameCallback('hey');
-	t.is(wrapper.text(), 'first \'hey\' last');
+	t.is(wrapper.text(), 'first hey last');
 });
 
 test('should remove subscription on unmount', t => {
@@ -129,9 +128,9 @@ test('should remove subscription on unmount', t => {
 		put: () => null,
 	});
 
-	const Container = createContainer(() => ({
+	const Container = createContainer({
 		textContent: 'text'
-	}))(TextComponent);
+	})(TextComponent);
 
 	ReactDOM.render(
 		<Provider store={store}>

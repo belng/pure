@@ -8,8 +8,8 @@ import ChatBubble from './ChatBubble';
 import Embed from '../Embed/Embed';
 import Icon from '../Core/Icon';
 import Time from '../Core/Time';
-import ChatLikeButton from './ChatLikeButton';
-import ChatActionSheet from './ChatActionSheet';
+import ChatLikeButtonContainer from '../../containers/ChatLikeButtonContainer';
+import ChatActionSheetContainer from '../../containers/ChatActionSheetContainer';
 import { parseURLs } from '../../../../lib/URL';
 import { TAG_POST_HIDDEN } from '../../../../lib/Constants';
 import type { Text, TextRel } from '../../../../lib/schemaTypes';
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
 	},
 	like: {
 		position: 'absolute',
-		top: 0,
+		top: 2,
 		right: 0,
 		width: 52,
 		alignItems: 'center',
@@ -103,13 +103,6 @@ type Props = {
 	user: string;
 	quoteMessage: Function;
 	replyToMessage: Function;
-	isUserAdmin: boolean;
-	hideText: Function;
-	unhideText: Function;
-	likeText: Function;
-	unlikeText: Function;
-	banUser: Function;
-	unbanUser: Function;
 	style?: any;
 	onNavigate: Function;
 };
@@ -128,22 +121,14 @@ export default class ChatItem extends Component<void, Props, State> {
 		}).isRequired,
 		textrel: PropTypes.object,
 		previousText: PropTypes.shape({
-			body: PropTypes.string.isRequired,
-			creator: PropTypes.string.isRequired,
-			createTime: PropTypes.number.isRequired,
+			creator: PropTypes.string,
+			createTime: PropTypes.number,
 		}),
 		isFirst: PropTypes.bool,
 		isLast: PropTypes.bool,
 		user: PropTypes.string.isRequired,
 		quoteMessage: PropTypes.func.isRequired,
 		replyToMessage: PropTypes.func.isRequired,
-		isUserAdmin: PropTypes.bool.isRequired,
-		hideText: PropTypes.func.isRequired,
-		unhideText: PropTypes.func.isRequired,
-		likeText: PropTypes.func.isRequired,
-		unlikeText: PropTypes.func.isRequired,
-		banUser: PropTypes.func.isRequired,
-		unbanUser: PropTypes.func.isRequired,
 		style: View.propTypes.style,
 		onNavigate: PropTypes.func.isRequired,
 	};
@@ -188,12 +173,11 @@ export default class ChatItem extends Component<void, Props, State> {
 			previousText,
 			isLast,
 			user,
-			isUserAdmin,
 		} = this.props;
 
 		const hidden = text.tags && text.tags.indexOf(TAG_POST_HIDDEN) > -1;
 		const received = text.creator !== user;
-		const links = parseURLs(text.body, 1);
+		const links = text.body ? parseURLs(text.body, 1) : null;
 
 		let cover;
 
@@ -209,7 +193,7 @@ export default class ChatItem extends Component<void, Props, State> {
 					openOnPress={false}
 				/>
 			);
-		} else if (links.length) {
+		} else if (links && links.length) {
 			cover = (
 				<Embed
 					url={links[0]}
@@ -258,12 +242,10 @@ export default class ChatItem extends Component<void, Props, State> {
 						</TouchableOpacity>
 
 						{received ?
-							<ChatLikeButton
+							<ChatLikeButtonContainer
 								style={styles.like}
 								text={this.props.text}
 								textrel={this.props.textrel}
-								likeText={this.props.likeText}
-								unlikeText={this.props.unlikeText}
 							/> :
 							null
 						}
@@ -286,16 +268,11 @@ export default class ChatItem extends Component<void, Props, State> {
 					null
 				}
 
-				<ChatActionSheet
+				<ChatActionSheetContainer
 					text={text}
 					user={user}
-					isUserAdmin={isUserAdmin}
 					quoteMessage={this.props.quoteMessage}
 					replyToMessage={this.props.replyToMessage}
-					hideText={this.props.hideText}
-					unhideText={this.props.unhideText}
-					banUser={this.props.banUser}
-					unbanUser={this.props.unbanUser}
 					visible={this.state.actionSheetVisible}
 					onRequestClose={this._handleRequestClose}
 				/>
