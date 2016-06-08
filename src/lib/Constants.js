@@ -23,9 +23,8 @@ export const ROLE_MENTIONED = 2;
 export const ROLE_FOLLOWER = 3;
 export const ROLE_MODERATOR = 4;
 export const ROLE_OWNER = 5;
-export const ROLE_CREATOR = 6;
 
-export const ROLE_LIKE = 31;
+export const ROLE_UPVOTE = 31;
 export const ROLE_FLAG = 32;
 export const ROLE_MUTE = 33;
 export const ROLE_HOME = 41;
@@ -73,6 +72,7 @@ export const NOTE_REQUEST = 2;
 export const NOTE_INVITE = 3;
 export const NOTE_THREAD = 4;
 export const NOTE_REPLY = 5;
+export const NOTE_UPVOTE = 6;
 
 export const JOB_EMAIL_WELCOME = 1;
 export const JOB_EMAIL_MENTION = 2;
