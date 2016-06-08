@@ -384,10 +384,19 @@ function boundQuery (slice, start, end) {
 }
 
 function beforeQuery (slice, start, before, exclude) {
-	slice.filter[slice.order + (exclude ? '_lt' : '_lte')] = start;
-	const query = simpleQuery(slice, Math.max(-MAX_LIMIT, -before));
-
-	delete slice.filter[slice.order + (exclude ? '_lt' : '_lte')];
+	const key = (slice.order + (exclude ? '_lt' : '_lte')).toLowerCase(),
+		value = start;
+	let query;
+	if (slice.link || slice.join) {
+		slice.filter[slice.type] = slice.filter[slice.type] || {};
+		slice.filter[slice.type][key] = value;
+		query = simpleQuery(slice, Math.max(-MAX_LIMIT, -before));
+		delete slice.filter[slice.type][key];
+	} else {
+		slice.filter[key] = start;
+		query = simpleQuery(slice, Math.max(-MAX_LIMIT, -before));
+		delete slice.filter[key];
+	}
 
 	return pg.cat([
 		'SELECT * FROM (',
