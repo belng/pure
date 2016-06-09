@@ -2,7 +2,8 @@ import { bus, cache } from '../../core-server';
 
 function fixChange(change) {
 	if (!change.queries || change.version) return;
-	for (const key in change.query) {
+	change.changedQueries = {};
+	for (const key in change.queries) {
 		const slice = cache.keyToSlice(key);
 		if (
             slice.type === 'roomrel' &&
