@@ -36,7 +36,7 @@ CREATE TABLE users (
 	processid smallint,
 	resources jsonb, -- { resourceId: foreground/background }
 	timezone smallint,
-	updatetime bigint
+	updatetime bigint DEFAULT extract(epoch from now())*1000 NOT NULL
 );
 
 CREATE TABLE items (
@@ -53,7 +53,7 @@ CREATE TABLE items (
 	params jsonb,
 	terms tsvector,
 	updater text,
-	updatetime bigint,
+	updatetime bigint DEFAULT extract(epoch from now())*1000 NOT NULL,
 	counts jsonb DEFAULT '{}'
 );
 
@@ -81,7 +81,7 @@ CREATE TABLE rels (
 	"user" text NOT NULL,
 	roles smallint[], -- mute, upvote, home, work
 	createtime bigint DEFAULT extract(epoch from now())*1000 NOT NULL,
-	updatetime bigint,
+	updatetime bigint DEFAULT extract(epoch from now())*1000 NOT NULL,,
 	admin text,
 	expiretime bigint,
 	interest float(24),
