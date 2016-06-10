@@ -109,7 +109,12 @@ export default function (userRel) {
 
 	if (Object.keys(userRel).length === 0) {
 		const cu = currentU, cr = currentR;
-
+		console.log('cu: ', cu);
+		// console.log('cr: ', cr);
+		for (const i in cr) {
+			console.log('cr[i].threads.length: ', cr[i].threads.length);
+		}
+		// console.log('cr: ', cr[0].threads.length);
 		currentU = false;
 		currentR = false;
 		return {

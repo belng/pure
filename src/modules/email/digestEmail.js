@@ -12,14 +12,14 @@ import Counter from '../../lib/counter';
 const DIGEST_INTERVAL = 60 * 60 * 1000, DIGEST_DELAY = 24 * 60 * 60 * 1000,
 	template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' + config.app_id + '.digest.hbs', 'utf-8').toString()),
 	connStr = config.connStr, conf = config.email, counter1 = new Counter();
-
+let i = 0;
 let lastEmailSent, end;
 const fields = [
 		'roomrels.presencetime', 'users.name', 'threads.counts->>\'children\' children', 'users.identities', 'users.id userid', 'threads.score', 'threads.name threadtitle', 'threads.createtime', 'threads.id threadid', 'rooms.name roomname', 'rooms.id roomid'
 	], joins = [
 		'users', 'roomrels', 'threads', 'rooms'
 	], conditions = [
-		'users.id=roomrels.user', 'threads.parents[1]=roomrels.item', 'roomrels.item=rooms.id', 'users.params->> \'email\' <> \'{"frequency": "never", "notifications": false}\'', 'roles @> \'{3}\'', 'roomrels.presencetime >= &{start}', 'roomrels.presencetime < &{end}', 'timezone >= &{min}', 'timezone < &{max}'
+		'users.id=roomrels.user', 'threads.parents[1]=roomrels.item', 'roomrels.item=rooms.id', 'threads.createtime > extract(epoch from now()-interval \'2 months\')*1000', 'threads.score is not null', 'users.params->> \'email\' <> \'{"frequency": "never", "notifications": false}\'', 'roles @> \'{3}\'', 'roomrels.presencetime >= &{start}', 'roomrels.presencetime < &{end}', 'timezone >= &{min}', 'timezone < &{max}'
 	]; // where threads.createtime > urel.ptime
 const query = pg.cat(
 		[ 'SELECT ', pg.cat(fields, ', '), 'FROM ', pg.cat(joins, ', '), 'WHERE ', pg.cat(conditions, ' AND ') ]
@@ -44,7 +44,14 @@ export function initMailSending (userRel) {
 		mailIds = user.identities.filter((el) => {
 			return /mailto:/.test(el);
 		});
-		console.log("rels[0].threads: ", rels)
+		// for (const i in rels) {
+		// 	if(rels[i].threads.length > 4) {
+		// 		rels[i].threads = rels[i].threads.splice(0, 4);
+		// 	}
+		// }
+		// console.log("rels[0].threads.length: ", rels[0].threads.length)
+
+		// console.log("rels[0].threads: ", rels)
 	mailIds.forEach((mailId) => {
 		counter1.inc();
 		const emailAdd = mailId.slice(7),
@@ -56,7 +63,7 @@ export function initMailSending (userRel) {
 			emailSub = getSubject(rels);
 			console.log('Digest email to: ', emailAdd)
 
-		send(conf.from, /*emailAdd*/'ja.chandrakant@gmail.com', emailSub, emailHtml, (e) => {
+		send(conf.from, /*emailAdd*/'ja.chandrakan@gmai.com', emailSub, emailHtml, (e) => {
 			if (!e) {
 				log.info('Digest email successfully sent');
 				counter1.dec();
@@ -109,11 +116,15 @@ function sendDigestEmail () {
 		max: timeZone.max,
 	}).on('row', (urel) => {
 	// console.log('Got user for digest email: ', urel.userid);
-			// console.log(urel)
+		if (urel.userid === 'vicky41296') {
+			console.log('urel: ', urel)
+			console.log(i++)
+		}
+
 		const emailObj = getMailObj(urel) || {};
 
 		if (Object.keys(emailObj).length !== 0) {
-			console.log('send email now: ', emailObj);
+			// console.log('send email now: ', emailObj);
 			initMailSending(emailObj);
 		}
 	}).on('end', () => {
