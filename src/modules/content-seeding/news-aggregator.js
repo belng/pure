@@ -141,15 +141,9 @@ function hasNewNewsArticle (articlePubDate: number, lastupdatetime: number): boo
 
 function insertIntoFeeds (url: string): Promise<Array<{ rowCount: number }>> {
 	return performWriteQuery([ {
-		$: `INSERT INTO feeds (
-			url, mtbu, lastrequesttime, lastupdatetime
-		) VALUES (
-			&{url}, &{mtbu}, &{lastrequesttime}, &{lastupdatetime} 
-		)`,
-		url,
-		mtbu: 1,
-		lastrequesttime: Date.now() - (8 * 24 * 60 * 60 * 1000),
-		lastupdatetime: Date.now() - (8 * 24 * 60 * 60 * 1000)
+		$: `INSERT INTO feeds (url) 
+			VALUES ( &{url} )`,
+		url
 	} ]);
 }
 
