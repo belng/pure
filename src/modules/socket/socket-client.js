@@ -22,7 +22,6 @@ const poll = 'document' in window && 'createElement' in window.document; // Disa
 if (!global.navigator.userAgent) {
 	global.navigator.userAgent = 'React Native';
 }
-
 const eio = require('engine.io-client'); // eslint-disable-line import/no-commonjs
 
 let	backOff = 1, client, pendingCallbacks = {};
