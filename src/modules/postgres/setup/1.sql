@@ -136,9 +136,9 @@ CREATE TABLE articles (
 
 CREATE TABLE feeds (
 	url text PRIMARY KEY,
-	mtbu float(24) NOT NULL,
-	lastrequesttime bigint NOT NULL,
-	lastupdatetime bigint NOT NULL
+	mtbu float(24) DEFAULT 1 NOT NULL,
+	lastrequesttime bigint NOT NULL DEFAULT (extract(epoch from now())*1000 - (8 * 24 * 60 * 60 * 1000)),
+	lastupdatetime bigint NOT NULL DEFAULT (extract(epoch from now())*1000 - (8 * 24 * 60 * 60 * 1000))
 );
 
 INSERT INTO jobs VALUES (1), (2), (3);
