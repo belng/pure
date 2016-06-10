@@ -53,7 +53,6 @@ const styles = StyleSheet.create({
 	timestampText: {
 		color: FADED_GREY,
 		fontSize: 12,
-		lineHeight: 18,
 		marginHorizontal: 6,
 		paddingHorizontal: 8,
 	},
@@ -97,9 +96,8 @@ const styles = StyleSheet.create({
 type Props = {
 	text: Text;
 	textrel: ?TextRel;
-	previousText: Text;
-	isFirst: boolean;
-	isLast: boolean;
+	previousText: ?Text;
+	isLast: ?boolean;
 	user: string;
 	quoteMessage: Function;
 	replyToMessage: Function;
@@ -124,7 +122,6 @@ export default class ChatItem extends Component<void, Props, State> {
 			creator: PropTypes.string,
 			createTime: PropTypes.number,
 		}),
-		isFirst: PropTypes.bool,
 		isLast: PropTypes.bool,
 		user: PropTypes.string.isRequired,
 		quoteMessage: PropTypes.func.isRequired,
