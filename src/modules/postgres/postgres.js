@@ -50,6 +50,7 @@ function onRangeQuery(key, range, err, r) {
 	const orderedResult = new Know.OrderedArray(cache.arrayOrder(cache.keyToSlice(key)), results);
 	const madeRange = Know.RangeArray.makeRange(range);
 	const newRange = cache.countedToBounded(madeRange, orderedResult);
+
 	cache.put({
 		knowledge: { [key]: newRange },
 		indexes: { [key]: orderedResult },
