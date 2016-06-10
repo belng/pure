@@ -32,13 +32,11 @@ function onRangeQuery(key, range, err, r) {
 		return;
 	}
 
-	console.log('Got results', key, range, r.l);
 	const results = r.map(e => {
 		const props = Object.keys(e), propsCount = props.length;
 		let prop;
 
 		props.forEach(name => {
-			console.log('Name:', name);
 			if (e[name]) {
 				e[name] = new Types[name](e[name]);
 				prop = name;
@@ -52,10 +50,7 @@ function onRangeQuery(key, range, err, r) {
 	const orderedResult = new Know.OrderedArray(cache.arrayOrder(cache.keyToSlice(key)), results);
 	const madeRange = Know.RangeArray.makeRange(range);
 	const newRange = cache.countedToBounded(madeRange, orderedResult);
-	console.log({
-		knowledge: { [key]: newRange },
-		indexes: { [key]: orderedResult },
-	});
+
 	cache.put({
 		knowledge: { [key]: newRange },
 		indexes: { [key]: orderedResult },
@@ -233,19 +228,3 @@ bus.on('change', (changes, next) => {
 
 	counter.then(next);
 }, 500);
-
-//
-// pg.read(
-// 	config.connStr,
-// 	queryHandler({ filter: { user: 'harish', updateTime_lte: Infinity },
-//   type: 'note',
-//   order: 'updateTime' } , [Infinity, 100, 0]
-// ),
-// 	console.log.bind(console)
-// );
-
-cache.query('thread+(threadrel:item):createTime!(thread:(parents~Scts:(a6c02590~F7704~F41e1~Fb3ab~F6f4b55a94e1c)),threadrel:(user:harish))', [Infinity, 10, 0], (err, res)=> {
-	console.log('Response: ', res.arr.map(e=> {
-		return e.thread.name;
-	}));
-});

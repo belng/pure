@@ -102,7 +102,6 @@ function fromPart (slice, toJson, l) {
 	const fields = [], joins = [];
 	if (slice.join) {
 		for (const type in slice.filter) {
-			console.log('Type: ', type);
 			let limit;
 			const subSlice = {
 				type,
@@ -116,8 +115,7 @@ function fromPart (slice, toJson, l) {
 				limit = l;
 			}
 
-			const subQuery = simpleQuery(subSlice, false, limit);
-			console.log("Subquery",subQuery);
+			const subQuery = simpleQuery(subSlice, false, limit); // eslint-disable-line no-use-before-define
 			fields.push('row_to_json("' + TABLES[TYPES[type]] + '".*)::jsonb as "' + type + '"');
 			if (joins.length > 0) {
 				joins.push('LEFT OUTER JOIN');
@@ -215,11 +213,11 @@ function orderPart(type, order, limit) {
 }
 
 function simpleQuery(slice, toJson, limit) {
-	console.log('Making simple query', slice, limit);
-
 	return pg.cat([
-		(slice.link || slice.join) ? fromPart(slice, toJson, limit) : fromPart(slice),
-		(slice.link || slice.join) ? (slice.link? wherePartForSegmentedFilters(slice): '') : wherePart(slice),
+		(slice.link || slice.join) ? fromPart(slice, toJson, limit) : fromPart(slice, toJson),
+		(slice.link || slice.join) ? (
+			slice.link ? wherePartForSegmentedFilters(slice): ''
+		) : wherePart(slice),
 		slice.order ? orderPart(slice.type, slice.order, limit) : '',
 	], ' ');
 }
@@ -279,9 +277,7 @@ export default function s(slice, range) {
 		if (range.length === 2) {
 			query = boundQuery(slice, range[0], range[1]);
 		} else {
-			console.log('Unbounded query');
 			if (range[1] > 0 && range[2] > 0) {
-				console.log('union query');
 				query = pg.cat([
 					'(',
 					beforeQuery(slice, range[0], range[1], true),
@@ -292,18 +288,14 @@ export default function s(slice, range) {
 					')',
 				], ' ');
 			} else if (range[1] > 0) {
-				console.log('Before query: ', range[0], range[1]);
 				query = beforeQuery(slice, range[0], range[1]);
 			} else if (range[2] > 0) {
-				console.log('After query: ', range[0], range[1]);
 				query = afterQuery(slice, range[0], range[2]);
 			}
 		}
 	} else {
 		query = simpleQuery(slice, true, MAX_LIMIT);
 	}
-
-	console.log('Query generated: ', query);
 
 	return query;
 }
