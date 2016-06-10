@@ -1,26 +1,124 @@
 import test from 'ava';
-import React from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { mount } from 'enzyme';
 import SimpleStore from '../SimpleStore';
-import Connect from '../Connect';
+import createContainer from '../createContainer';
 import Provider from '../Provider';
 
-test('should render component with no data', t => {
-	t.plan(1);
+test('should set displayName', t => {
+	const MyComponent = () => null; // eslint-disable-line
+	const Container = createContainer()(MyComponent);
 
+	t.is(Container.displayName, 'Container$MyComponent');
+});
+
+test('should render component with no data', t => {
 	const TextComponent = ({ text }) => <span>{text}</span>; // eslint-disable-line
 	const store = new SimpleStore({
 		watch: () => null,
 		put: () => null,
 	});
+	const Container = createContainer()(TextComponent);
 	const wrapper = mount(
 		<Provider store={store}>
-			<Connect component={TextComponent} passProps={{ text: 'Hey!' }} />
+			<Container text='Hey!' />
 		</Provider>
 	);
 
 	t.is(wrapper.text(), 'Hey!');
+});
+
+test('should renew subscription when props change', t => {
+	t.plan(4);
+
+	let i = 0;
+
+	const NameComponent = ({ name }) => {
+		if (i === 0) {
+			i++;
+			t.is(name, 'jane');
+		} else {
+			t.is(name, 30);
+		}
+		return null;
+	};
+	const store = new SimpleStore({
+		watch: (options, cb) => {
+			if (i === 0) {
+				t.is(options.type, 'name');
+				cb('jane');
+			} else {
+				t.is(options.type, 'age');
+				cb(30);
+			}
+		},
+		put: () => null,
+	});
+
+	const Container = createContainer(({ type }) => ({
+		name: type,
+	}))(NameComponent);
+
+	class MyComponent extends Component {
+		state = { type: 'name' };
+
+		componentDidMount() {
+			this.setState({ // eslint-disable-line react/no-did-mount-set-state
+				type: 'age',
+			});
+		}
+
+		render() {
+			return (
+				<Provider store={store}>
+					<Container type={this.state.type} />
+				</Provider>
+			);
+		}
+	}
+
+	mount(<MyComponent />);
+});
+
+test('should not renew subscription when props are same', t => {
+	t.plan(2);
+
+	const NameComponent = ({ name }) => {
+		t.is(name, 'jane');
+		return null;
+	};
+	const store = new SimpleStore({
+		watch: (options, cb) => {
+			t.is(options.type, 'name');
+			cb('jane');
+		},
+		put: () => null,
+	});
+
+	const Container = createContainer(({ type }) => ({
+		name: type,
+	}))(NameComponent);
+
+	class MyComponent extends Component {
+		state = { type: 'name' };
+
+		componentDidMount() {
+			this.setState({ // eslint-disable-line react/no-did-mount-set-state
+				type: 'name',
+			});
+		}
+
+		render() {
+			return (
+				<Provider store={store}>
+					<Container type={this.state.type} />
+				</Provider>
+			);
+		}
+	}
+
+	mount(<MyComponent />);
 });
 
 test('should not render connected component without data', t => {
@@ -34,12 +132,12 @@ test('should not render connected component without data', t => {
 		put: () => null,
 	});
 
+	const Container = createContainer(
+		{ name: 'name' }
+	)(NameComponent);
 	const wrapper = mount(
 		<Provider store={store}>
-			<Connect
-				mapSubscriptionToProps={{ name: 'name' }}
-				component={NameComponent}
-			/>
+			<Container />
 		</Provider>
 	);
 
@@ -47,8 +145,6 @@ test('should not render connected component without data', t => {
 });
 
 test('should update connected component with data', t => {
-	t.plan(5);
-
 	const NameComponent = ({ firstName, middleName, lastName }) => <span>{firstName} {middleName} {lastName}</span>; // eslint-disable-line react/prop-types
 
 	let firstNameCallback;
@@ -74,22 +170,23 @@ test('should update connected component with data', t => {
 		put: () => null,
 	});
 
+	const Container = createContainer(props => ({
+		firstName: props.firstName,
+		middleName: {
+			key: props.middleName,
+		},
+		lastName: {
+			key: {
+				type: props.lastName,
+			},
+		},
+	}))(NameComponent);
 	const wrapper = mount(
 		<Provider store={store}>
-			<Connect
-				mapSubscriptionToProps={{
-					firstName: 'f',
-					middleName: {
-						key: 'm',
-						transform: name => name ? `'${name}'` : '',
-					},
-					lastName: {
-						key: {
-							type: 'l',
-						},
-					},
-				}}
-				component={NameComponent}
+			<Container
+				firstName='f'
+				middleName='m'
+				lastName='l'
 			/>
 		</Provider>
 	);
@@ -98,11 +195,11 @@ test('should update connected component with data', t => {
 	firstNameCallback('first');
 	t.is(wrapper.text(), 'first  ');
 	middleNameCallback('middle');
-	t.is(wrapper.text(), 'first \'middle\' ');
+	t.is(wrapper.text(), 'first middle ');
 	lastNameCallback('last');
-	t.is(wrapper.text(), 'first \'middle\' last');
+	t.is(wrapper.text(), 'first middle last');
 	middleNameCallback('hey');
-	t.is(wrapper.text(), 'first \'hey\' last');
+	t.is(wrapper.text(), 'first hey last');
 });
 
 test('should remove subscription on unmount', t => {
@@ -123,9 +220,13 @@ test('should remove subscription on unmount', t => {
 		put: () => null,
 	});
 
+	const Container = createContainer({
+		textContent: 'text'
+	})(TextComponent);
+
 	ReactDOM.render(
 		<Provider store={store}>
-			<Connect mapSubscriptionToProps={{ textContent: 'text' }} component={TextComponent} />
+			<Container />
 		</Provider>,
 		container
 	);
@@ -145,14 +246,16 @@ test('should pass dispatch', t => {
 		},
 	});
 
+	const Container = createContainer(
+		null,
+		dispatch => ({
+			ping: () => dispatch(TEST_ACTION)
+		})
+	)(ButtonComponent);
+
 	const wrapper = mount(
 		<Provider store={store}>
-			<Connect
-				mapActionsToProps={{
-					ping: s => () => s.put(TEST_ACTION),
-				}}
-				component={ButtonComponent}
-			/>
+			<Container />
 		</Provider>
 	);
 
@@ -160,8 +263,6 @@ test('should pass dispatch', t => {
 });
 
 test('should pass dispatch and data', t => {
-	t.plan(3);
-
 	const ButtonComponent = ({ initialLabel, label, click }) => <button onClick={click}>{label || initialLabel}</button>; // eslint-disable-line react/prop-types
 
 	let callback;
@@ -176,29 +277,25 @@ test('should pass dispatch and data', t => {
 		put: action => action.type === 'CLICK' ? callback(action.payload.label) : null,
 	});
 
-	const TestComponent = ({ sub }) => ( // eslint-disable-line react/prop-types
-		<Connect
-			mapSubscriptionToProps={{
-				label: {
-					key: sub,
+	const Container = createContainer(
+		props => ({
+			label: {
+				key: props.sub,
+			},
+		}),
+		dispatch => ({
+			click: () => dispatch({
+				type: 'CLICK',
+				payload: {
+					label: 'Clicked',
 				},
-			}}
-			mapActionsToProps={{
-				click: s => () => s.put({
-					type: 'CLICK',
-					payload: {
-						label: 'Clicked',
-					},
-				}),
-			}}
-			passProps={{ initialLabel: 'Hello' }}
-			component={ButtonComponent}
-		/>
-	);
+			}),
+		})
+	)(ButtonComponent);
 
 	const wrapper = mount(
 		<Provider store={store}>
-			<TestComponent sub='label' />
+			<Container initialLabel='Hello' sub='label' />
 		</Provider>
 	);
 

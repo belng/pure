@@ -1,4 +1,9 @@
+// Log unhandled promise rejections
+import '../lib/node-unhandled-rejection';
+
+// Setup new relic
 import 'newrelic';
+
 // Socket
 import '../modules/socket/socket-server';
 
@@ -19,6 +24,7 @@ import '../modules/score/score';
 import '../modules/gcm/gcm-server';
 import '../modules/postgres/postgres';
 import '../modules/image-upload/image-upload';
+import '../modules/query-compatability/query-compatability';
 import '../modules/email/unsubscribe';
 import '../modules/urlShortener/urlOperations';
 import '../modules/contacts/contacts';
@@ -36,5 +42,5 @@ import '../modules/email/email-daemon';
 // Moderator UI
 import '../modules/modui/modui-server';
 
-// if fired before socket server then the http/init listener might not be listening.
+// Fire after other modules so they can listen to http/init
 import '../modules/http/http';

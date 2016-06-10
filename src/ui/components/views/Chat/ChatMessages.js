@@ -3,15 +3,16 @@
 import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import shallowCompare from 'react-addons-shallow-compare';
-import ChatItemContainer from '../../containers/ChatItemContainer';
+import ChatItem from './ChatItem';
 import PageEmpty from '../Page/PageEmpty';
 import PageLoading from '../Page/PageLoading';
 import LoadingItem from '../Core/LoadingItem';
-import type { Text } from '../../../../lib/schemaTypes';
+import type { Text, TextRel } from '../../../../lib/schemaTypes';
 
 const {
 	StyleSheet,
 	ListView,
+	RecyclerViewBackedScrollView,
 	View,
 } = ReactNative;
 
@@ -29,18 +30,21 @@ const styles = StyleSheet.create({
 	},
 });
 
+type DataItem = {
+	text: Text;
+	textrel: ?TextRel;
+	previousText: ?Text;
+	isLast: ?boolean;
+	type?: 'loading';
+}
+
 type Props = {
-	data: Array<{
-		text: Text;
-		previousText: Text;
-		isLast: boolean;
-		type: any;
-	} | { type: 'loading' } | { type: 'failed' }>;
+	data: Array<DataItem>;
 	user: string;
 	loadMore: (count: number) => void;
 	quoteMessage: Function;
 	replyToMessage: Function;
-	onNavigation: Function;
+	onNavigate: Function;
 }
 
 type State = {
@@ -54,7 +58,7 @@ export default class ChatMessages extends Component<void, Props, State> {
 		loadMore: PropTypes.func.isRequired,
 		quoteMessage: PropTypes.func.isRequired,
 		replyToMessage: PropTypes.func.isRequired,
-		onNavigation: PropTypes.func.isRequired,
+		onNavigate: PropTypes.func.isRequired,
 	};
 
 	state: State = {
@@ -79,31 +83,35 @@ export default class ChatMessages extends Component<void, Props, State> {
 		return shallowCompare(this, nextProps, nextState);
 	}
 
-	_loadMore: Function = () => {
+	_loadMore = () => {
 		this.props.loadMore(this.props.data.length);
 	};
 
-	_renderRow: Function = item => {
+	_renderRow = (item: DataItem) => {
 		if (item && item.type === 'loading') {
 			return <LoadingItem />;
 		}
 
-		const { text, previousText } = item;
+		const { text, textrel, previousText } = item;
 
 		return (
-			<ChatItemContainer
+			<ChatItem
 				key={text.id}
-				text={text.id}
-				isFirst={item.isFirst}
+				text={text}
+				textrel={textrel}
 				isLast={item.isLast}
 				previousText={previousText}
 				replyToMessage={this.props.replyToMessage}
 				quoteMessage={this.props.quoteMessage}
 				user={this.props.user}
 				style={[ styles.item, styles.inverted ]}
-				onNavigation={this.props.onNavigation}
+				onNavigate={this.props.onNavigate}
 			/>
 		);
+	};
+
+	_renderScrollComponent = (props: any) => {
+		return <RecyclerViewBackedScrollView {...props} />;
 	};
 
 	render() {
@@ -136,11 +144,14 @@ export default class ChatMessages extends Component<void, Props, State> {
 					<ListView
 						removeClippedSubviews
 						keyboardShouldPersistTaps={false}
+						initialListSize={10}
+						pageSize={10}
+						renderRow={this._renderRow}
+						renderScrollComponent={this._renderScrollComponent}
+						onEndReached={this._loadMore}
+						dataSource={this.state.dataSource}
 						style={styles.inverted}
 						contentContainerStyle={styles.container}
-						dataSource={this.state.dataSource}
-						onEndReached={this._loadMore}
-						renderRow={this._renderRow}
 					/>
 				}
 			</View>

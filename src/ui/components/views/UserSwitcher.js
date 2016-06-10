@@ -33,14 +33,18 @@ const styles = StyleSheet.create({
 	nick: {
 		color: Colors.white,
 		fontSize: 12,
-		lineHeight: 18,
 		textAlign: 'center',
 		marginVertical: 4,
 	},
 });
 
+type SessionItem = {
+	user: string;
+	session: string;
+};
+
 type Props = {
-	data: Array<{ user: string; session: string }>;
+	data: Array<SessionItem>;
 	user: string;
 	switchUser: Function;
 }
@@ -81,13 +85,17 @@ export default class UserSwitcher extends Component<void, Props, State> {
 		return shallowCompare(this, nextProps, nextState);
 	}
 
-	_renderRow: Function = (item) => {
+	_switchUser = (item: SessionItem) => {
+		this.props.switchUser(this.props.user, item);
+	};
+
+	_renderRow: Function = (item: SessionItem) => {
 		const {
 			user,
 		} = this.props;
 
 		return (
-			<TouchableOpacity key={item.user} onPress={() => this.props.switchUser(item)}>
+			<TouchableOpacity key={item.user} onPress={() => this._switchUser(item)}>
 				<View style={item.user === user ? styles.current : null}>
 					<AvatarRound
 						style={styles.avatar}

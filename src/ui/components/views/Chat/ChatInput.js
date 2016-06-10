@@ -36,6 +36,8 @@ const styles = StyleSheet.create({
 		margin: 0,
 		backgroundColor: 'transparent',
 		color: Colors.black,
+		fontSize: 14,
+		lineHeight: 21,
 	},
 	iconContainer: {
 		alignItems: 'center',
@@ -100,7 +102,18 @@ export default class ChatInput extends Component<void, Props, State> {
 	_input: Object;
 
 	_sendMessage: Function = () => {
-		this.props.sendMessage(null, this.state.text);
+		const {
+			room,
+			thread,
+			user,
+		} = this.props;
+
+		this.props.sendMessage({
+			body: this.state.text,
+			room,
+			thread,
+			user,
+		});
 
 		this.setState({
 			text: '',
@@ -125,6 +138,11 @@ export default class ChatInput extends Component<void, Props, State> {
 
 	_handleUploadFinish: Function = ({ id, result }) => {
 		const {
+			room,
+			thread,
+			user,
+		} = this.props;
+		const {
 			photo,
 		} = this.state;
 
@@ -135,16 +153,23 @@ export default class ChatInput extends Component<void, Props, State> {
 		const { height, width, name } = photo;
 		const aspectRatio = height / width;
 
-		this.props.sendMessage(id, `${photo.name}: ${result.url}`, {
-			photo: {
-				height,
-				width,
-				title: name,
-				url: result.url,
-				thumbnail_height: Math.min(480, width) * aspectRatio,
-				thumbnail_width: Math.min(480, width),
-				thumbnail_url: result.thumbnail,
-				type: 'photo',
+		this.props.sendMessage({
+			id,
+			room,
+			thread,
+			user,
+			body: `${photo.name}: ${result.url}`,
+			meta: {
+				photo: {
+					height,
+					width,
+					title: name,
+					url: result.url,
+					thumbnail_height: Math.min(480, width) * aspectRatio,
+					thumbnail_width: Math.min(480, width),
+					thumbnail_url: result.thumbnail,
+					type: 'photo',
+				},
 			},
 		});
 

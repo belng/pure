@@ -170,7 +170,12 @@ function mapRelsAndSubscriptions(entity) {
 		const tokens = values(user.params.gcm);
 		cache.query({
 			type: 'roomrel',
-			filter: { user: user.id, roles_cts: [ Constants.ROLE_FOLLOWER ] },
+			filter: {
+				roomrel: {
+					user: user.id,
+					roles_cts: [ Constants.ROLE_FOLLOWER ]
+				}
+			},
 			order: 'createTime',
 		}, [ -Infinity, Infinity ], (error, rels) => {
 			if (err) { return; }
@@ -235,10 +240,7 @@ function handleSubscription(changes, next) {
 	for (const i in changes.entities) {
 		const entity = changes.entities[i];
 
-		if (
-				entity.type === Constants.TYPE_THREADREL ||
-				entity.type === Constants.TYPE_ROOMREL
-			) {
+		if (entity.type === Constants.TYPE_ROOMREL) {
 			// console.log('ksdfhjhadf : ', entity);
 			mapRelsAndSubscriptions(entity);
 			if (!entity.createTime || entity.createTime !== entity.updateTime) {
@@ -260,8 +262,7 @@ function handleSubscription(changes, next) {
 			counter.then(() => {
 				if (
 					entity.roles && entity.roles.length === 0 /* ||
-					entity.roles.indexOf(Constants.ROLE_FOLLOWER) === -1 &&
-					entity.roles.indexOf(Constants.ROLE_CREATOR) === -1*/
+					entity.roles.indexOf(Constants.ROLE_FOLLOWER) === -1*/
 				) {
 					log.info('Got unfollow, unsubscribe from topics');
 					const gcm = user.params && user.params.gcm;

@@ -5,17 +5,20 @@ import ReactNative from 'react-native';
 import shallowCompare from 'react-addons-shallow-compare';
 
 const {
-	ProgressBarAndroid,
+	ActivityIndicator,
 } = ReactNative;
 
 type Props = {
+	color?: string;
+	size?: 'small' | 'large';
 	style?: any;
 }
 
 export default class Loading extends Component<void, Props, void> {
 	static propTypes = {
-		style: ProgressBarAndroid.propTypes.style,
 		color: PropTypes.string,
+		size: ActivityIndicator.propTypes.size,
+		style: ActivityIndicator.propTypes.style,
 	};
 
 	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
@@ -30,10 +33,11 @@ export default class Loading extends Component<void, Props, void> {
 
 	render() {
 		return (
-			<ProgressBarAndroid
+			<ActivityIndicator
 				ref={c => (this._root = c)}
-				style={this.props.style}
 				color={this.props.color}
+				size={this.props.size}
+				style={this.props.style}
 			/>
 		);
 	}

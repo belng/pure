@@ -8,7 +8,6 @@ import ListItem from '../Core/ListItem';
 import AppText from '../Core/AppText';
 import Icon from '../Core/Icon';
 import Colors from '../../../Colors';
-import NavigationActions from '../../../navigation-rfc/Navigation/NavigationActions';
 
 const {
 	StyleSheet,
@@ -30,7 +29,6 @@ const styles = StyleSheet.create({
 
 	footerLabel: {
 		fontSize: 12,
-		lineHeight: 18,
 		fontWeight: 'bold',
 		color: Colors.fadedBlack,
 	},
@@ -49,12 +47,13 @@ type Props = {
 	places: {
 		[key: string]: any
 	};
-	onNavigation: Function;
+	onNavigate: Function;
 }
 
 type State = {
 	button: {
 		icon: string;
+		type: 'home' | 'work' | 'hometown' | null;
 		label: string;
 	}
 }
@@ -70,6 +69,7 @@ const PLACE_LABELS = {
 
 const DEFAULT_BUTTON = {
 	icon: 'my-location',
+	type: null,
 	label: PLACE_LABELS.default.toUpperCase(),
 	highlight: false,
 };
@@ -77,12 +77,18 @@ const DEFAULT_BUTTON = {
 export default class RoomsFooter extends Component<void, Props, State> {
 	static propTypes = {
 		places: PropTypes.object.isRequired,
-		onNavigation: PropTypes.func.isRequired,
+		onNavigate: PropTypes.func.isRequired,
 	};
 
 	state: State = {
 		button: DEFAULT_BUTTON,
 	};
+
+	componentWillMount() {
+		this.setState({
+			button: this._getPlaceLabel(this.props),
+		});
+	}
 
 	componentWillReceiveProps(nextProps: Props) {
 		this.setState({
@@ -94,7 +100,7 @@ export default class RoomsFooter extends Component<void, Props, State> {
 		return shallowCompare(this, nextProps, nextState);
 	}
 
-	_getPlaceLabel: Function = ({ places }: Props) => {
+	_getPlaceLabel = ({ places }: Props) => {
 		for (let i = 0, l = PLACE_TYPES.length; i < l; i++) {
 			const place = PLACE_TYPES[i];
 
@@ -104,6 +110,7 @@ export default class RoomsFooter extends Component<void, Props, State> {
 
 			return {
 				icon: 'add-circle',
+				type: place,
 				label: PLACE_LABELS[place].toUpperCase(),
 				highlight: true,
 			};
@@ -112,25 +119,48 @@ export default class RoomsFooter extends Component<void, Props, State> {
 		return DEFAULT_BUTTON;
 	};
 
-	_handleManagePlaces: Function = () => {
-		this.props.onNavigation(new NavigationActions.Push({
-			name: 'places',
-		}));
+	_handleAddPlace = () => {
+		const { button } = this.state;
+
+		if (button.type) {
+			this.props.onNavigate({
+				type: 'push',
+				payload: {
+					name: 'addplace',
+					props: {
+						type: button.type,
+					},
+				},
+			});
+		} else {
+			this.props.onNavigate({
+				type: 'push',
+				payload: {
+					name: 'places',
+				},
+			});
+		}
 	};
 
-	_handleGoToAccount: Function = () => {
-		this.props.onNavigation(new NavigationActions.Push({
-			name: 'account',
-		}));
-	};
-
-	_handleReportIssue: Function = () => {
-		this.props.onNavigation(new NavigationActions.Push({
-			name: 'room',
-			props: {
-				room: 'e8d0a3b8-6c00-4871-84ad-1078b1265c08',
+	_handleGoToAccount = () => {
+		this.props.onNavigate({
+			type: 'push',
+			payload: {
+				name: 'account',
 			},
-		}));
+		});
+	};
+
+	_handleReportIssue = () => {
+		this.props.onNavigate({
+			type: 'push',
+			payload: {
+				name: 'room',
+				props: {
+					room: 'e8d0a3b8-6c00-4871-84ad-1078b1265c08',
+				},
+			},
+		});
 	};
 
 	render() {
@@ -141,7 +171,7 @@ export default class RoomsFooter extends Component<void, Props, State> {
 		return (
 			<View style={styles.footer}>
 				<View style={styles.footerInner}>
-					<ListItem containerStyle={styles.footerItem} onPress={this._handleManagePlaces}>
+					<ListItem containerStyle={styles.footerItem} onPress={this._handleAddPlace}>
 						<Icon
 							style={[ styles.footerIcon, button.highlight ? styles.highlightLabel : null ]}
 							name={button.icon}

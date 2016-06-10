@@ -6,7 +6,6 @@ import shallowCompare from 'react-addons-shallow-compare';
 import Colors from '../../../Colors';
 import AppText from '../Core/AppText';
 import AppbarTouchable from '../Appbar/AppbarTouchable';
-import NavigationActions from '../../../navigation-rfc/Navigation/NavigationActions';
 import type { Thread } from '../../../../lib/schemaTypes';
 
 const {
@@ -27,7 +26,6 @@ const styles = StyleSheet.create({
 	subtitle: {
 		color: Colors.fadedWhite,
 		fontSize: 12,
-		lineHeight: 18,
 		width: 160,
 	},
 });
@@ -35,7 +33,7 @@ const styles = StyleSheet.create({
 type Props = {
 	thread: ?Thread | { type: 'loading' };
 	online: number;
-	onNavigation: Function;
+	onNavigate: Function;
 }
 
 export default class ChatTitle extends Component<void, Props, void> {
@@ -44,7 +42,7 @@ export default class ChatTitle extends Component<void, Props, void> {
 			name: PropTypes.string,
 		}),
 		online: PropTypes.number.isRequired,
-		onNavigation: PropTypes.func.isRequired,
+		onNavigate: PropTypes.func.isRequired,
 	};
 
 	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
@@ -55,12 +53,15 @@ export default class ChatTitle extends Component<void, Props, void> {
 		const { thread } = this.props;
 
 		if (thread && thread.id) {
-			this.props.onNavigation(new NavigationActions.Push({
-				name: 'details',
-				props: {
-					thread: thread.id,
+			this.props.onNavigate({
+				type: 'push',
+				payload: {
+					name: 'details',
+					props: {
+						thread: thread.id,
+					},
 				},
-			}));
+			});
 		}
 	};
 

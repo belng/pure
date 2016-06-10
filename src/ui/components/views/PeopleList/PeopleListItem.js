@@ -6,7 +6,6 @@ import shallowCompare from 'react-addons-shallow-compare';
 import AppText from '../Core/AppText';
 import AvatarRound from '../Avatar/AvatarRound';
 import TouchFeedback from '../Core/TouchFeedback';
-import NavigationActions from '../../../navigation-rfc/Navigation/NavigationActions';
 import Colors from '../../../Colors';
 import type { User } from '../../../../lib/schemaTypes';
 
@@ -39,7 +38,6 @@ const styles = StyleSheet.create({
 	},
 	status: {
 		fontSize: 12,
-		lineHeight: 18,
 		marginHorizontal: 16,
 		paddingHorizontal: 4,
 		color: Colors.darkGrey,
@@ -56,7 +54,7 @@ const styles = StyleSheet.create({
 type Props = {
 	user: User;
 	status: 'online' | 'offline';
-	onNavigation: Function;
+	onNavigate: Function;
 }
 
 export default class PeopleListItem extends Component<void, Props, void> {
@@ -65,7 +63,7 @@ export default class PeopleListItem extends Component<void, Props, void> {
 			id: PropTypes.string.isRequired,
 		}),
 		status: PropTypes.string,
-		onNavigation: PropTypes.func.isRequired,
+		onNavigate: PropTypes.func.isRequired,
 	};
 
 	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
@@ -75,12 +73,15 @@ export default class PeopleListItem extends Component<void, Props, void> {
 	_goToProfile: Function = () => {
 		const { user } = this.props;
 
-		this.props.onNavigation(new NavigationActions.Push({
-			name: 'profile',
-			props: {
-				user: user.id,
+		this.props.onNavigate({
+			type: 'push',
+			payload: {
+				name: 'profile',
+				props: {
+					user: user.id,
+				},
 			},
-		}));
+		});
 	};
 
 	render() {

@@ -14,12 +14,10 @@ import AppbarSecondary from '../Appbar/AppbarSecondary';
 import AppbarTouchable from '../Appbar/AppbarTouchable';
 import AppbarIcon from '../Appbar/AppbarIcon';
 import ImageUploadContainer from '../../containers/ImageUploadContainer';
-import StartDiscussionDone from '../../containers/StartDiscussionDoneContainer';
 import AvatarRound from '../Avatar/AvatarRound';
 import Banner from '../Banner/Banner';
 import ImageUploadDiscussion from '../ImageUpload/ImageUploadDiscussion';
 import Facebook from '../../../modules/Facebook';
-import NavigationActions from '../../../navigation-rfc/Navigation/NavigationActions';
 import Colors from '../../../Colors';
 import { convertRouteToURL } from '../../../../lib/Route';
 import { config } from '../../../../core-client';
@@ -45,7 +43,6 @@ const styles = StyleSheet.create({
 	threadName: {
 		fontWeight: 'bold',
 		fontSize: 20,
-		lineHeight: 30,
 	},
 	threadSummary: {
 		fontSize: 16,
@@ -94,10 +91,12 @@ const styles = StyleSheet.create({
 		fontWeight: 'bold',
 		textAlign: 'center',
 	},
+	socialItemContainer: {
+		margin: 12,
+	},
 	socialItem: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		margin: 12,
 	},
 	socialIconContainer: {
 		height: 28,
@@ -117,7 +116,6 @@ const styles = StyleSheet.create({
 	socialTextContainer: {
 		marginHorizontal: 12,
 		color: Colors.fadedBlack,
-		bottom: -3,
 	},
 	socialTextSelected: {
 		color: Colors.facebook,
@@ -125,11 +123,9 @@ const styles = StyleSheet.create({
 	},
 	socialLabel: {
 		fontSize: 12,
-		lineHeight: 18,
 	},
 	socialTip: {
 		fontSize: 10,
-		lineHeight: 15,
 		opacity: 0.5,
 		fontWeight: 'normal',
 	},
@@ -141,9 +137,8 @@ type Props = {
 	user: string;
 	room: string;
 	thread: string;
-	dismiss: Function;
 	startThread: Function;
-	onNavigation: Function;
+	onNavigate: Function;
 }
 
 type State = {
@@ -171,14 +166,13 @@ type State = {
 const PERMISSION_PUBLISH_ACTIONS = 'publish_actions';
 const PERMISSION_PUBLISH_ERROR = 'ERR_REQUEST_PERMISSION';
 
-export default class StartDiscussionButton extends Component<void, Props, State> {
+export default class StartDiscussion extends Component<void, Props, State> {
 	static propTypes = {
 		user: PropTypes.string.isRequired,
 		room: PropTypes.string.isRequired,
-		dismiss: PropTypes.func.isRequired,
 		thread: PropTypes.string,
 		startThread: PropTypes.func.isRequired,
-		onNavigation: PropTypes.func.isRequired,
+		onNavigate: PropTypes.func.isRequired,
 	};
 
 	state: State = {
@@ -300,6 +294,12 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 		});
 	};
 
+	_handleGoBack = () => {
+		this.props.onNavigate({
+			type: 'pop',
+		});
+	};
+
 	_handlePosted: Function = thread => {
 		const route = {
 			name: 'chat',
@@ -316,10 +316,8 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 			});
 		}
 
-		this.props.onNavigation(new NavigationActions.Push(route));
-
 		setTimeout(() => {
-			this.props.dismiss();
+			this._handleGoBack();
 		}, 1000);
 	};
 
@@ -385,12 +383,26 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 		this.setState({
 			status: 'loading',
 		}, () => {
-			this.props.startThread(
+			const threadObservable = this.props.startThread({
 				id,
-				this.state.name,
 				body,
-				meta
-			);
+				meta,
+				name: this.state.name,
+				room: this.props.room,
+				user: this.props.user,
+			});
+			const subscription = threadObservable.subscribe({
+				next: (thread) => {
+					if (thread) {
+						this._handlePosted(thread);
+						subscription.unsubscribe();
+					}
+				},
+				error: e => {
+					this._handleError(e.message);
+					subscription.unsubscribe();
+				},
+			});
 		});
 	};
 
@@ -454,7 +466,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 		return (
 			<View style={styles.container}>
 				<AppbarSecondary>
-					<AppbarTouchable type='secondary' onPress={this.props.dismiss}>
+					<AppbarTouchable type='secondary' onPress={this._handleGoBack}>
 						<AppbarIcon name='close' style={styles.icon} />
 					</AppbarTouchable>
 
@@ -497,7 +509,7 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 						/>
 					}
 
-					<TouchableOpacity onPress={this._handleSharePress}>
+					<TouchableOpacity style={styles.socialItemContainer} onPress={this._handleSharePress}>
 						<View style={styles.socialItem}>
 							<View style={[ styles.socialIconContainer, this.state.shareOnFacebook ? styles.socialIconContainerSelected : null ]}>
 								<EvilIcons name='sc-facebook' style={styles.socialIcon} />
@@ -540,7 +552,6 @@ export default class StartDiscussionButton extends Component<void, Props, State>
 						}
 					</View>
 				</View>
-				<StartDiscussionDone thread={this.props.thread} onPosted={this._handlePosted} />
 			</View>
 		);
 	}
