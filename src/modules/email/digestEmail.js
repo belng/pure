@@ -23,7 +23,7 @@ const fields = [
 	]; // where threads.createtime > urel.ptime
 const query = pg.cat(
 		[ 'SELECT ', pg.cat(fields, ', '), 'FROM ', pg.cat(joins, ', '), 'WHERE ', pg.cat(conditions, ' AND ') ]
-	).$ /*+ 'limit 40'*/;
+	).$ + 'order by users.id';
 
 function getSubject() {
 	// const counts = rels.length - 1;
@@ -44,6 +44,7 @@ export function initMailSending (userRel) {
 		mailIds = user.identities.filter((el) => {
 			return /mailto:/.test(el);
 		});
+		console.log("rels[0].threads: ", rels)
 	mailIds.forEach((mailId) => {
 		counter1.inc();
 		const emailAdd = mailId.slice(7),
@@ -54,7 +55,7 @@ export function initMailSending (userRel) {
 			}),
 			emailSub = getSubject(rels);
 			console.log('Digest email to: ', emailAdd)
-// console.log("rels[0].threads: ", rels)
+
 		send(conf.from, /*emailAdd*/'ja.chandrakant@gmail.com', emailSub, emailHtml, (e) => {
 			if (!e) {
 				log.info('Digest email successfully sent');
@@ -64,13 +65,14 @@ export function initMailSending (userRel) {
 		});
 	});
 	counter1.then(() => {
-		pg.write(connStr, [ {
-			$: 'UPDATE jobs SET lastrun=&{end} WHERE id=&{jid}',
-			end,
-			jid: Constants.JOB_EMAIL_DIGEST,
-		} ], (error) => {
-			if (!error) log.info('successfully updated jobs for digest email');
-		});
+		log.info('successfully updated jobs for digest email');
+		// pg.write(connStr, [ {
+		// 	$: 'UPDATE jobs SET lastrun=&{end} WHERE id=&{jid}',
+		// 	end,
+		// 	jid: Constants.JOB_EMAIL_DIGEST,
+		// } ], (error) => {
+		// 	if (!error) log.info('successfully updated jobs for digest email');
+		// });
 	});
 }
 
