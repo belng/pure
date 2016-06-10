@@ -99,9 +99,12 @@ function wherePart (f) {
 }
 
 function fromPart (slice, toJson, l) {
-	const fields = [], joins = [];
+	const fields = [], joins = [], toJoin = [];
 	if (slice.join) {
-		for (const type in slice.filter) {
+		toJoin.push(slice.type);
+		for (const type in slice.join) toJoin.push(type);
+
+		for (const type of toJoin) {
 			let limit;
 			const subSlice = {
 				type,
@@ -137,6 +140,7 @@ function fromPart (slice, toJson, l) {
 		}
 		joins.push('"' + TABLES[TYPES[slice.type]] + '"');
 	}
+
 
 	if (slice.link) {
 		for (const type in slice.link) {
@@ -223,12 +227,22 @@ function simpleQuery(slice, toJson, limit) {
 }
 
 function boundQuery (slice, start, end) {
-	slice.filter[slice.order + '_gte'] = start;
-	slice.filter[slice.order + '_lte'] = end;
+	if (slice.link || slice.join) {
+		if (!slice.filter[slice.type]) slice.filter[slice.type] = {};
+		slice.filter[slice.type][slice.order + '_lte'] = end;
+		slice.filter[slice.type][slice.order + '_gte'] = start;
+	} else {
+		slice.filter[slice.order + '_lte'] = end;
+		slice.filter[slice.order + '_gte'] = start;
+	}
 	const query = simpleQuery(slice, true, MAX_LIMIT);
-
-	delete slice.filter[slice.order + '_gte'];
-	delete slice.filter[slice.order + '_lte'];
+	if (slice.link || slice.join) {
+		delete slice.filter[slice.type][slice.order + '_gte'];
+		delete slice.filter[slice.type][slice.order + '_lte'];
+	} else {
+		delete slice.filter[slice.order + '_gte'];
+		delete slice.filter[slice.order + '_lte'];
+	}
 
 	return query;
 }
@@ -272,7 +286,6 @@ function afterQuery (slice, start, after, exclude) {
 
 export default function s(slice, range) {
 	let query;
-
 	if (slice.order) {
 		if (range.length === 2) {
 			query = boundQuery(slice, range[0], range[1]);
@@ -296,6 +309,5 @@ export default function s(slice, range) {
 	} else {
 		query = simpleQuery(slice, true, MAX_LIMIT);
 	}
-
 	return query;
 }
