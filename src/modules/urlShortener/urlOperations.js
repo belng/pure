@@ -81,7 +81,7 @@ export const getShortURL = (longURL: string): Promise<string> => {
 		return insertLongURL(shortURL, pathFromLongURL)
 			// in case of a successful insertion, simply return the hash.
 			.then((result) => {
-				// result: [{.., rowcount: _, ...}, ..]
+				// result: [{.., rowCount: _, ...}, ..]
 				if (result[0].rowCount === 1) {
 					winston.info('Insert operation performed successfully.');
 					return shortURL;

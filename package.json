@@ -7,7 +7,6 @@
   "dependencies": {
     "aws-sdk": "^2.3.16",
     "babel-polyfill": "^6.9.0",
-    "base64-url": "^1.2.2",
     "big-integer": "^1.6.15",
     "casual": "^1.5.3",
     "core-js": "^2.4.0",
@@ -15,7 +14,7 @@
     "engine.io": "^1.6.9",
     "engine.io-client": "^1.6.9",
     "eslint": "^2.10.2",
-    "feedparser": "^1.1.4",
+    "feed-read": "0.0.1",
     "handlebars": "^4.0.5",
     "immutable": "^3.8.1",
     "invariant": "^2.2.1",

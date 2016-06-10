@@ -29,6 +29,7 @@ import '../modules/debug/debug-server';
 
 import '../modules/belong/belong';
 import '../modules/content-seeding/content-seeding';
+import '../modules/content-seeding/news-aggregator';
 
 // Email server
 import '../modules/email/email-daemon';

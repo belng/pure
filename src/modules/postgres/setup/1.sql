@@ -120,26 +120,25 @@ CREATE TABLE jobs (
 );
 
 DROP TABLE IF EXISTS urls;
+DROP TABLE IF EXISTS articles;
+DROP TABLE IF EXISTS feeds;
 
 CREATE TABLE urls (
 	shorturl text PRIMARY KEY,
 	longurl text NOT NULL
 );
 
-DROP TABLE IF EXISTS articles;
-DROP TABLE IF EXISTS feeds;
-
-CREATE TEMP TABLE articles (
-	url text UNIQUE,
-	rawxml xml NOT NULL,
-	terms tsvector
+CREATE TABLE articles (
+	url text NOT NULL,
+	rawjson jsonb NOT NULL,
+	terms tsvector NOT NULL
 );
 
 CREATE TABLE feeds (
-	url text UNIQUE,
+	url text PRIMARY KEY,
 	mtbu float(24) NOT NULL,
-	lastrequesttime bigint,
-	lastupdatetime bigint
+	lastrequesttime bigint NOT NULL,
+	lastupdatetime bigint NOT NULL
 );
 
 INSERT INTO jobs VALUES (1), (2), (3);
