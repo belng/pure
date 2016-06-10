@@ -68,7 +68,7 @@ type FeedsObject = {
 type RoomSpecificNews = {
 	roomid: string;
 	roomname: string;
-	article: Object;
+	article: Article;
 	url: string
 };
 
@@ -147,7 +147,7 @@ function insertIntoFeeds (url: string): Promise<Array<{ rowCount: number }>> {
 	} ]);
 }
 
-function insertNewArticles (url: string, article: Object, contentForLexemes: string): Promise<Array<{ rowCount: number }>> {
+function insertNewArticles (url: string, article: Article, contentForLexemes: string): Promise<Array<{ rowCount: number }>> {
 	return performWriteQuery([ {
 		$: `INSERT INTO articles (
 			url, rawjson, terms
