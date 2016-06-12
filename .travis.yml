@@ -1,4 +1,4 @@
-sudo: false
+sudo: true
 language: node_js
 notifications:
   email: "devs@scrollback.io"
@@ -13,3 +13,5 @@ before_script:
   - echo '{}' > config/client.json
   - npm run flow -- check
   - npm run build
+after_success:
+  - npm run coverage
