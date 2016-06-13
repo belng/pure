@@ -119,6 +119,9 @@ CREATE TABLE jobs (
 	lastrun bigint DEFAULT extract(epoch from now())*1000
 );
 
+CREATE INDEX ON threads((parents[1]));
+CREATE INDEX ON texts((parents[1]));
+
 DROP TABLE IF EXISTS urls;
 DROP TABLE IF EXISTS articles;
 DROP TABLE IF EXISTS feeds;
