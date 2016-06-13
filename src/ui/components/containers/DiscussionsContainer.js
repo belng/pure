@@ -59,7 +59,7 @@ function sliceFromProps(props) {
 		},
 		filter: {
 			thread: {
-				parents_cts: [ props.room ],
+				parents_first: props.room,
 			},
 			threadrel: {
 				user: props.user,
