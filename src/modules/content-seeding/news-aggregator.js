@@ -2,13 +2,12 @@
 /* eslint-disable no-console, array-callback-return */
 
 import feedParser from 'feed-read';
-import pick from 'lodash/pick';
 import { bus, config } from '../../core-server';
 import winston from 'winston';
 import * as pg from '../../lib/pg';
 import promisify from '../../lib/promisify';
 import uuid from 'node-uuid';
-import { TYPE_THREAD, TAG_RSS_NEWS_SEED } from '../../lib/Constants';
+import { TYPE_THREAD, TAG_POST_NEWS_SEED } from '../../lib/Constants';
 import type { Thread } from '../../lib/schemaTypes';
 
 /*
@@ -79,7 +78,7 @@ function buildThreads (latestNewsForRooms: Array<RoomSpecificNews>): Thread {
 			type: TYPE_THREAD,
 			name: newsArticle.rawjson.title,
 			body: newsArticle.url,
-			tags: [ TAG_RSS_NEWS_SEED ],
+			tags: [ TAG_POST_NEWS_SEED ],
 			parents: [ newsArticle.roomid ],
 			identities: [],
 			creator: 'belongbot',
@@ -161,9 +160,6 @@ export const newsAggregator = async () => {
 			const hasNewNewsArticle = articlePubDate > feed.lastupdatetime;
 			latestArticleDate = Math.max(articlePubDate, latestArticleDate);
 			return hasNewNewsArticle && articleAge <= ALLOWED_ARTICLE_AGE;
-		})
-		.map(newNewsArticle => {
-			return pick(newNewsArticle, [ 'title', 'link', 'content', 'published' ]);
 		});
 		if (newNewsArticles.length > 0) {
 			await Promise.all([

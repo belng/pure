@@ -165,7 +165,7 @@ bus.on('http/init', app => {
 				this.throw(500, e.message);
 			}
 		} else {
-			this.throw(400, 'long URL was not provided !!');
+			this.throw(400, 'Long URL was not provided !!');
 		}
 	}));
 

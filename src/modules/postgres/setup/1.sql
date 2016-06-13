@@ -137,6 +137,8 @@ CREATE TABLE articles (
 	terms tsvector NOT NULL
 );
 
+CREATE INDEX ON articles USING GIN(terms);
+
 CREATE TABLE feeds (
 	url text PRIMARY KEY,
 	mtbu float(24) DEFAULT 1 NOT NULL,
