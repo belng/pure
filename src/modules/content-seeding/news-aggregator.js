@@ -1,8 +1,8 @@
 /* flow */
-/* eslint-disable no-console, consistent-this, no-cond-assign */
+/* eslint-disable no-console, array-callback-return */
 
 import feedParser from 'feed-read';
-import _ from 'lodash';
+import pick from 'lodash/pick';
 import { bus, config } from '../../core-server';
 import winston from 'winston';
 import * as pg from '../../lib/pg';
@@ -21,18 +21,13 @@ import type { Thread } from '../../lib/schemaTypes';
 		        MTBU                    float(24)
 				lastrequesttime         bigint
 				lastupdatetime          bigint
-
 			- ARTICLES:
 				column                   type
 			  -----------------------------------------
 			    url		                text
 		        rawjson                 jsonb
 				terms    		        tsvector
-
 		- ALGORITHM:
-			- Check if the feeds table is empty.
-			- IF empty:
-				- insert a seed url in the feeds table (one time operation).
 			- Truncate the articles table.
 			- Filter feeds where lastrequesttime < ( NOW() - Mean time between updates (MTBU) ).
 			- For each feeds:
@@ -47,8 +42,8 @@ import type { Thread } from '../../lib/schemaTypes';
 */
 
 
-const JOB_INVOKATION_INTERVAL = 20000;
-const MAX_ARTICLE_AGE = 7 * 24 * 60 * 60 * 1000;
+const JOB_INVOCATION_INTERVAL = 60 * 60 * 1000;
+const ALLOWED_ARTICLE_AGE = 7 * 24 * 60 * 60 * 1000;
 const performReadQuery = promisify(pg.read.bind(pg, config.connStr));
 const performWriteQuery = promisify(pg.write.bind(pg, config.connStr));
 const parseFeed = promisify(feedParser.bind(feedParser));
@@ -69,8 +64,7 @@ type FeedsObject = {
 
 type RoomSpecificNews = {
 	roomid: string;
-	roomname: string;
-	article: Article;
+	rawjson: Article;
 	url: string
 };
 
@@ -83,8 +77,8 @@ function buildThreads (latestNewsForRooms: Array<RoomSpecificNews>): Thread {
 		changes.entities[id] = {
 			id,
 			type: TYPE_THREAD,
-			name: newsArticle.article.title,
-			body: newsArticle.article.link,
+			name: newsArticle.rawjson.title,
+			body: newsArticle.url,
 			tags: [ TAG_RSS_NEWS_SEED ],
 			parents: [ newsArticle.roomid ],
 			identities: [],
@@ -95,19 +89,6 @@ function buildThreads (latestNewsForRooms: Array<RoomSpecificNews>): Thread {
 	return changes;
 }
 
-function calculateMTBU (newArticles: Array<Article>): number {
-	let sum = 0;
-	const articleDatesTimeStamps = _.map(newArticles, (article) => {
-		return (new Date(article.published)).getTime();
-	});
-	const sortedArticleTimeStamps = articleDatesTimeStamps.sort().reverse();
-	const recentTimeStamps = sortedArticleTimeStamps.length >= 3 ? sortedArticleTimeStamps.slice(0, 3) : sortedArticleTimeStamps;
-	recentTimeStamps.forEach((timestamp, index) => {
-		sum += index === 0 ? (Date.now() - timestamp) : (recentTimeStamps[index - 1] - timestamp);
-	});
-	return sum / (recentTimeStamps.length);
-}
-
 function getDueFeeds (): Promise<Array<FeedsObject>> {
 	return performReadQuery({
 		$: 'SELECT * FROM feeds WHERE lastrequesttime < (extract(epoch from NOW()) * 1000 - mtbu)'
@@ -116,40 +97,38 @@ function getDueFeeds (): Promise<Array<FeedsObject>> {
 
 function getRoomSpecificNews (): Promise<Array<RoomSpecificNews>> {
 	return performReadQuery({
-		$: `SELECT rooms.id as roomid, rooms.name as roomname, articles.rawjson as article, articles.url as url 
-			From rooms, articles
-			WHERE articles.terms @@ plainto_tsquery(rooms.name)`
+		$: `SELECT rooms.id as roomid, article.rawjson as rawjson, article.url as url FROM rooms 
+			JOIN LATERAL (
+				SELECT * FROM articles
+	   			WHERE articles.terms @@ plainto_tsquery(rooms.name)
+	   			ORDER  BY articles.rawjson->>'published' DESC NULLS LAST LIMIT  1
+			) article ON TRUE`
 	});
 }
 
-function getMostRecentNewsForRoom (roomSpecificNewsArticles: Array<RoomSpecificNews>): Array<RoomSpecificNews> {
-	const sortedNewsArticles = _.orderBy(roomSpecificNewsArticles, (thread) => {
-		return thread.article.published;
-	}, [ 'desc' ]);
-	return _.uniqBy(sortedNewsArticles, 'roomid');
+function insertNewArticles (articles: Array<Article>): Promise<Array<{ rowCount: number }>> {
+	const query = 'INSERT INTO articles (url, rawjson, terms) VALUES';
+	const values = [];
+	articles.forEach(article => {
+		values.push({
+			$: '(&{url}, &{rawjson}, to_tsvector(&{contentForLexemes}))',
+			url: article.link,
+			rawjson: JSON.stringify(article),
+			contentForLexemes: article.title + ' ' + article.content
+		});
+	});
+	const finalQuery = pg.cat([ query, pg.cat(values, ', ') ], '');
+	return performWriteQuery([ finalQuery ]);
 }
 
-function insertNewArticles (url: string, article: Article, contentForLexemes: string): Promise<Array<{ rowCount: number }>> {
-	return performWriteQuery([ {
-		$: `INSERT INTO articles (
-			url, rawjson, terms
-		) VALUES (
-			&{url}, &{rawjson}, to_tsvector(&{contentForLexemes}) 
-		)`,
-		url,
-		rawjson: JSON.stringify(article),
-		contentForLexemes
-	} ]);
-}
-
-function updateFeedsOnNewArticles (lastupdatetime: number, url: string, mtbu: number): Promise<Array<{ rowCount: number }>> {
+function updateFeedsOnNewArticles (lastupdatetime: number, url: string, newArticlesCount: number): Promise<Array<{ rowCount: number }>> {
 	return performWriteQuery([ {
 		$: `UPDATE feeds SET lastrequesttime = extract(epoch from NOW()) * 1000,
 			lastupdatetime = &{lastupdatetime}, mtbu = &{mtbu} 
 			WHERE url=&{url}`,
 		lastupdatetime,
 		url,
-		mtbu
+		mtbu: (Date.now() - lastupdatetime) / newArticlesCount
 	} ]);
 }
 
@@ -160,81 +139,49 @@ function updateFeedsOnNoNewArtcles (url: string): Promise<Array<{ rowCount: numb
 	} ]);
 }
 
-export const newsAggregator = async (): Promise<Array<any>> => {
-	await performWriteQuery({
+export const newsAggregator = async () => {
+	await performWriteQuery([ {
 		$: 'TRUNCATE TABLE articles'
-	});
+	} ]);
 	// feeds: [{url: _, mtbu: _, lastrequesttime: _, lastupdatetime: _}, .....]
 	const feeds = await getDueFeeds();
-	if (feeds.length > 0) {
-		const parseFeedPromises = [];
-		for (const feed of feeds) {
-			/*
-				CHECK FOR NEW ARTICLES:
-					- checks:
-						-> shouldn't be older than 1 week.
-						-> Avoid duplicate stroies from the same feed.
-						-> To avoid duplicate stories, compare article's pubdate with the lastupdatetime for that feed.
-			*/
-			const newArticles = [];
-			let latestArticleDate = feed.lastupdatetime;
-			parseFeedPromises.push(
-				parseFeed(feed.url)
-				.then((newsArticles) => {
-					const promises = [];
-					for (const newsArticle of newsArticles) {
-						const articlePubDate = (new Date(newsArticle.published)).getTime();
-						const articleAge = Date.now() - articlePubDate;
-						const hasNewNewsArticle = articlePubDate > feed.lastupdatetime;
-						if (hasNewNewsArticle && articleAge <= MAX_ARTICLE_AGE) {
-							latestArticleDate = Math.max(articlePubDate, latestArticleDate);
-							const article = _.pick(newsArticle, [ 'title', 'link', 'content', 'published' ]);
-							newArticles.push(article);
-						}
-					}
-
-					if (newArticles.length > 0) {
-						const mtbu = calculateMTBU(newArticles);
-						// update MTBU, lastrequesttime, lastupdatetime
-						promises.push(
-							updateFeedsOnNewArticles(latestArticleDate, feed.url, mtbu)
-						);
-
-						// Insert new articles
-						for (const article of newArticles) {
-							const url = article.link;
-							const articleObj = article;
-							const contentForLexemes = article.title + ' ' + article.content;
-							promises.push(
-								insertNewArticles(url, articleObj, contentForLexemes)
-							);
-						}
-					} else {
-						// update lastrequesttime
-						promises.push(
-							updateFeedsOnNoNewArtcles(feed.url)
-						);
-					}
-
-					return Promise.all(promises);
-				})
-			);
+	await Promise.all(feeds.map(async feed => {
+		const newsArticles = await parseFeed(feed.url);
+		/*
+			CHECK FOR NEW ARTICLES:
+				- checks:
+					-> shouldn't be older than 1 week.
+					-> Avoid duplicate stroies from the same feed.
+					-> To avoid duplicate stories, compare article's pubdate with the lastupdatetime for that feed.
+		*/
+		let latestArticleDate = feed.lastupdatetime;
+		const newNewsArticles = newsArticles.filter(newsArticle => {
+			const articlePubDate = (new Date(newsArticle.published)).getTime();
+			const articleAge = Date.now() - articlePubDate;
+			const hasNewNewsArticle = articlePubDate > feed.lastupdatetime;
+			latestArticleDate = Math.max(articlePubDate, latestArticleDate);
+			return hasNewNewsArticle && articleAge <= ALLOWED_ARTICLE_AGE;
+		})
+		.map(newNewsArticle => {
+			return pick(newNewsArticle, [ 'title', 'link', 'content', 'published' ]);
+		});
+		if (newNewsArticles.length > 0) {
+			await Promise.all([
+				updateFeedsOnNewArticles(latestArticleDate, feed.url, newNewsArticles.length),
+				insertNewArticles(newNewsArticles)
+			]);
+		} else {
+			await updateFeedsOnNoNewArtcles(feed.url);
 		}
-		await Promise.all(parseFeedPromises);
-		const roomSpecificNewsArticles = await getRoomSpecificNews();
-		return roomSpecificNewsArticles;
-	}
-	return feeds;
+	}));
 };
 
-
-// Invoke this job every hour
-setInterval(async () => {
+export const postThreads = async () => {
 	try {
-		const roomSpecificNewsArticles = await newsAggregator();
+		await newsAggregator();
+		const roomSpecificNewsArticles = await getRoomSpecificNews();
 		if (roomSpecificNewsArticles.length > 0) {
-			const latestNewsForRooms = getMostRecentNewsForRoom(roomSpecificNewsArticles);
-			const threads = buildThreads(latestNewsForRooms);
+			const threads = buildThreads(roomSpecificNewsArticles);
 			bus.emit('change', threads);
 		} else {
 			winston.info('No new news stories found !!');
@@ -242,4 +189,7 @@ setInterval(async () => {
 	} catch (e) {
 		winston.error(`somethong went wrong while aggregating news, ${e}`);
 	}
-}, JOB_INVOKATION_INTERVAL);
+};
+
+// Invoke this job every hour
+setInterval(postThreads, JOB_INVOCATION_INTERVAL);

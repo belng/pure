@@ -115,21 +115,15 @@
         form.addEventListener("submit", function(event) {
             event.preventDefault();
             var divNode = document.getElementById("show-short-url");
-            var response = document.createTextNode("Loading...");
+            divNode.textContent = "Loading...";
             var longURL = document.getElementById('id_url').value;
             var request = new XMLHttpRequest();
-            divNode.removeChild(divNode.childNodes[0])
             divNode.className = "card-panel center";
-            divNode.appendChild(response);
             request.onload = function() {
                 if (this.status === 200) {
-                    divNode.removeChild(divNode.childNodes[0])
-                    var response = document.createTextNode("https://bel.ng/" + this.response);
-                    divNode.appendChild(response);
+                    divNode.textContent = "https://bel.ng/" + this.response;
                 } else if(this.status === 500) {
-                    divNode.removeChild(divNode.childNodes[0])
-                    var response = document.createTextNode("Not a valid 'https://bel.ng/' url");
-                    divNode.appendChild(response);
+                    divNode.textContent = "Not a valid 'https://bel.ng/' url";
                 } else {
                     throw new Error(this.statusText)
                 }
