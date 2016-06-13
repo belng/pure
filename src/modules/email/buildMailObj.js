@@ -96,6 +96,8 @@ function buildMailObj(userRel) {
 				return b.count - a.count;
 			});
 			if (cUserRel.currentRels[i].threads.length > 4) {
+				console.log('cUserRel: ', cUserRel)
+				console.log('cUserRel.currentRels[i].threads.length: ', cUserRel.currentRels[i].threads.length)
 				cUserRel.currentRels[i].threads = cUserRel.currentRels[i].threads.slice(0, 4);
 			}
 		}
@@ -108,11 +110,15 @@ export default function (userRel) {
 	// console.log(userRel.user)
 
 	if (Object.keys(userRel).length === 0) {
-		const cu = currentU, cr = currentR;
+		const cu = currentU;
+		let cr = currentR;
 		console.log('cu: ', cu);
 		// console.log('cr: ', cr);
 		for (const i in cr) {
 			console.log('cr[i].threads.length: ', cr[i].threads.length);
+			if (cr[i].threads.length > 4) {
+				cr[i].threads = cr[i].threads.slice(0, 4);
+			}
 		}
 		// console.log('cr: ', cr[0].threads.length);
 		currentU = false;

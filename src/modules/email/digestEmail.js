@@ -19,15 +19,13 @@ const fields = [
 	], joins = [
 		'users', 'roomrels', 'threads', 'rooms'
 	], conditions = [
-		'users.id=roomrels.user', 'threads.parents[1]=roomrels.item', 'roomrels.item=rooms.id', 'threads.createtime > extract(epoch from now()-interval \'2 months\')*1000', 'threads.score is not null', 'users.params->> \'email\' <> \'{"frequency": "never", "notifications": false}\'', 'roles @> \'{3}\'', 'roomrels.presencetime >= &{start}', 'roomrels.presencetime < &{end}', 'timezone >= &{min}', 'timezone < &{max}'
+		'users.id=roomrels.user', 'threads.parents[1]=roomrels.item', 'roomrels.item=rooms.id', 'threads.createtime >= roomrels.presencetime', 'users.params->> \'email\' <> \'{"frequency": "never", "notifications": false}\'', 'roles @> \'{3}\'', 'roomrels.presencetime >= &{start}', 'roomrels.presencetime < &{end}', 'timezone >= &{min}', 'timezone < &{max}'
 	]; // where threads.createtime > urel.ptime
 const query = pg.cat(
 		[ 'SELECT ', pg.cat(fields, ', '), 'FROM ', pg.cat(joins, ', '), 'WHERE ', pg.cat(conditions, ' AND ') ]
 	).$ + 'order by users.id';
 
 function getSubject() {
-	// const counts = rels.length - 1;
-	// const heading = '[' + rels[0].room + '] ' + rels[0].threads[0].threadTitle + ' +' + counts + ' more';
 	const heading = 'Updates from ' + config.app_name;
 	return heading;
 }
@@ -44,14 +42,7 @@ export function initMailSending (userRel) {
 		mailIds = user.identities.filter((el) => {
 			return /mailto:/.test(el);
 		});
-		// for (const i in rels) {
-		// 	if(rels[i].threads.length > 4) {
-		// 		rels[i].threads = rels[i].threads.splice(0, 4);
-		// 	}
-		// }
-		// console.log("rels[0].threads.length: ", rels[0].threads.length)
 
-		// console.log("rels[0].threads: ", rels)
 	mailIds.forEach((mailId) => {
 		counter1.inc();
 		const emailAdd = mailId.slice(7),
@@ -67,7 +58,6 @@ export function initMailSending (userRel) {
 			if (!e) {
 				log.info('Digest email successfully sent');
 				counter1.dec();
-				// console.log('counter1.pending: ',counter1.pending)
 			}
 		});
 	});
@@ -116,10 +106,10 @@ function sendDigestEmail () {
 		max: timeZone.max,
 	}).on('row', (urel) => {
 	// console.log('Got user for digest email: ', urel.userid);
-		if (urel.userid === 'vicky41296') {
-			console.log('urel: ', urel)
-			console.log(i++)
-		}
+		// if (urel.userid === 'vkalid') {
+		// 	// console.log('urel: ', urel)
+		// 	console.log(++i)
+		// }
 
 		const emailObj = getMailObj(urel) || {};
 
@@ -130,6 +120,9 @@ function sendDigestEmail () {
 	}).on('end', () => {
 		const c = getMailObj({});
 		console.log('got c: ', c)
+		// for (const i in c.currentRels) {
+		// 	console.log('c.currentRels[i].threads.length: ', c.currentRels[i].threads.length);
+		// }
 		initMailSending(c);
 		log.info('ended digest email');
 	});
