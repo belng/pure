@@ -1,7 +1,9 @@
 import { formatShort } from '../../lib/Time';
 import { config } from '../../core-server';
-let currentU = false,
-	currentR = false;
+import log from '../../lib/logger';
+
+let currentU = {},
+	currentR: Array<Object> = [];
 
 function userFromUserRel(user) {
 	return {
@@ -13,17 +15,14 @@ function userFromUserRel(user) {
 function relFromUserRel(rel) {
 	// console.log("rel: ", rel)
 	return {
-		user: rel.user || rel.userid, // id or identity
-		topics: rel.topics,
-		threadTitle: rel.name || rel.threadtitle,
-		threadId: rel.threadid, // room display name or thread title
-		text: rel.teext || rel.body,
-		parents: rel.textparents || rel.parents,
-		item: rel.titem || rel.item,
-		roles: rel.trole || rel.roles,
+		user: rel.userid,
+		threadTitle: rel.threadtitle,
+		threadId: rel.threadid,
+		text: rel.body,
+		parents: rel.parents,
+		item: rel.item,
+		roles: rel.roles,
 		score: rel.score,
-		// interest: rel.interest,
-		// reputation: rel.reputation,
 		room: rel.roomname,
 		roomId: rel.roomid,
 		count: rel.textCount || rel.children,
@@ -32,22 +31,19 @@ function relFromUserRel(rel) {
 }
 
 function buildMailObj(userRel) {
-	// console.log("sajdh hjadf: ", userRel)
 	const rel = relFromUserRel(userRel),
+		thread = {
+			id: rel.threadId,
+			title: rel.threadTitle,
+			score: rel.score,
+			counts: rel.count,
+			displayTime: rel.displayTime
+		},
 		user = userFromUserRel(userRel);
-// console.log('rel: ', rel);
-// console.log('user: ', user)
 	let cUserRel = false;
-	const thread = {
-		id: rel.threadId,
-		title: rel.threadTitle,
-		score: rel.score,
-		counts: rel.count,
-		displayTime: rel.displayTime
-	};
 
 	if (user.id !== currentU.id) {
-		if (currentU) {
+		if (Object.keys(currentU).length > 0) {
 			cUserRel = {
 				currentUser: currentU,
 				currentRels: currentR,
@@ -77,7 +73,7 @@ function buildMailObj(userRel) {
 		if (!sameRoom) {
 			currentR.push({
 				id: rel.roomId,
-				room: rel.room ? rel.room : rel.parent,
+				room: rel.room,
 				threads: [ thread ],
 				domain: config.server.protocol + '//' + config.server.host,
 			});
@@ -90,42 +86,35 @@ function buildMailObj(userRel) {
 			return b.threads.length - a.threads.length;
 		});
 
-		for (const i in cUserRel.currentRels) {
-			cUserRel.currentRels[i].threads.sort((a, b) => { // sort threads according to interest
-				// return b.score - a.score;
-				return b.count - a.count;
+		for (let i = 0; i < cUserRel.currentRels.length; i++) {
+			cUserRel.currentRels[i].threads.sort((a, b) => { // sort threads according to count
+				return b.counts - a.counts;
 			});
-			if (cUserRel.currentRels[i].threads.length > 4) {
-				console.log('cUserRel: ', cUserRel)
-				console.log('cUserRel.currentRels[i].threads.length: ', cUserRel.currentRels[i].threads.length)
-				cUserRel.currentRels[i].threads = cUserRel.currentRels[i].threads.slice(0, 4);
+			if (cUserRel.currentRels[i].threads.length > 10) {
+				cUserRel.currentRels[i].threads = cUserRel.currentRels[i].threads.slice(0, 10);
 			}
 		}
-		// console.log('cUserRel: ', cUserRel.currentRels);
 	}
 	return cUserRel;
 }
 
-export default function (userRel) {
+export default function (userRel: Object) {
 	// console.log(userRel.user)
 
 	if (Object.keys(userRel).length === 0) {
-		const cu = currentU;
-		let cr = currentR;
-		console.log('cu: ', cu);
-		// console.log('cr: ', cr);
-		for (const i in cr) {
-			console.log('cr[i].threads.length: ', cr[i].threads.length);
-			if (cr[i].threads.length > 4) {
-				cr[i].threads = cr[i].threads.slice(0, 4);
+		const lastUser = currentU,
+			lastRel = currentR;
+		for (let i = 0; i < lastRel.length; i++) {
+			log.info('lastRel[i].threads.length: ', lastRel[i].threads.length);
+			if (lastRel[i].threads.length > 10) {
+				lastRel[i].threads = lastRel[i].threads.slice(0, 10);
 			}
 		}
-		// console.log('cr: ', cr[0].threads.length);
-		currentU = false;
-		currentR = false;
+		currentU = {};
+		currentR = [];
 		return {
-			currentUser: cu,
-			currentRels: cr,
+			currentUser: lastUser,
+			currentRels: lastRel,
 		};
 	}
 	const emailObj = buildMailObj(userRel);

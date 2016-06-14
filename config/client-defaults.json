@@ -2,8 +2,8 @@
 	"app_name": "Belong",
 
 	"server": {
-		"protocol": "http:",
-		"host": "localhost:7528"
+		"protocol": "https:",
+		"host": "pure.heyneighbor.chat"
 	},
 
 	"gcm": {

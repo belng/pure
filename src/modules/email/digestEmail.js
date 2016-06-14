@@ -2,7 +2,7 @@
 import getMailObj from './buildMailObj';
 import { config } from '../../core-server';
 import * as Constants from '../../lib/Constants';
-import log from 'winston';
+import log from '../../lib/logger';
 import fs from 'fs';
 import handlebars from 'handlebars';
 import * as pg from '../../lib/pg';
@@ -12,33 +12,30 @@ import Counter from '../../lib/counter';
 const DIGEST_INTERVAL = 60 * 60 * 1000, DIGEST_DELAY = 24 * 60 * 60 * 1000,
 	template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' + config.app_id + '.digest.hbs', 'utf-8').toString()),
 	connStr = config.connStr, conf = config.email, counter1 = new Counter();
-let i = 0;
 let lastEmailSent, end;
 const fields = [
 		'roomrels.presencetime', 'users.name', 'threads.counts->>\'children\' children', 'users.identities', 'users.id userid', 'threads.score', 'threads.name threadtitle', 'threads.createtime', 'threads.id threadid', 'rooms.name roomname', 'rooms.id roomid'
 	], joins = [
 		'users', 'roomrels', 'threads', 'rooms'
 	], conditions = [
-		'users.id=roomrels.user', 'threads.parents[1]=roomrels.item', 'roomrels.item=rooms.id', 'threads.createtime >= roomrels.presencetime', 'users.params->> \'email\' <> \'{"frequency": "never", "notifications": false}\'', 'roles @> \'{3}\'', 'roomrels.presencetime >= &{start}', 'roomrels.presencetime < &{end}', 'timezone >= &{min}', 'timezone < &{max}'
-	]; // where threads.createtime > urel.ptime
-const query = pg.cat(
-		[ 'SELECT ', pg.cat(fields, ', '), 'FROM ', pg.cat(joins, ', '), 'WHERE ', pg.cat(conditions, ' AND ') ]
-	).$ + 'order by users.id';
+		'users.id=roomrels.user', 'threads.parents[1]=roomrels.item', 'roomrels.item=rooms.id', 'threads.counts IS NOT NULL', 'threads.createtime >= roomrels.presencetime', 'users.params->> \'email\' <> \'{"frequency": "never", "notifications": false}\'', 'roles @> \'{3}\'', 'roomrels.presencetime >= &{start}', 'roomrels.presencetime < &{end}', 'timezone >= &{min}', 'timezone < &{max}'
+	],
+	query = pg.cat(
+		[ 'SELECT ', pg.cat(fields, ', '), 'FROM ', pg.cat(joins, ', '), 'WHERE ', pg.cat(conditions, ' AND '), 'ORDER BY users.id' ]
+	);
 
 function getSubject() {
 	const heading = 'Updates from ' + config.app_name;
 	return heading;
 }
 
-export function initMailSending (userRel) {
-	// console.log("init mio djf: ", userRel)
-	// console.log("counter1.pending: ", counter1.pending)
+export function initMailSending (userRel: Object) {
 	const user = userRel.currentUser;
 	if (!user.identities || !Array.isArray(user.identities)) {
 		log.info('No identities found for user: ', user);
 		return;
 	}
-	const	rels = userRel.currentRels.splice(0, 4),
+	const	rels = userRel.currentRels/* .splice(0, 4)*/,
 		mailIds = user.identities.filter((el) => {
 			return /mailto:/.test(el);
 		});
@@ -52,9 +49,9 @@ export function initMailSending (userRel) {
 				rooms: rels,
 			}),
 			emailSub = getSubject(rels);
-			console.log('Digest email to: ', emailAdd)
+		log.info('Digest email to: ', emailAdd);
 
-		send(conf.from, /*emailAdd*/'ja.chandrakan@gmai.com', emailSub, emailHtml, (e) => {
+		send(conf.from, /* emailAdd*/'ja.chandrakant@gmail.com', emailSub, emailHtml, (e) => {
 			if (!e) {
 				log.info('Digest email successfully sent');
 				counter1.dec();
@@ -62,23 +59,22 @@ export function initMailSending (userRel) {
 		});
 	});
 	counter1.then(() => {
-		log.info('successfully updated jobs for digest email');
-		// pg.write(connStr, [ {
-		// 	$: 'UPDATE jobs SET lastrun=&{end} WHERE id=&{jid}',
-		// 	end,
-		// 	jid: Constants.JOB_EMAIL_DIGEST,
-		// } ], (error) => {
-		// 	if (!error) log.info('successfully updated jobs for digest email');
-		// });
+		// log.info('successfully updated jobs for digest email');
+		pg.write(connStr, [ {
+			$: 'UPDATE jobs SET lastrun=&{end} WHERE id=&{jid}',
+			end,
+			jid: Constants.JOB_EMAIL_DIGEST,
+		} ], (error) => {
+			if (!error) log.info('successfully updated jobs for digest email');
+		});
 	});
 }
 
 function sendDigestEmail () {
 	log.info('Starting digest email');
-	const startPoint = Date.now() - 2 * DIGEST_DELAY,
-
-		end = Date.now() - DIGEST_DELAY;
+	const startPoint = Date.now() - 2 * DIGEST_DELAY;
 	let	start = lastEmailSent < startPoint ? lastEmailSent : startPoint;
+	end = Date.now() - DIGEST_DELAY;
 
 	function getTimezone(hour) {
 		const UtcHrs = new Date().getUTCHours(),
@@ -88,47 +84,42 @@ function sendDigestEmail () {
 			tzMin = tz - 30,
 			tzMax = tz + 30;
 
-		return { min: 300, max: 500 };
+		return { min: tzMin, max: tzMax };
 	}
 
 	const timeZone = getTimezone(conf.digestEmailTime);
 
 	log.info('timezone: ', timeZone);
-	// if (conf.debug) {
-	// 	start = 0; end = Date.now(); /* tz.min = 0; tz.max = 1000; */
-	// }
+	if (conf.debug) {
+		start = 0; end = Date.now();
+		timeZone.min = 0;
+		timeZone.max = 1000;
+	}
 
-	pg.readStream(config.connStr, {
-		$: query,
-		start,
-		end,
-		min: timeZone.min,
-		max: timeZone.max,
-	}).on('row', (urel) => {
-	// console.log('Got user for digest email: ', urel.userid);
-		// if (urel.userid === 'vkalid') {
-		// 	// console.log('urel: ', urel)
-		// 	console.log(++i)
-		// }
-
+	query.start = start;
+	query.end = end;
+	query.min = timeZone.min;
+	query.max = timeZone.max;
+	pg.readStream(config.connStr, query).on('row', (urel) => {
+		log.info('Got user: ', urel.userid);
 		const emailObj = getMailObj(urel) || {};
 
 		if (Object.keys(emailObj).length !== 0) {
-			// console.log('send email now: ', emailObj);
+			// log.info('send email now: ', emailObj);
 			initMailSending(emailObj);
 		}
 	}).on('end', () => {
-		const c = getMailObj({});
-		console.log('got c: ', c)
-		// for (const i in c.currentRels) {
-		// 	console.log('c.currentRels[i].threads.length: ', c.currentRels[i].threads.length);
-		// }
-		initMailSending(c);
+		const endUser = getMailObj({});
+		// log.info('Sending to last user: ', endUser);
+		for (const j in endUser.currentRels) {
+			log.debug('c.currentRels[j].threads.length: ', endUser.currentRels[j].threads.length);
+		}
+		initMailSending(endUser);
 		log.info('ended digest email');
 	});
 }
 
-export default function (row) {
+export default function (row: Object) {
 	lastEmailSent = row.lastrun;
 	const UtcMnts = new Date().getUTCMinutes(),
 		delay = UtcMnts < 30 ? 30 : 90,
