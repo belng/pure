@@ -3,7 +3,6 @@
 import fs from 'fs';
 import path from 'path';
 import handlebars from 'handlebars';
-import route from 'koa-route';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import ServerHTML from './ServerHTML';
@@ -17,7 +16,7 @@ const promo = handlebars.compile(fs.readFileSync(path.join(__dirname, '../../../
 const getEntityAsync = promisify(cache.getEntity.bind(cache));
 
 bus.on('http/init', app => {
-	app.use(route.get('*', function *() {
+	app.use(function *(next) {
 		const query = this.request.query;
 
 		if (query && query.download_app) {
@@ -72,5 +71,7 @@ bus.on('http/init', app => {
 				analytics={config.analytics}
 			/>
 		);
-	}));
+
+		yield *next;
+	});
 });
