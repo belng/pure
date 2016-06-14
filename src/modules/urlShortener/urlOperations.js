@@ -31,15 +31,14 @@ const chars = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz'
 const doReadQuery = promisify(pg.read.bind(pg, config.connStr));
 const doWriteQuery = promisify(pg.write.bind(pg, config.connStr));
 
+const { host } = config.server;
+
 const isNativeURL = (longURL: string): boolean => {
-	return /https?:\/\/bel\.ng\//.test(longURL);
+	return longURL.indexOf('http://' + host) > -1 || longURL.indexOf('https://' + host) > -1;
 };
 
 const isShortURL = (shortURL: string): boolean => {
-	if (shortURL.length === 6 || shortURL.length === 7) {
-		return /^[A-Za-z0-9\-_]+$/.test(shortURL);
-	}
-	return false;
+	return /^[A-Za-z0-9\-_]{6,7}$/.test(shortURL);
 };
 
 const getPathFromURL = (longURL: string): string => {
@@ -156,6 +155,23 @@ export const getLongURL = (shortURL: string): Promise<string> => {
 */
 
 bus.on('http/init', app => {
+	app.use(function *(next) {
+		const path = this.request.path.slice(1);
+
+		if (isShortURL(path)) {
+			try {
+				const longURL = yield getLongURL(path);
+				if (longURL) {
+					this.response.redirect(longURL);
+				}
+			} catch (e) {
+				// do nothing
+			}
+		}
+
+		yield *next;
+	});
+
 	app.use(route.get('/x/shorten-url', function *() {
 		const query = this.request.query;
 		if (query && query.longurl) {
@@ -166,20 +182,6 @@ bus.on('http/init', app => {
 			}
 		} else {
 			this.throw(400, 'Long URL was not provided !!');
-		}
-	}));
-
-	app.use(route.get('*', function *() {
-		const path = this.request.url.slice(1).match(/^[^\/?]*/, '')[0];
-		try {
-			if (isShortURL(path)) {
-				const longURL = yield getLongURL(path);
-				if (longURL) {
-					this.response.redirect(longURL);
-				}
-			}
-		} catch (e) {
-			// Do nothing !
 		}
 	}));
 });
