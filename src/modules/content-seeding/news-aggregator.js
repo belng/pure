@@ -68,6 +68,7 @@ type RoomSpecificNews = {
 };
 
 function buildThreads (latestNewsForRooms: Array<RoomSpecificNews>): Thread {
+	let timeStamp = Date.now();
 	const changes = {
 		entities: {}
 	};
@@ -82,7 +83,7 @@ function buildThreads (latestNewsForRooms: Array<RoomSpecificNews>): Thread {
 			parents: [ newsArticle.roomid ],
 			identities: [],
 			creator: 'belongbot',
-			createTime: Date.now(),
+			createTime: timeStamp++
 		};
 	}
 	return changes;
