@@ -47,6 +47,7 @@ export const TAG_POST_PHOTO = 3;
 export const TAG_POST_GAPI_SEED = 4;
 export const TAG_POST_AUTO_SEED = 5;
 export const TAG_POST_SEED = 6;
+export const TAG_POST_NEWS_SEED = 7;
 
 export const TAG_USER_GUEST = 10;
 export const TAG_USER_CONTENT = 11;
