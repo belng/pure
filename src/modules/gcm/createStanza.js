@@ -6,6 +6,7 @@ import {
 	TYPE_NOTE,
 } from '../../lib/Constants';
 import type { Note } from '../../lib/schemaTypes';
+import log from 'winston';
 
 export default function createStanza(id: string, note: Note) {
 	let topic;
@@ -30,6 +31,6 @@ export default function createStanza(id: string, note: Note) {
 	</gcm>
 	</message>
 	`;
-
+	log.info(stanza);
 	return stanza;
 }

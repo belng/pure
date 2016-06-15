@@ -12,7 +12,7 @@ import Counter from '../../lib/counter';
 const DIGEST_INTERVAL = 60 * 60 * 1000, DIGEST_DELAY = 24 * 60 * 60 * 1000,
 	template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' + config.app_id + '.digest.hbs', 'utf-8').toString()),
 	connStr = config.connStr, conf = config.email, counter1 = new Counter();
-let lastEmailSent, end;
+let lastEmailSent, end, i = 0;
 const fields = [
 		'roomrels.presencetime', 'users.name', 'threads.counts->>\'children\' children', 'users.identities', 'users.id userid', 'threads.score', 'threads.name threadtitle', 'threads.createtime', 'threads.id threadid', 'rooms.name roomname', 'rooms.id roomid'
 	], joins = [
@@ -51,7 +51,7 @@ export function initMailSending (userRel: Object) {
 			emailSub = getSubject(rels);
 		log.info('Digest email to: ', emailAdd);
 
-		send(conf.from, /* emailAdd*/'ja.chandrakant@gmail.com', emailSub, emailHtml, (e) => {
+		send(conf.from, /* emailAdd*/'ja.chandraka@gmail.com', emailSub, emailHtml, (e) => {
 			if (!e) {
 				log.info('Digest email successfully sent');
 				counter1.dec();
@@ -65,7 +65,10 @@ export function initMailSending (userRel: Object) {
 			end,
 			jid: Constants.JOB_EMAIL_DIGEST,
 		} ], (error) => {
-			if (!error) log.info('successfully updated jobs for digest email');
+			if (!error) {
+				log.info('successfully updated jobs for digest email');
+				log.info('Digest email sent to ', i, ' users');
+			}
 		});
 	});
 }
@@ -91,7 +94,7 @@ function sendDigestEmail () {
 
 	log.info('timezone: ', timeZone);
 	if (conf.debug) {
-		start = 0; end = Date.now();
+		// start = 0; end = Date.now();
 		timeZone.min = 0;
 		timeZone.max = 1000;
 	}
@@ -101,15 +104,17 @@ function sendDigestEmail () {
 	query.min = timeZone.min;
 	query.max = timeZone.max;
 	pg.readStream(config.connStr, query).on('row', (urel) => {
-		log.info('Got user: ', urel.userid);
+		// log.info('Got user: ', urel.userid);
 		const emailObj = getMailObj(urel) || {};
 
 		if (Object.keys(emailObj).length !== 0) {
-			// log.info('send email now: ', emailObj);
+			++i;
+			log.info('send email to: ', emailObj.currentUser);
 			initMailSending(emailObj);
 		}
 	}).on('end', () => {
 		const endUser = getMailObj({});
+		i++;
 		// log.info('Sending to last user: ', endUser);
 		for (const j in endUser.currentRels) {
 			log.debug('c.currentRels[j].threads.length: ', endUser.currentRels[j].threads.length);
