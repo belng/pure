@@ -94,7 +94,7 @@ function sendDigestEmail () {
 
 	log.info('timezone: ', timeZone);
 	if (conf.debug) {
-		// start = 0; end = Date.now();
+		start = 0; end = Date.now();
 		timeZone.min = 0;
 		timeZone.max = 1000;
 	}

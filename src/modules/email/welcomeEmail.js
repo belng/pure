@@ -1,4 +1,4 @@
-import log from 'winston';
+import log from '../../lib/logger';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import handlebars from 'handlebars';
@@ -17,8 +17,12 @@ let lastEmailSent, end;
 function initMailSending(cUserRel) {
 	const counter = new Counter();
 	const user = cUserRel.user;
-	console.log(user);
-	if (!user.identities || !Array.isArray(user.identities)) {
+	log.debug(user);
+	if (
+		!user.identities ||
+		!Array.isArray(user.identities) ||
+		user.identities.length === 0
+	) {
 		log.info('No identities found for user: ', user);
 		return;
 	}

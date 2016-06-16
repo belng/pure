@@ -23,12 +23,6 @@ if (process.env.NODE_ENV === 'production') {
 	transports = [
 		new winston.transports.Console({ colorize: true, level: 'debug' }),
 		new (winston.transports.File)({
-			level: 'debug',
-			filename: newLogDir + '/' + new Date().getTime() + '-debug.log',
-			name: 'debug-file',
-			maxsize: 5242880
-		}),
-		new (winston.transports.File)({
 			level: 'error',
 			filename: newLogDir + '/' + new Date().getTime() + '-error.log',
 			name: 'error-file',
