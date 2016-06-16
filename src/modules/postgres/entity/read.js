@@ -51,7 +51,7 @@ function rel(ids) {
 
 function note(ids) {
 	return pg.cat(ids.map(id => {
-		const [ usr, group, event ] = id.split('_');
+		const [ usr, event, group ] = id.split('_');
 		return {
 			$: `SELECT *, ${TYPE_SEGMENT} FROM notes WHERE user=&{usr} AND group=&{group} AND event=&{event}`,
 			usr,

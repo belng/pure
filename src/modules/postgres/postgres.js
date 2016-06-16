@@ -87,10 +87,6 @@ cache.onChange((changes) => {
 						rel: []
 					});
 
-				// typeToId.rest.forEach(id => {
-				// 	cache.put({ entities: { [id]: false } });
-				// });
-
 				for (const i in typeToId) {
 					// FIXME: Notes only for now
 					if (i === 'rest' || i === 'note' || !typeToId[i].length) continue;
