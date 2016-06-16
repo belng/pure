@@ -11,17 +11,17 @@ export default class User {
 
 		if (!data.id) { throw new Error('INVALID_USER_ID'); }
 
-		try {
-			if (data.createTime) data.createTime = parseInt(data.createTime);
-			if (data.updateTime) data.updateTime = parseInt(data.updateTime);
-		} catch (e) {
-			delete data.createTime;
-			delete data.updateTime;
-		}
+		for (const n of COLUMNS[Constants.TYPE_USER]) {
+			const name = n.toLowerCase();
+			if (typeof data[name] !== 'undefined' || typeof data[n] !== 'undefined') {
+				let value = data[n] || data[name];
 
-		for (const name of COLUMNS[Constants.TYPE_USER]) {
-			if (typeof data[name.toLowerCase()] !== 'undefined' || typeof data[name] !== 'undefined') {
-				this[name] = data[name] || data[name.toLowerCase()];
+				if ([ 'createtime', 'updatetime', 'deletetime' ].indexOf(name) >= 0) {
+					value = parseInt(value);
+					if (Number.isNaN(value)) continue;
+				}
+
+				this[n] = value;
 			}
 		}
 

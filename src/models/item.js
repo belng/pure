@@ -5,17 +5,17 @@ export default class Item {
 	constructor(data) {
 		if (!data) throw new Error('CANNOT_INITIALIZE_MODEL');
 
-		try {
-			if (data.createTime) data.createTime = parseInt(data.createTime);
-			if (data.updateTime) data.updateTime = parseInt(data.updateTime);
-		} catch (e) {
-			delete data.createTime;
-			delete data.updateTime;
-		}
+		for (const n of COLUMNS[data.type]) {
+			const name = n.toLowerCase();
+			if (typeof data[name] !== 'undefined' || typeof data[n] !== 'undefined') {
+				let value = data[n] || data[name];
 
-		for (const name of COLUMNS[data.type]) {
-			if (typeof data[name.toLowerCase()] !== 'undefined' || typeof data[name] !== 'undefined') {
-				this[name] = data[name] || data[name.toLowerCase()];
+				if ([ 'createtime', 'updatetime', 'deletetime' ].indexOf(name) >= 0) {
+					value = parseInt(value);
+					if (Number.isNaN(value)) continue;
+				}
+
+				this[n] = value;
 			}
 		}
 
