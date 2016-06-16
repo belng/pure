@@ -17,7 +17,7 @@ let lastEmailSent, end;
 function initMailSending(cUserRel) {
 	const counter = new Counter();
 	const user = cUserRel.user;
-	console.log(user);
+	log.debug(user);
 	if (!user.identities || !Array.isArray(user.identities)) {
 		log.info('No identities found for user: ', user);
 		return;
