@@ -10,18 +10,44 @@ import jwt from 'jsonwebtoken';
 import send from './sendEmail';
 import Counter from '../../lib/counter';
 const DIGEST_INTERVAL = 60 * 60 * 1000, DIGEST_DELAY = 24 * 60 * 60 * 1000,
-	template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' + config.app_id + '.digest.hbs', 'utf-8').toString()),
+	template = handlebars.compile(
+		fs.readFileSync(__dirname + '/../../../templates/' + config.app_id + '.digest.hbs', 'utf-8').toString()
+	),
 	connStr = config.connStr, conf = config.email, counter1 = new Counter();
 let lastEmailSent, end, i = 0;
 const fields = [
-		'roomrels.presencetime', 'users.name', 'threads.counts->>\'children\' children', 'users.identities', 'users.id userid', 'threads.score', 'threads.name threadtitle', 'threads.createtime', 'threads.id threadid', 'rooms.name roomname', 'rooms.id roomid'
+		'roomrels.presencetime',
+		'users.name',
+		'threads.counts->>\'children\' children',
+		'users.identities', 'users.id userid',
+		'threads.score', 'threads.name threadtitle',
+		'threads.createtime', 'threads.id threadid', 'rooms.name roomname',
+		'rooms.id roomid'
 	], joins = [
-		'users', 'roomrels', 'threads', 'rooms'
+		'users',
+		'roomrels',
+		'threads',
+		'rooms'
 	], conditions = [
-		'users.id=roomrels.user', 'threads.parents[1]=roomrels.item', 'roomrels.item=rooms.id', 'threads.counts IS NOT NULL', 'threads.createtime >= roomrels.presencetime', 'users.params->> \'email\' <> \'{"frequency": "never", "notifications": false}\'', 'roles @> \'{3}\'', 'roomrels.presencetime >= &{start}', 'roomrels.presencetime < &{end}', 'timezone >= &{min}', 'timezone < &{max}'
+		'users.id=roomrels.user',
+		'threads.parents[1]=roomrels.item',
+		'roomrels.item=rooms.id',
+		'threads.counts IS NOT NULL',
+		'threads.createtime >= roomrels.presencetime',
+		'users.params-> \'email\'->>\'frequency\' <> \'never\'',
+		'roles @> \'{3}\'',
+		'roomrels.presencetime >= &{start}',
+		'roomrels.presencetime < &{end}',
+		'timezone >= &{min}',
+		'timezone < &{max}'
 	],
 	query = pg.cat(
-		[ 'SELECT ', pg.cat(fields, ', '), 'FROM ', pg.cat(joins, ', '), 'WHERE ', pg.cat(conditions, ' AND '), 'ORDER BY users.id' ]
+		[
+			'SELECT ', pg.cat(fields, ', '),
+			'FROM ', pg.cat(joins, ', '),
+			'WHERE ', pg.cat(conditions, ' AND '),
+			'ORDER BY users.id'
+		]
 	);
 
 function getSubject() {

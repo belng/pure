@@ -2,15 +2,14 @@ import winston from 'winston';
 import fs from 'fs';
 import util from 'util';
 import stack from 'parse-stack';
-import path from 'path';
 winston.setLevels(winston.config.npm.levels);
 winston.addColors(winston.config.npm.colors);
 let transports;
-const dir = path.dirname(require.main.filename).split('/');
+const dir = 'email';
 
 const logsDir = process.env.HOME + '/pure/logs/';
 
-const newLogDir = logsDir + dir[dir.length - 1];
+const newLogDir = logsDir + dir;
 
 if (!fs.existsSync(logsDir)) {
 	fs.mkdirSync(logsDir);
