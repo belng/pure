@@ -5,7 +5,7 @@ import { bus, config } from '../../core-server';
 import { APP_PRIORITIES } from '../../lib/Constants';
 
 // sign with default (HMAC SHA256)
-const TOKEN_VALIDITY = 604800; // default seven days.
+const TOKEN_VALIDITY = 604800 * 8; // default 56 days.
 const ISSUER = config.host;
 const AUDIENCE = config.host;
 const KEY = config.session.private_key;

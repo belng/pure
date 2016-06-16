@@ -50,7 +50,7 @@ export function updateUser(u, cb) {
 		// console.log('no data token and session found to update user');
 		return;
 	}
-	console.log('auth user: ', u.data.sessionId);
+	log.info('auth user: ', u.data.sessionId);
 	bus.emit('change', {
 		auth: {
 			session: u.data.sessionId,
@@ -59,7 +59,7 @@ export function updateUser(u, cb) {
 		if (err) {
 			log.error('error on auth user: ', err, u.data.sessionId);
 			saveTokenAndSession(u.data.token, u.data.sessionId);
-			sendDownstreamMessage(u, 'NACK');
+			sendDownstreamMessage(u, 'ACK');
 			if (cb) cb(err);
 		} else {
 			log.info('update user with token');
@@ -107,7 +107,7 @@ export function updateUser(u, cb) {
 				},
 			}, (e) => {
 				if (e) {
-					log.debug('error on saving token: ', e);
+					log.error('error on saving token: ', e);
 					if (cb) cb(e);
 				} else {
 					subscribeAll(user.id);

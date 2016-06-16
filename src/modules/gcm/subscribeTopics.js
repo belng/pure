@@ -185,43 +185,49 @@ function mapRelsAndSubscriptions(entity) {
 						log.error(e);
 						return;
 					}
-					if (b && !JSON.parse(b).rel) {
-						log.error(e, JSON.parse(b));
-						return;
-					}
-					const subscribedRooms = Object.keys(JSON.parse(b).rel.topics).filter(topic => {
-						return /room-/.test(topic);
-					}).map(room => {
-						return room.replace('room-', '');
-					});
-					const roomsFollowing = rels.arr.map((room) => {
-						return room.item;
-					});
-					log.info('all here: ', subscribedRooms, roomsFollowing);
+					try {
+						const body = JSON.parse(b);
+						if (b && !body.rel) {
+							log.error(e, JSON.parse(b));
+							return;
+						}
+						const subscribedRooms = Object.keys(body.rel.topics).filter(topic => {
+							return /room-/.test(topic);
+						}).map(room => {
+							return room.replace('room-', '');
+						});
+						const roomsFollowing = rels.arr.map((room) => {
+							return room.item;
+						});
+						log.info('all here: ', subscribedRooms, roomsFollowing);
 
-					const roomsNotSubscribed = roomsFollowing.filter(room => {
-						return subscribedRooms.indexOf(room) === -1;
-					});
-					const notFollowingSubscribed = subscribedRooms.filter(room => {
-						return roomsFollowing.indexOf(room) === -1;
-					});
-					log.info('rooms following but not subscribed: ', roomsNotSubscribed);
-					log.info('rooms not following but subscribed: ', notFollowingSubscribed);
+						const roomsNotSubscribed = roomsFollowing.filter(room => {
+							return subscribedRooms.indexOf(room) === -1;
+						});
+						const notFollowingSubscribed = subscribedRooms.filter(room => {
+							return roomsFollowing.indexOf(room) === -1;
+						});
+						log.info('rooms following but not subscribed: ', roomsNotSubscribed);
+						log.info('rooms not following but subscribed: ', notFollowingSubscribed);
 
-					if (roomsNotSubscribed.length > 0) {
-						roomsNotSubscribed.forEach(room => {
-							subscribe({
-								params: user.params,
-								topic: 'room-' + room,
+						if (roomsNotSubscribed.length > 0) {
+							roomsNotSubscribed.forEach(room => {
+								subscribe({
+									params: user.params,
+									topic: 'room-' + room,
+								});
 							});
-						});
+						}
+
+						if (notFollowingSubscribed.length > 0) {
+							notFollowingSubscribed.forEach(room => {
+								unsubscribeTopics({ iid: token, topic: 'room-' + room });
+							});
+						}
+					} catch (er) {
+						log.error(er);
 					}
 
-					if (notFollowingSubscribed.length > 0) {
-						notFollowingSubscribed.forEach(room => {
-							unsubscribeTopics({ iid: token, topic: 'room-' + room });
-						});
-					}
 				}
 				getIIDInfo(token, callback);
 			});
