@@ -30,7 +30,7 @@ const uploadImageHelper = async (user: Array<User>, propName: string) => {
 				type: TYPE_USER,
 				id: user.id,
 				[propName]: {
-					picture: null
+					picture: [ '$delete' ]
 				}
 			}
 		}
@@ -43,9 +43,9 @@ const uploadNextImage = async (users: Array<User>, index = 0: number) => {
 		return;
 	} else {
 		if (users[index].params && users[index].params.picture) {
-			uploadImageHelper(users[index], 'params');
+			await uploadImageHelper(users[index], 'params');
 		} else if (users[index].meta && users[index].meta.picture) {
-			uploadImageHelper(users[index], 'meta');
+			await uploadImageHelper(users[index], 'meta');
 		}
 		uploadNextImage(users, ++index);
 	}
