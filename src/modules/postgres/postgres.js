@@ -88,8 +88,7 @@ cache.onChange((changes) => {
 					});
 
 				for (const i in typeToId) {
-					// FIXME: Notes only for now
-					if (i === 'rest' || i === 'note' || !typeToId[i].length) continue;
+					if (!typeToId[i].length) continue;
 
 					pg.read(config.connStr,
 						PgEntity.read[i](typeToId[i]),
