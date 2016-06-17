@@ -75,7 +75,8 @@ export function updateUser(u, cb) {
 					// subscribe new token to all topics that previous token is subscribed to.
 					getIIDInfo(oldGcm[u.data.uuid], (error, result, body) => {
 						if (error || !body) {
-							log.error(error);
+							log.error(error, body, result);
+							subscribeAll(user.id);
 							return;
 						}
 						if (body && !JSON.parse(body).rel) {

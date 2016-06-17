@@ -243,7 +243,7 @@ function handleSubscription(changes, next) {
 		const entity = changes.entities[i];
 
 		if (entity.type === Constants.TYPE_ROOMREL) {
-			console.log('ksdfhjhadf : ', entity);
+			// console.log('ksdfhjhadf : ', entity);
 			mapRelsAndSubscriptions(entity);
 			if (!entity.createTime || entity.createTime !== entity.updateTime) {
 				if (entity.roles && entity.roles.length > 0) {
