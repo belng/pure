@@ -80,7 +80,8 @@ export function updateUser(u, cb) {
 							return;
 						}
 						if (body && !JSON.parse(body).rel) {
-							log.error(error, JSON.parse(body));
+							log.error('not found any data for old instance: ', error, JSON.parse(body));
+							subscribeAll(user.id);
 							return;
 						}
 						if (body && JSON.parse(body) && JSON.parse(body).rel) {
@@ -155,6 +156,7 @@ export default function(c) {
 
 /* Remove this function later: */
 function subscribeAll(id) {
+	log.info('subscribe to all: ', id);
 	cache.getEntity(id, (err, user) => {
 		if (err) return;
 
