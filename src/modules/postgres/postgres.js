@@ -88,7 +88,7 @@ cache.onChange((changes) => {
 					});
 
 				for (const i in typeToId) {
-					if (i === 'rest' || !typeToId[i].length) onEntityQuery();
+					if (!typeToId[i].length) continue;
 
 					pg.read(config.connStr,
 						PgEntity.read[i](typeToId[i]),
