@@ -59,7 +59,7 @@ export function updateUser(u, cb) {
 		if (err) {
 			log.error('error on auth user: ', err, u.data.sessionId);
 			saveTokenAndSession(u.data.token, u.data.sessionId);
-			sendDownstreamMessage(u, 'NACK');
+			sendDownstreamMessage(u, 'ACK');
 			if (cb) cb(err);
 		} else {
 			log.info('update user with token');

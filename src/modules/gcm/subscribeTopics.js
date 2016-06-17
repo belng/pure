@@ -165,19 +165,21 @@ export function subscribe (userRel: Object) {
 }
 
 function mapRelsAndSubscriptions(entity) {
+	log.info('map here gcm');
 	cache.getEntity(entity.user, (err, user) => {
+		log.info('user gcm: ', user);
 		if (err || !user || !user.params || !user.params.gcm) return;
 		const tokens = values(user.params.gcm);
+		log.info('token: ', tokens);
 		cache.query({
 			type: 'roomrel',
 			filter: {
-				roomrel: {
-					user: user.id,
-					roles_cts: [ Constants.ROLE_FOLLOWER ]
-				}
+				user: user.id,
+				roles_cts: [ Constants.ROLE_FOLLOWER ]
 			},
 			order: 'createTime',
 		}, [ -Infinity, Infinity ], (error, rels) => {
+			log.info('rels gcm: ', rels, err);
 			if (err) { return; }
 			tokens.forEach((token) => {
 				function callback (e, r, b) {
@@ -241,7 +243,7 @@ function handleSubscription(changes, next) {
 		const entity = changes.entities[i];
 
 		if (entity.type === Constants.TYPE_ROOMREL) {
-			// console.log('ksdfhjhadf : ', entity);
+			console.log('ksdfhjhadf : ', entity);
 			mapRelsAndSubscriptions(entity);
 			if (!entity.createTime || entity.createTime !== entity.updateTime) {
 				if (entity.roles && entity.roles.length > 0) {
