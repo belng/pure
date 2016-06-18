@@ -42,7 +42,7 @@ function sliceFromProps({ user }) {
 				roles_olp: [ ROLE_FOLLOWER, ROLE_MENTIONED, ROLE_UPVOTE ],
 			},
 		},
-		order: 'createTime',
+		order: 'updateTime',
 	};
 }
 
