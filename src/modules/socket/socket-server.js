@@ -119,7 +119,7 @@ bus.on('http/init', app => {
 				return;
 			}
 
-			winston.debug(`SOCKET-UP: Message Received: ${resourceId}: `, JSON.stringify(message));
+			winston.info(`SOCKET-UP: Message Received: ${resourceId}: `, JSON.stringify(message));
 
 			(message.auth = message.auth || {}).resource = resourceId;
 			if (frame.type === 'change' && message.entities) {
