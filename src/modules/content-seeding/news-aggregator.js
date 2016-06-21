@@ -26,6 +26,15 @@ import type { Thread } from '../../lib/schemaTypes';
 			    url		                text
 		        rawjson                 jsonb
 				terms    		        tsvector
+			- BOTNEWS
+				column                   type
+			  -----------------------------------------
+			    title		             text
+		        url                 	 text
+				roomid    		         text
+				roomname 				 text
+				createtime				 bigint
+
 		- ALGORITHM:
 			- Truncate the articles table.
 			- Filter feeds where lastrequesttime < ( NOW() - Mean time between updates (MTBU) ).
@@ -43,6 +52,7 @@ import type { Thread } from '../../lib/schemaTypes';
 
 const JOB_INVOCATION_INTERVAL = 60 * 60 * 1000;
 const ALLOWED_ARTICLE_AGE = 7 * 24 * 60 * 60 * 1000;
+const ALLOWED_TRACKING_TIME = 24 * 60 * 60 * 1000;
 const performReadQuery = promisify(pg.read.bind(pg, config.connStr));
 const performWriteQuery = promisify(pg.write.bind(pg, config.connStr));
 const parseFeed = promisify(feedParser.bind(feedParser));
@@ -63,17 +73,51 @@ type FeedsObject = {
 
 type RoomSpecificNews = {
 	roomid: string;
+	roomname: string;
 	rawjson: Article;
 	url: string
 };
 
-function buildThreads (latestNewsForRooms: Array<RoomSpecificNews>): Thread {
+
+async function getFilteredNewsForRooms(latestNewsForRooms: Array<RoomSpecificNews>): Array<RoomSpecificNews> {
+	const postedNews = await performReadQuery({
+		$: 'SELECT roomid, url FROM botnews'
+	});
+	return latestNewsForRooms.filter((newsArticle) => {
+		for (const news of postedNews) {
+			if (news.url === newsArticle.url && news.roomid === newsArticle.roomid) {
+				winston.info('Dupliacte news story is found !!');
+				return false;
+			}
+		}
+		return true;
+	});
+}
+
+async function buildThreads (latestNewsForRooms: Array<RoomSpecificNews>): Thread {
+	const filteredNewsForRooms = await getFilteredNewsForRooms(latestNewsForRooms);
+	if (filteredNewsForRooms.length === 0) {
+		winston.info('All News story were posted already, rollback !!');
+		return null;
+	}
 	let timeStamp = Date.now();
 	const changes = {
 		entities: {}
 	};
-	for (const newsArticle of latestNewsForRooms) {
+	winston.info('Inserting into botnews and building threads');
+	const query = 'INSERT INTO botnews (title, url, roomid, roomname, createtime) VALUES';
+	const values = [];
+	for (const newsArticle of filteredNewsForRooms) {
 		const id = uuid.v4();
+		const createTime = timeStamp++;
+		values.push({
+			$: '(&{title}, &{url}, &{roomId}, &{roomName}, &{createTime})',
+			title: newsArticle.rawjson.title,
+			url: newsArticle.url,
+			roomId: newsArticle.roomid,
+			roomName: newsArticle.roomname,
+			createTime
+		});
 		changes.entities[id] = {
 			id,
 			type: TYPE_THREAD,
@@ -83,9 +127,18 @@ function buildThreads (latestNewsForRooms: Array<RoomSpecificNews>): Thread {
 			parents: [ newsArticle.roomid ],
 			identities: [],
 			creator: 'belongbot',
-			createTime: timeStamp++
+			createTime
 		};
 	}
+	const finalQuery = pg.cat([ query, pg.cat(values, ', ') ], '');
+	await Promise.all([
+		performWriteQuery([ finalQuery ]),
+		performWriteQuery([ {
+			$: 'delete from botnews where createtime > &{ALLOWED_TRACKING_TIME}',
+			ALLOWED_TRACKING_TIME
+		} ])
+	]);
+	winston.info('Successfully inserted latest news into botnews table !');
 	return changes;
 }
 
@@ -97,7 +150,7 @@ function getDueFeeds (): Promise<Array<FeedsObject>> {
 
 function getRoomSpecificNews (): Promise<Array<RoomSpecificNews>> {
 	return performReadQuery({
-		$: `SELECT rooms.id as roomid, article.rawjson as rawjson, article.url as url FROM rooms 
+		$: `SELECT rooms.id as roomid, rooms.name as roomname, article.rawjson as rawjson, article.url as url FROM rooms 
 			JOIN LATERAL (
 				SELECT * FROM articles
 	   			WHERE articles.terms @@ plainto_tsquery(rooms.name) AND rooms.tags <> &{metaRoom}
@@ -147,29 +200,34 @@ export const newsAggregator = async () => {
 	// feeds: [{url: _, mtbu: _, lastrequesttime: _, lastupdatetime: _}, .....]
 	const feeds = await getDueFeeds();
 	await Promise.all(feeds.map(async feed => {
-		const newsArticles = await parseFeed(feed.url);
-		/*
-			CHECK FOR NEW ARTICLES:
-				- checks:
-					-> shouldn't be older than 1 week.
-					-> Avoid duplicate stroies from the same feed.
-					-> To avoid duplicate stories, compare article's pubdate with the lastupdatetime for that feed.
-		*/
-		let latestArticleDate = feed.lastupdatetime;
-		const newNewsArticles = newsArticles.filter(newsArticle => {
-			const articlePubDate = (new Date(newsArticle.published)).getTime();
-			const articleAge = Date.now() - articlePubDate;
-			const hasNewNewsArticle = articlePubDate > feed.lastupdatetime;
-			latestArticleDate = Math.max(articlePubDate, latestArticleDate);
-			return hasNewNewsArticle && articleAge <= ALLOWED_ARTICLE_AGE;
-		});
-		if (newNewsArticles.length > 0) {
-			await Promise.all([
-				updateFeedsOnNewArticles(latestArticleDate, feed.url, newNewsArticles.length),
-				insertNewArticles(newNewsArticles)
-			]);
-		} else {
-			await updateFeedsOnNoNewArtcles(feed.url);
+		try {
+			winston.info(`parsing feed with url: ${feed.url}`);
+			const newsArticles = await parseFeed(feed.url);
+			/*
+				CHECK FOR NEW ARTICLES:
+					- checks:
+						-> shouldn't be older than 1 week.
+						-> Avoid duplicate stroies from the same feed.
+						-> To avoid duplicate stories, compare article's pubdate with the lastupdatetime for that feed.
+			*/
+			let latestArticleDate = feed.lastupdatetime;
+			const newNewsArticles = newsArticles.filter(newsArticle => {
+				const articlePubDate = (new Date(newsArticle.published)).getTime();
+				const articleAge = Date.now() - articlePubDate;
+				const hasNewNewsArticle = articlePubDate > feed.lastupdatetime;
+				latestArticleDate = Math.max(articlePubDate, latestArticleDate);
+				return hasNewNewsArticle && articleAge <= ALLOWED_ARTICLE_AGE;
+			});
+			if (newNewsArticles.length > 0) {
+				await Promise.all([
+					updateFeedsOnNewArticles(latestArticleDate, feed.url, newNewsArticles.length),
+					insertNewArticles(newNewsArticles)
+				]);
+			} else {
+				await updateFeedsOnNoNewArtcles(feed.url);
+			}
+		} catch (e) {
+			winston.warn(`Error while parsing ${feed.url}: ${e}`);
 		}
 	}));
 };
@@ -179,13 +237,16 @@ export const postThreads = async () => {
 		await newsAggregator();
 		const roomSpecificNewsArticles = await getRoomSpecificNews();
 		if (roomSpecificNewsArticles.length > 0) {
-			const threads = buildThreads(roomSpecificNewsArticles);
-			bus.emit('change', threads);
+			const threads = await buildThreads(roomSpecificNewsArticles);
+			winston.info(threads);
+			if (threads) {
+				bus.emit('change', threads);
+			}
 		} else {
 			winston.info('No new news stories found !!');
 		}
 	} catch (e) {
-		winston.error(`somethong went wrong while aggregating news, ${e}`);
+		winston.warn(`somethong went wrong while aggregating news, ${e}`);
 	}
 };
 
