@@ -134,7 +134,8 @@ async function buildThreads (latestNewsForRooms: Array<RoomSpecificNews>): Threa
 	await Promise.all([
 		performWriteQuery([ finalQuery ]),
 		performWriteQuery([ {
-			$: 'delete from botnews where createtime > &{ALLOWED_TRACKING_TIME}',
+			$: 'DELETE FROM botnews WHERE createtime < &{now} - &{ALLOWED_TRACKING_TIME}',
+			now: Date.now(),
 			ALLOWED_TRACKING_TIME
 		} ])
 	]);
