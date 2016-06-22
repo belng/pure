@@ -1,10 +1,10 @@
 import crypto from 'crypto';
 import winston from 'winston';
-import buildAvatarURLForSize from '../../lib/buildAvatarURLForSize';
+// import buildAvatarURLForSize from '../../lib/buildAvatarURLForSize';
 import EnhancedError from '../../lib/EnhancedError';
-import { APP_PRIORITIES, TYPE_USER } from '../../lib/Constants';
+import { APP_PRIORITIES /* , TYPE_USER*/ } from '../../lib/Constants';
 import { bus, config } from '../../core-server';
-import { urlTos3 } from '../../lib/upload';
+// import { urlTos3 } from '../../lib/upload';
 
 function getDate(long) {
 	const date = new Date();
@@ -101,6 +101,7 @@ if (!config.s3) {
 	winston.info('Image upload is ready');
 }
 
+/*
 const uploadImage = async (userName: string, imageUrl: string, propName: string) => {
 	const imageName = 'avatar';
 	await urlTos3(buildAvatarURLForSize(imageUrl, 1024), 'a/' + userName + '/' + imageName);
@@ -119,7 +120,7 @@ const uploadImage = async (userName: string, imageUrl: string, propName: string)
 };
 
 if (config.s3) {
-	bus.on('postchange', async ({ entities }) => {
+		bus.on('postchange', async ({ entities }) => {
 		const promises = [];
 		if (entities) {
 			for (const id in entities) {
@@ -142,3 +143,5 @@ if (config.s3) {
 		await Promise.all(promises);
 	});
 }
+
+*/

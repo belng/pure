@@ -45,7 +45,7 @@ function handleChange(socket, message, resourceId, err) {
 					message: message.response,
 				}, encoded = packer.encode(errorToSend);
 
-			winston.debug('Sending Error:', errorToSend);
+			winston.info('Sending Error:', errorToSend);
 			socket.send(encoded);
 		} else {
 			sendError(
@@ -159,7 +159,7 @@ bus.on('postchange', changes => {
 					info: 'sent by dispatch',
 				}, encoded = packer.encode(toDispatch);
 
-			winston.debug('SOCKET-DN: Dispatching: ' + res.resource, JSON.stringify(toDispatch));
+			winston.info('SOCKET-DN: Dispatching: ' + res.resource, JSON.stringify(toDispatch));
 			winston.debug('Encoded string: ', encoded);
 			sockets[res.resource].send(encoded);
 		}

@@ -1,13 +1,13 @@
 /* eslint no-use-before-define: 0 */
 /* @flow */
-import log from 'winston';
+import Logger from '../../lib/logger';
 import { config, bus, cache } from '../../core-server';
 import { ROLE_FOLLOWER } from '../../lib/Constants';
 import { subscribe, getIIDInfo } from './subscribeTopics';
 
 // import util from 'util';
 let client;
-const sessionAndtokens = {};
+const sessionAndtokens = {}, log = new Logger(__filename);
 
 export function getTokenFromSession(session) {
 	if (!session) {
@@ -59,7 +59,7 @@ export function updateUser(u, cb) {
 		if (err) {
 			log.error('error on auth user: ', err, u.data.sessionId);
 			saveTokenAndSession(u.data.token, u.data.sessionId);
-			sendDownstreamMessage(u, 'NACK');
+			sendDownstreamMessage(u, 'ACK');
 			if (cb) cb(err);
 		} else {
 			log.info('update user with token');
@@ -75,11 +75,13 @@ export function updateUser(u, cb) {
 					// subscribe new token to all topics that previous token is subscribed to.
 					getIIDInfo(oldGcm[u.data.uuid], (error, result, body) => {
 						if (error || !body) {
-							log.error(error);
+							log.error(error, body, result);
+							subscribeAll(user.id);
 							return;
 						}
 						if (body && !JSON.parse(body).rel) {
-							log.error(error, JSON.parse(body));
+							log.error('not found any data for old instance: ', error, JSON.parse(body));
+							subscribeAll(user.id);
 							return;
 						}
 						if (body && JSON.parse(body) && JSON.parse(body).rel) {
@@ -154,6 +156,7 @@ export default function(c) {
 
 /* Remove this function later: */
 function subscribeAll(id) {
+	log.info('subscribe to all: ', id);
 	cache.getEntity(id, (err, user) => {
 		if (err) return;
 
