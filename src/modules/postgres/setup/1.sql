@@ -125,7 +125,7 @@ CREATE INDEX ON texts((parents[1]));
 DROP TABLE IF EXISTS urls;
 DROP TABLE IF EXISTS articles;
 DROP TABLE IF EXISTS feeds;
-DROP TABLE IF EXISTS botnews;
+DROP TABLE IF EXISTS postednews;
 
 CREATE TABLE urls (
 	shorturl text PRIMARY KEY,
@@ -147,7 +147,7 @@ CREATE TABLE feeds (
 	lastupdatetime bigint NOT NULL DEFAULT (extract(epoch from now())*1000 - (8 * 24 * 60 * 60 * 1000))
 );
 
-CREATE TABLE botnews (
+CREATE TABLE postednews (
 	title text NOT NULL,
 	url text NOT NULL,
 	roomid text NOT NULL,

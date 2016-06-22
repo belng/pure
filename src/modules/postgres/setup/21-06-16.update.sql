@@ -1,4 +1,4 @@
-CREATE TABLE botnews (
+CREATE TABLE postednews (
 	title text NOT NULL,
 	url text NOT NULL,
 	roomid text NOT NULL,

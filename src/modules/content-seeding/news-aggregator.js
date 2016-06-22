@@ -26,7 +26,7 @@ import type { Thread } from '../../lib/schemaTypes';
 			    url		                text
 		        rawjson                 jsonb
 				terms    		        tsvector
-			- BOTNEWS
+			- POSTEDNEWS
 				column                   type
 			  -----------------------------------------
 			    title		             text
@@ -44,12 +44,13 @@ import type { Thread } from '../../lib/schemaTypes';
 						MTBU = Average time interval at which a news story is added on that feed.
 				- make a insert query in articles table with url, articleJson, and ts_vector(article_title + article_content).
 				- select roomid, rawjson, url from rooms and articles table where terms lexemes match the room name.
+				- join the above result with postednews table to check if the resultant post has already been posted and is
+				  showing up due to change in published date on news edit.
 				- For each result:
-					- check if the resultant post has already been posted and is showing up due to change in published date on news edit.
 					- IF not posted already:
 						- Construct a thread with title, url, description from articles and post it into relevent rooms.
-						- Insert the thread into botnews table to keep track of news posted by the bot.
-						- Delete from botnews table all the news that were posted before last 24 hours (it's okay to repost a news after 24 hrs !).
+						- Insert the thread into postednews table to keep track of news posted by the bot.
+						- Delete from postednews table all the news that were posted before last 24 hours (it's okay to repost a news after 24 hrs !).
 			- Invoke this job every hour.
 */
 
@@ -82,36 +83,16 @@ type RoomSpecificNews = {
 	url: string
 };
 
-
-async function getFilteredNewsForRooms(latestNewsForRooms: Array<RoomSpecificNews>): Array<RoomSpecificNews> {
-	const postedNews = await performReadQuery({
-		$: 'SELECT roomid, url FROM botnews'
-	});
-	return latestNewsForRooms.filter((newsArticle) => {
-		for (const news of postedNews) {
-			if (news.url === newsArticle.url && news.roomid === newsArticle.roomid) {
-				winston.info(`Dupliacte news story found from url: ${news.url}!!`);
-				return false;
-			}
-		}
-		return true;
-	});
-}
-
 async function buildThreads (latestNewsForRooms: Array<RoomSpecificNews>): Thread {
-	const filteredNewsForRooms = await getFilteredNewsForRooms(latestNewsForRooms);
-	if (filteredNewsForRooms.length === 0) {
-		winston.info('All News story were posted already, rollback !!');
-		return null;
-	}
 	let timeStamp = Date.now();
 	const changes = {
 		entities: {}
 	};
-	winston.info('Inserting into botnews and building threads');
-	const query = 'INSERT INTO botnews (title, url, roomid, roomname, createtime) VALUES';
+	winston.info('Inserting into postednews and building threads');
+	// Construct query using pg cat for news insertion in postednews table and build threads.
+	const query = 'INSERT INTO postednews (title, url, roomid, roomname, createtime) VALUES';
 	const values = [];
-	for (const newsArticle of filteredNewsForRooms) {
+	for (const newsArticle of latestNewsForRooms) {
 		const id = uuid.v4();
 		const createTime = timeStamp++;
 		values.push({
@@ -135,32 +116,44 @@ async function buildThreads (latestNewsForRooms: Array<RoomSpecificNews>): Threa
 		};
 	}
 	const finalQuery = pg.cat([ query, pg.cat(values, ', ') ], '');
+	/*
+		- Insert into postednews table the threads to keep track of articles that are already posted.
+		- Delete from postednews table the news that were posted before 24 hrs.
+	*/
 	await Promise.all([
 		performWriteQuery([ finalQuery ]),
 		performWriteQuery([ {
-			$: 'DELETE FROM botnews WHERE createtime < (&{now}::bigint - &{ALLOWED_TRACKING_TIME}::bigint)',
+			$: 'DELETE FROM postednews WHERE createtime < (&{now}::bigint - &{ALLOWED_TRACKING_TIME}::bigint)',
 			now: Date.now(),
 			ALLOWED_TRACKING_TIME
 		} ])
 	]);
-	winston.info('Successfully inserted latest news into botnews table !');
+	winston.info('Successfully inserted latest news into postednews table !');
 	return changes;
 }
 
 function getDueFeeds (): Promise<Array<FeedsObject>> {
+	// select the feeds which are updated more frequently.
 	return performReadQuery({
 		$: 'SELECT * FROM feeds WHERE lastrequesttime < (extract(epoch from NOW()) * 1000 - mtbu)'
 	});
 }
 
 function getRoomSpecificNews (): Promise<Array<RoomSpecificNews>> {
+	/*
+		- Select most recent relevent news article for each room (one for each room).
+		- Remove the news that were already posted.
+	*/
 	return performReadQuery({
-		$: `SELECT rooms.id as roomid, rooms.name as roomname, article.rawjson as rawjson, article.url as url FROM rooms 
-			JOIN LATERAL (
-				SELECT * FROM articles
-	   			WHERE articles.terms @@ plainto_tsquery(rooms.name) AND NOT rooms.tags @> &{noNewsRoom}
-	   			ORDER  BY articles.rawjson->>'published' DESC NULLS LAST LIMIT  1
-			) article ON TRUE`,
+		$: `SELECT roomArticles.id AS roomid, roomArticles.name AS roomname, roomArticles.rawjson AS rawjson, roomArticles.url AS url FROM (
+				SELECT * FROM rooms JOIN LATERAL (
+					SELECT * FROM articles
+		   			WHERE articles.terms @@ plainto_tsquery(rooms.name) AND NOT rooms.tags @> &{noNewsRoom}
+		   			ORDER  BY articles.rawjson->>'published' DESC NULLS LAST LIMIT  1
+				) article ON TRUE
+			) as roomArticles LEFT OUTER JOIN postednews
+			ON roomArticles.id::text = postednews.roomid AND roomArticles.url = postednews.url
+			WHERE postednews.url IS NULL`,
 		noNewsRoom: `{${TAG_ROOM_NO_NEWS}}`
 	});
 }
@@ -244,11 +237,9 @@ export const postThreads = async () => {
 		if (roomSpecificNewsArticles.length > 0) {
 			const threads = await buildThreads(roomSpecificNewsArticles);
 			winston.info(threads);
-			if (threads) {
-				bus.emit('change', threads);
-			}
+			bus.emit('change', threads);
 		} else {
-			winston.info('No new news stories found !!');
+			winston.info('Duplicate or No new news stories found !!');
 		}
 	} catch (e) {
 		winston.warn(`somethong went wrong while aggregating news, ${e}`);
