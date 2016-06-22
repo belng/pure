@@ -220,7 +220,6 @@ bus.on('change', change => {
 	the change to continue immediately and emit a new change when the
 	work is complete. */
 
-	winston.info('Belong: change: ', change);
 	if (change.entities) {
 		for (const id in change.entities) {
 			const user:User = change.entities[id],
