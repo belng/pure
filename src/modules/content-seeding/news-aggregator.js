@@ -7,7 +7,7 @@ import winston from 'winston';
 import * as pg from '../../lib/pg';
 import promisify from '../../lib/promisify';
 import uuid from 'node-uuid';
-import { TYPE_THREAD, TAG_POST_NEWS_SEED, TAG_ROOM_META } from '../../lib/Constants';
+import { TYPE_THREAD, TAG_POST_NEWS_SEED, TAG_ROOM_NO_NEWS } from '../../lib/Constants';
 import type { Thread } from '../../lib/schemaTypes';
 
 /*
@@ -158,10 +158,10 @@ function getRoomSpecificNews (): Promise<Array<RoomSpecificNews>> {
 		$: `SELECT rooms.id as roomid, rooms.name as roomname, article.rawjson as rawjson, article.url as url FROM rooms 
 			JOIN LATERAL (
 				SELECT * FROM articles
-	   			WHERE articles.terms @@ plainto_tsquery(rooms.name) AND rooms.tags <> &{metaRoom}
+	   			WHERE articles.terms @@ plainto_tsquery(rooms.name) AND rooms.tags <> &{noNewsRoom}
 	   			ORDER  BY articles.rawjson->>'published' DESC NULLS LAST LIMIT  1
 			) article ON TRUE`,
-		metaRoom: `{${TAG_ROOM_META}}`
+		noNewsRoom: `{${TAG_ROOM_NO_NEWS}}`
 	});
 }
 
