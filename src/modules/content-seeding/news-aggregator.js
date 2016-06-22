@@ -158,7 +158,7 @@ function getRoomSpecificNews (): Promise<Array<RoomSpecificNews>> {
 		$: `SELECT rooms.id as roomid, rooms.name as roomname, article.rawjson as rawjson, article.url as url FROM rooms 
 			JOIN LATERAL (
 				SELECT * FROM articles
-	   			WHERE articles.terms @@ plainto_tsquery(rooms.name) AND rooms.tags <> &{noNewsRoom}
+	   			WHERE articles.terms @@ plainto_tsquery(rooms.name) AND NOT rooms.tags @> &{noNewsRoom}
 	   			ORDER  BY articles.rawjson->>'published' DESC NULLS LAST LIMIT  1
 			) article ON TRUE`,
 		noNewsRoom: `{${TAG_ROOM_NO_NEWS}}`
