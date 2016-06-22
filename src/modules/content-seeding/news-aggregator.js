@@ -45,7 +45,11 @@ import type { Thread } from '../../lib/schemaTypes';
 				- make a insert query in articles table with url, articleJson, and ts_vector(article_title + article_content).
 				- select roomid, rawjson, url from rooms and articles table where terms lexemes match the room name.
 				- For each result:
-					- Construct a thread with title, url, description from articles and post it into relevent rooms.
+					- check if the resultant post has already been posted and is showing up due to change in published date on news edit.
+					- IF not posted already:
+						- Construct a thread with title, url, description from articles and post it into relevent rooms.
+						- Insert the thread into botnews table to keep track of news posted by the bot.
+						- Delete from botnews table all the news that were posted before last 24 hours (it's okay to repost a news after 24 hrs !).
 			- Invoke this job every hour.
 */
 
