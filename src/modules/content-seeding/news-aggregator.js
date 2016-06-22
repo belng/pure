@@ -90,7 +90,7 @@ async function getFilteredNewsForRooms(latestNewsForRooms: Array<RoomSpecificNew
 	return latestNewsForRooms.filter((newsArticle) => {
 		for (const news of postedNews) {
 			if (news.url === newsArticle.url && news.roomid === newsArticle.roomid) {
-				winston.info('Dupliacte news story is found !!');
+				winston.info(`Dupliacte news story found from url: ${news.url}!!`);
 				return false;
 			}
 		}
