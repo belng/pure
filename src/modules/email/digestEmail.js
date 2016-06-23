@@ -33,14 +33,14 @@ const fields = [
 		'threads.parents[1]=roomrels.item',
 		'roomrels.item=rooms.id',
 		'threads.counts IS NOT NULL',
-		'threads.createtime >= roomrels.presencetime',
-		'users.params-> \'email\'->>\'frequency\' <> \'never\'',
+		'threads.createtime >= extract(epoch from now()-interval \'7 days\')*1000',
+		'(users.params-> \'email\'->>\'frequency\' = \'daily\' OR (users.params->\'email\') is null)',
 		'roles @> \'{3}\'',
-		'roomrels.presencetime >= &{start}',
-		'roomrels.presencetime < &{end}',
+		'users.presencetime >= &{start}',
+		'users.presencetime < &{end}',
 		'timezone >= &{min}',
 		'timezone < &{max}'
-	],
+	],//(params->'email') is null or params->'email'->>'frequency' ='daily')
 	query = pg.cat(
 		[
 			'SELECT ', pg.cat(fields, ', '),
@@ -85,7 +85,7 @@ export function initMailSending (userRel: Object) {
 		});
 	});
 	counter1.then(() => {
-		// log.info('successfully updated jobs for digest email');
+		log.info('successfully updated jobs for digest email');
 		pg.write(connStr, [ {
 			$: 'UPDATE jobs SET lastrun=&{end} WHERE id=&{jid}',
 			end,
@@ -101,9 +101,9 @@ export function initMailSending (userRel: Object) {
 
 function sendDigestEmail () {
 	log.info('Starting digest email');
-	const startPoint = Date.now() - 2 * DIGEST_DELAY;
-	let	start = lastEmailSent < startPoint ? lastEmailSent : startPoint;
-	end = Date.now() - DIGEST_DELAY;
+	const startPoint = Date.now() - 30 * DIGEST_DELAY;
+	let	start = /*lastEmailSent < startPoint ? lastEmailSent :*/ startPoint;
+	end = Date.now() - 2 * DIGEST_DELAY;
 
 	function getTimezone(hour) {
 		const UtcHrs = new Date().getUTCHours(),
