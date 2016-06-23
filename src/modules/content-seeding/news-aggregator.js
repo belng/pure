@@ -120,13 +120,13 @@ async function buildThreads (latestNewsForRooms: Array<RoomSpecificNews>): Threa
 		- Insert into postednews table the threads to keep track of articles that are already posted.
 		- Delete from postednews table the news that were posted before 24 hrs.
 	*/
-	await Promise.all([
-		performWriteQuery([ finalQuery ]),
-		performWriteQuery([ {
+	await performWriteQuery([
+		finalQuery,
+		{
 			$: 'DELETE FROM postednews WHERE createtime < (&{now}::bigint - &{ALLOWED_TRACKING_TIME}::bigint)',
 			now: Date.now(),
 			ALLOWED_TRACKING_TIME
-		} ])
+		}
 	]);
 	winston.info('Successfully inserted latest news into postednews table !');
 	return changes;
