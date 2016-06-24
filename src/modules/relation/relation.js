@@ -104,13 +104,13 @@ bus.on('change', (changes, next) => {
 						return;
 					}
 					text = entity;
-					role = [ Constants.ROLE_FOLLOWER ];
+					role =  r && r.roles || [];
 					user = entity.creator;
 					const threadRel = {
 						item: text.parents[0],
 						user,
 						type: Constants.TYPE_THREADREL,
-						roles: role,
+						roles: role.push(Constants.ROLE_FOLLOWER),
 					};
 					const relation = new threadrel(threadRel);
 
