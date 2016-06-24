@@ -1,7 +1,9 @@
 /* @flow */
 
 import flowRight from 'lodash/flowRight';
+import createContainer from '../../../modules/store/createContainer';
 import createPaginatedContainer from '../../../modules/store/createPaginatedContainer';
+import createTransformPropsContainer from '../../../modules/store/createTransformPropsContainer';
 import createUserContainer from '../../../modules/store/createUserContainer';
 import Discussions from '../views/Discussion/Discussions';
 import {
@@ -35,6 +37,27 @@ export const transformThreads = (results: ThreadData, me: User): ThreadData => {
 	return data;
 };
 
+function transformFunction(props) {
+	if (props.data && props.me) {
+		return {
+			...props,
+			data: transformThreads(props.data, props.me),
+		};
+	}
+	return props;
+}
+
+function mapSubscriptionToProps(props) {
+	return {
+		me: {
+			key: {
+				type: 'entity',
+				id: props.user,
+			},
+		},
+	};
+}
+
 function sliceFromProps(props) {
 	return {
 		type: 'thread',
@@ -56,4 +79,6 @@ function sliceFromProps(props) {
 export default flowRight(
 	createUserContainer(),
 	createPaginatedContainer(sliceFromProps, 10),
+	createContainer(mapSubscriptionToProps),
+	createTransformPropsContainer(transformFunction),
 )(Discussions);

@@ -220,7 +220,6 @@ bus.on('change', change => {
 	the change to continue immediately and emit a new change when the
 	work is complete. */
 
-	winston.info('Belong: change: ', change);
 	if (change.entities) {
 		for (const id in change.entities) {
 			const user:User = change.entities[id],
@@ -232,6 +231,7 @@ bus.on('change', change => {
 				!user.params || !user.params.places
 			) { continue; }
 
+			winston.info('User update: ', user);
 			if (user.params && user.params.places) {
 				const { home, work, hometown } = user.params.places;
 

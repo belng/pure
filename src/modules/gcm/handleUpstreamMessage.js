@@ -1,13 +1,13 @@
 /* eslint no-use-before-define: 0 */
 /* @flow */
-import log from 'winston';
+import Logger from '../../lib/logger';
 import { config, bus, cache } from '../../core-server';
 import { ROLE_FOLLOWER } from '../../lib/Constants';
 import { subscribe, getIIDInfo } from './subscribeTopics';
 
 // import util from 'util';
 let client;
-const sessionAndtokens = {};
+const sessionAndtokens = {}, log = new Logger(__filename);
 
 export function getTokenFromSession(session) {
 	if (!session) {
@@ -59,7 +59,7 @@ export function updateUser(u, cb) {
 		if (err) {
 			log.error('error on auth user: ', err, u.data.sessionId);
 			saveTokenAndSession(u.data.token, u.data.sessionId);
-			sendDownstreamMessage(u, 'NACK');
+			sendDownstreamMessage(u, 'ACK');
 			if (cb) cb(err);
 		} else {
 			log.info('update user with token');
@@ -159,9 +159,13 @@ export default function(c) {
 
 /* Remove this function later: */
 function subscribeAll(id) {
+	log.info('subscribe to all: ', id);
 	cache.getEntity(id, (err, user) => {
 		if (err) return;
-
+		subscribe({
+			params: user.params,
+			topic: 'user-' + id,
+		});
 		cache.query({
 			type: 'roomrel',
 			filter: { user: user.id, roles_cts: [ ROLE_FOLLOWER ] },
