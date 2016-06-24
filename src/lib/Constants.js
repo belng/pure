@@ -60,6 +60,8 @@ export const TAG_USER_GCM = 17;
 export const TAG_USER_APN = 18;
 export const TAG_USER_WNS = 19;
 
+
+export const TAG_ROOM_COUNTRY = 20;
 export const TAG_ROOM_CITY = 21;
 export const TAG_ROOM_AREA = 22;
 export const TAG_ROOM_SPOT = 23;
