@@ -26,7 +26,7 @@ function relFromUserRel(rel) {
 		room: rel.roomname,
 		roomId: rel.roomid,
 		count: rel.textCount || rel.children,
-		displayTime: formatShort(rel.threadTime || rel.createtime),
+		displayTime: formatShort(rel.createtime),
 	};
 }
 
