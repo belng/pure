@@ -40,7 +40,7 @@ const fields = [
 		'users.presencetime < &{end}',
 		'timezone >= &{min}',
 		'timezone < &{max}'
-	],//(params->'email') is null or params->'email'->>'frequency' ='daily')
+	],
 	query = pg.cat(
 		[
 			'SELECT ', pg.cat(fields, ', '),
