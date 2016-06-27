@@ -79,7 +79,13 @@ function sendMentionEmail() {
 	}
 
 	pg.readStream(connStr, {
-		$: `select * from (select item, "user", roles from threadrels where roles @> '{2}' and createtime >= &{start} and createtime <&{end})as threadrels, (select id threadid, name threadtitle, createtime, counts->'children' children, parents[1] parents from threads) as threads, (select id userid, name username, identities from users ) as users, (select id roomid, name roomname from rooms) as rooms where threadrels.item=threads.threadid and threadrels.user=users.userid and threads.parents=rooms.roomid order by users.userid`,
+		$: `SELECT * FROM
+					(SELECT item, "user", roles FROM threadrels WHERE roles @> '{2}' AND createtime >= &{start} AND createtime <&{end}) AS threadrels,
+					(SELECT id threadid, name threadtitle, createtime, counts->'children' children, parents[1] parents FROM threads) AS threads,
+					(SELECT id userid, name username, identities FROM users) AS users,
+					(SELECT id roomid, name roomname FROM rooms) AS rooms
+				WHERE threadrels.item=threads.threadid AND threadrels.user=users.userid AND
+				threads.parents=rooms.roomid ORDER BY users.userid`,
 		start,
 		end,
 	}).on('row', (urel) => {
