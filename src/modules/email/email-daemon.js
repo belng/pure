@@ -20,7 +20,7 @@ if (!conf.auth.user && !conf.auth.pass) {
 	log.info('Email module ready.');
 	pg.read(connString, {
 		$: 'SELECT * FROM jobs WHERE id in (&(ids))',
-		ids: [ JOB_EMAIL_WELCOME, JOB_EMAIL_DIGEST ],
+		ids: [ JOB_EMAIL_WELCOME, JOB_EMAIL_DIGEST, JOB_EMAIL_MENTION ],
 	}, (err, results) => {
 		if (err) return;
 		log.info('Results: ', results);
