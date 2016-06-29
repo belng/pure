@@ -22,6 +22,8 @@ bus.on('http/init', app => {
 
 				if (data && data.meta && data.meta.picture) {
 					this.response.redirect(buildAvatarURLForSize(data.meta.picture, size));
+				} else if (data && data.meta && !data.meta.picture) {
+					this.response.redirect(`s.bel.ng/a/${data.id}`);
 				} else {
 					this.throw(404, `Couldn't find picture for user: ${user}`);
 				}
