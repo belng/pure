@@ -17,7 +17,7 @@
     "feed-read": "^0.0.1",
     "handlebars": "^4.0.5",
     "immutable": "^3.8.1",
-    "jsonop": "^3.0.2",
+    "jsonop": "^3.0.3",
     "jsonwebtoken": "^5.7.0",
     "juri": "^1.0.3",
     "koa": "^1.2.0",
