@@ -13,7 +13,7 @@ type MxRecord = {
 }
 
 export default class BulkEmailChecker extends EventEmitter {
-	constructor ({ maxRcptPerConn = 350, timeoutLimit = 10 * 1000, fromEmail = 'billgates@gmail' } = {}) {
+	constructor ({ maxRcptPerConn = 350, timeoutLimit = 10 * 1000, fromEmail = 'billgates@gmail.com' } = {}) {
 		super();
 		this._dnsCache = {
 			valid: {},
