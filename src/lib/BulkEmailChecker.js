@@ -203,7 +203,7 @@ export default class BulkEmailChecker extends EventEmitter {
 				await this._checkResultsForBucketHelper(mx, emailBucket); // eslint-disable-line babel/no-await-in-loop
 			} catch (e) {
 				winston.info(this._LOG_TAG, `An error occured while connecting to ${mx}: ${e}`);
-				// Do Nothing if something if an error occurs this time.
+				// Do Nothing if an error occurs this time.
 			} finally {
 				delete this._unsureEmailCahce[mx];
 			}
