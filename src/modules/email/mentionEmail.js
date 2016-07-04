@@ -15,7 +15,7 @@ const MENTION_INTERVAL = 60 * 60 * 1000, MENTION_DELAY = 60 * 60 * 1000,
 	config.app_id + '.digest.hbs', 'utf-8').toString()), log = new Logger(__filename),
 	connStr = config.connStr, conf = config.email, counter = new Counter();
 
-let /*lastEmailSent,*/ end, i = 0;
+let lastEmailSent, end, i = 0;
 
 function initMailSending (userRel) {
 
@@ -58,7 +58,7 @@ function initMailSending (userRel) {
 				end,
 				jid: Constants.JOB_EMAIL_MENTION,
 			} ], (error) => {
-				// lastEmailSent = end;
+				lastEmailSent = end;
 				log.info('Mention email sent to ', i, ' users');
 				if (!error) log.info('successfully updated jobs for mention email');
 			});
@@ -67,10 +67,8 @@ function initMailSending (userRel) {
 }
 
 function sendMentionEmail() {
-	let start = /*lastEmailSent*/Date.now() - 2*MENTION_DELAY;
-
+	let start = lastEmailSent;
 	let row = false;
-
 	end = Date.now() - MENTION_DELAY;
 
 	if (conf.debug) {
@@ -90,7 +88,7 @@ function sendMentionEmail() {
 		end,
 	}).on('row', (urel) => {
 		row = true;
-		// console.log("urel: ", urel);
+		log.info("Got user to send mention email: ", urel);
 		const emailObj = getMailObj(urel) || {};
 		if (Object.keys(emailObj).length !== 0) {
 			++i;
@@ -110,8 +108,8 @@ function sendMentionEmail() {
 
 }
 
-export default function (/*row: Object*/) {
-	// lastEmailSent = row.lastrun;
+export default function (row: Object) {
+	lastEmailSent = row.lastrun;
 	log.info('starting mention email');
 	sendMentionEmail();
 	setInterval(sendMentionEmail, MENTION_INTERVAL);
