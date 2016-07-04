@@ -130,9 +130,9 @@ function seedContent(room) {
 			}
 		});
 
+		let time = Date.now();
 		files.forEach((e:?ThreadTemplate) => {
 			const id = uuid.v4();
-			let time = Date.now();
 
 			if (!e) return;
 			changes.entities[id] = new Thread({
