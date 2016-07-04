@@ -132,6 +132,7 @@ function seedContent(room) {
 
 		files.forEach((e:?ThreadTemplate) => {
 			const id = uuid.v4();
+			let time = Date.now();
 
 			if (!e) return;
 			changes.entities[id] = new Thread({
@@ -146,7 +147,7 @@ function seedContent(room) {
 				tags: [ TAG_POST_AUTO_SEED ],
 				parents: [ room.id ],
 				creator: e.creator,
-				createTime: Date.now(),
+				createTime: time++,
 			});
 		});
 
