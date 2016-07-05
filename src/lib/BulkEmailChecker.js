@@ -256,12 +256,6 @@ export default class BulkEmailChecker extends EventEmitter {
 	bec.add('someotherid@somedomain.com');
 	bec.done();
 
-	- also the done function returns a promise which is resolved after verifying
-	  all the emails.
-
-	bec.done()
-	.then(() => console.log('verification complete !'));
-
 	- Result:
 		{email: sales@somedomain.com, isValid: true}
 		{email: someotherid@somedomain.com, isValid: false}
