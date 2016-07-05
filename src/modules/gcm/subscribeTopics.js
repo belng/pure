@@ -186,7 +186,7 @@ function mapRelsAndSubscriptions(entity) {
 					try {
 						let parsedBody = JSON.parse(b);
 
-						if(e || !b || b & !parsedBody.rel) {
+						if(e || !b || !parsedBody.rel) {
 							log.error(e, parsedBody);
 							return;
 						}
