@@ -4,213 +4,237 @@
 import dns from 'dns';
 import { Socket } from 'net';
 import EventEmitter from 'events';
-import winston from 'winston';
 import promisify from './promisify';
+import winston from 'winston';
 
-type MxRecord = {
-    exchange: string;
-    priority: number;
+function createSmtpConnection(mx: string): Promise<any> {
+	const socket = new Socket();
+	const connection = socket.connect(25, mx);
+	let resolve, reject;
+
+	const send = command => {
+		connection.write(command);
+		connection.write('\r\n');
+		return new Promise((res, rej) => {
+			resolve = res;
+			reject = rej;
+		});
+	};
+
+	const close = () => {
+		connection.removeAllListeners();
+		socket.destroy();
+	};
+
+	function clear() {
+		resolve = null;
+		reject = null;
+	}
+
+	connection.setEncoding('ascii');
+
+	connection.on('connect', () => {
+		winston.info('EMAIL-SCRUBBER', `connection established for the mx: ${mx}`);
+	});
+
+	connection.on('data', data => {
+		try {
+			const [ , responseCode, msg ] = data.match(/\n?(\d{3})\s+(.*)/);
+			if (resolve) {
+				resolve({
+					responseCode: parseInt(responseCode, 10),
+					msg,
+					send,
+					close
+				});
+			}
+			clear();
+		} catch (e) {
+			winston.info(this._LOG_TAG, `error while destructuring ${data} response from mx server`);
+			this.emit('error', e);
+		}
+	});
+
+	connection.on('timeout', () => {
+		if (reject) {
+			reject(new Error('connection timed out'));
+		}
+	});
+
+	connection.on('error', (error) => {
+		if (reject) {
+			reject(error);
+		}
+	});
+
+	return new Promise((res, rej) => {
+		resolve = res;
+		reject = rej;
+	});
 }
 
 export default class BulkEmailChecker extends EventEmitter {
 	constructor ({ maxRcptPerConn = 350, timeoutLimit = 10 * 1000, fromEmail = 'billgates@gmail.com' } = {}) {
 		super();
-		this._dnsCache = {
-			valid: {},
-			invalid: []
-		};
+		this._dnsCache = {};
 		this._emailCache = {};
-		this._unsureEmailCahce = {};
-		this._emails = [];
 		this._MAX_RCPT_TO_PER_CONN = maxRcptPerConn;
 		this._TIMEOUT_LIMIT = timeoutLimit;
 		this._fromEmail = fromEmail;
+		this._connectionCount = 0;
 		this._LOG_TAG = 'EMAIL-SCRUBBER';
 		this._resolveMxPromise = promisify(dns.resolveMx.bind(dns));
 	}
 
-	_getMxWithLowestPriority(mxRecords: Array<MxRecord>) {
-		return mxRecords.sort((recordA, recordB) => {
-			return recordA.priority - recordB.priority;
-		})[0].exchange;
+	get connectionCount(): number {
+		return this._connectionCount;
 	}
 
-	_writeCommand(connection: any, command: string, writeIndex: number): number {
-		connection.write(command);
-		connection.write('\r\n');
-		return ++writeIndex;
-	}
+	async _verifyBucket(domain: string, emails: Array<string>) {
+		let lastLength = 0;
+		let mxRecords, mx;
 
-	async _validateEmail(connection: any, email: string, sayHELO: boolean) {
-		const [ , domain ] = email.split('@');
-		return new Promise((resolve, reject) => {
-			let writeIndex = 1;
-			let retryCount = 1;
-			if (!/^\S+@\S+\.\S+$/.test(email)) {
-				resolve(false);
+		const errorOut = () => {
+			for (const email of emails) {
+				this.emit('data', {
+					email,
+					isValid: 'unsure'
+				});
 			}
-			if (!sayHELO) {
-				/*
-					For MX which allow multiple rcpt to in a single transcation, Resolve the result directly.
-					If they don't they will emit a data event with code 451.
-				*/
-				writeIndex = this._writeCommand(connection, `rcpt to: <${email}>`, writeIndex) + 2;
-			}
-			connection.on('data', data => {
-				if (data.indexOf('220') === 0 || data.indexOf('250') === 0 || data.indexOf('\n220') !== -1 || data.indexOf('\n250') !== -1) {
-					switch (writeIndex) {
-					case 1:
-						writeIndex = this._writeCommand(connection, `HELO ${domain}`, writeIndex);
-						break;
-					case 2:
-						writeIndex = this._writeCommand(connection, `mail from: <${this._fromEmail}>`, writeIndex);
-						break;
-					case 3:
-						writeIndex = this._writeCommand(connection, `rcpt to: <${email}>`, writeIndex);
-						break;
-					case 4:
-						resolve(true);
-						break;
-					default:
-						reject('unsure');
-						break;
-					}
-				} else if (data.indexOf('\n550') !== -1 || data.indexOf('550') === 0) {
-					resolve(false);
-				} else if (data.indexOf('\n451') !== -1 || data.indexOf('451') === 0 || data.indexOf('\n452') !== -1 || data.indexOf('452') === 0) {
-					/*
-                		451: Multiple destination domains per transaction is unsupported.
-                		452: Too many recipients.
-						- Multiple rcpt to: <email> or too many recipients not allowed by the host in a single transaction.
-						- write mail from: <mail> on each 451 or 452 data event and go to rcpt to: <email>.
-						- if 452 occurs multiple times, make 5 attempts else reject to unsure.
-                	*/
-					if (retryCount > 5) {
-						winston.info(this._LOG_TAG, 'Max retry limit exceeded, returning');
-						reject('unsure');
-					}
-					winston.info(this._LOG_TAG, 'retrying...');
-					writeIndex = 1;
-					writeIndex = this._writeCommand(connection, `mail from: <${this._fromEmail}>`, writeIndex) + 1;
-					++retryCount;
-				} else {
-					reject('unsure');
-				}
-			});
-			connection.on('error', () => {
-				reject('unsure');
-			});
-			connection.on('timeout', () => {
-				reject('unsure');
-			});
-		});
-	}
+		};
 
-	async _checkResultsForBucketHelper(mx: string, emailBucket: Array<string>) {
-		const socket = new Socket();
-		const connection = socket.connect(25, mx);
-		connection.setEncoding('ascii');
-		connection.on('connect', () => winston.info(this._LOG_TAG, `connection established for ${mx}`));
-		connection.on('close', () => {
-			socket.connect(25, mx);
-			return;
-		});
-		let sayHELO = true;
-		for (const email of emailBucket) {
+		if (this._dnsCache[domain]) {
+			mx = this._dnsCache[domain];
+		} else {
 			try {
-				winston.info(this._LOG_TAG, `validating email: ${email}`);
-				const isValid = await this._validateEmail(connection, email, sayHELO); // eslint-disable-line babel/no-await-in-loop
-				sayHELO = false;
-				winston.info(this._LOG_TAG, `{email: ${email}, isValid: ${isValid}}`);
-				this.emit('data', {
-					email,
-					isValid
-				});
-			} catch (e) {
-				// emit unsure as response for this email and continue.
-				this.emit('data', {
-					email,
-					isValid: e
-				});
-			}
-		}
-		connection.removeAllListeners();
-		socket.destroy();
-	}
+				mxRecords = await this._resolveMxPromise(domain);
 
-	async _checkResultsForBucket(mx: string, emailBucket: Array<string>) {
-		try {
-			winston.info(this._LOG_TAG, `validating emails for ${mx} bucket`);
-			await this._checkResultsForBucketHelper(mx, emailBucket);
-		} catch (e) {
-			winston.info(this._LOG_TAG, `An error occured while connecting to ${mx}: ${e}`);
-			this._unsureEmailCahce[mx] = emailBucket;
-		} finally {
-			delete this._emailCache[mx];
-		}
-	}
+				// get the lowest priority mx for that domain
+				mx = mxRecords.sort((recordA, recordB) => {
+					return recordA.priority - recordB.priority;
+				})[0].exchange;
 
-	async _buildDnsAndEmailCache(email: string) {
-		const [ , domain ] = email.split('@');
-		try {
-			if (!this._dnsCache.valid[domain] && !this._dnsCache.invalid.indexOf(domain) > -1) {
-				const mxRecords = await this._resolveMxPromise(domain);
-				const mx = this._getMxWithLowestPriority(mxRecords);
-				this._dnsCache.valid[domain] = mx;
-			}
-			if (!this._dnsCache.valid[domain]) {
-				return;
-			}
-			const mx = this._dnsCache.valid[domain];
-			if (!this._emailCache[mx]) {
-				this._emailCache[mx] = [];
-			}
-			this._emailCache[mx].push(email);
-			if (this._emailCache[mx].length >= this._MAX_RCPT_TO_PER_CONN) {
-				const emailBucket = this._emailCache[mx];
-				winston.info(this._LOG_TAG, emailBucket);
-				await this._checkResultsForBucket(mx, emailBucket);
-			}
-		} catch (error) {
-			if (error.code === 'ENOTFOUND') {
-				if (!this._dnsCache.invalid.indexOf(domain) > -1) {
-					winston.info(this._LOG_TAG, `Added ${domain} to the list of invalid DNS.`);
-					this._dnsCache.invalid.push(domain);
+				// update the dns cache
+				this._dnsCache[domain] = mx;
+
+				while (emails.length && emails.length !== lastLength) {
+					let connection, response;
+					try {
+						connection = await createSmtpConnection.call(this, mx); // eslint-disable-line babel/no-await-in-loop
+						if (connection.responseCode !== 220) {
+							errorOut();
+							return;
+						}
+						response = await connection.send(`HELO ${domain}`); // eslint-disable-line babel/no-await-in-loop
+						if (response.responseCode !== 250) {
+							errorOut();
+							return;
+						}
+						response = await connection.send(`mail from: <${this._fromEmail}>`); // eslint-disable-line babel/no-await-in-loop
+						if (response.responseCode !== 250) {
+							errorOut();
+							return;
+						}
+						lastLength = emails.length;
+						for (let i = 0; i < emails.length; i++) {
+							const email = emails[i];
+							try {
+								response = await connection.send(`rcpt to: <${email}>`); // eslint-disable-line babel/no-await-in-loop
+							} catch (err) {
+								emails.splice(0, i);
+								break;
+							}
+
+							switch (response.responseCode) {
+							case 250:
+								this.emit('data', {
+									email,
+									isValid: true
+								});
+								break;
+							case 450:
+							case 550:
+								this.emit('data', {
+									email,
+									isValid: false
+								});
+								break;
+							case 251:
+							case 252:
+							case 551:
+							case 553:
+								this.emit('data', {
+									email,
+									isValid: 'unsure'
+								});
+								break;
+							default:
+								emails.splice(0, i);
+								break;
+							}
+						}
+
+						connection.close();
+					} catch (e) {
+						errorOut();
+						return;
+					}
 				}
-			} else {
-				this.emit('error', error);
+			} catch (err) {
+				this.emit('error', err);
 			}
 		}
 	}
 
 	add(email: string) {
-		this._emails.push(email);
-	}
-
-	async check() {
-		for (const email of this._emails) {
-			await this._buildDnsAndEmailCache(email); // eslint-disable-line babel/no-await-in-loop
-		}
-		// check all the emails which are less than _MAX_RCPT_TO_PER_CONN in number.
-		for (const mx in this._emailCache) {
-			const emailBucket = this._emailCache[mx];
-			await this._checkResultsForBucket(mx, emailBucket); // eslint-disable-line babel/no-await-in-loop
-		}
-		// check the unsure emails once again.
-		for (const mx in this._unsureEmailCahce) {
-			const emailBucket = this._unsureEmailCahce[mx];
+		if (!/^\S+@\S+\.\S+$/.test(email)) {
+			this.emit('data', {
+				email,
+				isValid: false
+			});
+		} else {
 			try {
-				await this._checkResultsForBucketHelper(mx, emailBucket); // eslint-disable-line babel/no-await-in-loop
+				const [ , domain ] = email.split('@');
+				if (!this._emailCache[domain]) {
+					this._emailCache[domain] = [];
+				}
+				this._emailCache[domain].push(email);
+				if (this._emailCache[domain].length > this._MAX_RCPT_TO_PER_CONN) {
+					this._connectionCount++;
+					this._verifyBucket(domain, this._emailCache[domain])
+						.catch((error) => this.emit('error', error))
+						.then(() => {
+							this._connectionCount--;
+							if (this._connectionCount === 0) {
+								this.emit('end');
+							}
+						});
+					this._emailCache[domain] = [];
+				}
 			} catch (e) {
-				winston.info(this._LOG_TAG, `An error occured while connecting to ${mx}: ${e}`);
-				// Do Nothing if an error occurs this time.
-			} finally {
-				delete this._unsureEmailCahce[mx];
+				this.emit('error', `Not a valid email address ${email}, Error: ${e}`);
 			}
 		}
-		this.emit('end');
+	}
+
+	done() {
+		for (const domain in this._emailCache) {
+			if (this._emailCache[domain].length) {
+				this._connectionCount++;
+				this._verifyBucket(domain, this._emailCache[domain])
+					.catch((error) => this.emit('error', error))
+					.then(() => {
+						this._connectionCount--;
+						if (this._connectionCount === 0) {
+							this.emit('end');
+						}
+					});
+				this._emailCache[domain] = [];
+			}
+		}
 	}
 }
+
 
 /*
 	- Api Demo
@@ -226,15 +250,22 @@ export default class BulkEmailChecker extends EventEmitter {
 
 	bec.on('data', data => console.log(data));
 	bec.on('error', error => console.log(error));
-	bec.on('end', () => console.log('You can do whatever you want !'));
+	bec.on('end', () => console.log('Perform all the tasks dependent on data now !'));
 
 	bec.add('sales@somedomain.com');
 	bec.add('someotherid@somedomain.com');
-	bec.check();
+	bec.done();
+
+	- also the done function returns a promise which is resolved after verifying
+	  all the emails.
+
+	bec.done()
+	.then(() => console.log('verification complete !'));
 
 	- Result:
 		{email: sales@somedomain.com, isValid: true}
 		{email: someotherid@somedomain.com, isValid: false}
+		{email: someotherid@unknowndomain.com, isValid: unsure}
 
 	- isValid can be true, false or unsure.
 */
