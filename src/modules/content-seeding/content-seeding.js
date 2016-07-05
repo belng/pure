@@ -378,6 +378,13 @@ function saveEntity(entity) {
 		let time = Date.now();
 		for (const i in finalChanges.entities) {
 			const newEntity = finalChanges.entities[i];
+			if (newEntity.type === TYPE_THREAD) {
+				newEntity.createTime = newEntity.updateTime = ++time;
+			}
+		}
+
+		for (const i in finalChanges.entities) {
+			const newEntity = finalChanges.entities[i];
 			if (newEntity.type === TYPE_TEXT) {
 				newEntity.createTime = newEntity.updateTime = ++time;
 			}
