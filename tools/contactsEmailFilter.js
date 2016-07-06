@@ -27,9 +27,9 @@ const verifyMails = async () => {
 
 	bec.on('data', data => {
 		console.log(bec.connectionCount);
-		if (data.isValid && !validMails.indexOf(data.email) > -1) {
+		if (data.isValid === true && !validMails.indexOf(data.email) > -1) {
 			validMails.push(data.email);
-		} else if (!data.isValid && !invalidMails.indexOf(data.email) > -1) {
+		} else if (data.isValid === false && !invalidMails.indexOf(data.email) > -1) {
 			invalidMails.push(data.email);
 		} else if (data.isValid === 'unsure' && !unsureMails.indexOf(data.email) > -1) {
 			unsureMails.push(data.email);
@@ -40,6 +40,18 @@ const verifyMails = async () => {
 
 	bec.on('end', async () => {
 		const now = Date.now();
+		console.log(validMails.map(email => emailContactMap[email]).reduce((contactsBucket, contactsForEmail) => {
+			return contactsBucket.concat(contactsForEmail);
+		}, []));
+		console.log(invalidMails.map(email => emailContactMap[email]).reduce((contactsBucket, contactsForEmail) => {
+			return contactsBucket.concat(contactsForEmail);
+		}, []));
+		console.log(unsureMails.map(email => emailContactMap[email]).reduce((contactsBucket, contactsForEmail) => {
+			return contactsBucket.concat(contactsForEmail);
+		}, []));
+
+		console.log('---------------------------------------------------------');
+
 		await performWriteQuery([
 			{
 				$: `UPDATE contacts SET valid='true', lastmailverifytime = &{now}
@@ -78,4 +90,6 @@ const verifyMails = async () => {
 	bec.done();
 };
 
-setInterval(verifyMails, JOB_INVOCATION_INTERVAL);
+verifyMails();
+
+// setInterval(verifyMails, JOB_INVOCATION_INTERVAL);
