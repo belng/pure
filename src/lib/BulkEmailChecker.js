@@ -41,12 +41,21 @@ function createSmtpConnection(mx: string): Promise<any> {
 		try {
 			const [ , responseCode, msg ] = data.match(/\n?(\d{3})\s+(.*)/);
 			if (resolve) {
-				resolve({
-					responseCode: parseInt(responseCode, 10),
-					msg,
-					send,
-					close
-				});
+				let responseToResolve;
+				if (parseInt(responseCode, 10) === 220) {
+					responseToResolve = {
+						responseCode: parseInt(responseCode, 10),
+						msg,
+						send,
+						close
+					};
+				} else {
+					responseToResolve = {
+						responseCode: parseInt(responseCode, 10),
+						msg
+					};
+				}
+				resolve(responseToResolve);
 			}
 			clear();
 		} catch (e) {
@@ -130,7 +139,7 @@ export default class BulkEmailChecker extends EventEmitter {
 							errorOut();
 							return;
 						}
-						response = await connection.send(`mail from: <${this._fromEmail}>`); // eslint-disable-line babel/no-await-in-loop
+						response = await connection.send(`MAIL FROM: <${this._fromEmail}>`); // eslint-disable-line babel/no-await-in-loop
 						if (response.responseCode !== 250) {
 							errorOut();
 							return;
@@ -139,7 +148,7 @@ export default class BulkEmailChecker extends EventEmitter {
 						for (let i = 0; i < emails.length; i++) {
 							const email = emails[i];
 							try {
-								response = await connection.send(`rcpt to: <${email}>`); // eslint-disable-line babel/no-await-in-loop
+								response = await connection.send(`RCPT TO: <${email}>`); // eslint-disable-line babel/no-await-in-loop
 							} catch (err) {
 								emails.splice(0, i);
 								break;

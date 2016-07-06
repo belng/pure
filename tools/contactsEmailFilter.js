@@ -14,8 +14,9 @@ const performWriteQuery = promisify(pg.write.bind(pg, config.connStr));
 
 const verifyMails = async () => {
 	const emailContactMap = {};
-	const verifiedMails = {};
-	const bulkUpdateQuery = [];
+	const validMails = [];
+	const invalidMails = [];
+	const unsureMails = [];
 	const bec = new BulkEmailChecker();
 
 	const contacts = await performReadQuery({
@@ -25,29 +26,46 @@ const verifyMails = async () => {
 	});
 
 	bec.on('data', data => {
-		if (!verifiedMails[data.email]) {
-			verifiedMails[data.email] = data.isValid;
+		console.log(bec.connectionCount);
+		if (data.isValid && !validMails.indexOf(data.email) > -1) {
+			validMails.push(data.email);
+		} else if (!data.isValid && !invalidMails.indexOf(data.email) > -1) {
+			invalidMails.push(data.email);
+		} else if (data.isValid === 'unsure' && !unsureMails.indexOf(data.email) > -1) {
+			unsureMails.push(data.email);
 		}
 	});
 
 	bec.on('error', error => winston.info(error));
 
 	bec.on('end', async () => {
-		let now = Date.now();
-		for (const email in verifiedMails) {
-			for (const contactText of emailContactMap[email]) {
-				const timeStamp = now++;
-				bulkUpdateQuery.push({
-					$: `UPDATE contacts SET valid = &{valid}::text, lastmailverifytime = &{timeStamp}
-						WHERE contact::text = &{contactText}`,
-					valid: verifiedMails[email],
-					timeStamp,
-					contactText
-				});
+		const now = Date.now();
+		await performWriteQuery([
+			{
+				$: `UPDATE contacts SET valid='true', lastmailverifytime = &{now}
+					WHERE contact::text IN (&{validContacts})`,
+				now,
+				validContacts: validMails.map(email => emailContactMap[email]).reduce((contactsBucket, contactsForEmail) => {
+					return contactsBucket.concat(contactsForEmail);
+				}, [])
+			},
+			{
+				$: `UPDATE contacts SET valid='false', lastmailverifytime = &{now}
+					WHERE contact::text IN (&{invalidContacts})`,
+				now,
+				invalidContacts: invalidMails.map(email => emailContactMap[email]).reduce((contactsBucket, contactsForEmail) => {
+					return contactsBucket.concat(contactsForEmail);
+				}, [])
+			},
+			{
+				$: `UPDATE contacts SET valid='unsure', lastmailverifytime = &{now}
+					WHERE contact::text IN (&{unsureContacts})`,
+				now,
+				unsureContacts: unsureMails.map(email => emailContactMap[email]).reduce((contactsBucket, contactsForEmail) => {
+					return contactsBucket.concat(contactsForEmail);
+				}, [])
 			}
-		}
-		await performWriteQuery(bulkUpdateQuery);
-		winston.info(`updated ${bulkUpdateQuery.length} rows in contacts table`);
+		]);
 	});
 
 	for (const contact of contacts) {
