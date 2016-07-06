@@ -40,18 +40,6 @@ const verifyMails = async () => {
 
 	bec.on('end', async () => {
 		const now = Date.now();
-		console.log(validMails.map(email => emailContactMap[email]).reduce((contactsBucket, contactsForEmail) => {
-			return contactsBucket.concat(contactsForEmail);
-		}, []));
-		console.log(invalidMails.map(email => emailContactMap[email]).reduce((contactsBucket, contactsForEmail) => {
-			return contactsBucket.concat(contactsForEmail);
-		}, []));
-		console.log(unsureMails.map(email => emailContactMap[email]).reduce((contactsBucket, contactsForEmail) => {
-			return contactsBucket.concat(contactsForEmail);
-		}, []));
-
-		console.log('---------------------------------------------------------');
-
 		await performWriteQuery([
 			{
 				$: `UPDATE contacts SET valid='true', lastmailverifytime = &{now}
