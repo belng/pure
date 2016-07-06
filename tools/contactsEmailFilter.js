@@ -78,6 +78,4 @@ const verifyMails = async () => {
 	bec.done();
 };
 
-verifyMails();
-
-// setInterval(verifyMails, JOB_INVOCATION_INTERVAL);
+setInterval(verifyMails, JOB_INVOCATION_INTERVAL);
