@@ -130,6 +130,7 @@ function seedContent(room) {
 			}
 		});
 
+		let time = Date.now();
 		files.forEach((e:?ThreadTemplate) => {
 			const id = uuid.v4();
 
@@ -146,7 +147,7 @@ function seedContent(room) {
 				tags: [ TAG_POST_AUTO_SEED ],
 				parents: [ room.id ],
 				creator: e.creator,
-				createTime: Date.now(),
+				createTime: time++,
 			});
 		});
 
