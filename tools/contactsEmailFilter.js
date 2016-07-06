@@ -4,10 +4,11 @@ import * as pg from '../src/lib/pg';
 import BulkEmailChecker from '../src/lib/BulkEmailChecker';
 import winston from 'winston';
 import promisify from '../src/lib/promisify';
+import contactsFilterConfig from './tools-config/contactsFilterConfig';
 import { config } from '../src/core-server';
 
-const LIMIT_CONTACT_TO = 300;
-const JOB_INVOCATION_INTERVAL = 30 * 60 * 1000;
+const LIMIT_CONTACT_TO = contactsFilterConfig.limitContactTo;
+const JOB_INVOCATION_INTERVAL = contactsFilterConfig.jobInvocationInterval;
 const performReadQuery = promisify(pg.read.bind(pg, config.connStr));
 const performWriteQuery = promisify(pg.write.bind(pg, config.connStr));
 
