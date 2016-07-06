@@ -24,7 +24,7 @@ const verifyMails = async () => {
 		LIMIT_CONTACT_TO
 	});
 
-	bec.on('data', async data => {
+	bec.on('data', data => {
 		if (!verifiedMails[data.email]) {
 			verifiedMails[data.email] = data.isValid;
 		}
