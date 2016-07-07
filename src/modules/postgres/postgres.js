@@ -24,6 +24,7 @@ function onRangeQuery(key, range, err, r) {
 		return;
 	}
 
+	winston.info('onRangeQuery', key, range);
 	const results = r.map(e => {
 		const props = Object.keys(e), propsCount = props.length;
 		let prop;
