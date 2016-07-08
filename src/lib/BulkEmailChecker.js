@@ -11,6 +11,7 @@ function createSmtpConnection(mx: string): Promise<any> {
 	const socket = new Socket();
 	const connection = socket.connect(25, mx);
 	let resolve, reject;
+	let connectionClosedByClient = false;
 
 	const send = command => {
 		connection.write(command);
@@ -22,6 +23,7 @@ function createSmtpConnection(mx: string): Promise<any> {
 	};
 
 	const close = () => {
+		connectionClosedByClient = true;
 		connection.removeAllListeners();
 		socket.destroy();
 	};
@@ -61,6 +63,17 @@ function createSmtpConnection(mx: string): Promise<any> {
 		} catch (e) {
 			winston.info(this._LOG_TAG, `error while destructuring ${data} response from mx server`);
 			this.emit('error', e);
+		}
+	});
+
+	connection.on('close', () => {
+		// to prevent the program from breaking when the connection is closed by the host
+		if (this._connectionCount === 0) {
+			connectionClosedByClient = true;
+			socket.destroy();
+		}
+		if (!connectionClosedByClient) {
+			socket.connect(25, mx);
 		}
 	});
 
