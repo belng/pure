@@ -27,10 +27,10 @@ export default class Logger{
 		const date = new Date();
 		const year = `${date.getFullYear()}`;
 		const month = (date.getMonth() + 1) > 9 ? `${date.getMonth() + 1}` : `0${date.getMonth() + 1}`;
-		const day = (date.getDate() + 1) > 9 ? `${date.getDate()}` : `0${date.getDate() + 1}`;
-		const hours = (date.getHours() + 1) > 9 ? `${date.getHours()}` : `0${date.getHours() + 1}`;
-		const mins = (date.getMinutes() + 1) > 9 ? `${date.getMinutes()}` : `0${date.getMinutes() + 1}`;
-		const sec = (date.getSeconds() + 1) > 9 ? `${date.getSeconds()}` : `0${date.getSeconds() + 1}`;
+		const day = (date.getDate()) > 9 ? `${date.getDate()}` : `0${date.getDate()}`;
+		const hours = (date.getHours()) > 9 ? `${date.getHours()}` : `0${date.getHours()}`;
+		const mins = (date.getMinutes()) > 9 ? `${date.getMinutes()}` : `0${date.getMinutes()}`;
+		const sec = (date.getSeconds()) > 9 ? `${date.getSeconds()}` : `0${date.getSeconds()}`;
 		return year + month + day + hours + mins + sec;
 	}
 
