@@ -3,6 +3,7 @@
 import * as pg from '../../lib/pg';
 import Logger from '../../lib/logger';
 import { config } from '../../core-server';
+import sendInvitationEmail from './invitationEmail';
 import sendWelcomeEmail from './welcomeEmail';
 import sendMentionEmail from './mentionEmail';
 import sendDigestEmail from './digestEmail';
@@ -18,6 +19,7 @@ if (!conf.auth.user && !conf.auth.pass) {
 	log.info('Email module not enabled');
 } else {
 	log.info('Email module ready.');
+	sendInvitationEmail();
 	pg.read(connString, {
 		$: 'SELECT * FROM jobs WHERE id in (&(ids))',
 		ids: [ JOB_EMAIL_WELCOME, JOB_EMAIL_DIGEST, JOB_EMAIL_MENTION ],

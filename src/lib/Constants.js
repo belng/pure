@@ -81,6 +81,7 @@ export const NOTE_UPVOTE = 6;
 export const JOB_EMAIL_WELCOME = 1;
 export const JOB_EMAIL_MENTION = 2;
 export const JOB_EMAIL_DIGEST = 3;
+export const JOB_EMAIL_INVITE = 4;
 
 export const APP_PRIORITIES = {
 	AUTHENTICATION_FACEBOOK: 900,
