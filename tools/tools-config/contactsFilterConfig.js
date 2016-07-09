@@ -1,6 +1,6 @@
 const config = {
-    limitContactTo: 300,
-    jobInvocationInterval: 30 * 60 * 100
+    limitContactTo: 50,
+    jobInvocationInterval: 5 * 60 * 100
 };
 
 export default config;
