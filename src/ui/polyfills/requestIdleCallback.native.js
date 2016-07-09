@@ -6,23 +6,24 @@ const {
 	InteractionManager,
 } = ReactNative;
 
-const pendingcallbacks = {};
+const pendingTasks = {};
 let id = 0;
 
+global.Promise.prototype.done = () => {}; // FIXME: Without this InteractionManager throws
 global.requestIdleCallback = (callback: Function) => {
 	const handle = id++;
-	pendingcallbacks[handle] = true;
+	pendingTasks[handle] = true;
 	InteractionManager.runAfterInteractions(() => {
-		if (pendingcallbacks[handle]) {
-			global.requestAnimationFrame(callback);
+		if (pendingTasks[handle]) {
+			callback();
 		}
-		delete pendingcallbacks[handle];
+		delete pendingTasks[handle];
 	});
 	return handle;
 };
 
 global.cancelIdleCallback = (handle: number) => {
-	if (pendingcallbacks[handle]) {
-		delete pendingcallbacks[handle];
+	if (pendingTasks[handle]) {
+		delete pendingTasks[handle];
 	}
 };

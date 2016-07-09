@@ -14,6 +14,9 @@ CREATE TABLE contacts (
 	contact jsonb
 );
 
+CREATE INDEX ON contacts ((contact->>'email'), lastmailverifytime);
+CREATE INDEX ON contacts ((contact->>'email'), valid, lastmailtime);
+
 DROP TABLE IF EXISTS notes;
 DROP TABLE IF EXISTS rels CASCADE;
 DROP TABLE IF EXISTS items CASCADE;
