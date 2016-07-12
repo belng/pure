@@ -13,13 +13,25 @@ export default class Logger{
 	constructor(file: any) {
 		this.dir = file.split('/');
 		this.checkForDir();
+		this.logFileName = this.buildFileName();
 		this.transports = [ new winston.transports.Console({ colorize: true, level: 'debug' }),
 		new (winston.transports.File)({
-			filename: this.newLogDir + '/' + new Date().getTime() + '.log',
+			filename: this.newLogDir + '/' + this.logFileName + '.log',
 			maxsize: 5242880
 		}) ];
 
 		this.logger = new (winston.Logger)({ transports: this.transports });
+	}
+
+	buildFileName() {
+		const date = new Date();
+		const year = `${date.getFullYear()}`;
+		const month = (date.getMonth() + 1) > 9 ? `${date.getMonth() + 1}` : `0${date.getMonth() + 1}`;
+		const day = (date.getDate()) > 9 ? `${date.getDate()}` : `0${date.getDate()}`;
+		const hours = (date.getHours()) > 9 ? `${date.getHours()}` : `0${date.getHours()}`;
+		const mins = (date.getMinutes()) > 9 ? `${date.getMinutes()}` : `0${date.getMinutes()}`;
+		const sec = (date.getSeconds()) > 9 ? `${date.getSeconds()}` : `0${date.getSeconds()}`;
+		return year + month + day + hours + mins + sec;
 	}
 
 	checkForDir() {

@@ -7,6 +7,11 @@
 		"private_key": "put_your_private_key_here"
 	},
 
+	"invitationEmail": {
+		"limit": 30,
+		"interval": 360000
+	},
+
 	"server": {
 		"protocol": "http:",
 		"host": "localhost",

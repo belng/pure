@@ -19,6 +19,7 @@
     "immutable": "^3.8.1",
     "jsonop": "^3.0.3",
     "jsonwebtoken": "^5.7.0",
+    "juice": "^2.0.0",
     "juri": "^1.0.3",
     "koa": "^1.2.0",
     "koa-bodyparser": "^2.2.0",
