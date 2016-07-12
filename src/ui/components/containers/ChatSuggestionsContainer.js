@@ -5,11 +5,12 @@ import shallowCompare from 'react-addons-shallow-compare';
 import createContainer from '../../../modules/store/createContainer';
 import ChatSuggestions from '../views/Chat/ChatSuggestions';
 import store from '../../../modules/store/store';
-import type { Text } from '../../../lib/schemaTypes';
+import type { Text, Thread } from '../../../lib/schemaTypes';
 
 type Props = {
 	user: string;
 	prefix: string;
+	thread: ?Thread;
 	texts: Array<Text>;
 }
 
@@ -22,6 +23,7 @@ class ChatSuggestionsContainerInner extends Component<void, Props, State> {
 	static propTypes = {
 		prefix: PropTypes.string.isRequired,
 		user: PropTypes.string.isRequired,
+		thread: PropTypes.object.isRequired,
 		texts: PropTypes.arrayOf(PropTypes.object).isRequired,
 	};
 
@@ -62,10 +64,12 @@ class ChatSuggestionsContainerInner extends Component<void, Props, State> {
 		});
 	};
 
-	_getUsersFromTexts = (texts: Array<Text>) => {
+	_getUsersFromTexts = (thread: ?Thread, texts: Array<Text>) => {
 		return texts.map(text => {
 			return text.creator || null;
-		}).filter((value, index, self) => {
+		})
+		.concat(thread && thread.creator ? thread.creator : null)
+		.filter((value, index, self) => {
 			return self.indexOf(value) === index;
 		});
 	};
@@ -79,16 +83,19 @@ class ChatSuggestionsContainerInner extends Component<void, Props, State> {
 			this.setState({
 				prefix,
 			});
-			const users = this._getUsersFromTexts(this.props.texts).filter(id => {
-				return typeof id === 'string' && id !== this.props.user && id.indexOf(prefix) === 0;
-			}).map(id => {
-				return { id };
-			});
+			const users = this._getUsersFromTexts(this.props.thread, this.props.texts)
+				.filter(id => {
+					return typeof id === 'string' && id && id !== this.props.user && id.indexOf(prefix.substring(1)) === 0;
+				}).map(id => {
+					return {
+						id: (id: string),
+					};
+				});
 			this.setState({
 				data: users,
 			});
-			if (users.length < 4) {
-				this._subscription = this._getResults(prefix, 4 - users.length).subscribe({
+			if (users.length < 4 && prefix.length > 1) {
+				this._subscription = this._getResults(prefix.substring(1), 4 - users.length).subscribe({
 					next: (result) => {
 						if (prefix === this.state.prefix) {
 							const currentIds = [];
@@ -132,6 +139,12 @@ class ChatSuggestionsContainerInner extends Component<void, Props, State> {
 }
 
 const mapSubscriptionToProps = ({ thread }) => ({
+	thread: {
+		key: {
+			type: 'entity',
+			id: thread,
+		},
+	},
 	texts: {
 		key: {
 			slice: {
