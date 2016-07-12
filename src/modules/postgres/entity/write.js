@@ -138,7 +138,7 @@ export default function (entity) {
 				$: '"user" = &{user} AND "event" = &{event}' +
 					' AND "group" = &{group}',
 				user: entity.user,
-				event: entity.item,
+				event: entity.event,
 				group: entity.group,
 			} : 'FALSE',
 			{
