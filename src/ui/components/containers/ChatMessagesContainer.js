@@ -90,20 +90,20 @@ function transformFunction(props) {
 function mapSubscriptionToProps({ user, thread }) {
 	return {
 		thread: {
-			key: {
-				type: 'entity',
+			type: 'entity',
+			options: {
 				id: thread,
 			},
 		},
 		threadrel: {
-			key: {
-				type: 'entity',
+			type: 'entity',
+			options: {
 				id: `${user}_${thread}`,
 			},
 		},
 		me: {
-			key: {
-				type: 'entity',
+			type: 'entity',
+			options: {
 				id: user,
 			},
 		},

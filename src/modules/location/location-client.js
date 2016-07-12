@@ -11,13 +11,14 @@ const { geolocation } = navigator;
 
 let watch, subscriptions = 0;
 
-const success = position => bus.emit('change', {
-	state: {
+const success = position => store.dispatch({
+	type: 'SET_STATE',
+	payload: {
 		location: position.coords,
 	},
 });
 
-store.on('subscribe', ({ path }) => {
+bus.on('store:subscribe', ({ path }) => {
 	if (path === 'location') {
 		geolocation.getCurrentPosition(success);
 
@@ -29,7 +30,7 @@ store.on('subscribe', ({ path }) => {
 	}
 });
 
-store.on('unsubscribe', ({ path }) => {
+bus.on('store:unsubscribe', ({ path }) => {
 	if (path === 'location') {
 		subscriptions--;
 

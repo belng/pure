@@ -4,6 +4,7 @@ import uuid from 'node-uuid';
 import { bus, config } from '../../core-client';
 import packer from '../../lib/packer';
 import BuildConfig from '../../ui/modules/BuildConfig';
+import store from '../../modules/store/store';
 
 type Frame = {
 	type: string;
@@ -39,8 +40,11 @@ function disconnected() {
 		backOff = 256;
 	}
 
-	bus.emit('change', {
-		state: { connectionStatus: 'offline', backOff },
+	store.dispatch({
+		type: 'SET_STATE',
+		payload: {
+			connectionStatus: 'offline',
+		}
 	});
 
 	setTimeout(connect, backOff * 1000);
@@ -58,7 +62,10 @@ function onMessage(message) {
 			pendingCallbacks[frame.message.id].next();
 		}
 	} else {
-		bus.emit(frame.type, frame.message);
+		store.dispatch({
+			type: frame.type.toUpperCase(),
+			payload: frame.message,
+		});
 	}
 }
 
@@ -72,8 +79,12 @@ function connect() {
 
 	client.on('open', () => {
 		backOff = 1;
-		bus.emit('change', {
-			state: { connectionStatus: 'online', backOff },
+
+		store.dispatch({
+			type: 'SET_STATE',
+			payload: {
+				connectionStatus: 'online',
+			}
 		});
 	});
 
@@ -120,16 +131,19 @@ bus.on('state:init', state => {
 	setTimeout(connect, 0);
 });
 
-bus.on('signout', () => {
-	if (client) {
-		client.close();
+bus.on('store:dispatch', action => {
+	if (action.type === 'SIGNOUT') {
+		if (client) {
+			client.close();
+		}
+		store.dispatch({
+			type: 'SET_STATE',
+			payload: {
+				connectionStatus: 'connecting',
+			}
+		});
+		connect();
 	}
-	bus.emit('change', {
-		state: {
-			connectionStatus: 'connecting',
-		},
-	});
-	connect();
 });
 
 bus.on('s3/getPolicy', (policy, next) => {

@@ -7,12 +7,12 @@
  */
 
 import React, { Component, Children, PropTypes } from 'react';
-import SimpleStore from './SimpleStore';
 import storeShape from './storeShape';
+import type { Store } from '../../lib/store/storeTypeDefinitions';
 
 type Props = {
 	children?: React.Element;
-	store: SimpleStore;
+	store: Store;
 }
 
 export default class Provider extends Component<void, Props, void> {

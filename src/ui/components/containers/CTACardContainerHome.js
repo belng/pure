@@ -1,18 +1,23 @@
 /* @flow */
 
+import flowRight from 'lodash/flowRight';
+import createUserContainer from '../../../modules/store/createUserContainer';
 import createContainer from '../../../modules/store/createContainer';
 import CTACard from '../views/Card/CTACard';
 
-const mapSubscriptionToProps = {
+const mapSubscriptionToProps = ({ user }) => ({
 	user: {
-		key: 'me',
-	},
-	data: {
-		key: {
-			type: 'state',
-			path: 'ctahome',
+		type: 'entity',
+		options: {
+			id: user,
 		},
 	},
-};
+	data: {
+		type: 'ctahome',
+	},
+});
 
-export default createContainer(mapSubscriptionToProps)(CTACard);
+export default flowRight(
+	createUserContainer(),
+	createContainer(mapSubscriptionToProps),
+)(CTACard);

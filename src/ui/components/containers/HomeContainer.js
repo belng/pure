@@ -5,10 +5,7 @@ import Home from '../views/Home';
 
 const mapSubscriptionToProps = {
 	initialURL: {
-		key: {
-			type: 'state',
-			path: 'initialURL',
-		},
+		type: 'initialURL',
 	},
 };
 

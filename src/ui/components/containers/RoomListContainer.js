@@ -55,7 +55,8 @@ function transformFunction(props) {
 function mapSubscriptionToProps({ user }) {
 	return {
 		data: {
-			key: {
+			type: 'list',
+			options: {
 				slice: {
 					type: 'roomrel',
 					link: {

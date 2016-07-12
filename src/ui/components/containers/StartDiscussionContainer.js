@@ -13,8 +13,7 @@ const mapDispatchToProps = dispatch => ({
 
 		dispatch(changes);
 
-		return store.observe({
-			type: 'entity',
+		return store.observe('entity', {
 			id: Object.keys(changes.entities)[0],
 			source: 'StartDiscussionContainer',
 		});

@@ -27,8 +27,8 @@ const transformFunction = props => {
 
 const mapSubscriptionToProps = ({ room }) => ({
 	data: {
-		key: {
-			type: 'entity',
+		type: 'entity',
+		options: {
 			id: room,
 		},
 	},

@@ -18,17 +18,12 @@ export type SubscriptionRange = {
 }
 
 export type SubscriptionOptions = {
-	type?: string;
-	slice?: SubscriptionSlice;
-	range?: SubscriptionRange;
-	order?: string;
-	id?: string;
-	path?: string;
+	id: string;
+	defer: boolean;
 	source: string;
-	defer?: ?boolean;
-}
-
-export type Cache = {
-	watch: (options: SubscriptionOptions, callback: Function) => ?Function;
-	put: (payload: any) => void;
+} | {
+	slice: SubscriptionSlice;
+	range: SubscriptionRange;
+	defer: boolean;
+	source: string;
 }

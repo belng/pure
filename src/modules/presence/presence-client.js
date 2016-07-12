@@ -39,9 +39,9 @@ async function getRelationAndSetPresence(slice: Object, status: 'online' | 'offl
 
 		global.requestIdleCallback(() => {
 			if (result) {
-				bus.emit('change', setItemPresence(result, type, status));
+				store.dispatch(setItemPresence(result, type, status));
 			} else {
-				bus.emit('change', setItemPresence({
+				store.dispatch(setItemPresence({
 					item,
 					user,
 					roles: [ ROLE_VISITOR ],
@@ -52,20 +52,20 @@ async function getRelationAndSetPresence(slice: Object, status: 'online' | 'offl
 	}
 }
 
-store.observe({ type: 'state', path: 'user', source: 'presence' }).forEach(id => {
+store.observe('user').forEach(id => {
 	if (id) {
-		bus.emit('change', setPresence(id, 'online'));
+		store.dispatch(setPresence(id, 'online'));
 	}
 });
 
-store.on('subscribe', options => {
-	if (options.slice) {
+bus.on('store:subscribe', ({ type, options }) => {
+	if (type === 'list' && options.slice) {
 		getRelationAndSetPresence(options.slice, 'online');
 	}
 });
 
-store.on('unsubscribe', options => {
-	if (options.slice) {
+bus.on('store:unsubscribe', ({ type, options }) => {
+	if (type === 'list' && options.slice) {
 		getRelationAndSetPresence(options.slice, 'offline');
 	}
 });

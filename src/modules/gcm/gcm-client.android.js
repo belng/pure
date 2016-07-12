@@ -39,7 +39,7 @@ GCM.configureNotification({
 	}
 });
 
-store.observe({ type: 'state', path: 'session', source: 'gcm' }).forEach(session => {
+store.observe('session').forEach(session => {
 	if (session === '@@loading') {
 		return;
 	}

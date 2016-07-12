@@ -7,8 +7,8 @@ import MyActivityItem from '../views/Homescreen/MyActivityItem';
 
 const mapSubscriptionToProps = ({ thread }) => ({
 	room: {
-		key: {
-			type: 'entity',
+		type: 'entity',
+		options: {
 			id: thread.parents[0],
 		},
 	},

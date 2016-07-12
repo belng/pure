@@ -2,6 +2,7 @@
 
 import ReactNative from 'react-native';
 import { bus } from '../../core-client';
+import store from '../../modules/store/store';
 
 const {
 	Linking,
@@ -15,8 +16,9 @@ bus.on('state:init', () => {
 		Linking.getInitialURL()
 		.catch(() => null)
 		.then(initialURL => {
-			bus.emit('change', {
-				state: {
+			store.dispatch({
+				type: 'SET_STATE',
+				payload: {
 					initialURL,
 				},
 			});

@@ -1,20 +1,20 @@
 /* @flow */
 
 import { bus, cache } from '../../core-client';
+import store from './store';
 
 cache.onChange(changes => {
 	bus.emit('postchange', changes);
 });
 
-bus.on('change', changes => {
-	cache.put(changes);
-});
+bus.on('store:dispatch', action => {
+	if (action.type === 'ERROR' && action.payload && action.payload.state) {
+		const { ...state } = action.payload.state; // eslint-disable-line no-use-before-define
 
-bus.on('error', changes => {
-	if (changes.state) {
-		const { ...state } = changes.state; // eslint-disable-line no-use-before-define
-
-		cache.put({ state });
+		store.dispatch({
+			type: 'SET_STATE',
+			payload: state,
+		});
 	}
 });
 
@@ -23,5 +23,8 @@ bus.emit('state:init', {}, (err, state) => {
 		return;
 	}
 
-	bus.emit('change', { state });
+	store.dispatch({
+		type: 'SET_STATE',
+		payload: state,
+	});
 });

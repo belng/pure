@@ -27,22 +27,26 @@ async function saveAndInitializeSession() {
 		};
 	}
 
-	bus.emit('change', changes);
+	store.dispatch({
+		type: 'CHANGE',
+		payload: changes,
+	});
 }
 
 bus.on('error', changes => {
 	if (changes.state && changes.state.signin) {
-		bus.emit('change', {
-			state: {
+		store.dispatch({
+			type: 'SET_STATE',
+			payload: {
 				session: null,
-			},
+			}
 		});
 	}
 });
 
 bus.on('state:init', state => (state.session = '@@loading'));
 
-store.observe({ type: 'state', path: 'session', source: 'session' }).forEach(session => {
+store.observe('session').forEach(session => {
 	if (session === '@@loading') {
 		return;
 	}
@@ -58,7 +62,7 @@ store.observe({ type: 'state', path: 'session', source: 'session' }).forEach(ses
 	}
 });
 
-store.observe({ type: 'state', path: 'connectionStatus', source: 'session' }).forEach(status => {
+store.observe('connectionStatus').forEach(status => {
 	if (status === 'online') {
 		saveAndInitializeSession();
 	}

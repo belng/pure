@@ -33,13 +33,14 @@ const transformFunction = props => {
 
 const mapSubscriptionToProps = ({ thread }) => ({
 	thread: {
-		key: {
-			type: 'entity',
+		type: 'entity',
+		options: {
 			id: thread,
 		},
 	},
 	data: {
-		key: {
+		type: 'list',
+		options: {
 			slice: {
 				type: 'rel',
 				link: {

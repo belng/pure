@@ -32,7 +32,8 @@ const transformFunction = props => {
 
 const mapSubscriptionToProps = ({ user }) => ({
 	data: {
-		key: {
+		type: 'list',
+		options: {
 			slice: {
 				type: 'note',
 				filter: {

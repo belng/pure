@@ -1,8 +1,17 @@
 /* @flow */
 
 import { bus } from '../../core-client';
-import { signOut } from '../../modules/store/actions';
+import store from '../../modules/store/store';
 
-bus.on('signout', () => {
-	bus.emit('change', signOut());
+bus.on('store:dispatch', action => {
+	if (action.type === 'SIGN_OUT') {
+		store.dispatch({
+			type: 'SET_STATE',
+			payload: {
+				session: null,
+				user: null,
+				initialURL: null,
+			},
+		});
+	}
 });

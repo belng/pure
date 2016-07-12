@@ -1,7 +1,7 @@
 /* @flow */
 
 import { TAG_USER_CONTENT } from '../../lib/Constants';
-import { cache, config } from '../../core-client';
+import { config } from '../../core-client';
 import store from '../store/store';
 import PersistentStorage from '../../lib/PersistentStorage';
 
@@ -16,11 +16,21 @@ const {
 
 
 function saveSessionList(list) {
-	store.put({ state: { sessionList: list } });
+	store.dispatch({
+		type: 'SET_STATE',
+		payload: {
+			sessionList: list,
+		},
+	});
 }
 
 function removeSessionList() {
-	store.put({ state: { sessionList: null } });
+	store.dispatch({
+		type: 'SET_STATE',
+		payload: {
+			sessionList: null,
+		},
+	});
 }
 
 /*
@@ -48,7 +58,7 @@ async function fetchUsers(user) {
 			if (!exists) {
 				list.unshift({
 					user: user.id,
-					session: cache.getState('session'),
+					session: store.getCurrent('session'),
 				});
 			}
 
@@ -82,8 +92,12 @@ async function fetchUsers(user) {
 	}
 }
 
-store.observe({ type: 'me', source: 'sessionswitcher' }).forEach(user => {
+store.observe('user').forEach(id => {
+	 if (!id) {
+		 return;
+	 }
+	 const user = store.getCurrent(id);
 	 if (user) {
 		fetchUsers(user);
 	 }
- });
+});

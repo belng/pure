@@ -25,11 +25,14 @@ const transformFunction = props => {
 	return props;
 };
 
-const mapSubscriptionToProps = {
+const mapSubscriptionToProps = ({ user }) => ({
 	data: {
-		key: 'me',
+		type: 'entity',
+		options: {
+			id: user,
+		},
 	},
-};
+});
 
 const mapDispatchToProps = dispatch => ({
 	hideThread: (thread, tags) => dispatch(hideThread(thread, tags)),

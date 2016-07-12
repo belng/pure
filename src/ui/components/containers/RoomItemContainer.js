@@ -5,8 +5,8 @@ import RoomItem from '../views/Homescreen/RoomItem';
 
 const mapSubscriptionToProps = props => ({
 	room: {
-		key: {
-			type: 'entity',
+		type: 'entity',
+		options: {
 			id: props.room,
 		},
 	},

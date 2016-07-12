@@ -20,11 +20,10 @@ const transformThreadToUrl = thread => thread && thread.type !== 'loading' ? pro
 function mapSubscriptionToProps({ thread }) {
 	return {
 		data: {
-			key: {
-				type: 'entity',
+			type: 'entity',
+			options: {
 				id: thread,
 			},
-			transform: transformThreadToUrl,
 		},
 	};
 }

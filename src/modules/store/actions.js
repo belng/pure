@@ -21,25 +21,35 @@ import {
  * User related actions
  */
 export const initializeSession = (session: string): Object => ({
-	auth: {
-		session,
+	type: 'CHANGE',
+	payload: {
+		auth: {
+			session,
+		},
 	},
 });
 
 export const signIn = (provider: string, auth: { accessToken: string; } | { idToken: string; } | { code: string; }): Object => ({
-	auth: {
-		[provider]: auth,
+	type: 'CHANGE',
+	payload: {
+		auth: {
+			[provider]: auth,
+		}
 	},
 });
 
 export const signUp = (user: User): Object => ({
-	auth: {
-		signup: new UserModel({ ...user, presence: PRESENCE_FOREGROUND }),
+	type: 'CHANGE',
+	payload: {
+		auth: {
+			signup: new UserModel({ ...user, presence: PRESENCE_FOREGROUND }),
+		},
 	},
 });
 
 export const clearSignUpError = (signup: Object): Object => ({
-	state: {
+	type: 'SET_STATE',
+	payload: {
 		signup: {
 			...signup,
 			error: null,
@@ -48,50 +58,56 @@ export const clearSignUpError = (signup: Object): Object => ({
 });
 
 export const cancelSignUp = (): Object => ({
-	state: {
+	type: 'SET_STATE',
+	payload: {
 		signup: null,
 	},
 });
 
 export const signOut = (): Object => ({
-	state: {
-		session: null,
-		user: null,
-		initialURL: null,
-	},
+	type: 'SIGN_OUT',
 });
 
 export const saveUser = (user: User): Object => ({
-	entities: {
-		[user.id]: new UserModel({ ...user, presence: PRESENCE_FOREGROUND }),
+	type: 'CHANGE',
+	payload: {
+		entities: {
+			[user.id]: new UserModel({ ...user, presence: PRESENCE_FOREGROUND }),
+		},
 	},
 });
 
 export const addPlace = (user: string, type: string, place: Object): Object => ({
-	entities: {
-		[user]: new UserModel({
-			id: user,
-			params: {
-				places: {
-					[type]: place,
+	type: 'CHANGE',
+	payload: {
+		entities: {
+			[user]: new UserModel({
+				id: user,
+				params: {
+					places: {
+						[type]: place,
+					},
 				},
-			},
-			presence: PRESENCE_FOREGROUND,
-		}),
+				presence: PRESENCE_FOREGROUND,
+			}),
+		},
 	},
 });
 
 export const removePlace = (user: string, type: string): Object => ({
-	entities: {
-		[user]: new UserModel({
-			id: user,
-			params: {
-				places: {
-					[type]: null,
+	type: 'CHANGE',
+	payload: {
+		entities: {
+			[user]: new UserModel({
+				id: user,
+				params: {
+					places: {
+						[type]: null,
+					},
 				},
-			},
-			presence: PRESENCE_FOREGROUND,
-		}),
+				presence: PRESENCE_FOREGROUND,
+			}),
+		},
 	},
 });
 
@@ -113,23 +129,26 @@ export const sendMessage = (
 	const id = data.id || uuid.v4();
 
 	return {
-		entities: {
-			[id]: new TextModel({
-				id,
-				body: data.body,
-				meta: data.meta,
-				parents: [ data.thread, data.room ],
-				creator: data.user,
-				create: true,
-				createTime: Date.now(),
-				updateTime: Date.now(),
-				tags: data.meta && data.meta.photo ? [ TAG_POST_PHOTO ] : [],
-			}),
-			[`${data.user}_${id}`]: new TextRelModel({
-				item: id,
-				user: data.user,
-				roles: [ ROLE_FOLLOWER ],
-			}),
+		type: 'CHANGE',
+		payload: {
+			entities: {
+				[id]: new TextModel({
+					id,
+					body: data.body,
+					meta: data.meta,
+					parents: [ data.thread, data.room ],
+					creator: data.user,
+					create: true,
+					createTime: Date.now(),
+					updateTime: Date.now(),
+					tags: data.meta && data.meta.photo ? [ TAG_POST_PHOTO ] : [],
+				}),
+				[`${data.user}_${id}`]: new TextRelModel({
+					item: id,
+					user: data.user,
+					roles: [ ROLE_FOLLOWER ],
+				}),
+			},
 		},
 	};
 };
@@ -140,23 +159,26 @@ export const startThread = (
 	const id = data.id || uuid.v4();
 
 	return {
-		entities: {
-			[id]: new ThreadModel({
-				id,
-				name: data.name,
-				body: data.body,
-				meta: data.meta,
-				parents: [ data.room ],
-				creator: data.user,
-				createTime: Date.now(),
-				updateTime: Date.now(),
-				tags: data.meta && data.meta.photo ? [ TAG_POST_PHOTO ] : [],
-			}),
-			[`${data.user}_${id}`]: new ThreadRelModel({
-				item: id,
-				user: data.user,
-				roles: [ ROLE_FOLLOWER ],
-			}),
+		type: 'CHANGE',
+		payload: {
+			entities: {
+				[id]: new ThreadModel({
+					id,
+					name: data.name,
+					body: data.body,
+					meta: data.meta,
+					parents: [ data.room ],
+					creator: data.user,
+					createTime: Date.now(),
+					updateTime: Date.now(),
+					tags: data.meta && data.meta.photo ? [ TAG_POST_PHOTO ] : [],
+				}),
+				[`${data.user}_${id}`]: new ThreadRelModel({
+					item: id,
+					user: data.user,
+					roles: [ ROLE_FOLLOWER ],
+				}),
+			},
 		},
 	};
 };
@@ -164,11 +186,14 @@ export const startThread = (
 export function hideText(text: string, tags: Array<number> = []): Object {
 	if (tags.indexOf(TAG_POST_HIDDEN) === -1) {
 		return {
-			entities: {
-				[text]: new TextModel({
-					id: text,
-					tags: tags.concat(TAG_POST_HIDDEN),
-				}),
+			type: 'CHANGE',
+			payload: {
+				entities: {
+					[text]: new TextModel({
+						id: text,
+						tags: tags.concat(TAG_POST_HIDDEN),
+					}),
+				},
 			},
 		};
 	}
@@ -178,13 +203,16 @@ export function hideText(text: string, tags: Array<number> = []): Object {
 export function unhideText(text: string, tags: Array<number> = []): Object {
 	if (tags.indexOf(TAG_POST_HIDDEN) > -1) {
 		return {
-			entities: {
-				[text]: new TextModel({
-					id: text,
-					tags: tags.filter(e => {
-						return e === TAG_POST_HIDDEN ? false : e;
+			type: 'CHANGE',
+			payload: {
+				entities: {
+					[text]: new TextModel({
+						id: text,
+						tags: tags.filter(e => {
+							return e === TAG_POST_HIDDEN ? false : e;
+						}),
 					}),
-				}),
+				},
 			},
 		};
 	}
@@ -203,12 +231,17 @@ export function likeText(text: string, user: string, roles: Array<number>): Obje
 		});
 
 		return {
-			entities: {
-				[id]: textrel,
-			},
+			type: 'CHANGE',
+			payload: {
+				entities: {
+					[id]: textrel,
+				},
+			}
 		};
 	}
-	return {};
+	return {
+		type: 'NOOP',
+	};
 }
 
 export const unlikeText = (text: string, user: string, roles: Array<number>): Object => {
@@ -222,8 +255,11 @@ export const unlikeText = (text: string, user: string, roles: Array<number>): Ob
 		});
 
 		return {
-			entities: {
-				[id]: textrel,
+			type: 'CHANGE',
+			payload: {
+				entities: {
+					[id]: textrel,
+				},
 			},
 		};
 	}
@@ -233,11 +269,14 @@ export const unlikeText = (text: string, user: string, roles: Array<number>): Ob
 export function hideThread(thread: string, tags: Array<number> = []): Object {
 	if (tags.indexOf(TAG_POST_HIDDEN) === -1) {
 		return {
-			entities: {
-				[thread]: new ThreadModel({
-					id: thread,
-					tags: tags.concat(TAG_POST_HIDDEN),
-				}),
+			type: 'CHANGE',
+			payload: {
+				entities: {
+					[thread]: new ThreadModel({
+						id: thread,
+						tags: tags.concat(TAG_POST_HIDDEN),
+					}),
+				},
 			},
 		};
 	}
@@ -247,13 +286,16 @@ export function hideThread(thread: string, tags: Array<number> = []): Object {
 export function unhideThread(thread: string, tags: Array<number> = []): Object {
 	if (tags.indexOf(TAG_POST_HIDDEN) > -1) {
 		return {
-			entities: {
-				[thread]: new ThreadModel({
-					id: thread,
-					tags: tags.filter(e => {
-						return e === TAG_POST_HIDDEN ? false : e;
+			type: 'CHANGE',
+			payload: {
+				entities: {
+					[thread]: new ThreadModel({
+						id: thread,
+						tags: tags.filter(e => {
+							return e === TAG_POST_HIDDEN ? false : e;
+						}),
 					}),
-				}),
+				},
 			},
 		};
 	}
@@ -271,8 +313,11 @@ export function likeThread(thread: string, user: string, roles: Array<number> = 
 		});
 
 		return {
-			entities: {
-				[id]: threadrel,
+			type: 'CHANGE',
+			payload: {
+				entities: {
+					[id]: threadrel,
+				},
 			},
 		};
 	}
@@ -290,8 +335,11 @@ export function unlikeThread(thread: string, user: string, roles: Array<number> 
 		});
 
 		return {
-			entities: {
-				[id]: threadrel,
+			type: 'CHANGE',
+			payload: {
+				entities: {
+					[id]: threadrel,
+				},
 			},
 		};
 	}
@@ -314,11 +362,14 @@ export const dismissNote = (): Object => ({
  */
 
 export const setPresence = (id: string, status: 'online' | 'offline'): Object => ({
-	entities: {
-		[id]: new UserModel({
-			id,
-			presence: status === 'online' ? PRESENCE_FOREGROUND : PRESENCE_NONE,
-		}),
+	type: 'CHANGE',
+	payload: {
+		entities: {
+			[id]: new UserModel({
+				id,
+				presence: status === 'online' ? PRESENCE_FOREGROUND : PRESENCE_NONE,
+			}),
+		},
 	},
 });
 
@@ -334,17 +385,25 @@ export const setItemPresence = (
 	switch (type) {
 	case 'room':
 		return {
-			entities: {
-				[`${presence.user}_${presence.item}`]: new RoomRelModel(rel),
+			type: 'CHANGE',
+			payload: {
+				entities: {
+					[`${presence.user}_${presence.item}`]: new RoomRelModel(rel),
+				},
 			},
 		};
 	case 'thread':
 		return {
-			entities: {
-				[`${presence.user}_${presence.item}`]: new ThreadRelModel(rel),
-			},
+			type: 'CHANGE',
+			payload: {
+				entities: {
+					[`${presence.user}_${presence.item}`]: new ThreadRelModel(rel),
+				},
+			}
 		};
 	default:
-		return {};
+		return {
+			type: 'NOOP',
+		};
 	}
 };

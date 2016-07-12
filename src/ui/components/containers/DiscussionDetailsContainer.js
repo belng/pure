@@ -5,8 +5,8 @@ import DiscussionDetails from '../views/Discussion/DiscussionDetails';
 
 const mapSubscriptionToProps = ({ thread }) => ({
 	thread: {
-		key: {
-			type: 'entity',
+		type: 'entity',
+		options: {
 			id: thread,
 		},
 	},

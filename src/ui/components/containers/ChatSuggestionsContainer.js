@@ -42,7 +42,7 @@ export default class ChatSuggestionsContainer extends Component<void, Props, Sta
 	_subscription: ?Subscription;
 
 	_getResults = (prefix: string) => {
-		return store.observe({
+		return store.observe('list', {
 			slice: {
 				type: 'user',
 				filter: {

@@ -3,8 +3,7 @@
 import React, { PropTypes, Component } from 'react';
 import createContainer from '../../../modules/store/createContainer';
 import UserSwitcher from '../views/UserSwitcher';
-import { bus } from '../../../core-client';
-import { initializeSession } from '../../../modules/store/actions';
+import { initializeSession, signOut } from '../../../modules/store/actions';
 
 type Props = {
 	user: string;
@@ -44,22 +43,16 @@ class UserSwitcherContainerInner extends Component<void, Props, void> {
 
 const mapSubscriptionToProps = {
 	user: {
-		key: {
-			type: 'state',
-			path: 'user',
-		},
+		type: 'user',
 	},
 	data: {
-		key: {
-			type: 'state',
-			path: 'sessionList',
-		},
+		type: 'sessionList',
 	},
 };
 
 const mapDispatchToProps = dispatch => ({
 	switchUser: (user, item) => {
-		bus.emit('signout');
+		dispatch(signOut());
 
 		if (item && user === item.user) {
 			return;

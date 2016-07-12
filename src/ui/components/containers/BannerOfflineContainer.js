@@ -5,10 +5,7 @@ import BannerOffline from '../views/Banner/BannerOffline';
 
 const mapSubscriptionToProps = {
 	status: {
-		key: {
-			type: 'state',
-			path: 'connectionStatus',
-		},
+		type: 'connectionStatus',
 	},
 };
 

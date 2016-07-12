@@ -8,7 +8,7 @@ import createContainer from './createContainer';
 import type {
 	SubscriptionSlice,
 	SubscriptionRange,
-} from './SimpleStoreTypes';
+} from './subscriptionTypeDefinitions';
 
 type SliceFromProps = (props: any) => SubscriptionSlice;
 
@@ -44,11 +44,8 @@ export default function(sliceFromProps: SliceFromProps, pageSize: number) {
 		const Container = createContainer(
 			({ paginationProps }) => ({
 				data: {
-					key: {
-						slice: paginationProps.slice,
-						range: paginationProps.range,
-					},
-					defer: paginationProps.defer,
+					type: 'list',
+					options: paginationProps,
 				},
 			})
 		)(ChildComponentWrapper);

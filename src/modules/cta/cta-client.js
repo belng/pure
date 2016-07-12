@@ -1,6 +1,7 @@
 /* @flow */
 
 import { bus, config } from '../../core-client';
+import store from '../store/store';
 
 const {
 	server: {
@@ -18,10 +19,11 @@ bus.on('state:init', () => {
 			const res = await fetch(`${protocol}//${host}/s/cta_${type}.json`);
 			const data = await res.json();
 
-			bus.emit('change', {
-				state: {
+			store.dispatch({
+				type: 'SET_STATE',
+				payload: {
 					['cta' + type]: data,
-				},
+				}
 			});
 		} catch (e) {
 			// ignore

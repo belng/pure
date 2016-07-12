@@ -32,7 +32,7 @@ export default function(mapSubscriptionToProps?: ?MapSubscriptionToProps, mapDis
 				} = this.context;
 
 				if (mapDispatchToProps) {
-					this._actions = mapDispatchToProps(store.put.bind(store));
+					this._actions = mapDispatchToProps(store.dispatch.bind(store));
 				}
 
 				if (mapSubscriptionToProps) {
@@ -82,30 +82,20 @@ export default function(mapSubscriptionToProps?: ?MapSubscriptionToProps, mapDis
 				if (subscriptionPropsMap) {
 					for (const item in subscriptionPropsMap) {
 						const sub = subscriptionPropsMap[item];
-						const defer = typeof sub === 'object' ? sub.defer !== false : false;
+						const defer = sub && sub.options ? sub.options.defer !== false : false;
 						const source = ChildComponent.displayName || ChildComponent.name;
 
 						let listener;
 
-						switch (typeof sub) {
-						case 'string':
-							listener = store.observe({
-								type: sub,
-								source,
-								defer,
-							}).subscribe(
-								this._createUpdateObserver(item),
-							);
-							break;
-						case 'object':
+						if (typeof sub === 'object') {
 							listener = store.observe(
-								typeof sub.key === 'string' ? { type: sub.key, source, defer } : { ...sub.key, source, defer },
+								sub.type,
+								sub.options ? { ...sub.options, defer, source } : { defer, source }
 							).subscribe(
 								this._createUpdateObserver(item),
 							);
-							break;
-						default:
-							throw new Error(`Invalid subscription ${item}. It must be a string or an object.`);
+						} else {
+							throw new Error(`Invalid subscription ${item}. It must be an object with a valid type.`);
 						}
 
 						if (listener) {

@@ -10,11 +10,14 @@ const mapDispatchToProps = dispatch => ({
 	addPlace: (user, type, place) => dispatch(addPlace(user, type, place)),
 });
 
-const mapSubscriptionToProps = {
+const mapSubscriptionToProps = ({ user }) => ({
 	data: {
-		key: 'me',
+		type: 'entity',
+		options: {
+			id: user,
+		},
 	},
-};
+});
 
 export default flowRight(
 	createUserContainer(),

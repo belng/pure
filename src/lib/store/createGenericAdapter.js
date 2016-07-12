@@ -34,6 +34,10 @@ export default function createGenericAdapter(rootReducer: Reducer, initialState:
 	}
 
 	function subscribe(path: string, options: any, callback: Function): Function {
+		const result = getCurrent(path, options);
+		if (typeof result !== 'undefined') {
+			callback(result);
+		}
 		if (!listeners[path]) {
 			listeners[path] = [];
 		}

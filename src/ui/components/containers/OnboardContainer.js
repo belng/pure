@@ -11,13 +11,13 @@ import uploadContacts from '../../../modules/contacts/uploadContacts';
 import {
 	signIn,
 	signUp,
+	signOut,
 	cancelSignUp,
 	clearSignUpError,
 	saveUser,
 } from '../../../modules/store/actions';
 import { ERRORS } from '../../../lib/Constants';
 import type { User } from '../../../lib/schemaTypes';
-import { bus } from '../../../core-client';
 
 type Props = {
 	user: ?string;
@@ -356,7 +356,7 @@ const mapDispatchToProps = dispatch => ({
 	clearSignUpError: pendingUser => dispatch(clearSignUpError(pendingUser)),
 	signIn: (provider, auth) => dispatch(signIn(provider, auth)),
 	cancelSignUp: () => {
-		bus.emit('signout');
+		dispatch(signOut());
 		dispatch(cancelSignUp());
 	},
 	signUp: (id: string, name: string, pendingUser) => {
@@ -398,10 +398,7 @@ const mapDispatchToProps = dispatch => ({
 const mapSubscriptionToProps = ({ user }) => {
 	const queries = {
 		pendingUser: {
-			key: {
-				type: 'state',
-				path: 'signup',
-			},
+			type: 'signup',
 		},
 	};
 
@@ -409,8 +406,8 @@ const mapSubscriptionToProps = ({ user }) => {
 		return {
 			...queries,
 			me: {
-				key: {
-					type: 'entity',
+				type: 'entity',
+				options: {
 					id: user,
 				},
 			},
