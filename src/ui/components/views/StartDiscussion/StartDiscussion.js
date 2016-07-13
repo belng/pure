@@ -201,8 +201,6 @@ export default class StartDiscussion extends Component<void, Props, State> {
 		return shallowCompare(this, nextProps, nextState);
 	}
 
-	_nextId = v4();
-
 	_getPublishPermissions = async () => {
 		try {
 			const result = await Facebook.logInWithPublishPermissions([ PERMISSION_PUBLISH_ACTIONS ]);
@@ -370,7 +368,7 @@ export default class StartDiscussion extends Component<void, Props, State> {
 
 		if (upload && upload.result && photo) {
 			const { height, width, name } = photo;
-			const { result } = upload;
+			const result = upload;
 			const aspectRatio = height / width;
 
 			id = this.state.nextId;
