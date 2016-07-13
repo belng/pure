@@ -366,25 +366,23 @@ export default class StartDiscussion extends Component<void, Props, State> {
 
 		const { upload, photo } = this.state;
 
-		if (upload && upload.result && photo) {
+		if (upload && photo) {
 			const { height, width, name } = photo;
-			const result = upload;
 			const aspectRatio = height / width;
-
 			id = this.state.nextId;
 			meta = {
 				photo: {
 					height,
 					width,
 					title: name,
-					url: result.url,
+					url: upload.url,
 					thumbnail_height: Math.min(480, width) * aspectRatio,
 					thumbnail_width: Math.min(480, width),
-					thumbnail_url: result.thumbnail,
+					thumbnail_url: upload.thumbnail,
 					type: 'photo',
 				},
 			};
-			body = body || `${name}: ${result.url}`;
+			body = body || `${name}: ${upload.url}`;
 		}
 
 		this.setState({
