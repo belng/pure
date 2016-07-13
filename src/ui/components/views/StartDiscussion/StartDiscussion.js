@@ -5,6 +5,7 @@ import ReactNative from 'react-native';
 import shallowCompare from 'react-addons-shallow-compare';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import ImageChooser from 'react-native-image-chooser';
+import { v4 } from 'node-uuid';
 import AppText from '../Core/AppText';
 import AppTextInput from '../Core/AppTextInput';
 import GrowingTextInput from '../Core/GrowingTextInput';
@@ -135,11 +136,8 @@ const styles = StyleSheet.create({
 const FACEBOOK_SHARE_CHECKED_KEY = 'start_discussion_facebook_share_checked';
 
 type Upload = {
-	id: string;
-	result: {
-		url: ?string;
-		thumbnail: ?string;
-	}
+	url: ?string;
+	thumbnail: ?string;
 }
 
 type ShareContent = {
@@ -155,6 +153,7 @@ type Props = {
 }
 
 type State = {
+	nextId: string;
 	name: string;
 	body: string;
 	upload: ?Upload;
@@ -183,6 +182,7 @@ export default class StartDiscussion extends Component<void, Props, State> {
 	};
 
 	state: State = {
+		nextId: v4(),
 		name: '',
 		body: '',
 		photo: null,
@@ -366,25 +366,23 @@ export default class StartDiscussion extends Component<void, Props, State> {
 
 		const { upload, photo } = this.state;
 
-		if (upload && upload.result && photo) {
+		if (upload && photo) {
 			const { height, width, name } = photo;
-			const { result } = upload;
 			const aspectRatio = height / width;
-
-			id = upload.id;
+			id = this.state.nextId;
 			meta = {
 				photo: {
 					height,
 					width,
 					title: name,
-					url: result.url,
+					url: upload.url,
 					thumbnail_height: Math.min(480, width) * aspectRatio,
 					thumbnail_width: Math.min(480, width),
-					thumbnail_url: result.thumbnail,
+					thumbnail_url: upload.thumbnail,
 					type: 'photo',
 				},
 			};
-			body = body || `${name}: ${result.url}`;
+			body = body || `${name}: ${upload.url}`;
 		}
 
 		this.setState({
@@ -453,6 +451,7 @@ export default class StartDiscussion extends Component<void, Props, State> {
 
 	_handleUploadFinish = (upload: Upload) => {
 		this.setState({
+			nextId: v4(),
 			upload,
 			error: null,
 		});
@@ -460,6 +459,7 @@ export default class StartDiscussion extends Component<void, Props, State> {
 
 	_handleUploadClose = () => {
 		this.setState({
+			nextId: v4(),
 			photo: null,
 			upload: null,
 			error: null,
@@ -503,6 +503,11 @@ export default class StartDiscussion extends Component<void, Props, State> {
 							photo={this.state.photo}
 							onUploadClose={this._handleUploadClose}
 							onUploadFinish={this._handleUploadFinish}
+							uploadOptions={{
+								uploadType: 'content',
+								generateThumb: true,
+								textId: this.state.nextId,
+							}}
 							autoStart
 						/> :
 						<GrowingTextInput

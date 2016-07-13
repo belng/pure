@@ -4,6 +4,7 @@ import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import shallowCompare from 'react-addons-shallow-compare';
 import ImageChooser from 'react-native-image-chooser';
+import { v4 } from 'node-uuid';
 import Icon from '../Core/Icon';
 import GrowingTextInput from '../Core/GrowingTextInput';
 import TouchFeedback from '../Core/TouchFeedback';
@@ -58,6 +59,7 @@ type Props = {
 }
 
 type State = {
+	nextId: string;
 	text: string;
 	query: ?string;
 	photo: ?{
@@ -78,10 +80,12 @@ export default class ChatInput extends Component<void, Props, State> {
 	};
 
 	state: State = {
+		nextId: v4(),
 		text: '',
 		query: null, // set to empty string when typing starts to render the component which makes query for texts
 		photo: null,
 	};
+
 
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
 		return shallowCompare(this, nextProps, nextState);
@@ -137,7 +141,7 @@ export default class ChatInput extends Component<void, Props, State> {
 		}
 	};
 
-	_handleUploadFinish = ({ id, result }: { id: string; result: { url: ?string; thumbnail: ?string; } }) => {
+	_handleUploadFinish = (result: { url: ?string; thumbnail: ?string; }) => {
 		const {
 			room,
 			thread,
@@ -155,7 +159,7 @@ export default class ChatInput extends Component<void, Props, State> {
 		const aspectRatio = height / width;
 
 		this.props.sendMessage({
-			id,
+			id: this.state.nextId,
 			room,
 			thread,
 			user,
@@ -179,6 +183,7 @@ export default class ChatInput extends Component<void, Props, State> {
 
 	_handleUploadClose = () => {
 		this.setState({
+			nextId: v4(),
 			photo: null,
 		});
 	};
@@ -289,6 +294,11 @@ export default class ChatInput extends Component<void, Props, State> {
 						photo={this.state.photo}
 						onUploadClose={this._handleUploadClose}
 						onUploadFinish={this._handleUploadFinish}
+						uploadOptions={{
+							uploadType: 'content',
+							generateThumb: true,
+							textId: this.state.nextId,
+						}}
 					/> : null
 				}
 			</View>

@@ -2,10 +2,13 @@
 
 import { bus } from '../../core-client';
 
-type UploadOptions = {
+export type UploadOptions = {
 	uploadType: 'content';
 	generateThumb?: boolean;
 	textId: string;
+} | {
+	uploadType: 'avatar';
+	generateThumb?: boolean;
 }
 
 type UploadPolicy = {

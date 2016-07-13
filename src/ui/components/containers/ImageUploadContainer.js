@@ -1,15 +1,12 @@
 /* @flow */
 
 import React, { PropTypes, Component } from 'react';
-import { v4 } from 'node-uuid';
 import ImageUploadHelper from '../../../modules/image-upload/ImageUploadHelper';
+import type { UploadOptions } from '../../../modules/image-upload/ImageUploadHelper';
 
 type UploadResult = {
-	id: string;
-	result: {
-		url: ?string;
-		thumbnail: ?string;
-	};
+	url: ?string;
+	thumbnail: ?string;
 }
 
 type Props = {
@@ -18,10 +15,10 @@ type Props = {
 	autoStart?: boolean;
 	onUploadClose?: Function;
 	onUploadFinish?: (result: UploadResult) => void;
+	uploadOptions: UploadOptions;
 }
 
 type State = {
-	id: ?string;
 	upload: ?ImageUploadHelper;
 	status: 'idle' | 'loading' | 'finished' | 'error';
 }
@@ -33,10 +30,10 @@ export default class ImageUploadContainer extends Component<void, Props, State> 
 		autoStart: PropTypes.bool,
 		onUploadClose: PropTypes.func,
 		onUploadFinish: PropTypes.func,
+		uploadOptions: PropTypes.object.isRequired,
 	};
 
 	state: State = {
-		id: null,
 		upload: null,
 		status: 'idle',
 	};
@@ -53,15 +50,9 @@ export default class ImageUploadContainer extends Component<void, Props, State> 
 
 	_startUpload = async () => {
 		const { photo } = this.props;
-		const id = v4();
-		const upload = ImageUploadHelper.create({
-			uploadType: 'content',
-			generateThumb: true,
-			textId: id,
-		});
+		const upload = ImageUploadHelper.create(this.props.uploadOptions);
 
 		this.setState({
-			id,
 			upload,
 			status: 'loading',
 		});
@@ -73,17 +64,15 @@ export default class ImageUploadContainer extends Component<void, Props, State> 
 			});
 
 			if (this.props.onUploadFinish) {
-				this.props.onUploadFinish({ id, result });
+				this.props.onUploadFinish(result);
 			}
 
 			this.setState({
-				id: null,
 				upload: null,
 				status: 'finished',
 			});
 		} catch (e) {
 			this.setState({
-				id: null,
 				upload: null,
 				status: 'error',
 			});
@@ -94,7 +83,6 @@ export default class ImageUploadContainer extends Component<void, Props, State> 
 		if (this.state.upload) {
 			this.state.upload.cancel();
 			this.setState({
-				id: null,
 				upload: null,
 				status: 'idle',
 			});
