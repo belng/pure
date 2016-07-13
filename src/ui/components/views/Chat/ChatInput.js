@@ -88,7 +88,6 @@ export default class ChatInput extends Component<void, Props, State> {
 		cursor: -1,
 	};
 
-
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
 		return shallowCompare(this, nextProps, nextState);
 	}
