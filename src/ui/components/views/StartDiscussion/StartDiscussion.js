@@ -136,10 +136,8 @@ const styles = StyleSheet.create({
 const FACEBOOK_SHARE_CHECKED_KEY = 'start_discussion_facebook_share_checked';
 
 type Upload = {
-	result: {
-		url: ?string;
-		thumbnail: ?string;
-	}
+	url: ?string;
+	thumbnail: ?string;
 }
 
 type ShareContent = {
@@ -155,6 +153,7 @@ type Props = {
 }
 
 type State = {
+	nextId: string;
 	name: string;
 	body: string;
 	upload: ?Upload;
@@ -183,6 +182,7 @@ export default class StartDiscussion extends Component<void, Props, State> {
 	};
 
 	state: State = {
+		nextId: v4(),
 		name: '',
 		body: '',
 		photo: null,
@@ -373,7 +373,7 @@ export default class StartDiscussion extends Component<void, Props, State> {
 			const { result } = upload;
 			const aspectRatio = height / width;
 
-			id = this._nextId;
+			id = this.state.nextId;
 			meta = {
 				photo: {
 					height,
@@ -455,19 +455,19 @@ export default class StartDiscussion extends Component<void, Props, State> {
 
 	_handleUploadFinish = (upload: Upload) => {
 		this.setState({
+			nextId: v4(),
 			upload,
 			error: null,
 		});
-		this._nextId = v4();
 	};
 
 	_handleUploadClose = () => {
 		this.setState({
+			nextId: v4(),
 			photo: null,
 			upload: null,
 			error: null,
 		});
-		this._nextId = v4();
 	};
 
 	render() {
@@ -510,7 +510,7 @@ export default class StartDiscussion extends Component<void, Props, State> {
 							uploadOptions={{
 								uploadType: 'content',
 								generateThumb: true,
-								textId: this._nextId,
+								textId: this.state.nextId,
 							}}
 							autoStart
 						/> :

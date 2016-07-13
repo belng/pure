@@ -5,10 +5,8 @@ import ImageUploadHelper from '../../../modules/image-upload/ImageUploadHelper';
 import type { UploadOptions } from '../../../modules/image-upload/ImageUploadHelper';
 
 type UploadResult = {
-	result: {
-		url: ?string;
-		thumbnail: ?string;
-	};
+	url: ?string;
+	thumbnail: ?string;
 }
 
 type Props = {
@@ -32,10 +30,7 @@ export default class ImageUploadContainer extends Component<void, Props, State> 
 		autoStart: PropTypes.bool,
 		onUploadClose: PropTypes.func,
 		onUploadFinish: PropTypes.func,
-		uploadOptions: PropTypes.shape({
-			uploadType: PropTypes.oneOf([ 'content', 'avatar' ]).isRequired,
-			generateThumb: PropTypes.bool,
-		}).isRequired,
+		uploadOptions: PropTypes.object.isRequired,
 	};
 
 	state: State = {
@@ -69,7 +64,7 @@ export default class ImageUploadContainer extends Component<void, Props, State> 
 			});
 
 			if (this.props.onUploadFinish) {
-				this.props.onUploadFinish({ result });
+				this.props.onUploadFinish(result);
 			}
 
 			this.setState({

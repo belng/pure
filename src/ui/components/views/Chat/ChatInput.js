@@ -59,6 +59,7 @@ type Props = {
 }
 
 type State = {
+	nextId: string;
 	text: string;
 	query: string;
 	photo: ?{
@@ -79,6 +80,7 @@ export default class ChatInput extends Component<void, Props, State> {
 	};
 
 	state: State = {
+		nextId: v4(),
 		text: '',
 		query: '',
 		photo: null,
@@ -88,8 +90,6 @@ export default class ChatInput extends Component<void, Props, State> {
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
 		return shallowCompare(this, nextProps, nextState);
 	}
-
-	_nextId = v4();
 
 	setQuotedText: Function = (text: Text) => {
 		this._computeAndSetText({
@@ -141,7 +141,7 @@ export default class ChatInput extends Component<void, Props, State> {
 		}
 	};
 
-	_handleUploadFinish = ({ result }: { result: { url: ?string; thumbnail: ?string; } }) => {
+	_handleUploadFinish = (result: { url: ?string; thumbnail: ?string; }) => {
 		const {
 			room,
 			thread,
@@ -159,7 +159,7 @@ export default class ChatInput extends Component<void, Props, State> {
 		const aspectRatio = height / width;
 
 		this.props.sendMessage({
-			id: this._nextId,
+			id: this.state.nextId,
 			room,
 			thread,
 			user,
@@ -177,14 +177,13 @@ export default class ChatInput extends Component<void, Props, State> {
 				},
 			},
 		});
-		this._nextId = v4();
 
 		setTimeout(() => this._handleUploadClose(), 500);
 	};
 
 	_handleUploadClose = () => {
-		this._nextId = v4();
 		this.setState({
+			nextId: v4(),
 			photo: null,
 		});
 	};
@@ -275,7 +274,7 @@ export default class ChatInput extends Component<void, Props, State> {
 						uploadOptions={{
 							uploadType: 'content',
 							generateThumb: true,
-							textId: this._nextId,
+							textId: this.state.nextId,
 						}}
 					/> : null
 				}
