@@ -5,6 +5,7 @@ import ReactNative from 'react-native';
 import shallowCompare from 'react-addons-shallow-compare';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import ImageChooser from 'react-native-image-chooser';
+import { v4 } from 'node-uuid';
 import AppText from '../Core/AppText';
 import AppTextInput from '../Core/AppTextInput';
 import GrowingTextInput from '../Core/GrowingTextInput';
@@ -135,7 +136,6 @@ const styles = StyleSheet.create({
 const FACEBOOK_SHARE_CHECKED_KEY = 'start_discussion_facebook_share_checked';
 
 type Upload = {
-	id: string;
 	result: {
 		url: ?string;
 		thumbnail: ?string;
@@ -200,6 +200,8 @@ export default class StartDiscussion extends Component<void, Props, State> {
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
 		return shallowCompare(this, nextProps, nextState);
 	}
+
+	_nextId = v4();
 
 	_getPublishPermissions = async () => {
 		try {
@@ -371,7 +373,7 @@ export default class StartDiscussion extends Component<void, Props, State> {
 			const { result } = upload;
 			const aspectRatio = height / width;
 
-			id = upload.id;
+			id = this._nextId;
 			meta = {
 				photo: {
 					height,
@@ -456,6 +458,7 @@ export default class StartDiscussion extends Component<void, Props, State> {
 			upload,
 			error: null,
 		});
+		this._nextId = v4();
 	};
 
 	_handleUploadClose = () => {
@@ -464,6 +467,7 @@ export default class StartDiscussion extends Component<void, Props, State> {
 			upload: null,
 			error: null,
 		});
+		this._nextId = v4();
 	};
 
 	render() {
@@ -503,6 +507,11 @@ export default class StartDiscussion extends Component<void, Props, State> {
 							photo={this.state.photo}
 							onUploadClose={this._handleUploadClose}
 							onUploadFinish={this._handleUploadFinish}
+							uploadOptions={{
+								uploadType: 'content',
+								generateThumb: true,
+								textId: this._nextId,
+							}}
 							autoStart
 						/> :
 						<GrowingTextInput

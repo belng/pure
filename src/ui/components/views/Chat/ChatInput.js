@@ -4,6 +4,7 @@ import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import shallowCompare from 'react-addons-shallow-compare';
 import ImageChooser from 'react-native-image-chooser';
+import { v4 } from 'node-uuid';
 import Icon from '../Core/Icon';
 import GrowingTextInput from '../Core/GrowingTextInput';
 import TouchFeedback from '../Core/TouchFeedback';
@@ -83,9 +84,12 @@ export default class ChatInput extends Component<void, Props, State> {
 		photo: null,
 	};
 
+
 	shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
 		return shallowCompare(this, nextProps, nextState);
 	}
+
+	_nextId = v4();
 
 	setQuotedText: Function = (text: Text) => {
 		this._computeAndSetText({
@@ -137,7 +141,7 @@ export default class ChatInput extends Component<void, Props, State> {
 		}
 	};
 
-	_handleUploadFinish = ({ id, result }: { id: string; result: { url: ?string; thumbnail: ?string; } }) => {
+	_handleUploadFinish = ({ result }: { result: { url: ?string; thumbnail: ?string; } }) => {
 		const {
 			room,
 			thread,
@@ -155,7 +159,7 @@ export default class ChatInput extends Component<void, Props, State> {
 		const aspectRatio = height / width;
 
 		this.props.sendMessage({
-			id,
+			id: this._nextId,
 			room,
 			thread,
 			user,
@@ -173,11 +177,13 @@ export default class ChatInput extends Component<void, Props, State> {
 				},
 			},
 		});
+		this._nextId = v4();
 
 		setTimeout(() => this._handleUploadClose(), 500);
 	};
 
 	_handleUploadClose = () => {
+		this._nextId = v4();
 		this.setState({
 			photo: null,
 		});
@@ -266,6 +272,11 @@ export default class ChatInput extends Component<void, Props, State> {
 						photo={this.state.photo}
 						onUploadClose={this._handleUploadClose}
 						onUploadFinish={this._handleUploadFinish}
+						uploadOptions={{
+							uploadType: 'content',
+							generateThumb: true,
+							textId: this._nextId,
+						}}
 					/> : null
 				}
 			</View>
