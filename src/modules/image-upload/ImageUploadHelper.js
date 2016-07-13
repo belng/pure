@@ -2,24 +2,29 @@
 
 import { bus } from '../../core-client';
 
-export type UploadOptions = {
+type UploadOptions = {
+	fileName: string;
 	uploadType: 'content';
 	generateThumb?: boolean;
 	textId: string;
 } | {
+	fileName: string;
 	uploadType: 'avatar';
 	generateThumb?: boolean;
 }
 
 type UploadPolicy = {
-	keyPrefix: string;
-	bucket: string;
-	acl: string;
-	policy: string;
-	'x-amz-algorithm': string;
-	'x-amz-credential': string;
-	'x-amz-date': string;
-	'x-amz-signature': string;
+	key: string;
+	url: string;
+	thumbnail: string;
+	policy: {
+		acl: string;
+		policy: string;
+		'x-amz-algorithm': string;
+		'x-amz-credential': string;
+		'x-amz-date': string;
+		'x-amz-signature': string;
+	}
 }
 
 type UploadResult = {
@@ -32,13 +37,13 @@ export default class ImageUploadHelper {
 		return new ImageUploadHelper(options);
 	}
 
-	_policy: Promise<UploadPolicy>;
+	_policyData: Promise<UploadPolicy>;
 	_options: UploadOptions;
 	_request: XMLHttpRequest;
 
 	constructor(options: UploadOptions) {
 		this._options = options;
-		this._policy = new Promise((resolve, reject) => {
+		this._policyData = new Promise((resolve, reject) => {
 			bus.emit('s3/getPolicy', options, (err, res) => {
 				if (err || !(res && res.response)) {
 					reject(err);
@@ -51,14 +56,10 @@ export default class ImageUploadHelper {
 		});
 	}
 
-	_createFormData(policy: UploadPolicy): FormData {
+	_createFormData(policy: { [key: string]: any }): FormData {
 		const formData = new FormData();
-		const fields = [
-			'acl', 'policy', 'x-amz-algorithm', 'x-amz-credential',
-			'x-amz-date', 'x-amz-signature',
-		];
 
-		for (const field of fields) {
+		for (const field in policy) {
 			formData.append(field, policy[field]);
 		}
 
@@ -138,32 +139,16 @@ export default class ImageUploadHelper {
 	}
 
 	async send(name: string, file: File | { uri: string; type: string; }): Promise<UploadResult> {
-		const policy = await this._policy;
+		const policyData = await this._policyData;
 		const {
-			uploadType,
 			generateThumb,
 		} = this._options;
 		const {
-			keyPrefix,
-			bucket,
-		} = policy;
-		const baseUrl = 'https://' + bucket + '.s3.amazonaws.com/';
-		const filename = name.replace(/\s+/g, ' ');
-
-		let key = keyPrefix,
-			url;
-
-		switch (uploadType) {
-		case 'avatar':
-		case 'banner':
-			key += 'original.' + filename.split('.').pop();
-			url = baseUrl + key;
-			break;
-		case 'content':
-			key += '1/' + filename;
-			url = baseUrl + keyPrefix + '1/' + encodeURIComponent(filename);
-			break;
-		}
+			key,
+			url,
+			thumbnail,
+			policy,
+		} = policyData;
 
 		const formData = this._createFormData(policy);
 
@@ -171,25 +156,11 @@ export default class ImageUploadHelper {
 		formData.append('key', key);
 		formData.append('file', file);
 
-		await this._sendRequest(baseUrl, formData);
-
-		let thumbnail;
+		await this._sendRequest(url, formData);
 
 		if (generateThumb) {
-			let thumbnailUrl = baseUrl + keyPrefix.replace(/^uploaded/, 'generated');
-
-			switch (uploadType) {
-			case 'avatar':
-			case 'banner':
-				thumbnailUrl += '256x256.jpg';
-				break;
-			case 'content':
-				thumbnailUrl += '1/480x960.jpg';
-				break;
-			}
-
-			if (thumbnailUrl) {
-				thumbnail = await this._pollThumbnail(thumbnailUrl);
+			if (thumbnail) {
+				await this._pollThumbnail(thumbnail);
 			}
 		}
 
@@ -197,5 +168,63 @@ export default class ImageUploadHelper {
 			url,
 			thumbnail,
 		};
+		// const policy = await this._policy;
+		// const {
+		// 	uploadType,
+		// 	generateThumb,
+		// } = this._options;
+		// const {
+		// 	keyPrefix,
+		// 	bucket,
+		// } = policy;
+		// const baseUrl = 'https://' + bucket + '.s3.amazonaws.com/';
+		// const filename = name.replace(/\s+/g, ' ');
+
+		// let key = keyPrefix,
+		// 	url;
+		// switch (uploadType) {
+		// case 'avatar':
+		// case 'banner':
+		// 	key += 'original.' + filename.split('.').pop();
+		// 	url = baseUrl + key;
+		// 	break;
+		// case 'content':
+		// 	key += '1/' + filename;
+		// 	url = baseUrl + keyPrefix + '1/' + encodeURIComponent(filename);
+		// 	break;
+		// }
+
+		// const formData = this._createFormData(policy);
+
+		// formData.append('success_action_status', '201');
+		// formData.append('key', key);
+		// formData.append('file', file);
+
+		// await this._sendRequest(baseUrl, formData);
+
+		// let thumbnail;
+
+		// if (generateThumb) {
+		// 	let thumbnailUrl = baseUrl + keyPrefix.replace(/^uploaded/, 'generated');
+
+		// 	switch (uploadType) {
+		// 	case 'avatar':
+		// 	case 'banner':
+		// 		thumbnailUrl += '256x256.jpg';
+		// 		break;
+		// 	case 'content':
+		// 		thumbnailUrl += '1/480x960.jpg';
+		// 		break;
+		// 	}
+
+		// 	if (thumbnailUrl) {
+		// 		thumbnail = await this._pollThumbnail(thumbnailUrl);
+		// 	}
+		// }
+
+		// return {
+		// 	url,
+		// 	thumbnail,
+		// };
 	}
 }

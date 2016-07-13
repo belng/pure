@@ -72,31 +72,54 @@ function getSignature(policy) {
 export function getResponse(policyReq) {
 	const keyPrefix = getKeyPrefix(policyReq.auth.user, policyReq.uploadType, policyReq.textId),
 		policy = getPolicy(keyPrefix),
-		signature = getSignature(policy);
+		signature = getSignature(policy),
+		baseURL = 'https://up.bel.ng/',
+		fileName = policyReq.fileName.replace(/\s+/g, ' ');
+	let key = keyPrefix,
+		thumbnail = baseURL + keyPrefix.replace(/^uploaded/, 'generated'),
+		url;
+
+	switch (policyReq.uploadType) {
+	case 'avatar':
+		key += 'original.' + fileName.split('.').pop();
+		url = baseURL + key;
+		thumbnail += '256x256.jpg';
+		break;
+	case 'content':
+		key += '1/' + fileName;
+		url = baseURL + keyPrefix + '1/' + encodeURIComponent(fileName);
+		thumbnail += '1/480x960.jpg';
+		break;
+	}
 
 	policyReq.response = {
-		acl: config.s3.acl,
-		policy,
-		keyPrefix,
-		bucket: config.s3.bucket,
-		'x-amz-algorithm': config.s3.algorithm,
-		'x-amz-credential': getCredential(),
-		'x-amz-date': getDate(true),
-		'x-amz-signature': signature,
+		key,
+		url,
+		thumbnail,
+		policy: {
+			acl: config.s3.acl,
+			policy,
+			'x-amz-algorithm': config.s3.algorithm,
+			'x-amz-credential': getCredential(),
+			'x-amz-date': getDate(true),
+			'x-amz-signature': signature,
+		},
 	};
 }
 
 if (!config.s3) {
 	winston.info('Image upload is disabled');
-	bus.on('s3/getPolicy', (policyReq, next) => {
+	bus.on('s3/getPolicy', (policyReq) => {
 		policyReq.response = {};
 		policyReq.response.error = new EnhancedError('Image upload is temporarily disabled', 'NO_CONFIG_FOUND_FO_S3');
-		next();
 	}, APP_PRIORITIES.IMAGE_UPLOAD);
 } else {
-	bus.on('s3/getPolicy', (policyReq, next) => {
-		getResponse(policyReq);
-		next();
+	bus.on('s3/getPolicy', (policyReq) => {
+		try {
+			getResponse(policyReq);
+		} catch (error) {
+			policyReq.response = { error };
+		}
 	}, APP_PRIORITIES.IMAGE_UPLOAD);
 	winston.info('Image upload is ready');
 }

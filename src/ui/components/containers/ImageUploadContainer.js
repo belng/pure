@@ -2,7 +2,15 @@
 
 import React, { PropTypes, Component } from 'react';
 import ImageUploadHelper from '../../../modules/image-upload/ImageUploadHelper';
-import type { UploadOptions } from '../../../modules/image-upload/ImageUploadHelper';
+
+type UploadOptions = {
+	uploadType: 'content';
+	generateThumb?: boolean;
+	textId: string;
+} | {
+	uploadType: 'avatar';
+	generateThumb?: boolean;
+}
 
 type UploadResult = {
 	url: ?string;
@@ -50,7 +58,8 @@ export default class ImageUploadContainer extends Component<void, Props, State> 
 
 	_startUpload = async () => {
 		const { photo } = this.props;
-		const upload = ImageUploadHelper.create(this.props.uploadOptions);
+		const fileName = photo.name ? photo.name.replace(/\s+/g, ' ') : 'image';
+		const upload = ImageUploadHelper.create({ ...this.props.uploadOptions, fileName });
 
 		this.setState({
 			upload,
@@ -58,7 +67,7 @@ export default class ImageUploadContainer extends Component<void, Props, State> 
 		});
 
 		try {
-			const result = await upload.send(photo.name ? photo.name.replace(/\s+/g, ' ') : 'image', {
+			const result = await upload.send(fileName, {
 				uri: photo.uri,
 				type: 'image/' + (photo.name && photo.name.split('.').pop() || 'jpg'),
 			});
