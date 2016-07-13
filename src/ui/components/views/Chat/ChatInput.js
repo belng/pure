@@ -61,7 +61,8 @@ type Props = {
 type State = {
 	nextId: string;
 	text: string;
-	query: string;
+	query: ?string;
+	cursor: number;
 	photo: ?{
 		uri: string;
 		size: number;
@@ -82,8 +83,9 @@ export default class ChatInput extends Component<void, Props, State> {
 	state: State = {
 		nextId: v4(),
 		text: '',
-		query: '',
+		query: null, // set to empty string when typing starts to render the component which makes query for texts
 		photo: null,
+		cursor: -1,
 	};
 
 
@@ -189,18 +191,54 @@ export default class ChatInput extends Component<void, Props, State> {
 	};
 
 	_handleSuggestionSelect = (user: { id: string }) => {
+		const {
+			text,
+			cursor,
+		} = this.state;
+
+		let message;
+
+		if (cursor === -1) {
+			message = text + ' @' + user.id + ' ';
+		} else {
+			let beginning = text.slice(0, cursor);
+			beginning = beginning.slice(0, beginning.lastIndexOf('@'));
+			message = beginning + '@' + user.id + ' ' + text.slice(cursor);
+		}
+
 		this.setState({
-			text: '@' + user.id + ' ',
+			text: message,
 			query: '',
 		});
 	};
 
 	_handleChangeText = (text: string) => {
-		const query = /^@[a-z0-9]*$/.test(text) ? text.replace(/^@/, '') : '';
-
 		this.setState({
 			text,
-			query,
+		});
+	};
+
+	_handleChangeSelection = (e: any) => {
+		const { selection } = e.nativeEvent;
+
+		if (selection && selection.start === selection.end) {
+			const text = this.state.text.substring(0, selection.start);
+
+			// match when there's a @ towards the end of the text
+			// e.g. - '@', 'hey @', 'hey @s'
+			if (/(\s+@|^@)[a-z0-9]?[^@^\s]*$/.test(text)) {
+				const query = text.substring(text.lastIndexOf('@'));
+				this.setState({
+					cursor: selection.start,
+					query,
+				});
+				return;
+			}
+		}
+
+		this.setState({
+			cursor: -1,
+			query: '',
 		});
 	};
 
@@ -231,18 +269,22 @@ export default class ChatInput extends Component<void, Props, State> {
 	render() {
 		return (
 			<View {...this.props}>
-				<ChatSuggestionsContainer
-					user={this.props.user}
-					prefix={this.state.query}
-					style={styles.suggestions}
-					onSelect={this._handleSuggestionSelect}
-				/>
+				{typeof this.state.query === 'string' ?
+					<ChatSuggestionsContainer
+						user={this.props.user}
+						thread={this.props.thread}
+						prefix={this.state.query}
+						style={styles.suggestions}
+						onSelect={this._handleSuggestionSelect}
+					/> : null
+				}
 
 				<View style={styles.container}>
 					<GrowingTextInput
 						ref={c => (this._input = c)}
 						value={this.state.text}
 						onChangeText={this._handleChangeText}
+						onSelectionChange={this._handleChangeSelection}
 						underlineColorAndroid='transparent'
 						placeholder='Write a message…'
 						autoCapitalize='sentences'
