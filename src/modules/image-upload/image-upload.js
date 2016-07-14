@@ -30,7 +30,6 @@ function sign(key, data) {
 function getKeyPrefix(userId, uploadType, textId) {
 	switch (uploadType) {
 	case 'avatar':
-	case 'banner':
 		return 'uploaded/' + uploadType + '/' + userId + '/';
 	case 'content':
 		return 'uploaded/' + uploadType + '/' + userId + '/' + textId + '/';
