@@ -3,12 +3,12 @@
 import { bus } from '../../core-client';
 
 type UploadOptions = {
-	fileName: string;
+	filename: string;
 	uploadType: 'content';
 	generateThumb?: boolean;
 	textId: string;
 } | {
-	fileName: string;
+	filename: string;
 	uploadType: 'avatar';
 	generateThumb?: boolean;
 }

@@ -58,8 +58,8 @@ export default class ImageUploadContainer extends Component<void, Props, State> 
 
 	_startUpload = async () => {
 		const { photo } = this.props;
-		const fileName = photo.name ? photo.name.replace(/\s+/g, ' ') : 'image';
-		const upload = ImageUploadHelper.create({ ...this.props.uploadOptions, fileName });
+		const filename = photo.name ? photo.name.replace(/\s+/g, ' ') : 'image';
+		const upload = ImageUploadHelper.create({ ...this.props.uploadOptions, filename });
 
 		this.setState({
 			upload,
@@ -67,7 +67,7 @@ export default class ImageUploadContainer extends Component<void, Props, State> 
 		});
 
 		try {
-			const result = await upload.send(fileName, {
+			const result = await upload.send(filename, {
 				uri: photo.uri,
 				type: 'image/' + (photo.name && photo.name.split('.').pop() || 'jpg'),
 			});

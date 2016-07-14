@@ -6,7 +6,7 @@ import { APP_PRIORITIES /* , TYPE_USER*/ } from '../../lib/Constants';
 import { bus, config } from '../../core-server';
 // import { urlTos3 } from '../../lib/upload';
 
-function getDate(long) {
+function getDate({ long } = {}) {
 	const date = new Date();
 
 	if (long) {
@@ -55,7 +55,7 @@ function getPolicy(keyPrefix) {
 			{ success_action_status: '201' },
 			{ 'x-amz-credential': getCredential() },
 			{ 'x-amz-algorithm': config.s3.algorithm },
-			{ 'x-amz-date': getDate(true) },
+			{ 'x-amz-date': getDate({ long: true }) },
 		],
 	})).toString('base64');
 }
@@ -74,20 +74,20 @@ export function getResponse(policyReq) {
 		policy = getPolicy(keyPrefix),
 		signature = getSignature(policy),
 		baseURL = 'https://up.bel.ng/',
-		fileName = policyReq.fileName.replace(/\s+/g, ' ');
+		filename = policyReq.filename.replace(/\s+/g, ' ');
 	let key = keyPrefix,
 		thumbnail = baseURL + keyPrefix.replace(/^uploaded/, 'generated'),
 		url;
 
 	switch (policyReq.uploadType) {
 	case 'avatar':
-		key += 'original.' + fileName.split('.').pop();
+		key += 'original.' + filename.split('.').pop();
 		url = baseURL + key;
 		thumbnail += '256x256.jpg';
 		break;
 	case 'content':
-		key += '1/' + fileName;
-		url = baseURL + keyPrefix + '1/' + encodeURIComponent(fileName);
+		key += '1/' + filename;
+		url = baseURL + keyPrefix + '1/' + encodeURIComponent(filename);
 		thumbnail += '1/480x960.jpg';
 		break;
 	}
@@ -101,7 +101,7 @@ export function getResponse(policyReq) {
 			policy,
 			'x-amz-algorithm': config.s3.algorithm,
 			'x-amz-credential': getCredential(),
-			'x-amz-date': getDate(true),
+			'x-amz-date': getDate({ long: true }),
 			'x-amz-signature': signature,
 		},
 	};
