@@ -3,15 +3,6 @@
 import React, { PropTypes, Component } from 'react';
 import ImageUploadHelper from '../../../modules/image-upload/ImageUploadHelper';
 
-type UploadOptions = {
-	uploadType: 'content';
-	generateThumb?: boolean;
-	textId: string;
-} | {
-	uploadType: 'avatar';
-	generateThumb?: boolean;
-}
-
 type UploadResult = {
 	url: ?string;
 	thumbnail: ?string;
@@ -23,7 +14,7 @@ type Props = {
 	autoStart?: boolean;
 	onUploadClose?: Function;
 	onUploadFinish?: (result: UploadResult) => void;
-	uploadOptions: UploadOptions;
+	uploadOptions: any;
 }
 
 type State = {

@@ -14,12 +14,14 @@ type UploadOptions = {
 }
 
 type UploadPolicy = {
-	key: string;
-	url: string;
+	request_url: string;
+	original: string;
 	thumbnail: string;
 	policy: {
+		key: string;
 		acl: string;
 		policy: string;
+		success_action_status: string;
 		'x-amz-algorithm': string;
 		'x-amz-credential': string;
 		'x-amz-date': string;
@@ -144,19 +146,17 @@ export default class ImageUploadHelper {
 			generateThumb,
 		} = this._options;
 		const {
-			key,
-			url,
+			request_url,
+			original,
 			thumbnail,
 			policy,
 		} = policyData;
 
 		const formData = this._createFormData(policy);
 
-		formData.append('success_action_status', '201');
-		formData.append('key', key);
 		formData.append('file', file);
 
-		await this._sendRequest(url, formData);
+		await this._sendRequest(request_url, formData);
 
 		if (generateThumb) {
 			if (thumbnail) {
@@ -165,7 +165,7 @@ export default class ImageUploadHelper {
 		}
 
 		return {
-			url,
+			url: original,
 			thumbnail,
 		};
 	}
