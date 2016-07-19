@@ -6,7 +6,14 @@
         <div class="discussion-card">
             <div class="stamp"><b>{{user.id}}</b> started a discussion on Belong</div>
             <h2 class="discussion-title">{{thread.name}}</h2>
-            <p class="message-body">{{thread.body}}</p>
+            <p class="message-body">
+                {{#if thread.meta.photo}}
+                    <img src="{{thread.meta.photo.url}}" />
+                {{/if}}
+                {{#unless thread.meta.photo}}
+                    {{thread.body}}
+                {{/unless}}
+            </p>
             <span class="card-footer">
                 <span class="inline-blocks location">
                     <span class="inline-blocks">
