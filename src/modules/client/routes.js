@@ -66,7 +66,12 @@ bus.on('http/init', app => {
 			facebook: `https://www.facebook.com/sharer/sharer.php?u=${this.request.href}`,
 			twitter: `http://twitter.com/share?text=${encodeURIComponent(title || '')}&url=${encodeURIComponent(this.request.href)}`,
 		};
+		let image = `${this.request.origin}/s/assets/preview-thumbnail.png`;
+
 		if (thread) {
+			if(thread.meta.photo) {
+				image = thread.meta.photo.url;
+			}
 			response.thread = thread;
 			response.user = {
 				id: thread.creator || '',
@@ -79,7 +84,7 @@ bus.on('http/init', app => {
 				title={title || config.app_name}
 				description={description || ''}
 				body={promo(response)}
-				image={`${this.request.origin}/s/assets/preview-thumbnail.png`}
+				image={image}
 				permalink={this.request.href}
 				styles={[
 					'//fonts.googleapis.com/css?family=Alegreya+Sans:300,500,900|Lato:400,700',
