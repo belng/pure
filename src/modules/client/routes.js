@@ -70,7 +70,7 @@ bus.on('http/init', app => {
 
 		if (thread) {
 			if(thread.meta.photo) {
-				image = thread.meta.photo.url;
+				image = thread.meta.photo.thumbnail_url;
 			}
 			response.thread = thread;
 			response.user = {
