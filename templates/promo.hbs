@@ -8,7 +8,7 @@
             <h2 class="discussion-title">{{thread.name}}</h2>
             <p class="message-body">
                 {{#if thread.meta.photo}}
-                    <img src="{{thread.meta.photo.url}}" />
+                    <img src="{{thread.meta.photo.url}}" alt="{{thread.meta.photo.name}}" />
                 {{/if}}
                 {{#unless thread.meta.photo}}
                     {{thread.body}}
