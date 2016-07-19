@@ -69,7 +69,7 @@ bus.on('http/init', app => {
 		let image = `${this.request.origin}/s/assets/preview-thumbnail.png`;
 
 		if (thread) {
-			if(thread.meta.photo) {
+			if(thread.meta && thread.meta.photo) {
 				image = thread.meta.photo.thumbnail_url;
 			}
 			response.thread = thread;
