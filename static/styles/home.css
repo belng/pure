@@ -1,3 +1,11 @@
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -13,12 +21,20 @@ body {
 }
 
 .discussion-container {
-  max-width: 590px;
+  width: 540px;
+  max-width: 100%;
   font-size: 16px;
   font-family: Lato;
   line-height: 1.64;
-  margin: 160px auto;
+  margin: 80px auto;
   font-weight: 400;
+  padding: 16px;
+}
+
+@media (max-width: 640px) {
+  .discussion-container {
+    margin: auto;
+  }
 }
 
 .message-body {
@@ -34,6 +50,17 @@ body {
   clear: both;
 }
 
+.header {
+  background-color: #6644bb;
+  position: fixed;
+  height: 48px;
+  width: 100%;
+  z-index: 999999;
+}
+.header-logo {
+  height: 30px;
+  margin: 9px;
+}
 .dp {
   border-radius: 50%;
   float: left;
@@ -44,7 +71,8 @@ body {
 
 .discussion-card {
   float: right;
-  width: 525px;
+  width: 440px;
+  max-width: 100%;
 }
 
 .discussion-title {
@@ -149,7 +177,6 @@ body {
 
 section {
   padding: 1em 0;
-  min-width: 400px;
 }
 
 .top {
@@ -229,7 +256,7 @@ img, svg {
   padding: 1em;
   text-align: center;
   border-radius: 4px;
-  width: 8em;
+  width: 9em;
   position: relative;
   left: 40%;
   margin: 3.5em 0 -4.5em -4em;
