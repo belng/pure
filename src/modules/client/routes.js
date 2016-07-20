@@ -53,7 +53,6 @@ bus.on('http/init', app => {
 			}
 			}
 		}
-
 		const response: {
 			room: ?Object;
 			thread?: Object;
@@ -62,7 +61,7 @@ bus.on('http/init', app => {
 			facebook: string;
 		} = {
 			room,
-			playstore: PLAY_STORE_LINK,
+			playstore: PLAY_STORE_LINK + (this.request.search ? ('&referrer=' + encodeURIComponent(this.request.search.substr(1))) : ''),
 			facebook: `https://www.facebook.com/sharer/sharer.php?u=${this.request.href}`,
 			twitter: `http://twitter.com/share?text=${encodeURIComponent(title || '')}&url=${encodeURIComponent(this.request.href)}`,
 		};
