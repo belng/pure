@@ -1,10 +1,10 @@
 import crypto from 'crypto';
 import winston from 'winston';
-// import buildAvatarURLForSize from '../../lib/buildAvatarURLForSize';
+import buildAvatarURLForSize from '../../lib/buildAvatarURLForSize';
 import EnhancedError from '../../lib/EnhancedError';
-import { APP_PRIORITIES /* , TYPE_USER*/ } from '../../lib/Constants';
+import { APP_PRIORITIES, TYPE_USER } from '../../lib/Constants';
 import { bus, config } from '../../core-server';
-// import { urlTos3 } from '../../lib/upload';
+import { urlTos3 } from '../../lib/upload';
 
 function getDate(long) {
 	const date = new Date();
