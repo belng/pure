@@ -101,7 +101,6 @@ if (!config.s3) {
 	winston.info('Image upload is ready');
 }
 
-/*
 const uploadImage = async (userName: string, imageUrl: string, propName: string) => {
 	const imageName = 'avatar';
 	await urlTos3(buildAvatarURLForSize(imageUrl, 1024), 'a/' + userName + '/' + imageName);
@@ -143,5 +142,3 @@ if (config.s3) {
 		await Promise.all(promises);
 	});
 }
-
-*/
