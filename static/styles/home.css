@@ -15,90 +15,106 @@ body {
   font: 900 24px/1.5em "Alegreya Sans",sans-serif;
 }
 
-.inline-blocks {
-  display: inline-block;
-  vertical-align: middle;
+.more {
+  padding-left: 3em;
 }
 
-.discussion-container {
-  width: 540px;
+.thread {
+  width: 30em;
   max-width: 100%;
-  font-size: 16px;
-  font-family: Lato;
-  line-height: 1.64;
-  margin: 80px auto;
+  margin: 3em auto 0 auto;
   font-weight: 400;
-  padding: 16px;
+  padding: 1em 1em 1em 3em;
 }
 
-@media (max-width: 640px) {
-  .discussion-container {
-    margin: auto;
-  }
+.avatar {
+  width: 2em;
+  height: 2em;
+  border-radius: 100%;
+  float: left;
+  margin-left: -2.5em;
 }
 
-.message-body {
-  margin: 0;
+.metadata {
+  font-weight: 300;
+  font-size: 16px;
+  vertical-align: middle;
+  color: #666;
 }
 
-.discussion-container:before, .discussion-container:after {
-  content: '';
-  display: table;
+.metadata > div {
+  display: inline-block;
+  margin-right: 3em;
 }
 
-.discussion-container:after {
+.thread > .body {
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.text {
+  border-radius: 0.25em;
+  background: #eee;
+  padding: 0.5em 1em;
+  margin: 0.25em 0 0.25em 2.5em;
+  position: relative;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  float: left;
+  clear: left;
+  width: auto;
+}
+
+.text::before {
+  content: ' ';
+  display: block;
+  position: absolute;
+  top: 0; left: -0.75em;
+  height: 10px; width: 10px;
+  border: 0px solid transparent;
+  border-right: 1.5em solid #eee;
+  border-bottom: 1.5em solid transparent;
+}
+
+.text .avatar {
+  margin-left: -3.3em;
+  margin-top: -0.3em;
+}
+
+.stamp {
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1em;
+  color: #666;
+}
+.stamp b {
+  font-weight: 500;
+}
+
+.action {
+  clear: both; text-align: center;
+}
+
+.blurb {
+  font-size: 16px;
+  font-weight: 300;
   clear: both;
 }
 
 .header {
   background-color: #6644bb;
-  position: fixed;
+  position: absolute;
   height: 48px;
   width: 100%;
   z-index: 999999;
 }
+
 .header-logo {
   height: 30px;
   margin: 9px;
 }
-.dp {
-  border-radius: 50%;
-  float: left;
-  width: 48px;
-  height: 48px;
-  margin-top: 16px;
-}
 
-.discussion-card {
-  float: right;
-  width: 440px;
-  max-width: 100%;
-}
-
-.discussion-title {
-  font-weight: bold;
-  font-size: 1.4em;
-  margin-bottom: .5em;
-}
-
-.stamp {
-  margin: 10px auto;
-  color: #999;
-}
-
-.card-footer {
-  margin-top: 15px;
-  display: inline-block;
-  color: #999;
-}
-
-.location {
-  margin-right: 20px;
-}
-
-.join-button-container {
-  margin: 22px 0;
-}
 
 .join-button {
   background: #ff1144;
@@ -117,8 +133,6 @@ body {
 .icon {
   display: inline-block;
   vertical-align: middle;
-  width: 16px;
-  height: 32px;
   margin-right: 8px;
 }
 
@@ -126,6 +140,10 @@ body {
   margin: -3px 0 -3px 8px;
   height: 16px;
   display: inline-block;
+}
+
+.title {
+  margin-top: 0.25em;
 }
 
 .share-title {

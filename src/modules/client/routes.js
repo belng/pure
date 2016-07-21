@@ -14,7 +14,7 @@ const PLAY_STORE_LINK = `https://play.google.com/store/apps/details?id=${config.
 
 const promo = handlebars.compile(fs.readFileSync(path.join(__dirname, '../../../templates/promo.hbs')).toString());
 const getEntityAsync = promisify(cache.getEntity.bind(cache));
-
+const queryEntityAsync = promisify(cache.query.bind(cache));
 bus.on('http/init', app => {
 	app.use(function *(next) {
 		const query = this.request.query;
@@ -46,7 +46,7 @@ bus.on('http/init', app => {
 
 				if (thread) {
 					title = thread.name;
-					description = `Install the ${config.app_name} app to join.`;
+					description = thread.body;
 				}
 
 				break;
@@ -56,6 +56,7 @@ bus.on('http/init', app => {
 		const response: {
 			room: ?Object;
 			thread?: Object;
+			texts?: Array<Object>;
 			user?: Object;
 			playstore: string;
 			facebook: string;
@@ -68,6 +69,16 @@ bus.on('http/init', app => {
 		let image = `${this.request.origin}/s/assets/preview-thumbnail.png`;
 
 		if (thread) {
+			if(thread.counts.children < 10 || !thread.counts.children) thread.showAll = true;
+			else thread.more = thread.counts.children-10;
+			const queryTexts = yield queryEntityAsync({
+				type: 'text',
+					filter: {
+						parents_first: thread.id
+					},
+					order: 'createTime',
+				}, [-Infinity, Infinity]);
+			response.texts = queryTexts.arr.slice(0,10);
 			if(thread.meta && thread.meta.photo) {
 				image = thread.meta.photo.thumbnail_url;
 			}
@@ -77,6 +88,7 @@ bus.on('http/init', app => {
 				picture: `/i/picture?user=${thread.creator || ''}&size=48`
 			};
 		}
+		console.log('response: ', response)
 		this.body = '<!DOCTYPE html>' + ReactDOMServer.renderToStaticMarkup(
 			<ServerHTML
 				locale='en'
