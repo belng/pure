@@ -7,7 +7,7 @@ const strategies = [
 	fetchFromMetaData
 ];
 
-export default async function (url) {
+export default async function (url: string) {
 	if (!/^https?:\/\//i.test(url)) {
 		throw new Error('INVALID_URL');
 	}

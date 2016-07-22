@@ -117,7 +117,7 @@ async function fetchData(url: string){
 	return data;
 }
 
-export default async function (url) {
+export default async function (url: string) {
 	const contentType = await getContentType(url);
 	if (contentType) {
 		if (contentType.indexOf('image') > -1) {
