@@ -2,6 +2,7 @@ import getContentType from './getContentType';
 import regexes from './regexes';
 import type { Embed } from './oEmbedTypes';
 import 'isomorphic-fetch';
+import winston from 'winston';
 
 function getProperty(prop: string, type: ?string): RegExp {
 	if (typeof type === 'string') {
@@ -116,8 +117,9 @@ async function fetchData(url: string): Promise<Embed> {
 	return data;
 }
 
-export default async function(url) {
+export default async function (url) {
 	const contentType = await getContentType(url);
+	winston.debug(`Content-type for url: ${url}, ${contentType}`);
 	return new Promise((resolve) => {
 		if (contentType) {
 			if (contentType.indexOf('image') > -1) {
@@ -128,6 +130,8 @@ export default async function(url) {
 			} else if (contentType.indexOf('text/html') > -1) {
 				resolve(fetchData(url));
 			}
+		} else {
+			resolve(null);
 		}
 	});
 }

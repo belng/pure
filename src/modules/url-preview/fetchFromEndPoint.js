@@ -15,7 +15,7 @@ export default async function fetchFromEndpoint(url) {
 
 	return new Promise((resolve) => {
 		request.get(endpoint, (error, response, body) => {
-			if (!error || response.statusCode === 200) {
+			if (!error && response && response.statusCode === 200) {
 				resolve(body);
 			} else {
 				resolve(null);

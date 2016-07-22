@@ -1,3 +1,4 @@
+import winston from 'winston';
 import fetchFromEndPoint from './fetchFromEndPoint';
 import fetchFromMetaData from './fetchFromMetaData';
 
@@ -6,16 +7,18 @@ const strategies = [
 	fetchFromMetaData
 ];
 
-export default async function generatePreview(url, cb) {
+export default async function (url) {
 	return new Promise(async (resolve) => {
 		if (!/^https?:\/\//i.test(url)) {
-			cb();
+			resolve(null);
 			return;
 		}
 
 		let preview;
 		for (let i = 0; i < strategies.length; i++) {
-			preview = await strategies[0](url); // eslint-disable-line babel/no-await-in-loop
+			winston.debug(`Using strategy ${i} from url: ${url}`);
+			preview = await strategies[i](url); // eslint-disable-line babel/no-await-in-loop
+			winston.debug(`Preview after strategy ${i} for url: ${url}`, preview, '--------');
 			if (preview) break;
 		}
 
