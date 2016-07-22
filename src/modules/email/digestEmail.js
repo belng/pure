@@ -35,7 +35,7 @@ const fields = [
 		'threads.parents[1]=roomrels.item',
 		'roomrels.item=rooms.id',
 		'threads.counts IS NOT NULL',
-		'threads.createtime >= extract(epoch from now()-interval \'7 days\')*1000',
+		'threads.createtime >= extract(epoch from now()-interval \'1 days\')*1000',
 		'(users.params-> \'email\'->>\'frequency\' = \'daily\' OR (users.params->\'email\') is null)',
 		'roles @> \'{3}\''
 	],
