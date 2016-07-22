@@ -5,7 +5,7 @@ import uid from '../../lib/uid-server';
 import notify from '../../lib/dispatch';
 import packer from '../../lib/packer';
 import * as Constants from '../../lib/Constants';
-// import util from 'util';
+
 const sockets = {}, bus = core.bus;
 
 function sendError(socket, code, reason, event) {

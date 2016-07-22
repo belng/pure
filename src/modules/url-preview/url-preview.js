@@ -1,3 +1,4 @@
+/* @flow */
 import winston from 'winston';
 import { bus, config } from '../../core-server';
 import * as pg from '../../lib/pg';

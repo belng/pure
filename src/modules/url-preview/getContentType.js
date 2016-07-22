@@ -1,3 +1,4 @@
+/* @flow */
 import 'isomorphic-fetch';
 
 export default async function(url: string): Promise<string> {

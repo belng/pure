@@ -1,3 +1,4 @@
+/* @flow */
 import 'isomorphic-fetch';
 import providers from './providers';
 

@@ -1,8 +1,8 @@
+/* @flow */
 import getContentType from './getContentType';
 import regexes from './regexes';
 import type { Embed } from './oEmbedTypes';
 import 'isomorphic-fetch';
-import winston from 'winston';
 
 function getProperty(prop: string, type: ?string): RegExp {
 	if (typeof type === 'string') {

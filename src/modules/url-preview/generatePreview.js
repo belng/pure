@@ -1,4 +1,4 @@
-import winston from 'winston';
+/* @flow */
 import fetchFromEndPoint from './fetchFromEndPoint';
 import fetchFromMetaData from './fetchFromMetaData';
 
