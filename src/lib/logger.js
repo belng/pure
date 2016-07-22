@@ -10,10 +10,10 @@ export default class Logger{
 	newLogDir: any;
 	logger: Object;
 
-	constructor(file: any) {
-		this.dir = file.split('/');
+	constructor(path: any, file: string) {
+		this.dir = path.split('/');
 		this.checkForDir();
-		this.logFileName = this.buildFileName();
+		this.logFileName = file ? file : this.buildFileName();
 		this.transports = [ new winston.transports.Console({ colorize: true, level: 'debug' }),
 		new (winston.transports.File)({
 			filename: this.newLogDir + '/' + this.logFileName + '.log',
