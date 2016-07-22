@@ -102,7 +102,7 @@ function extractLink(body) {
 	return null;
 }
 
-async function fetchData(url: string): Promise<Embed> {
+async function fetchData(url: string){
 	const body = await fetch(url).then(res => res.text()).then(text => text ? text.replace(/(\r\n|\n|\r)/g, '') : '');
 	const dataUrl = extractLink(body);
 
@@ -119,21 +119,15 @@ async function fetchData(url: string): Promise<Embed> {
 
 export default async function (url) {
 	const contentType = await getContentType(url);
-
-	return new Promise((resolve) => {
-		if (contentType) {
-			if (contentType.indexOf('image') > -1) {
-				resolve({
-					type: 'link',
-					thumbnail_url: url,
-				});
-			} else if (contentType.indexOf('text/html') > -1) {
-				resolve(fetchData(url));
-			} else {
-				throw new Error('NO_PREVIEW_AVAILABLE');
-			}
-		} else {
-			throw new Error('NO_PREVIEW_AVAILABLE');
+	if (contentType) {
+		if (contentType.indexOf('image') > -1) {
+			return {
+				type: 'link',
+				thumbnail_url: url,
+			};
+		} else if (contentType.indexOf('text/html') > -1) {
+			 return fetchData(url);
 		}
-	});
+	}
+	throw new Error('NO_PREVIEW_AVAILABLE');
 }

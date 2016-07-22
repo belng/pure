@@ -2,7 +2,7 @@
 import 'isomorphic-fetch';
 import providers from './providers';
 
-export default async function fetchFromEndpoint(url) {
+export default async function fetchFromEndpoint(url: string) {
 	let endpoint;
 	for (let i = 0, l = providers.length; i < l; i++) {
 		const provider = providers[i];
