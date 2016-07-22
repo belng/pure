@@ -17,6 +17,8 @@ const initMailSending = (invitee, inviterLocalityName, inviterName) => {
 	const emailBody = template({
 		referrer: inviterName,
 		inviterLocalityName,
+		email: invitee.contact.email,
+		date: Date.now()
 	});
 	const inlinedTemplate = juice(emailBody);
 	send(conf.from, invitee.contact.email, `Introducing Belong: Referred by ${inviterName}`, inlinedTemplate, e => {

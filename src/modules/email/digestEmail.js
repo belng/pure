@@ -49,7 +49,7 @@ const fields = [
 	);
 
 function getSubject() {
-	const heading = 'Updates from ' + config.app_name;
+	const heading = ['Updates from ' + config.app_name, 'While you are away'][Math.floor(Math.random() * 2)];
 	return heading;
 }
 
@@ -67,12 +67,17 @@ export function initMailSending (userRel: Object) {
 	mailIds.forEach((mailId) => {
 		counter1.inc();
 		const emailAdd = mailId.slice(7),
+		emailSub = getSubject(rels),
+		date = Date.now(),
 			emailHtml = template({
 				token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: '5 days' }),
 				domain: config.server.protocol + '//' + config.server.host + ':' + config.server.port,
 				rooms: rels,
-			}),
-			emailSub = getSubject(rels);
+				email: emailAdd,
+				sub: emailSub,
+				date
+			});
+
 		log.info('Digest email to: ', emailAdd);
 
 		send(conf.from, emailAdd, emailSub, emailHtml, (e) => {

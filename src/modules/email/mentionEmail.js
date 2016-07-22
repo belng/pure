@@ -37,8 +37,10 @@ function initMailSending (userRel) {
 				token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: '5 days' }),
 				domain: conf.domain,
 				rooms: rels,
+				email: emailAdd,
+				date: Date.now()
 			}),
-			emailSub = `You h've been mentioned`;
+			emailSub = `You have been mentioned`;
 			// console.log("rels[0].threads: ", rels.length)
 		send(conf.from, emailAdd, emailSub, emailHtml, (e) => {
 			if (!e) {
