@@ -129,6 +129,8 @@ export default async function (url) {
 				});
 			} else if (contentType.indexOf('text/html') > -1) {
 				resolve(fetchData(url));
+			} else {
+				resolve(null);
 			}
 		} else {
 			resolve(null);
