@@ -12,7 +12,7 @@ import handlebars from 'handlebars';
 import getMailObj from './buildMailObj';
 const MENTION_INTERVAL = 60 * 60 * 1000, MENTION_DELAY = 60 * 60 * 1000,
 	template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' +
-	config.app_id + '.digest.hbs', 'utf-8').toString()), log = new Logger(__filename),
+	config.app_id + '.mention.hbs', 'utf-8').toString()), log = new Logger(__filename),
 	connStr = config.connStr, conf = config.email, counter = new Counter();
 
 let lastEmailSent, end, i = 0;
