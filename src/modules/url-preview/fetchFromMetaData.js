@@ -119,7 +119,7 @@ async function fetchData(url: string): Promise<Embed> {
 
 export default async function (url) {
 	const contentType = await getContentType(url);
-	winston.debug(`Content-type for url: ${url}, ${contentType}`);
+
 	return new Promise((resolve) => {
 		if (contentType) {
 			if (contentType.indexOf('image') > -1) {
@@ -130,10 +130,10 @@ export default async function (url) {
 			} else if (contentType.indexOf('text/html') > -1) {
 				resolve(fetchData(url));
 			} else {
-				resolve(null);
+				throw new Error('NO_PREVIEW_AVAILABLE');
 			}
 		} else {
-			resolve(null);
+			throw new Error('NO_PREVIEW_AVAILABLE');
 		}
 	});
 }

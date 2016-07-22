@@ -1,4 +1,4 @@
-import request from 'request';
+import 'isomorphic-fetch';
 import providers from './providers';
 
 export default async function fetchFromEndpoint(url) {
@@ -12,14 +12,6 @@ export default async function fetchFromEndpoint(url) {
 
 		if (endpoint) break;
 	}
-
-	return new Promise((resolve) => {
-		request.get(endpoint, (error, response, body) => {
-			if (!error && response && response.statusCode === 200) {
-				resolve(body);
-			} else {
-				resolve(null);
-			}
-		});
-	});
+	if (!endpoint) throw new Error('NO_ENDPOINT_FOR_THIS_URL');
+	return await fetch(endpoint).then(res => res.json());
 }

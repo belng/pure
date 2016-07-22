@@ -18,12 +18,10 @@ bus.on('preview/get', (req, next) => {
 		url: req.url
 	}, async (err, res) => {
 		req.response = {};
-		winston.info(`From database: ${res.length}`);
 
 		if (err) {
 			winston.warn(err.message);
-			req.response.error = err;
-			return next();
+			return next(err);
 		}
 
 		if (res.length && res[0] && res[0].preview) {
@@ -31,10 +29,12 @@ bus.on('preview/get', (req, next) => {
 			return next();
 		}
 
-		winston.info(`Not preview in db for url: ${req.url}`);
-		req.response.preview = await generatePreview(req.url);
-
-		updatePreview(req.url, req.response.preview);
-		return next();
+		try {
+			req.response.preview = await generatePreview(req.url);
+			updatePreview(req.url, req.response.preview);
+			return next();
+		} catch (e) {
+			return next(e);
+		}
 	});
 });
