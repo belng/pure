@@ -13,5 +13,5 @@ export default async function fetchFromEndpoint(url) {
 		if (endpoint) break;
 	}
 	if (!endpoint) throw new Error('NO_ENDPOINT_FOR_THIS_URL');
-	return await fetch(endpoint).then(res => res.json());
+	return fetch(endpoint).then(res => res.json());
 }
