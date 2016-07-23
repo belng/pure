@@ -81,7 +81,7 @@ bus.on('http/init', app => {
 			response.texts = queryTexts && queryTexts.arr ? queryTexts.arr.slice(0,10) : [];
 			if(thread.meta && thread.meta.photo) {
 				image = thread.meta.photo.thumbnail_url;
-				description = thread.count.follower + 'people talking';
+				description = thread.counts && thread.counts.follower ?  thread.counts.follower + 'people talking' : '';
 			}
 			response.thread = thread;
 			response.user = {
