@@ -78,9 +78,10 @@ bus.on('http/init', app => {
 					},
 					order: 'createTime',
 				}, [-Infinity, Infinity]);
-			response.texts = queryTexts.arr.slice(0,10);
+			response.texts = queryTexts && queryTexts.arr ? queryTexts.arr.slice(0,10) : [];
 			if(thread.meta && thread.meta.photo) {
 				image = thread.meta.photo.thumbnail_url;
+				description = thread.count.follower + 'people talking';
 			}
 			response.thread = thread;
 			response.user = {
@@ -88,7 +89,7 @@ bus.on('http/init', app => {
 				picture: `/i/picture?user=${thread.creator || ''}&size=48`
 			};
 		}
-		console.log('response: ', response)
+		// console.log('response: ', response)
 		this.body = '<!DOCTYPE html>' + ReactDOMServer.renderToStaticMarkup(
 			<ServerHTML
 				locale='en'
