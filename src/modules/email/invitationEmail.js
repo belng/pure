@@ -15,10 +15,9 @@ let perUserLog;
 
 const initMailSending = (invitee, inviterLocalityName, inviterName) => {
 	const emailBody = template({
+		link: '?utm_source=BelongInvite&utm_medium=Email&utm_term='+ encodeURIComponent(inviterName) + '&utm_content='+encodeURIComponent(invitee.contact.email)+'&utm_campaign='+Date.now(),
 		referrer: inviterName,
-		inviterLocalityName,
-		email: invitee.contact.email,
-		date: Date.now()
+		inviterLocalityName
 	});
 	const inlinedTemplate = juice(emailBody);
 	send(conf.from, invitee.contact.email, `Introducing Belong: Referred by ${inviterName}`, inlinedTemplate, e => {

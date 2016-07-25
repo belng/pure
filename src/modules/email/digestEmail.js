@@ -68,16 +68,17 @@ export function initMailSending (userRel: Object) {
 		counter1.inc();
 		const emailAdd = mailId.slice(7),
 		emailSub = getSubject(rels),
-		date = Date.now(),
-			emailHtml = template({
-				token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: '5 days' }),
-				domain: config.server.protocol + '//' + config.server.host + ':' + config.server.port,
-				rooms: rels,
-				email: emailAdd,
-				sub: emailSub,
-				date
-			});
-
+		date = Date.now();
+		const templateObj = {
+			token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: '5 days' }),
+			domain: config.server.protocol + '//' + config.server.host + ':' + config.server.port,
+			link : '?utm_source=DailyDigest&utm_medium=Email&utm_term='+ encodeURIComponent(emailAdd) + '&utm_content=' + encodeURIComponent(emailSub) + '&utm_campaign=' + date,
+			rooms: rels,
+			email: emailAdd,
+			sub: emailSub,
+			date
+		};
+		const	emailHtml = template(templateObj);
 		log.info('Digest email to: ', emailAdd);
 
 		send(conf.from, emailAdd, emailSub, emailHtml, (e) => {
@@ -113,7 +114,7 @@ function sendDigestEmail () {
 	}
 
 	//Do not send digest email multiple times in the same day
-	//This to prevent if server restarts multiple times in single hour. (cron job)
+	// This to prevent if server restarts multiple times in single hour. (cron job)
 	if ( today === lastEmailSentDay	) {
 		log.info('Digest email has been sent today. Last email sent time is: ', new Date((parseInt(lastEmailSent, 10))));
 		return;
