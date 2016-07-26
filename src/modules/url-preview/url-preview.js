@@ -1,41 +1,53 @@
 /* @flow */
 import winston from 'winston';
-import { bus, config } from '../../core-server';
-import * as pg from '../../lib/pg';
+import { bus } from '../../core-server';
+import { parseURLs } from '../../lib/URL';
+import { TYPE_THREAD, TYPE_TEXT } from '../../lib/Constants';
+import Thread from '../../models/thread';
+import Text from '../../models/text';
 import generatePreview from './generatePreview';
 
-function updatePreview(url, preview) {
-	pg.write(config.connStr, [ {
-		$: 'INSERT INTO preview_cache(url, preview, expiry) values (&{url}, &{preview}, now() + INTERVAL \'7 day\')',
-		url,
-		preview
-	} ]);
+async function addOEmbed(id, item, links) {
+	let preview;
+	const type = item.type;
+	for (let i = 0, l = links.length; i < l; i++) {
+		try {
+			winston.debug('LINKS:', links);
+			preview = await generatePreview(links[i]); // eslint-disable-line babel/no-await-in-loop
+			winston.debug('Preview ready', preview);
+			const entity = new (type === TYPE_THREAD ? Thread : Text)({
+				id,
+				type,
+				meta: {
+					oembed: preview
+				}
+			});
+
+			winston.debug('New change:', entity);
+			bus.emit('change', {
+				entities: {
+					[id]: entity
+				}
+			});
+			break;
+		} catch (e) {
+			winston.warn('OEMBED_FETCH_FAILED:', e.message);
+		}
+	}
 }
 
-bus.on('preview/get', (req, next) => {
-	winston.info(`Got request for preview: ${req.url}`);
-	pg.read(config.connStr, {
-		$: 'SELECT * from preview_cache where url = &{url} and expiry > NOW()',
-		url: req.url
-	}, async (err, res) => {
-		req.response = {};
+bus.on('postchange', change => {
+	if (!change.entities) return;
 
-		if (err) {
-			winston.warn(err.message);
-			return next(err);
+	Object.keys(change.entities).forEach((id) => {
+		let links = [];
+		const item = change.entities[id];
+		if (item.createTime !== item.updateTime) return;
+		if (item.type === TYPE_TEXT) links = parseURLs(item.body, 1);
+		if (item.type === TYPE_THREAD) {
+			links = parseURLs(item.name);
+			if (!links.length) links = parseURLs(item.body, 1);
 		}
-
-		if (res.length && res[0] && res[0].preview) {
-			req.response.preview = res[0].preview;
-			return next();
-		}
-
-		try {
-			req.response.preview = await generatePreview(req.url);
-			updatePreview(req.url, req.response.preview);
-			return next();
-		} catch (e) {
-			return next(e);
-		}
+		if (links.length) addOEmbed(id, item, links);
 	});
 });
