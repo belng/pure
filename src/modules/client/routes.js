@@ -14,7 +14,7 @@ const PLAY_STORE_LINK = `https://play.google.com/store/apps/details?id=${config.
 
 const promo = handlebars.compile(fs.readFileSync(path.join(__dirname, '../../../templates/promo.hbs')).toString());
 const getEntityAsync = promisify(cache.getEntity.bind(cache));
-
+const queryEntityAsync = promisify(cache.query.bind(cache));
 bus.on('http/init', app => {
 	app.use(function *(next) {
 		const query = this.request.query;
@@ -46,40 +46,57 @@ bus.on('http/init', app => {
 
 				if (thread) {
 					title = thread.name;
-					description = `Install the ${config.app_name} app to join.`;
+					description = thread.body;
 				}
 
 				break;
 			}
 			}
 		}
-
 		const response: {
 			room: ?Object;
 			thread?: Object;
+			texts?: Array<Object>;
 			user?: Object;
 			playstore: string;
 			facebook: string;
 		} = {
 			room,
-			playstore: PLAY_STORE_LINK,
+			playstore: PLAY_STORE_LINK + (this.request.search ? ('&referrer=' + encodeURIComponent(this.request.search.substr(1))) : ''),
 			facebook: `https://www.facebook.com/sharer/sharer.php?u=${this.request.href}`,
 			twitter: `http://twitter.com/share?text=${encodeURIComponent(title || '')}&url=${encodeURIComponent(this.request.href)}`,
 		};
+		let image = `${this.request.origin}/s/assets/preview-thumbnail.png`;
+
 		if (thread) {
+			if(thread.counts.children < 10 || !thread.counts.children) thread.showAll = true;
+			else thread.more = thread.counts.children-10;
+			const queryTexts = yield queryEntityAsync({
+				type: 'text',
+					filter: {
+						parents_first: thread.id
+					},
+					order: 'createTime',
+				}, [-Infinity, Infinity]);
+			response.texts = queryTexts && queryTexts.arr ? queryTexts.arr.slice(0,10) : [];
+			if(thread.meta && thread.meta.photo) {
+				image = thread.meta.photo.thumbnail_url;
+				description = thread.counts && thread.counts.follower ?  thread.counts.follower + 'people talking' : '';
+			}
 			response.thread = thread;
 			response.user = {
 				id: thread.creator || '',
 				picture: `/i/picture?user=${thread.creator || ''}&size=48`
 			};
 		}
+		// console.log('response: ', response)
 		this.body = '<!DOCTYPE html>' + ReactDOMServer.renderToStaticMarkup(
 			<ServerHTML
 				locale='en'
 				title={title || config.app_name}
 				description={description || ''}
 				body={promo(response)}
-				image={`${this.request.origin}/s/assets/preview-thumbnail.png`}
+				image={image}
 				permalink={this.request.href}
 				styles={[
 					'//fonts.googleapis.com/css?family=Alegreya+Sans:300,500,900|Lato:400,700',
