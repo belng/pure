@@ -1,4 +1,5 @@
 /* @flow */
+import uuid from 'node-uuid';
 import winston from 'winston';
 import { bus } from '../../core-server';
 import { parseURLs } from '../../lib/URL';
@@ -15,6 +16,7 @@ async function addOEmbed(id, item, links) {
 			winston.debug('LINKS:', links);
 			preview = await generatePreview(links[i]); // eslint-disable-line babel/no-await-in-loop
 			winston.debug('Preview ready', preview);
+
 			const entity = new (type === TYPE_THREAD ? Thread : Text)({
 				id,
 				type,
@@ -22,6 +24,13 @@ async function addOEmbed(id, item, links) {
 					oembed: preview
 				}
 			});
+
+			if (!preview.description) {
+				const parts = [];
+				if (preview.provider_name) parts.push('on', preview.provider_name);
+				if (preview.author_name) parts.push('by', preview.author_name);
+				preview.description = parts.join(' ');
+			}
 
 			winston.debug('New change:', entity);
 			bus.emit('change', {
