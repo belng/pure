@@ -187,7 +187,13 @@ public class GCMPreferences {
             JSONArray notifications = new JSONArray(items);
 
             for (int i = 0; i < notifications.length(); i++) {
-                notifications.getJSONObject(i).put("readTime", new Date().getTime());
+                JSONObject notification = notifications.getJSONObject(i);
+
+                if (notification.has("readTime")) {
+                    continue;
+                }
+
+                notification.put("readTime", new Date().getTime());
             }
 
             SharedPreferences.Editor editor = getEditor(context);
@@ -219,8 +225,8 @@ public class GCMPreferences {
 
     public static class Subscription {
 
-        final SharedPreferences mSharedPreferences;
-        final SharedPreferences.OnSharedPreferenceChangeListener listener;
+        final private SharedPreferences mSharedPreferences;
+        final private SharedPreferences.OnSharedPreferenceChangeListener listener;
 
         Subscription(SharedPreferences sharedPreferences, final Runnable runnable) {
             mSharedPreferences = sharedPreferences;
