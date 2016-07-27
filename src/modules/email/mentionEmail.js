@@ -36,7 +36,7 @@ function initMailSending (userRel) {
 		const emailAdd = mailId.slice(7);
 		const emailHtml = template({
 				token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: '5 days' }),
-				domain: config.server.protocol + '//' + config.server.host + ':' + config.server.port,
+				domain: config.server.protocol + '//' + config.server.host,
 				link : '&utm_content=' + encodeURIComponent(emailAdd) + '&utm_campaign=' + Date.now(),
 				rooms: rels,
 			}),
