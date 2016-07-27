@@ -139,8 +139,7 @@ bus.on('http/init', app => {
 			case 'change':
 				bus.emit('change', message, handleChange.bind(null, socket, message, resourceId));
 				break;
-			case 's3/getPolicy':
-			case 'preview/get':
+			default:
 				bus.emit(frame.type, message, handleActions.bind(null, frame.type, socket, message, resourceId));
 				break;
 			}
