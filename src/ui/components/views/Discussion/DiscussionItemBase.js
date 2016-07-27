@@ -4,7 +4,7 @@ import React, { Component, PropTypes } from 'react';
 import ReactNative from 'react-native';
 import shallowCompare from 'react-addons-shallow-compare';
 import DiscussionActionSheetContainer from '../../containers/DiscussionActionSheetContainer';
-import DiscussionActionsContainer from '../../containers/DiscussionActionsContainer';
+import DiscussionActions from '../../containers/DiscussionActionsContainer';
 import DiscussionSummary from './DiscussionSummary';
 import DiscussionAuthor from './DiscussionAuthor';
 import CardTitle from '../Card/CardTitle';
@@ -25,8 +25,9 @@ const styles = StyleSheet.create({
 		marginHorizontal: 16,
 	},
 
-	topArea: {
+	row: {
 		flexDirection: 'row',
+		alignItems: 'center',
 	},
 
 	author: {
@@ -43,11 +44,23 @@ const styles = StyleSheet.create({
 	hidden: {
 		opacity: 0.3,
 	},
+
+	badge: {
+		position: 'absolute',
+		top: 54,
+		left: 5,
+		height: 6,
+		width: 6,
+		borderRadius: 3,
+		backgroundColor: Colors.accent,
+		elevation: 1,
+	},
 });
 
 type Props = {
 	thread: Thread;
 	threadrel: ?ThreadRel;
+	user: string;
 	onNavigate: Function;
 }
 
@@ -55,7 +68,7 @@ type State = {
 	actionSheetVisible: boolean
 }
 
-export default class DiscussionItem extends Component<void, Props, State> {
+export default class DiscussionItemBase extends Component<void, Props, State> {
 	static propTypes = {
 		thread: PropTypes.shape({
 			id: PropTypes.string.isRequired,
@@ -65,6 +78,7 @@ export default class DiscussionItem extends Component<void, Props, State> {
 			parents: PropTypes.arrayOf(PropTypes.string).isRequired,
 		}).isRequired,
 		threadrel: PropTypes.object,
+		user: PropTypes.string.isRequired,
 		onNavigate: PropTypes.func.isRequired,
 	};
 
@@ -107,6 +121,7 @@ export default class DiscussionItem extends Component<void, Props, State> {
 		const {
 			thread,
 			threadrel,
+			user,
 			onNavigate,
 		} = this.props;
 
@@ -116,12 +131,13 @@ export default class DiscussionItem extends Component<void, Props, State> {
 		}
 
 		const hidden = thread.tags && thread.tags.indexOf(TAG_POST_HIDDEN) > -1;
+		const unread = threadrel && threadrel.presenceTime && thread.updateTime ? thread.updateTime > threadrel.presenceTime : true;
 
 		return (
 			<View {...this.props}>
 				<TouchFeedback onPress={this._handlePress}>
 					<View style={hidden ? styles.hidden : null}>
-						<View style={styles.topArea}>
+						<View style={styles.row}>
 							<DiscussionAuthor {...this.props} style={styles.author} />
 							<TouchableOpacity onPress={this._handleShowMenu}>
 								<Icon
@@ -131,6 +147,10 @@ export default class DiscussionItem extends Component<void, Props, State> {
 								/>
 							</TouchableOpacity>
 						</View>
+						{unread ?
+							<View style={styles.badge} /> :
+							null
+						}
 						<CardTitle style={styles.item}>
 							{thread.name}
 						</CardTitle>
@@ -138,9 +158,10 @@ export default class DiscussionItem extends Component<void, Props, State> {
 							text={thread.body}
 							meta={thread.meta}
 						/>
-						<DiscussionActionsContainer
+						<DiscussionActions
 							thread={thread}
 							threadrel={threadrel}
+							user={user}
 							onNavigate={onNavigate}
 						/>
 					</View>

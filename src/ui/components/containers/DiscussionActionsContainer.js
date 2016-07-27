@@ -1,20 +1,27 @@
 /* @flow */
 
-import flowRight from 'lodash/flowRight';
 import createContainer from '../../../modules/store/createContainer';
-import createUserContainer from '../../../modules/store/createUserContainer';
 import DiscussionActions from '../views/Discussion/DiscussionActions';
-import {
-	likeThread,
-	unlikeThread,
-} from '../../../modules/store/actions';
 
-const mapDispatchToProps = dispatch => ({
-	likeThread: (thread, user, roles) => dispatch(likeThread(thread, user, roles)),
-	unlikeThread: (thread, user, roles) => dispatch(unlikeThread(thread, user, roles)),
+const getThreadRoute = thread => ({
+	name: 'chat',
+	props: {
+		room: thread.parents[0],
+		thread: thread.id,
+		title: thread.name,
+	},
 });
 
-export default flowRight(
-	createUserContainer(),
-	createContainer(null, mapDispatchToProps),
-)(DiscussionActions);
+const mapDispatchToProps = dispatch => ({
+	shareLink: thread => {
+		dispatch({
+			type: 'SHARE_LINK',
+			payload: {
+				title: 'Share discussion',
+				route: getThreadRoute(thread),
+			},
+		});
+	},
+});
+
+export default createContainer(null, mapDispatchToProps)(DiscussionActions);
