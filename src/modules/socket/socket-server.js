@@ -135,13 +135,10 @@ bus.on('http/init', app => {
 
 			message.source = 'socket';
 
-			switch (frame.type) {
-			case 'change':
+			if (frame.type === 'change') {
 				bus.emit('change', message, handleChange.bind(null, socket, message, resourceId));
-				break;
-			default:
+			} else if (frame.type) {
 				bus.emit(frame.type, message, handleActions.bind(null, frame.type, socket, message, resourceId));
-				break;
 			}
 		});
 	});
