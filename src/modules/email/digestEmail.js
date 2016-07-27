@@ -71,7 +71,7 @@ export function initMailSending (userRel: Object) {
 		date = Date.now();
 		const templateObj = {
 			token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: '5 days' }),
-			domain: config.server.protocol + '//' + config.server.host + ':' + config.server.port,
+			domain: config.server.protocol + '//' + config.server.host,
 			link : '?utm_source=DailyDigest&utm_medium=Email&utm_term='+ encodeURIComponent(emailAdd) + '&utm_content=' + encodeURIComponent(emailSub) + '&utm_campaign=' + date,
 			rooms: rels,
 			email: emailAdd,
