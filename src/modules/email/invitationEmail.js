@@ -32,17 +32,13 @@ function getEntityByIdentity(identities, callback) {
 }
 
 const getEntityByIdentityAsync = promisify(getEntityByIdentity.bind(getEntityByIdentity));
+//&referrer=utm_source%3DBelongInvite%26utm_medium%3DEmail%26utm_term%3DCReferrer%26utm_content%3DCemailaddress%26utm_campaign%3DCdate
 
 const initMailSending = (invitee, inviterLocalityName, inviterName) => {
 	const emailBody = template({
-<<<<<<< HEAD
-		referrer: (inviterName || '').split(' ')[0],
-		inviterLocalityName,
-=======
-		link: '?utm_source=BelongInvite&utm_medium=Email&utm_term='+ encodeURIComponent(inviterName) + '&utm_content='+encodeURIComponent(invitee.contact.email)+'&utm_campaign='+Date.now(),
+		link: '&referrer=utm_source%3DBelongInvite%26utm_medium%3DEmail%26utm_term%3D'+ encodeURIComponent(inviterName) + '%26utm_content%3D'+encodeURIComponent(invitee.contact.email)+'%26utm_campaign%3D'+Date.now(),
 		referrer: inviterName,
 		inviterLocalityName
->>>>>>> 9456698... (Fix) links to emails
 	});
 	const inlinedTemplate = juice(emailBody);
 	send(conf.from, invitee.contact.email, `Introducing Belong: Referred by ${inviterName}`, inlinedTemplate, e => {

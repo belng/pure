@@ -67,14 +67,6 @@ export function initMailSending (userRel: Object) {
 	mailIds.forEach((mailId) => {
 		counter1.inc();
 		const emailAdd = mailId.slice(7),
-<<<<<<< HEAD
-			emailHtml = template({
-				token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: '5 days' }),
-				domain: config.server.protocol + '//' + config.server.host + ':' + config.server.port,
-				rooms: rels,
-			}),
-			emailSub = getSubject(rels);
-=======
 		emailSub = getSubject(rels),
 		date = Date.now();
 		const templateObj = {
@@ -87,7 +79,6 @@ export function initMailSending (userRel: Object) {
 			date
 		};
 		const	emailHtml = template(templateObj);
->>>>>>> 9456698... (Fix) links to emails
 		log.info('Digest email to: ', emailAdd);
 
 		send(conf.from, emailAdd, emailSub, emailHtml, (e) => {
