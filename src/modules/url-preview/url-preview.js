@@ -1,5 +1,5 @@
 /* @flow */
-import uuid from 'node-uuid';
+
 import winston from 'winston';
 import { bus } from '../../core-server';
 import { parseURLs } from '../../lib/URL';
