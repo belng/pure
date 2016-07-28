@@ -1,126 +1,74 @@
-<!-- Inliner Build Version 4380b7741bb759d6cb997545f3add21ad48f010b -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
+<html>
+<body>
+  <table class="container" style="border: 0.25em;border-width: medium;border-color: black;border-collapse: collapse;max-width: 600px;margin: 10px auto;padding: 10px;">
+    <tr><td class="logo" colspan="2" style="text-align: center;padding-bottom: 10px;">
+      <img alt="Belong" src="https://raw.githubusercontent.com/RahulKondi/belongemail/master/img/belong.png" style="width:144px; height:54px;">
+    </td></tr>
+    <tr><td class="hero" colspan="2" style="background: #ff1144;padding: 30px 50px;text-align: left;max-width: 400px;font-size: 1.5em;color: white;margin: 0 auto;border-radius: 3px;box-shadow: 2px 2px 2.5px #e6e6e6;text-shadow: 2px 2px #e42c5;">
+      <div>
+        <p><b>There ought to be a better way to start the day than by getting out of bed.</b></p>
+        <p>Here's some fun chatter for you to catch up with.</p>
+      </div>
+    </td></tr>
+    <tr><td class="heading" colspan="2" style="font-size: 2em;padding: 50px 0px 0px 6px;">
+      Discussions trending today
+    </td></tr>
+    {{#each threads}}
+    {{#if this.indexFourth}}
+    <tr><td class="heading" colspan="2" style="font-size: 2em;padding: 50px 0px 0px 6px;">
+      More Discussions
+    </td></tr>
+    {{/if}}
 
-<head>
-	<!-- If you delete this tag, the sky will fall on your head -->
-	<meta name="viewport" content="width=device-width" />
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title>Hey, Neighbor!</title>
-	<!--<link rel="stylesheet" type="text/css" href="stylesheets/email.css" />-->
-</head>
+    <tr>
+      <td>
+        <div class="container" style="margin: 10px auto;padding: 10px;">
+          <div class="card" style="float: right;width: 525px;">
+            <div class="discussion-title" style="font-weight: bold;font-size: 1.2em;">{{this.threadtitle}}</div>
+            <div>
+              {{#if this.showBody}}
+              {{#if this.photo}}
+              <div class="message-body-image" style="height: 200px;max-width: 500px;background-image: url({{this.photo}})"></div>
+              {{/if}}
+              {{#unless this.photo}}
+              <div class="message-body" style="margin: 5px auto;font-size: 1.1em;color: #4d4d4d;line-height: 1.25em;">{{this.body}}</div>
+              {{/unless}}
+              {{/if}}
+              <span class="card-footer" style="margin-top: 15px;display: inline-block;color: #888888;">
+                <span class="inline-blocks creator" style="margin-right: 20px;display: inline-block;vertical-align: middle;padding-right: 6.75px;">
+                  <span class="inline-blocks" style="display: inline-block;vertical-align: middle;padding-right: 6.75px;"> <img class="dp" src="/i/picture?user={{this.creator}}&size=48" alt="⇣" style="border-radius: 50%;float: left;width: 24px;height: 24px;"> </span>
+                  <span class="inline-blocks" style="display: inline-block;vertical-align: middle;padding-right: 6.75px;"> <b>{{this.creator}}</b> </span>
+                </span>
+                <span class="inline-blocks location" style="margin-right: 20px;display: inline-block;vertical-align: middle;padding-right: 6.75px;">
+                  <span class="inline-blocks" style="display: inline-block;vertical-align: middle;padding-right: 6.75px;">
+                    <img src="http://s.bel.ng/s/location.png">
 
-<body bgcolor="#FFFFFF" style="font-family: 'Open Sans', sans-serif; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none; width: 100% !important; height: 100%; margin: 0; padding: 0;">
-	<style type="text/css">
-		@font-face {
-			font-family: 'Open Sans';
-			font-style: normal;
-			font-weight: 400;
-			src: local('Open Sans'), local('OpenSans'), url('http://fonts.gstatic.com/s/opensans/v13/cJZKeOuBrn4kERxqtaUH3aCWcynf_cDxXwCLxiixG1c.ttf') format('truetype');
-		}
-	</style>
+                  </span>
+                  <span class="inline-blocks" style="display: inline-block;vertical-align: middle;padding-right: 6.75px;">{{this.roomname}}</span>
+                </span>
+                <span class="inline-blocks likes" style="margin-right: 20px;display: inline-block;vertical-align: middle;padding-right: 6.75px;">
+                  <span class="inline-blocks" style="display: inline-block;vertical-align: middle;padding-right: 6.75px;">
+                    <img class="img-heart" src="http://s.bel.ng/s/heart.png" style="width: 16px;height: 14.170px;">
+                  </span>
+                  <span class="inline-blocks" style="display: inline-block;vertical-align: middle;padding-right: 6.75px;">{{this.upvote}} Likes</span>
+                </span>
+                <span class="inline-blocks" style="display: inline-block;vertical-align: middle;padding-right: 6.75px;">
+                  <a href="{{../this.domain}}{{../this.link}}" style="text-decoration: none;">
+                    <button class="read-button" style="background: #ff1144;border-radius: 2px;box-shadow: 2px 2px 2.5px #e6e6e6;text-shadow: 2px 2px #e42c5;padding: 10px;text-align: center;min-width: 100px;font-size: 1em;font-weight: bold;color: white;display: block;appearance: none;-webkit-appearance: none;-moz-appearance: none;border: 0;vertical-align: middle;">Read more
+                    </button>
+                  </a>
+                </span>
+              </span>
+            </div></div></div></td>
+          </tr>
+          {{/each}}
 
-	<table class="body-wrap" style="font-family: 'Open Sans', sans-serif; width: 100%; margin: 0; padding: 0;">
-		<tr style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
-			<td style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;"></td>
-			<td class="container" bgcolor="#FFFFFF" style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
-
-				<div class="content" style="font-family: 'Open Sans', sans-serif; max-width: 600px; display: block; margin: 0 auto; padding: 15px;">
-					<table style="font-family: 'Open Sans', sans-serif; width: 100%; margin: 0; padding: 0;">
-						<tr style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
-							<td style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
-								<table class="social" height="120px" style=" font-family: 'Open Sans', sans-serif; width: 100%; background: white url(http://web.heyneighbor.chat/assets/mail-header.png); margin: 0px 0 0; padding: 0;" bgcolor="white" background="url(http://web.heyneighbor.chat/assets/mail-header.png)">
-									<tr align="center" style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
-										<td style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
-
-											<table align="center" style="font-family: 'Open Sans', sans-serif; width: 100%; margin: 0; padding: 0;">
-												<tr style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
-													<td align="center" style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
+        <td class="footer" colspan="2" style="max-width: 600px;margin: 0px 10px;padding-top: 100px;font-size: 0.75em;color: #4d4d4d;">
+          <b>&copy; Belong</b> Your friendly neighborhood, #43, KR Garden, Murugeshpalya, Bangalore, Karnataka, 560017
+          <p>Ignorance is bliss? <a href="{{domain}}/r/unsubscribe?email={{token}}" style="color:#6644bb; text-decoration: none"> Unsubscribe</a> </p>
+        </td>
 
 
-														<img class="img-responsive" src="http://web.heyneighbor.chat/assets/knock.png" height="110px" style=" font-family: 'Open Sans', sans-serif; max-width: 100%; margin: 0; padding: 0;" /></td>
-												</tr>
-											</table>
-											<!-- /column 1 -->
-										</td>
-									</tr>
-								</table>
-								<!-- /social & contact -->
-								<table class="social" width="100%" style="font-family: 'Open Sans', sans-serif; width: 100%; background: white; margin: 0; padding: 0;" bgcolor="white">
-									<tr style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
-										<td style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
-
-											<table align="center" style="font-family: 'Open Sans', sans-serif; width: 100%; margin: 0; padding: 0;">
-												<tr style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
-													<td align="center" style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
-
-													</td>
-												</tr>
-											</table>
-											<!-- /column 1 -->
-										</td>
-									</tr>
-								</table>
-								<!-- /social & contact -->
-								<table class="social" width="100%" align="center" style="font-family: 'Open Sans', sans-serif; width: 100%; background: white; margin: 0; padding: 0;" bgcolor="white">
-									<tr style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
-										<td style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
-
-										{{#each rooms}}
-
-											<div class="column-wrap" style="font-family: 'Open Sans', sans-serif; max-width: 600px !important; margin: 0 auto; padding: 0; border: 1px;">
-
-												<div class="column" style="font-family: 'Open Sans', sans-serif; width: 280px; float: left; height: 320px; border-radius: 2px; min-width: 279px; background: white; margin: 5px; padding: 0; border: 1px solid #c2c2c2;">
-													<table style="font-family: 'Open Sans', sans-serif; width: 100%; margin: 0; padding: 0;">
-														<tr style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
-															<td style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 15px;">
-
-																<h4 style="font-family: 'Open Sans', sans-serif; line-height: 1.1; color: #000; font-weight: 500; font-size: 23px; margin: 0 0 15px; padding: 0;"><strong style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">{{this.room}} </strong></h4>
-																<div style="height: 200px; font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;">
-																	{{#each this.threads}}
-
-																	<a href="{{{../../this.domain}}}/{{../this.id}}/{{this.id}}/{{{../../this.link}}}" style="font-family: 'Open Sans', sans-serif; color: black; text-decoration: none; margin: 0; padding: 0;">
-																		<p style="font-family: 'Open Sans', sans-serif; font-weight: normal; font-size: 14px; line-height: 1.6; margin: 0 0 10px; padding: 0;">{{this.title}}</p>
-
-																	</a>
-																	<p style="font-family: 'Open Sans', sans-serif; font-weight: normal; font-size: 14px; line-height: 1.6; margin: 0 0 10px; padding: 0;"><img height="15px" src="http://web.heyneighbor.chat/assets/time.png" style="veritcal-align: middle; height: 15px; font-family: 'Open Sans', sans-serif; max-width: 100%; margin: 0; padding: 0;" /> {{this.displayTime}}
-																		<img src="http://web.heyneighbor.chat/assets/messages.png" height="15px" style="veritcal-align: middle;  font-family: 'Open Sans', sans-serif; max-width: 100%; margin: 0; padding: 0;" /> {{this.counts}} </p>
-																	<br style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;" />
-																{{/each}}
-
-																</div>
-
-															</td>
-														</tr>
-													</table>
-												</div>
-											</div>
-									{{/each}}
-
-											<br style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;" />
-											<br style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;" />
-										</td>
-									</tr>
-								</table>
-							</td>
-						</tr>
-						<tr>
-							<td style="background: #eee; padding: 10px; font-size: 0.8em; color: #999">
-								<p>If you don't want these email notifications anymore,
-									<a style="color: #555" href="{{{domain}}}/r/unsubscribe?email={{token}}">
-										Unsubscribe
-									</a>. Copyright &copy; 2016 Askabt Technology Pvt. Ltd.
-								</p>
-							</td>
-						</tr>
-					</table>
-				</div>
-
-			</td>
-			<td style="font-family: 'Open Sans', sans-serif; margin: 0; padding: 0;"></td>
-		</tr>
-	</table>
-	<!-- /BODY -->
-</body>
-
-</html>
+    </table>
+  </body>
+  </html>
