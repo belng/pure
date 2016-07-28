@@ -8,7 +8,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Date;
 import java.util.UUID;
 
 public class GCMPreferences {
@@ -167,7 +166,7 @@ public class GCMPreferences {
             for (int i = 0; i < currentNotifications.length(); i++) {
                 JSONObject note = currentNotifications.getJSONObject(i);
 
-                if (note.get("id") == id) {
+                if (note.get("id").equals(id)) {
                     continue;
                 }
 
@@ -193,7 +192,7 @@ public class GCMPreferences {
                     continue;
                 }
 
-                notification.put("readTime", new Date().getTime());
+                notification.put("readTime", System.currentTimeMillis());
             }
 
             SharedPreferences.Editor editor = getEditor(context);
@@ -204,7 +203,7 @@ public class GCMPreferences {
 
     public static void clearCurrentNotifications(Context context) {
         SharedPreferences.Editor editor = getEditor(context);
-        editor.clear();
+        editor.remove(NOTIFICATIONS_KEY);
         editor.apply();
     }
 
@@ -219,29 +218,11 @@ public class GCMPreferences {
         return getPreferences(context).getString(REGISTRATION_TOKEN_KEY, null);
     }
 
-    public static Subscription subscribe(Context context, final Runnable runnable) {
-        return new Subscription(getPreferences(context), runnable);
+    public static void addListener(Context context, final SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        getPreferences(context).registerOnSharedPreferenceChangeListener(listener);
     }
 
-    public static class Subscription {
-
-        final private SharedPreferences mSharedPreferences;
-        final private SharedPreferences.OnSharedPreferenceChangeListener listener;
-
-        Subscription(SharedPreferences sharedPreferences, final Runnable runnable) {
-            mSharedPreferences = sharedPreferences;
-            listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-                @Override
-                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                    runnable.run();
-                }
-            };
-
-            mSharedPreferences.registerOnSharedPreferenceChangeListener(listener);
-        }
-
-        public void remove() {
-            mSharedPreferences.unregisterOnSharedPreferenceChangeListener(listener);
-        }
+    public static void removeListener(Context context, final SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        getPreferences(context).unregisterOnSharedPreferenceChangeListener(listener);
     }
 }
