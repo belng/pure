@@ -13,7 +13,6 @@ const DIGEST_INTERVAL = 60 * 60 * 1000,
 		fs.readFileSync(__dirname + '/../../../templates/' + config.app_id + '.digest.hbs', 'utf-8').toString()
 	),
 	connStr = config.connStr, conf = config.email;
-
 let lastEmailSent, /*end,*/ log = new Logger(__filename, 'digest');
 const readSync = promisify(pg.read.bind(pg, connStr));
 
@@ -41,12 +40,15 @@ export function initMailSending (userThreadRel) {
 		});
 		if(mailIds.length === 0) res();
 		const emailAdd = mailIds[0].slice(7),
-		emailSub = 'Updates from ' + config.app_name,
-		date = Date.now();
+		emailSub = threads[0].threadtitle;
+		const date = new Date().getDate(),
+			month = new Date().getMonth()+1,
+			year = new Date().getFullYear();
+		const formattedDate = date + '-' + month + '-' + year;
 		const templateObj = {
 			token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: '5 days' }),
 			domain: config.server.protocol + '//' + config.server.host,
-			link : '?utm_source=DailyDigest&utm_medium=Email&utm_term='+ encodeURIComponent(emailAdd) + '&utm_content=' + encodeURIComponent(emailSub) + '&utm_campaign=' + date,
+			link : '?utm_source=DailyDigest&utm_medium=Email&utm_term='+ encodeURIComponent(user.id) + '&utm_content=' + encodeURIComponent(emailSub) + '&utm_campaign=' + encodeURIComponent(formattedDate),
 			threads,
 			email: emailAdd,
 			sub: emailSub,
@@ -112,7 +114,7 @@ async function sendDigestEmail () {
 				return b.upvote - a.upvote;
 			});
 			threadRels = threadRels.slice(0, 8);
-			console.log(/*threadRels,*/ threadRels.length);
+			log.info(/*threadRels,*/ 'Got threads: ', threadRels.length);
 			await initMailSending({threadRels, user: users[i]});
 		}
 		log.info('ended digest email');
