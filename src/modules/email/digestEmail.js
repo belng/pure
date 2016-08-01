@@ -98,7 +98,7 @@ async function sendDigestEmail () {
 					AND (users.params-> 'email'->>'frequency' = 'daily' OR (users.params->'email') IS NULL)`,
 		range
 	});
-
+	log.info('Got ', users.length, ' users to send daily digest');
 	async function getRels()  {
 		for(let i=0; i< users.length; i++) {
 			log.info('Getting rels of: ', users[i].id);
@@ -113,8 +113,11 @@ async function sendDigestEmail () {
 			threadRels.sort((a, b) => {
 				return b.upvote - a.upvote;
 			});
+			log.info('Got threads: ', threadRels.length);
+			if (threadRels.length === 0) {
+				continue;
+			}
 			threadRels = threadRels.slice(0, 8);
-			log.info(/*threadRels,*/ 'Got threads: ', threadRels.length);
 			await initMailSending({threadRels, user: users[i]});
 		}
 		log.info('ended digest email');
