@@ -40,7 +40,7 @@ export function initMailSending (userThreadRel) {
 		});
 		if(mailIds.length === 0) res();
 		const emailAdd = mailIds[0].slice(7),
-		emailSub = threads[0].threadtitle;
+		emailSub = threads[0].threadtitle + ' & More from Belong';
 		const date = new Date().getDate(),
 			month = new Date().getMonth()+1,
 			year = new Date().getFullYear();
@@ -70,7 +70,7 @@ async function sendDigestEmail () {
 	const today = new Date().toString().split(" ")[2],
 		lastEmailSentDay = new Date(parseInt(lastEmailSent, 10)).toString().split(" ")[2];
 
-	if(new Date().getUTCHours() !== 22) { //Send at 3am IST. Move this to config
+	if(new Date().getUTCHours() !== 2) { //Send at 7am IST. Move this to config
 		log.info('Not digest email time: ', new Date().getUTCHours());
 		return;
 	}
