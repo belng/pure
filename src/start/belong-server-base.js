@@ -43,8 +43,6 @@ import '../modules/content-seeding/content-seeding';
 import '../modules/content-seeding/news-aggregator';
 import '../modules/url-preview/url-preview';
 
-// Email server
-import '../modules/email/email-daemon';
 // Moderator UI
 import '../modules/modui/modui-server';
 
