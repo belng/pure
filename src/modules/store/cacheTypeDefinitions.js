@@ -1,10 +1,5 @@
 /* @flow */
 
-export type Action = {
-	type: string;
-	payload?: any;
-}
-
 export type EventSubscription = {
 	remove: () => void
 }
@@ -31,8 +26,4 @@ export type SubscriptionOptions = {
 	path?: string;
 	source: string;
 	defer?: ?boolean;
-}
-
-export type Cache = {
-	watch: (options: SubscriptionOptions, callback: Function) => ?Function;
 }
