@@ -8,8 +8,14 @@
 	},
 
 	"invitationEmail": {
-		"limit": 30,
-		"interval": 360000
+		"limit": 300,
+		"interval": 360000,
+		"delay": 600000
+	},
+
+	"contactsFilter": {
+	    "limitContactTo": 300,
+	    "jobInvocationInterval": 3600000
 	},
 
 	"server": {

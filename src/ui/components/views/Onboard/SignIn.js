@@ -5,7 +5,7 @@ import Radium from 'radium';
 import shallowCompare from 'react-addons-shallow-compare';
 import LargeButton from './LargeButton';
 import GoogleSignIn from '../../../modules/GoogleSignIn';
-import Facebook from '../../../modules/Facebook';
+import FBLoginManager from '../../../../lib/FBLoginManager';
 import Colors from '../../../Colors';
 
 const styles = {
@@ -82,8 +82,6 @@ const styles = {
 
 const PROVIDER_GOOGLE = 'google';
 const PROVIDER_FACEBOOK = 'facebook';
-const PERMISSION_PUBLIC_PROFILE = 'public_profile';
-const PERMISSION_EMAIL = 'email';
 
 type Token = { accessToken: string; } | { idToken: string; } | { code: string; };
 
@@ -151,25 +149,23 @@ class SignIn extends Component<void, Props, State> {
 
 	_signInWithFacebook = async (): Promise => {
 		try {
-			const result = await Facebook.logInWithReadPermissions([
-				PERMISSION_PUBLIC_PROFILE, PERMISSION_EMAIL,
-			]);
+			const result = await FBLoginManager.logIn();
 
-			const {
-				code,
-			} = result;
-
-			if (code) {
-				this._onSignInSuccess(PROVIDER_FACEBOOK, { code });
-			} else {
+			if (result.isCancelled) {
 				this._onSignInFailure(PROVIDER_FACEBOOK);
-			}
+			} else {
+				const {
+					code,
+				} = result;
 
+				if (code) {
+					this._onSignInSuccess(PROVIDER_FACEBOOK, { code });
+				} else {
+					this._onSignInFailure(PROVIDER_FACEBOOK);
+				}
+			}
 		} catch (e) {
-			if (e.code !== 'ERR_SIGNIN_CANCELLED') {
-				this._showFailureMessage();
-			}
-
+			this._showFailureMessage();
 			this._onSignInFailure(PROVIDER_FACEBOOK);
 		}
 	};

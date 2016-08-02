@@ -3,10 +3,15 @@ package chat.belong.hello;
 import android.app.Application;
 
 import com.crashlytics.android.Crashlytics;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 import com.facebook.react.ReactApplication;
+import com.smixx.fabric.FabricPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
+import com.facebook.reactnative.androidsdk.FBSDKPackage;
 import com.imagechooser.ImageChooserPackage;
 
 import java.util.Arrays;
@@ -16,18 +21,24 @@ import chat.belong.hello.bundle.JSBundleManager;
 import chat.belong.hello.modules.analytics.AnalyticsPackage;
 import chat.belong.hello.modules.contacts.ContactsPackage;
 import chat.belong.hello.modules.core.CorePackage;
-import chat.belong.hello.modules.facebook.FacebookPackage;
 import chat.belong.hello.modules.gcm.GCMPackage;
 import chat.belong.hello.modules.google.GooglePackage;
-import chat.belong.hello.modules.network.NetworkingPackage;
 import io.fabric.sdk.android.Fabric;
 
 public class MainApplication extends Application implements ReactApplication {
+
+    private static CallbackManager mCallbackManager = CallbackManager.Factory.create();
+
+    protected static CallbackManager getCallbackManager() {
+        return mCallbackManager;
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        FacebookSdk.sdkInitialize(this);
+        AppEventsLogger.activateApp(this);
         Fabric.with(this, new Crashlytics());
         AppState.init(this);
     }
@@ -59,13 +70,13 @@ public class MainApplication extends Application implements ReactApplication {
         protected List<ReactPackage> getPackages() {
             return Arrays.asList(
                     new MainReactPackage(),
-                    new NetworkingPackage(),
+                    new FabricPackage(),
+                    new FBSDKPackage(mCallbackManager),
                     new CorePackage(),
                     new GCMPackage(),
                     new ContactsPackage(),
                     new GooglePackage(),
                     new AnalyticsPackage(),
-                    new FacebookPackage(),
                     new ImageChooserPackage()
             );
         }

@@ -5,8 +5,8 @@ import dns from 'dns';
 import { Socket } from 'net';
 import EventEmitter from 'events';
 import promisify from './promisify';
-import winston from 'winston';
-
+import Logger from './logger';
+const log = new Logger(__filename);
 function createSmtpConnection(mx: string): Promise<any> {
 	const socket = new Socket();
 	const connection = socket.connect(25, mx);
@@ -36,7 +36,7 @@ function createSmtpConnection(mx: string): Promise<any> {
 	connection.setEncoding('ascii');
 
 	connection.on('connect', () => {
-		winston.info('EMAIL-SCRUBBER', `connection established for the mx: ${mx}`);
+		log.info('EMAIL-SCRUBBER', `connection established for the mx: ${mx}`);
 	});
 
 	connection.on('data', data => {
@@ -61,7 +61,7 @@ function createSmtpConnection(mx: string): Promise<any> {
 			}
 			clear();
 		} catch (e) {
-			winston.info(this._LOG_TAG, `error while destructuring ${data} response from mx server`);
+			log.info(this._LOG_TAG, `error while destructuring ${data} response from mx server`);
 			this.emit('error', e);
 		}
 	});
@@ -127,7 +127,9 @@ export default class BulkEmailChecker extends EventEmitter {
 
 		if (this._dnsCache[domain]) {
 			mx = this._dnsCache[domain];
+
 		} else {
+
 			try {
 				mxRecords = await this._resolveMxPromise(domain);
 
@@ -203,7 +205,7 @@ export default class BulkEmailChecker extends EventEmitter {
 					}
 				}
 			} catch (err) {
-				this.emit('error', err);
+				this.emit('error', {...err, emails});
 			}
 		}
 	}
@@ -224,7 +226,10 @@ export default class BulkEmailChecker extends EventEmitter {
 				if (this._emailCache[domain].length > this._MAX_RCPT_TO_PER_CONN) {
 					this._connectionCount++;
 					this._verifyBucket(domain, this._emailCache[domain])
-						.catch((error) => this.emit('error', error))
+						.catch((error) => {
+							log.info('error: ', error, email);
+							this.emit('error', {...error, email});
+						})
 						.then(() => {
 							this._connectionCount--;
 							if (this._connectionCount === 0) {

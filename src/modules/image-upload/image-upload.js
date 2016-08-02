@@ -1,10 +1,10 @@
 import crypto from 'crypto';
 import winston from 'winston';
-// import buildAvatarURLForSize from '../../lib/buildAvatarURLForSize';
+import buildAvatarURLForSize from '../../lib/buildAvatarURLForSize';
 import EnhancedError from '../../lib/EnhancedError';
-import { APP_PRIORITIES /* , TYPE_USER*/ } from '../../lib/Constants';
+import { APP_PRIORITIES, TYPE_USER } from '../../lib/Constants';
 import { bus, config } from '../../core-server';
-// import { urlTos3 } from '../../lib/upload';
+import { urlTos3 } from '../../lib/upload';
 
 function getDate({ long } = {}) {
 	const date = new Date();
@@ -205,7 +205,6 @@ if (!config.s3) {
 	winston.info('Image upload is ready');
 }
 
-/*
 const uploadImage = async (userName: string, imageUrl: string, propName: string) => {
 	const imageName = 'avatar.jpg';
 	await urlTos3(buildAvatarURLForSize(imageUrl, 1024), 'avatar/' + userName + '/' + imageName);
@@ -247,5 +246,3 @@ if (config.s3) {
 		await Promise.all(promises);
 	});
 }
-
-*/

@@ -1,8 +1,11 @@
 /* @flow */
 
-import { bus, cache } from '../../core-client';
+import { cache } from '../../core-client';
 import SimpleStore from './SimpleStore';
-import type { SubscriptionOptions } from './SimpleStoreTypes';
+import middlewares from '../../ui/middlewares/middlewares';
+import type {
+	SubscriptionOptions,
+} from './SimpleStoreTypes';
 
 const LOADING = Object.freeze({ type: 'loading' });
 const LOADING_ITEMS = Object.freeze([ LOADING ]);
@@ -107,11 +110,12 @@ const watch = (options: SubscriptionOptions, callback: Function) => {
 	}
 };
 
-const put = (payload: Object): void => bus.emit('change', payload);
-
 const store = new SimpleStore({
 	watch,
-	put,
+});
+
+middlewares.forEach(middleware => {
+	store.addMiddleware(middleware);
 });
 
 export default store;

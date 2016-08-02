@@ -10,7 +10,7 @@ import {
 	ROLE_UPVOTE,
 	TYPE_THREADREL,
 	TYPE_TEXT,
-	TYPE_THREAD
+	TYPE_THREAD,
 } from '../../lib/Constants';
 import promisify from '../../lib/promisify';
 import { convertRouteToURL } from '../../lib/Route';
@@ -35,34 +35,43 @@ export async function getTextParents(text: TextType): Promise<{ room: RoomType; 
 	return { room, thread };
 }
 
-
 export function createNote(
 	rel: RelationType, item: ThreadType | TextType,
 	{ room, thread }: { room: RoomType; thread: ThreadType; },
 	now: number, type: number
 ): Note {
-	let event = NOTE_MENTION, noteTo = rel.user, noteFrom = item.creator,
-		title = `New mention in ${room.name}`;
+	let event, title, body, picture, user, creator;
+
+	body = item.meta && item.meta.photo ? '📷 [photo]' : item.body;
 
 	if (type === ROLE_UPVOTE) {
-		let subTitle;
-		// console.log("item note: ",item)
-		if (item.type === TYPE_TEXT) {
-			subTitle = 'message';
-		}
-		if (item.type === TYPE_THREAD) {
-			subTitle = 'discussion';
-		}
-
+		const likes = item.counts && item.counts.upvote ? item.counts.upvote : 0;
 		event = NOTE_UPVOTE;
-		noteTo = item.creator;
-		noteFrom = rel.user;
-		title = `${noteFrom} liked your ${subTitle}`;
+		user = item.creator;
+		creator = rel.user;
+		picture = `${server}/s/assets/notification-heart.png`;
+		title = likes > 1 ? `${creator} and ${likes - 1} more` : `New like from ${creator} in ${room.name}`;
+		body = `liked '${body}'`;
+	} else {
+		event = NOTE_MENTION;
+		user = rel.user;
+		creator = item.creator;
+		picture = `${server}/i/picture?user=${creator}&size=${128}`;
+		title = `New mention in ${room.name}`;
 	}
+
+	const link = server + convertRouteToURL({
+		name: 'chat',
+		props: {
+			room: room.id,
+			thread: thread.id,
+		},
+	});
+
 	const note: NoteType = {
-		group: thread.id,
-		user: noteTo,
+		user,
 		event,
+		group: thread.id,
 		type: TYPE_NOTE,
 		createTime: now,
 		updateTime: now,
@@ -70,8 +79,6 @@ export function createNote(
 		score: 50,
 		data: {
 			id: item.id,
-			creator: noteFrom,
-			picture: event === NOTE_UPVOTE ? `${server}s/assets/notification-heart.png` : `${server}/i/picture?user=${noteFrom}&size=${128}`,
 			room: {
 				id: room.id,
 				name: room.name,
@@ -80,15 +87,11 @@ export function createNote(
 				id: thread.id,
 				name: thread.name,
 			},
-			link: server + convertRouteToURL({
-				name: 'chat',
-				props: {
-					room: room.id,
-					thread: thread.id,
-				},
-			}),
 			title,
-			body: item.body,
+			body,
+			link,
+			picture,
+			creator,
 		},
 	};
 
