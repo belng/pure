@@ -39,20 +39,19 @@ function getKeyPrefix(userId, uploadType, textId) {
 		return uploadType + '/' + userId + '/';
 	case 'content':
 		return uploadType + '/' + userId + '/' + textId + '/';
+	default:
+		throw new Error('Invalid upload type specified: ' + uploadType);
 	}
-	return '';
 }
 
 // For old bucket
 function getOldKeyPrefix(userId, uploadType, textId) {
 	switch (uploadType) {
-	case 'avatar':
-	case 'banner':
-		return 'uploaded/' + uploadType + '/' + userId + '/';
 	case 'content':
 		return 'uploaded/' + uploadType + '/' + userId + '/' + textId + '/';
+	default:
+		throw new Error('Invalid upload type specified: ' + uploadType);
 	}
-	return '';
 }
 
 function getCredential() {
@@ -126,17 +125,19 @@ export function getResponse(policyReq) {
 		url;
 
 	if (/\s{2,}/.test(filename)) {
-		throw new Error('Aws does not accepts filename with multiple spaces in it.');
+		throw new Error('S3 does not support filenames with multiple spaces');
 	}
+
+	const ext = filename.split('.').pop() || 'jpg';
 
 	switch (policyReq.uploadType) {
 	case 'avatar':
-		key += 'avatar.' + filename.split('.').pop();
+		key += 'avatar.' + ext;
 		url = upload_url + key;
 		thumbnail += '256.jpg';
 		break;
 	case 'content':
-		key += 'content.' + filename.split('.').pop();
+		key += 'content.' + ext;
 		url = upload_url + key;
 		thumbnail += '320.jpg';
 		break;
@@ -223,7 +224,7 @@ const uploadImage = async (userName: string, imageUrl: string, propName: string)
 };
 
 if (config.s3) {
-		bus.on('postchange', async ({ entities }) => {
+	bus.on('postchange', async ({ entities }) => {
 		const promises = [];
 		if (entities) {
 			for (const id in entities) {
