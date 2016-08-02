@@ -8,8 +8,8 @@ test('generate policies for "content" type upload', t => {
 		},
 		uploadType: 'content',
 		textId: 'df37y32-h87er-efewrywe-we',
+		filename: 'myfile.jpg',
 	};
-	getResponse(req);
-	t.true(typeof req.response === 'object');
-	t.is(req.response.acl, 'public-read');
+	const response = getResponse(req);
+	t.is(response.policy.acl, 'public-read');
 });
