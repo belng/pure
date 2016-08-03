@@ -45,10 +45,8 @@ function transformFunction(props) {
 function mapSubscriptionToProps(props) {
 	return {
 		me: {
-			key: {
-				type: 'entity',
-				id: props.user,
-			},
+			type: 'entity',
+			id: props.user,
 		},
 	};
 }

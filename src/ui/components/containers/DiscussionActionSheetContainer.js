@@ -27,7 +27,7 @@ const transformFunction = props => {
 
 const mapSubscriptionToProps = {
 	data: {
-		key: 'me',
+		type: 'me',
 	},
 };
 

@@ -1,7 +1,8 @@
 import test from 'ava';
 import React from 'react';
 import { mount } from 'enzyme';
-import SimpleStore from '../SimpleStore';
+import { createStore } from 'redux';
+import addQueryProviders from '../addQueryProviders';
 import Provider from '../Provider';
 import createTransformPropsContainer from '../createTransformPropsContainer';
 
@@ -23,10 +24,7 @@ test('should transform props', t => {
 		return nextProps;
 	};
 
-	const store = new SimpleStore({
-		watch: () => null,
-		put: () => null,
-	});
+	const store = createStore(state => state, {}, addQueryProviders());
 
 	const Container = createTransformPropsContainer(transformFunction)(MyComponent);
 	const wrapper = mount(

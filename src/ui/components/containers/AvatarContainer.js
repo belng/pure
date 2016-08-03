@@ -7,7 +7,7 @@ import { config } from '../../../core-client';
 const { host, protocol } = config.server;
 
 const AvatarContainer = (props: any) => (
-	<Avatar { ...props } uri={`${protocol}//${host}/i/picture?user=${props.user}&size=${props.size}`} />
+	<Avatar {...props} uri={`${protocol}//${host}/i/picture?user=${props.user}&size=${props.size}`} />
 );
 
 AvatarContainer.defaultProps = {

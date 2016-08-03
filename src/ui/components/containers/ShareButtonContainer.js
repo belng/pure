@@ -27,10 +27,8 @@ const mapDispatchToProps = dispatch => ({
 const mapSubscriptionToProps = ({ thread }) => {
 	return {
 		thread: {
-			key: {
-				type: 'entity',
-				id: thread,
-			},
+			type: 'entity',
+			id: thread,
 		},
 	};
 };

@@ -1,6 +1,5 @@
 /* @flow */
 
-import { bus } from '../../core-client';
 import store from '../../modules/store/store';
 import PersistentStorage from '../../lib/PersistentStorage';
 
@@ -15,32 +14,20 @@ async function saveAndInitializeSession() {
 		// do nothing
 	}
 
-	const changes: { auth?: { session: string } } = {
-		state: {
-			session,
-		},
-	};
+	store.dispatch({
+		type: 'SET_SESSION',
+		payload: session,
+	});
 
 	if (session) {
-		changes.auth = {
-			session,
-		};
-	}
-
-	bus.emit('change', changes);
-}
-
-bus.on('error', changes => {
-	if (changes.state && changes.state.signin) {
-		bus.emit('change', {
-			state: {
-				session: null,
+		store.dispatch({
+			type: 'AUTH',
+			payload: {
+				session,
 			},
 		});
 	}
-});
-
-bus.on('state:init', state => (state.session = '@@loading'));
+}
 
 store.observe({ type: 'state', path: 'session', source: 'session' }).forEach(session => {
 	if (session === '@@loading') {

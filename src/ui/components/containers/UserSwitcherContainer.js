@@ -43,16 +43,12 @@ class UserSwitcherContainerInner extends Component<void, Props, void> {
 
 const mapSubscriptionToProps = {
 	user: {
-		key: {
-			type: 'state',
-			path: 'user',
-		},
+		type: 'state',
+		path: 'user',
 	},
 	data: {
-		key: {
-			type: 'state',
-			path: 'sessionList',
-		},
+		type: 'state',
+		path: 'sessionList',
 	},
 };
 

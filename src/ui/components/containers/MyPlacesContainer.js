@@ -24,7 +24,7 @@ const mapDispatchToProps = dispatch => ({
 
 const mapSubscriptionToProps = {
 	data: {
-		key: 'me',
+		type: 'me',
 	},
 };
 

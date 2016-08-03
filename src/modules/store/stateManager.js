@@ -1,6 +1,7 @@
 /* @flow */
 
 import { bus, cache } from '../../core-client';
+import store from './store';
 
 cache.onChange(changes => {
 	bus.emit('postchange', changes);
@@ -8,20 +9,30 @@ cache.onChange(changes => {
 
 bus.on('change', changes => {
 	cache.put(changes);
+	if (changes.state) {
+		store.dispatch({
+			type: 'SET_STATE',
+			payload: changes.state
+		});
+	}
 });
 
 bus.on('error', changes => {
 	if (changes.state) {
-		const { ...state } = changes.state; // eslint-disable-line no-use-before-define
-
-		cache.put({ state });
+		store.dispatch({
+			type: 'SET_STATE',
+			payload: changes.state
+		});
+		if (changes.state.signin) {
+			store.dispatch({
+				type: 'SET_SESSION',
+				payload: null
+			});
+		}
 	}
 });
 
-bus.emit('state:init', {}, (err, state) => {
-	if (err) {
-		return;
-	}
-
-	bus.emit('change', { state });
-});
+setTimeout(() => {
+	// FIXME: Move to `componentDidMount` of root component
+	store.dispatch({ type: 'INITIALIZE_STATE' });
+}, 0);

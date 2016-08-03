@@ -1,19 +1,17 @@
 /* @flow */
 
+import { takeLatest } from 'redux-saga';
+import { put } from 'redux-saga/effects';
 import { LoginManager } from 'react-native-fbsdk';
 import GoogleSignIn from '../../ui/modules/GoogleSignIn';
 import { bus } from '../../core-client';
-import store from '../../modules/store/store';
 import { resetSession } from '../../modules/store/actions';
-import type { Action } from '../../modules/store/SimpleStoreTypes';
 
-export default function(action: Action) {
-	switch (action.type) {
-	case 'SIGNOUT':
+export default function *locationSaga(): Generator<Array<Generator<any, any, any>>, void, void> {
+	yield* takeLatest('SIGNOUT', function *() {
 		bus.emit('signout'); // FIXME: temporary
-		store.dispatch(resetSession());
 		LoginManager.logOut();
 		GoogleSignIn.signOut();
-		break;
-	}
+		yield put(resetSession());
+	});
 }
