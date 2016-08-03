@@ -13,7 +13,7 @@ type UploadOptions = {
 	generateThumb?: boolean;
 }
 
-type UploadPolicy = {
+type UploadParams = {
 	request_url: string;
 	original: string;
 	thumbnail: string;
@@ -39,13 +39,13 @@ export default class ImageUploadHelper {
 		return new ImageUploadHelper(options);
 	}
 
-	_policyData: Promise<UploadPolicy>;
+	_uploadParams: Promise<UploadParams>;
 	_options: UploadOptions;
 	_request: XMLHttpRequest;
 
 	constructor(options: UploadOptions) {
 		this._options = options;
-		this._policyData = new Promise((resolve, reject) => {
+		this._uploadParams = new Promise((resolve, reject) => {
 			bus.emit('s3/getPolicy', options, (err, res) => {
 				if (err || !(res && res.response)) {
 					reject(err);
@@ -141,7 +141,7 @@ export default class ImageUploadHelper {
 	}
 
 	async send(name: string, file: File | { uri: string; type: string; }): Promise<UploadResult> {
-		const policyData = await this._policyData;
+		const uploadParams = await this._uploadParams;
 		const {
 			generateThumb,
 		} = this._options;
@@ -150,7 +150,7 @@ export default class ImageUploadHelper {
 			original,
 			thumbnail,
 			policy,
-		} = policyData;
+		} = uploadParams;
 
 		const formData = this._createFormData(policy);
 
