@@ -29,7 +29,7 @@ const transformFunction = props => {
 
 const mapSubscriptionToProps = {
 	data: {
-		key: 'me',
+		type: 'me',
 	},
 };
 
@@ -45,5 +45,5 @@ const mapDispatchToProps = dispatch => ({
 export default flowRight(
 	createUserContainer(),
 	createContainer(mapSubscriptionToProps, mapDispatchToProps),
-	createTransformPropsContainer(transformFunction)
+	createTransformPropsContainer(transformFunction),
 )(ChatActionSheet);

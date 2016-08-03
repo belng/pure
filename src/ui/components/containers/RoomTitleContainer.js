@@ -27,14 +27,12 @@ const transformFunction = props => {
 
 const mapSubscriptionToProps = ({ room }) => ({
 	data: {
-		key: {
-			type: 'entity',
-			id: room,
-		},
+		type: 'entity',
+		id: room,
 	},
 });
 
 export default flowRight(
 	createContainer(mapSubscriptionToProps),
-	createTransformPropsContainer(transformFunction)
+	createTransformPropsContainer(transformFunction),
 )(AppbarTitle);

@@ -74,6 +74,8 @@ export default class Home extends Component<void, Props, void> {
 		const { initialURL } = this.props;
 		const initialState = initialURL ? convertURLToState(initialURL) : convertRouteToState({ name: 'home' });
 
+		console.log(initialURL);
+
 		return (
 			<View style={styles.container}>
 				<UserSwitcherContainer />

@@ -1,9 +1,8 @@
 /* @flow */
 
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 import shallowEqual from 'shallowequal';
-import storeShape from './storeShape';
 
 import type {
 	SubscriptionPropsMap,
@@ -11,7 +10,7 @@ import type {
 } from './createContainerTypes';
 import type {
 	Action,
-} from './SimpleStoreTypes';
+} from './storeTypeDefinitions';
 
 type Dispatch = (action: Action) => void
 type MapSubscriptionToProps = SubscriptionPropsMap | (props: any) => SubscriptionPropsMap
@@ -25,7 +24,7 @@ export default function(mapSubscriptionToProps?: ?MapSubscriptionToProps, mapDis
 	return function(ChildComponent: ReactClass<any>): ReactClass<any> {
 		class Container extends Component<void, any, State> {
 			static contextTypes = {
-				store: storeShape.isRequired,
+				store: PropTypes.object.isRequired,
 			};
 
 			state: State = {};
@@ -89,32 +88,11 @@ export default function(mapSubscriptionToProps?: ?MapSubscriptionToProps, mapDis
 						const defer = typeof sub === 'object' ? sub.defer !== false : false;
 						const source = ChildComponent.displayName || ChildComponent.name;
 
-						let listener;
+						const listener = store.observe({ ...sub, source, defer }).subscribe(
+							this._createUpdateObserver(item),
+						);
 
-						switch (typeof sub) {
-						case 'string':
-							listener = store.observe({
-								type: sub,
-								source,
-								defer,
-							}).subscribe(
-								this._createUpdateObserver(item),
-							);
-							break;
-						case 'object':
-							listener = store.observe(
-								typeof sub.key === 'string' ? { type: sub.key, source, defer } : { ...sub.key, source, defer },
-							).subscribe(
-								this._createUpdateObserver(item),
-							);
-							break;
-						default:
-							throw new Error(`Invalid subscription ${item}. It must be a string or an object.`);
-						}
-
-						if (listener) {
-							this._subscriptions.push(listener);
-						}
+						this._subscriptions.push(listener);
 					}
 				}
 			};

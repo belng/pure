@@ -33,6 +33,7 @@
     "ReactPropTypes": false,
     "SyntheticEvent": false,
 
+    "Generator": false,
     "Observable": false,
     "Subscription": false,
   },

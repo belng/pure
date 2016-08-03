@@ -47,6 +47,8 @@
     "react-native-image-chooser": "^1.0.3",
     "react-native-tab-view": "0.0.18",
     "react-native-vector-icons": "^2.0.3",
+    "redux": "^3.5.2",
+    "redux-saga": "^0.11.0",
     "request": "^2.73.0",
     "requestidlecallback": "^0.2.0",
     "setimmediate": "^1.0.4",

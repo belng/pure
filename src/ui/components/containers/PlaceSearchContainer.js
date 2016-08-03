@@ -5,10 +5,8 @@ import PlaceSearch from '../views/Account/PlaceSearch';
 
 const mapSubscriptionToProps = {
 	location: {
-		key: {
-			type: 'state',
-			path: 'location',
-		},
+		type: 'state',
+		path: 'location',
 	},
 };
 

@@ -397,10 +397,8 @@ const mapDispatchToProps = dispatch => ({
 const mapSubscriptionToProps = ({ user }) => {
 	const queries = {
 		pendingUser: {
-			key: {
-				type: 'state',
-				path: 'signup',
-			},
+			type: 'state',
+			path: 'signup',
 		},
 	};
 
@@ -408,10 +406,8 @@ const mapSubscriptionToProps = ({ user }) => {
 		return {
 			...queries,
 			me: {
-				key: {
-					type: 'entity',
-					id: user,
-				},
+				type: 'entity',
+				id: user,
 			},
 		};
 	}

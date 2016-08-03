@@ -67,22 +67,16 @@ const mapDispatchToProps = dispatch => ({
 const mapSubscriptionToProps = ({ user, thread, room }) => {
 	return {
 		thread: {
-			key: {
-				type: 'entity',
-				id: thread,
-			},
+			type: 'entity',
+			id: thread,
 		},
 		threadrel: {
-			key: {
-				type: 'entity',
-				id: `${user}_${thread}`,
-			},
+			type: 'entity',
+			id: `${user}_${thread}`,
 		},
 		room: {
-			key: {
-				type: 'entity',
-				id: `${room}`,
-			},
+			type: 'entity',
+			id: `${room}`,
 		},
 	};
 };

@@ -2,7 +2,8 @@ import test from 'ava';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { mount } from 'enzyme';
-import SimpleStore from '../SimpleStore';
+import { createStore } from 'redux';
+import addQueryProviders from '../addQueryProviders';
 import createContainer from '../createContainer';
 import Provider from '../Provider';
 
@@ -15,10 +16,7 @@ test('should set displayName', t => {
 
 test('should render component with no data', t => {
 	const TextComponent = ({ text }) => <span>{text}</span>; // eslint-disable-line
-	const store = new SimpleStore({
-		watch: () => null,
-		put: () => null,
-	});
+	const store = createStore(state => state, {}, addQueryProviders());
 	const Container = createContainer()(TextComponent);
 	const wrapper = mount(
 		<Provider store={store}>
@@ -29,44 +27,47 @@ test('should render component with no data', t => {
 	t.is(wrapper.text(), 'Hey!');
 });
 
-test('should renew subscription when props change', t => {
+test.cb('should renew subscription when props change', t => {
 	t.plan(4);
 
 	let i = 0;
 
 	const NameComponent = ({ name }) => {
-		if (i === 0) {
-			i++;
+		if (i === 1) {
 			t.is(name, 'jane');
-		} else {
+		} else if (i === 2) {
 			t.is(name, 30);
 		}
+		i++;
 		return null;
 	};
-	const store = new SimpleStore({
-		watch: (options, cb) => {
+	const queryProvider = ({ get }) => ({
+		get,
+		observe: options => {
 			if (i === 0) {
 				t.is(options.type, 'name');
-				cb('jane');
+				return Observable.of('jane');
 			} else {
 				t.is(options.type, 'age');
-				cb(30);
+				return Observable.of(30);
 			}
 		},
-		put: () => null,
 	});
+	const store = createStore(state => state, {}, addQueryProviders(queryProvider));
 
-	const Container = createContainer(({ type }) => ({
-		name: type,
+	const Container = createContainer(options => ({
+		name: options,
 	}))(NameComponent);
 
 	class MyComponent extends Component {
 		state = { type: 'name' };
 
 		componentDidMount() {
-			this.setState({ // eslint-disable-line react/no-did-mount-set-state
-				type: 'age',
-			});
+			setTimeout(() => {
+				this.setState({ // eslint-disable-line react/no-did-mount-set-state
+					type: 'age',
+				}, () => setTimeout(t.end, 0));
+			}, 0);
 		}
 
 		render() {
@@ -81,32 +82,35 @@ test('should renew subscription when props change', t => {
 	mount(<MyComponent />);
 });
 
-test('should not renew subscription when props are same', t => {
+test.cb('should not renew subscription when props are same', t => {
 	t.plan(2);
 
 	const NameComponent = ({ name }) => {
 		t.is(name, 'jane');
 		return null;
 	};
-	const store = new SimpleStore({
-		watch: (options, cb) => {
+	const queryProvider = ({ get }) => ({
+		get,
+		observe: options => {
 			t.is(options.type, 'name');
-			cb('jane');
+			return Observable.of('jane');
 		},
-		put: () => null,
 	});
+	const store = createStore(state => state, {}, addQueryProviders(queryProvider));
 
-	const Container = createContainer(({ type }) => ({
-		name: type,
+	const Container = createContainer(options => ({
+		name: options,
 	}))(NameComponent);
 
 	class MyComponent extends Component {
 		state = { type: 'name' };
 
 		componentDidMount() {
-			this.setState({ // eslint-disable-line react/no-did-mount-set-state
-				type: 'name',
-			});
+			setTimeout(() => {
+				this.setState({ // eslint-disable-line react/no-did-mount-set-state
+					type: 'name',
+				}, () => setTimeout(t.end, 0));
+			}, 0);
 		}
 
 		render() {
@@ -125,16 +129,18 @@ test('should not render connected component without data', t => {
 	t.plan(2);
 
 	const NameComponent = ({ name }) => <span>{name}</span>; // eslint-disable-line react/prop-types
-	const store = new SimpleStore({
-		watch: options => {
+	const queryProvider = ({ get }) => ({
+		get,
+		observe: options => {
 			t.is(options.type, 'name');
+			return new Observable(() => {});
 		},
-		put: () => null,
 	});
+	const store = createStore(state => state, {}, addQueryProviders(queryProvider));
 
-	const Container = createContainer(
-		{ name: 'name' }
-	)(NameComponent);
+	const Container = createContainer({
+		name: { type: 'name' },
+	})(NameComponent);
 	const wrapper = mount(
 		<Provider store={store}>
 			<Container />
@@ -151,34 +157,37 @@ test('should update connected component with data', t => {
 	let middleNameCallback;
 	let lastNameCallback;
 
-	const store = new SimpleStore({
-		watch: (options, cb) => {
-			switch (options.type) {
-			case 'f':
-				firstNameCallback = cb;
-				break;
-			case 'm':
-				middleNameCallback = cb;
-				break;
-			case 'l':
-				lastNameCallback = cb;
-				break;
-			}
+	const queryProvider = ({ get }) => ({
+		get,
+		observe: options => ({
+			subscribe: ({ next }) => {
+				switch (options.type) {
+				case 'f':
+					firstNameCallback = next;
+					break;
+				case 'm':
+					middleNameCallback = next;
+					break;
+				case 'l':
+					lastNameCallback = next;
+					break;
+				}
 
-			cb('');
-		},
-		put: () => null,
+				next('');
+			}
+		}),
 	});
+	const store = createStore(state => state, {}, addQueryProviders(queryProvider));
 
 	const Container = createContainer(props => ({
-		firstName: props.firstName,
+		firstName: {
+			type: props.firstName,
+		},
 		middleName: {
-			key: props.middleName,
+			type: props.middleName,
 		},
 		lastName: {
-			key: {
-				type: props.lastName,
-			},
+			type: props.lastName,
 		},
 	}))(NameComponent);
 	const wrapper = mount(
@@ -207,21 +216,23 @@ test('should remove subscription on unmount', t => {
 
 	const container = document.createElement('div');
 	const TextComponent = ({ textContent }) => <span>{textContent}</span>; // eslint-disable-line react/prop-types
-	const store = new SimpleStore({
-		watch: options => {
-			if (options.type !== 'text') {
-				return null;
-			}
 
-			return () => {
-				t.pass();
-			};
-		},
-		put: () => null,
+	const queryProvider = ({ get }) => ({
+		get,
+		observe: options => ({
+			subscribe: () => ({
+				unsubscribe: () => {
+					if (options.type === 'text') {
+						t.pass();
+					}
+				},
+			}),
+		}),
 	});
+	const store = createStore(state => state, {}, addQueryProviders(queryProvider));
 
 	const Container = createContainer({
-		textContent: 'text'
+		textContent: { type: 'text' },
 	})(TextComponent);
 
 	ReactDOM.render(
@@ -237,20 +248,24 @@ test('should remove subscription on unmount', t => {
 test('should pass dispatch', t => {
 	t.plan(1);
 
+	let i = 0;
+
 	const TEST_ACTION = { type: 'TEST' };
 	const ButtonComponent = ({ ping }) => <button onClick={ping} />; // eslint-disable-line react/prop-types
-	const store = new SimpleStore({
-		watch: () => null,
-	});
 
-	store.addMiddleware(action => {
-		t.is(action, TEST_ACTION);
+	const store = createStore((state, action) => {
+		if (i === 1) {
+			t.is(action, TEST_ACTION);
+		}
 	});
 
 	const Container = createContainer(
 		null,
 		dispatch => ({
-			ping: () => dispatch(TEST_ACTION)
+			ping: () => {
+				i++;
+				dispatch(TEST_ACTION);
+			}
 		})
 	)(ButtonComponent);
 
@@ -261,59 +276,4 @@ test('should pass dispatch', t => {
 	);
 
 	wrapper.find('button').simulate('click');
-});
-
-test('should pass dispatch and data', t => {
-	const ButtonComponent = ({ initialLabel, label, click }) => <button onClick={click}>{label || initialLabel}</button>; // eslint-disable-line react/prop-types
-
-	let callback;
-
-	const store = new SimpleStore({
-		watch: (options, cb) => {
-			callback = options.type === 'label' ? cb : null;
-			return {
-				remove: () => (callback = null),
-			};
-		},
-	});
-
-	store.addMiddleware(action => {
-		if (action.type === 'CLICK') {
-			callback(action.payload.label);
-		}
-	});
-
-	const Container = createContainer(
-		props => ({
-			label: {
-				key: props.sub,
-			},
-		}),
-		dispatch => ({
-			click: () => dispatch({
-				type: 'CLICK',
-				payload: {
-					label: 'Clicked',
-				},
-			}),
-		})
-	)(ButtonComponent);
-
-	const wrapper = mount(
-		<Provider store={store}>
-			<Container initialLabel='Hello' sub='label' />
-		</Provider>
-	);
-
-	callback(undefined); // eslint-disable-line no-undefined
-
-	t.is(wrapper.text(), 'Hello');
-
-	callback('Click me');
-
-	t.is(wrapper.text(), 'Click me');
-
-	wrapper.find('button').simulate('click');
-
-	t.is(wrapper.text(), 'Clicked');
 });

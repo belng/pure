@@ -9,7 +9,7 @@ const getPlacesFromUser = user => user.params && user.params.places ? user.param
 
 const mapSubscriptionToProps = {
 	user: {
-		key: 'me',
+		type: 'me',
 	},
 };
 
