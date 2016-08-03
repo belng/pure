@@ -2,68 +2,49 @@
 /* eslint quotes: 0*/
 import { config } from '../../core-server';
 import * as Constants from '../../lib/Constants';
-import Counter from '../../lib/counter';
 import Logger from '../../lib/logger';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import * as pg from '../../lib/pg';
 import send from './sendEmail';
+import promisify from '../../lib/promisify';
 import handlebars from 'handlebars';
-import getMailObj from './buildMailObj';
 const MENTION_INTERVAL = 60 * 60 * 1000, MENTION_DELAY = 60 * 60 * 1000,
 	template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' +
-	config.app_id + '.digest.hbs', 'utf-8').toString()), log = new Logger(__filename),
-	connStr = config.connStr, conf = config.email, counter = new Counter();
+	config.app_id + '.mention.hbs', 'utf-8').toString()), log = new Logger(__filename, 'mention'),
+	connStr = config.connStr, conf = config.email;
 
 let lastEmailSent, end, i = 0;
 
 function initMailSending (userRel) {
+	new Promise(res => {
+		const user = userRel.puser;
+		log.info('Sending to : ', user);
+		if (!user.identities || !Array.isArray(user.identities)) {
+			log.info('No identities found for user: ', user);
+			return;
+		}
 
-	const user = userRel.currentUser;
-
-	if (!user.identities || !Array.isArray(user.identities)) {
-		log.info('No identities found for user: ', user);
-		return;
-	}
-
-	const rels = userRel.currentRels,
-		mailIds = user.identities.filter((el) => {
-			return /mailto:/.test(el);
-		});
-
-	mailIds.forEach((mailId) => {
-		counter.inc();
-		const emailAdd = mailId.slice(7);
+		const rels = userRel.prels,
+			mailIds = user.identities.filter((el) => {
+				return /mailto:/.test(el);
+			});
+			if(mailIds.length === 0) return;
+		const emailAdd = mailIds[0].slice(7);
+		const date = new Date().getDate(),
+			month = new Date().getMonth()+1,
+			year = new Date().getFullYear();
+ 			const formattedDate = date + '-' + month + '-' + year;
 		const emailHtml = template({
 				token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: '5 days' }),
 				domain: config.server.protocol + '//' + config.server.host,
-				link : '&utm_content=' + encodeURIComponent(emailAdd) + '&utm_campaign=' + Date.now(),
+				link : '&utm_content=' + encodeURIComponent(user.id) + '&utm_campaign=' + encodeURIComponent(formattedDate),
 				rooms: rels,
-			}),
-			emailSub = `You h've been mentioned`;
-			// console.log("rels[0].threads: ", rels.length)
-		send(conf.from, emailAdd, emailSub, emailHtml, (e) => {
-			if (!e) {
-				log.info('Mention email successfully sent');
-				counter.dec();
-			} else {
-				counter.err(e);
-			}
-		});
-		counter.then((e) => {
-			if (e) {
-				log.error(e);
-				return;
-			}
-			pg.write(connStr, [ {
-				$: 'UPDATE jobs SET lastrun=&{end} WHERE id=&{jid}',
-				end,
-				jid: Constants.JOB_EMAIL_MENTION,
-			} ], (error) => {
-				lastEmailSent = end;
-				log.info('Mention email sent to ', i, ' users');
-				if (!error) log.info('successfully updated jobs for mention email');
 			});
+		const emailSub = `You have been mentioned`;
+		const sendMail = promisify(send.bind());
+		sendMail(conf.from, emailAdd, emailSub, emailHtml).then(() => {
+			res();
 		});
 	});
 }
@@ -77,35 +58,45 @@ function sendMentionEmail() {
 		log.info('email debug is enabed');
 		start = 0; end = Date.now();
 	}
-
+	let puser = {}, prels = [];
 	pg.readStream(connStr, {
-		$: `SELECT * FROM
-					(SELECT item, "user", roles FROM threadrels WHERE roles @> '{2}' AND createtime >= &{start} AND createtime <&{end}) AS threadrels,
-					(SELECT id threadid, name threadtitle, createtime, counts->'children' children, parents[1] parents FROM threads) AS threads,
-					(SELECT id userid, name username, identities FROM users) AS users,
-					(SELECT id roomid, name roomname FROM rooms) AS rooms
-				WHERE threadrels.item=threads.threadid AND threadrels.user=users.userid AND
-				threads.parents=rooms.roomid ORDER BY users.userid`,
+		$: 'SELECT users.id, users.identities, threads.name tname, threads.id tid, threads.body tbody, threads.counts->>\'upvote\' upvote, texts.body textbody, threads.meta->\'photo\'->>\'thumbnail_url\' photo, threads.creator threadcreator, texts.creator textcreator, rooms.name rname, rooms.id rid FROM threadrels, textrels, users, threads, texts, rooms WHERE threadrels.roles @> \'{2}\' AND threadrels.createtime >= &{start} AND threadrels.createtime <&{end} AND threadrels.user=users.id AND threadrels.item=threads.id AND threads.parents[1]=rooms.id AND texts.parents[1]=threads.id AND textrels.roles @> \'{2}\' AND textrels.item=texts.id AND textrels.user=users.id ORDER BY users.id',
 		start,
-		end,
-	}).on('row', (urel) => {
+		end
+	}).on('row', async t => {
 		row = true;
-		log.info("Got user to send mention email: ", urel);
-		const emailObj = getMailObj(urel) || {};
-		if (Object.keys(emailObj).length !== 0) {
-			++i;
-			log.info("emailObj: ", emailObj);
-			initMailSending(emailObj);
+		log.info("Got user to send mention email: ", t);
+
+		if(t.id !== puser.id && prels.length > 0) {
+			const emailObj = {puser, prels};
+			prels = [];
+			i++;
+			await initMailSending(emailObj);
 		}
-	}).on('end', () => {
+		puser.id = t.id;
+		puser.identities = t.identities;
+		delete t.id;
+		delete t.identities;
+		prels.push(t);
+
+	}).on('end', async () => {
 		if (!row) {
 			log.info('Did not get any user for mention email');
 		}
-		const c = getMailObj({});
-		// console.log("c: ", c)
+		log.info('Sending meantion email to last user: ', puser);
 		i++;
-		initMailSending(c);
+		initMailSending({puser, prels});
 		log.info('ended');
+		log.info('Mention email sent to ', i, ' users');
+		pg.write(connStr, [ {
+			$: 'UPDATE jobs SET lastrun=&{end} WHERE id=&{jid}',
+			end,
+			jid: Constants.JOB_EMAIL_MENTION,
+		} ], (error) => {
+			lastEmailSent = end;
+			log.info('Mention email sent to ', i, ' users');
+			if (!error) log.info('successfully updated jobs for mention email');
+		});
 	});
 
 }
