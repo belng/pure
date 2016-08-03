@@ -7,7 +7,6 @@ import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import * as pg from '../../lib/pg';
 import send from './sendEmail';
-import promisify from '../../lib/promisify';
 import handlebars from 'handlebars';
 const MENTION_INTERVAL = 60 * 60 * 1000, MENTION_DELAY = 60 * 60 * 1000,
 	template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' +
@@ -17,9 +16,8 @@ const MENTION_INTERVAL = 60 * 60 * 1000, MENTION_DELAY = 60 * 60 * 1000,
 let lastEmailSent, end, i = 0;
 
 function initMailSending (userRel) {
-	new Promise(res => {
 		const user = userRel.puser;
-		log.info('Sending to : ', user);
+		log.info('Sending to : ', user, userRel.prels.length);
 		if (!user.identities || !Array.isArray(user.identities)) {
 			log.info('No identities found for user: ', user);
 			return;
@@ -42,11 +40,9 @@ function initMailSending (userRel) {
 				rooms: rels,
 			});
 		const emailSub = `You have been mentioned`;
-		const sendMail = promisify(send.bind());
-		sendMail(conf.from, emailAdd, emailSub, emailHtml).then(() => {
-			res();
+		send(conf.from, emailAdd, emailSub, emailHtml, () => {
+			log.info('Send complete');
 		});
-	});
 }
 
 function sendMentionEmail() {
@@ -60,7 +56,18 @@ function sendMentionEmail() {
 	}
 	let puser = {}, prels = [];
 	pg.readStream(connStr, {
-		$: 'SELECT users.id, users.identities, threads.name tname, threads.id tid, threads.body tbody, threads.counts->>\'upvote\' upvote, texts.body textbody, threads.meta->\'photo\'->>\'thumbnail_url\' photo, threads.creator threadcreator, texts.creator textcreator, rooms.name rname, rooms.id rid FROM threadrels, textrels, users, threads, texts, rooms WHERE threadrels.roles @> \'{2}\' AND threadrels.createtime >= &{start} AND threadrels.createtime <&{end} AND threadrels.user=users.id AND threadrels.item=threads.id AND threads.parents[1]=rooms.id AND texts.parents[1]=threads.id AND textrels.roles @> \'{2}\' AND textrels.item=texts.id AND textrels.user=users.id ORDER BY users.id',
+		$: `SELECT
+				users.id, users.identities, threads.name tname, threads.id tid, threads.body tbody, threads.counts->>'upvote' upvote, texts.body textbody, threads.meta->'photo'->>'thumbnail_url' photo, threads.creator threadcreator, texts.creator textcreator, rooms.name rname, rooms.id rid
+				FROM
+					threadrels, textrels, users, threads, texts, rooms
+					WHERE
+						threadrels.roles @> '{2}' AND threadrels.createtime >= &{start} AND
+						threadrels.createtime <&{end} AND threadrels.user=users.id AND
+						threadrels.item=threads.id AND threads.parents[1]=rooms.id AND
+						texts.parents[1]=threads.id AND textrels.roles @> '{2}' AND
+						textrels.item=texts.id AND textrels.user=users.id
+						ORDER BY
+							users.id`,
 		start,
 		end
 	}).on('row', async t => {
@@ -71,7 +78,7 @@ function sendMentionEmail() {
 			const emailObj = {puser, prels};
 			prels = [];
 			i++;
-			await initMailSending(emailObj);
+			initMailSending(emailObj);
 		}
 		puser.id = t.id;
 		puser.identities = t.identities;
