@@ -55,24 +55,23 @@ function transformFunction(props) {
 function mapSubscriptionToProps({ user }) {
 	return {
 		data: {
-			key: {
-				slice: {
-					type: 'roomrel',
-					link: {
-						room: 'item',
-					},
-					filter: {
-						roomrel: {
-							user,
-							roles_cts: [ ROLE_FOLLOWER ],
-						},
-					},
-					order: 'createTime',
+			type: 'list',
+			slice: {
+				type: 'roomrel',
+				link: {
+					room: 'item',
 				},
-				range: {
-					start: -Infinity,
-					end: Infinity,
+				filter: {
+					roomrel: {
+						user,
+						roles_cts: [ ROLE_FOLLOWER ],
+					},
 				},
+				order: 'createTime',
+			},
+			range: {
+				start: -Infinity,
+				end: Infinity,
 			},
 		},
 	};

@@ -13,13 +13,11 @@ const isModerator = user => {
 
 const mapSubscriptionToProps = {
 	rooms: {
-		key: {
-			type: 'state',
-			path: 'roomList',
-		},
+		type: 'state',
+		path: 'roomList',
 	},
 	data: {
-		key: 'me',
+		type: 'me',
 	},
 };
 

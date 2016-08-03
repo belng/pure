@@ -33,31 +33,28 @@ const transformFunction = props => {
 
 const mapSubscriptionToProps = ({ thread }) => ({
 	thread: {
-		key: {
-			type: 'entity',
-			id: thread,
-		},
+		type: 'entity',
+		id: thread,
 	},
 	data: {
-		key: {
-			slice: {
-				type: 'rel',
-				link: {
-					user: 'user',
-				},
-				filter: {
-					rel: {
-						item: thread,
-						roles_cts: [ ROLE_FOLLOWER ],
-					},
-				},
-				order: 'presenceTime',
+		type: 'list',
+		slice: {
+			type: 'rel',
+			link: {
+				user: 'user',
 			},
-			range: {
-				start: Infinity,
-				before: 100,
-				after: 0,
+			filter: {
+				rel: {
+					item: thread,
+					roles_cts: [ ROLE_FOLLOWER ],
+				},
 			},
+			order: 'presenceTime',
+		},
+		range: {
+			start: Infinity,
+			before: 100,
+			after: 0,
 		},
 	},
 });

@@ -48,6 +48,7 @@ class ChatSuggestionsContainerInner extends Component<void, Props, State> {
 
 	_getResults = (prefix: string, count: number) => {
 		return store.observe({
+			type: 'list',
 			slice: {
 				type: 'user',
 				filter: {

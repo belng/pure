@@ -7,22 +7,21 @@
  */
 
 import React, { Component, Children, PropTypes } from 'react';
-import SimpleStore from './SimpleStore';
-import storeShape from './storeShape';
+import type { EnhancedStore } from './storeTypeDefinitions';
 
 type Props = {
 	children?: React.Element;
-	store: SimpleStore;
+	store: EnhancedStore;
 }
 
 export default class Provider extends Component<void, Props, void> {
 	static propTypes = {
 		children: PropTypes.element.isRequired,
-		store: storeShape.isRequired,
+		store: PropTypes.object.isRequired,
 	};
 
 	static childContextTypes = {
-		store: storeShape.isRequired,
+		store: PropTypes.object.isRequired,
 	};
 
 	getChildContext(): Object {
