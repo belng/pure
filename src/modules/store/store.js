@@ -6,15 +6,16 @@ import addQueryProviders from './addQueryProviders';
 import cacheQueryProvider from './cacheQueryProvider';
 import rootReducer from '../../ui/reducers/rootReducer';
 import rootSaga from '../../ui/sagas/rootSaga';
+import type { EnhancedStore } from './storeTypeDefinitions';
 
 const sagaMiddleware = createSagaMiddleware();
 const middlewares = [ sagaMiddleware ];
 
-const store = createStore(rootReducer, compose(
+const store: any = createStore(rootReducer, compose(
 	applyMiddleware(...middlewares),
 	addQueryProviders(cacheQueryProvider),
 ));
 
 sagaMiddleware.run(rootSaga);
 
-export default store;
+export default (store: EnhancedStore);
