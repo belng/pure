@@ -13,7 +13,7 @@ export default class Logger{
 	constructor(path: any, file: string) {
 		this.dir = path.split('/');
 		this.checkForDir();
-		this.logFileName = file ? file : this.buildFileName();
+		this.logFileName = file ? 'userlogs/' + file : this.buildFileName();
 		this.transports = [ new winston.transports.Console({ colorize: true, level: 'debug' }),
 		new (winston.transports.File)({
 			filename: this.newLogDir + '/' + this.logFileName + '.log',
@@ -44,6 +44,9 @@ export default class Logger{
 		}
 		if (!fs.existsSync(this.newLogDir)) {
 			fs.mkdirSync(this.newLogDir);
+		}
+		if (!fs.existsSync(this.newLogDir + '/userlogs')) {
+			fs.mkdirSync(this.newLogDir + '/userlogs');
 		}
 	}
 
