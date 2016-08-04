@@ -17,7 +17,7 @@ const mapDispatchToProps = dispatch => ({
 		case 'PUSH_ROUTE':
 			dispatch({
 				type: action.type,
-				payload: { key: v4(), ...action.payload },
+				payload: { ...action.payload, key: v4() },
 			});
 			break;
 		default:
