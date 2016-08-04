@@ -1,44 +1,74 @@
 /* @flow */
 
-import flowRight from 'lodash/flowRight';
-import createContainer from '../../../modules/store/createContainer';
-import createUserContainer from '../../../modules/store/createUserContainer';
-import createTransformPropsContainer from '../../../modules/store/createTransformPropsContainer';
+import React, { Component } from 'react';
+import { DeviceEventEmitter, InteractionManager } from 'react-native';
+import GCM from '../../modules/GCM';
 import NotificationCenter from '../views/Notification/NotificationCenter';
-import { dismissNote } from '../../../modules/store/actions';
+import store from '../../../modules/store/store';
+import {
+	dismissNote,
+} from '../../../modules/store/actions';
+import type { Note } from '../../../lib/schemaTypes';
 
-const transformFunction = props => {
-	return {
-		...props,
-		data: [],
+type Props = {
+	onNavigate: Function;
+}
+
+type State = {
+	data: Array<Note | { type: 'loading' }>
+}
+
+export default class NotificationCenterContainer extends Component<void, Props, State> {
+
+	state: State = {
+		data: [ { type: 'loading' } ],
 	};
-};
 
-const mapDispatchToProps = dispatch => ({
-	dismissNote: id => dispatch(dismissNote(id)),
-});
+	componentDidMount() {
+		this._handle = InteractionManager.runAfterInteractions(() => {
+			this._updateData();
+			this._subscription = DeviceEventEmitter.addListener('GCMDataUpdate', this._updateData.bind(this));
+		});
+	}
 
-const mapSubscriptionToProps = ({ user }) => ({
-	data: {
-		key: {
-			slice: {
-				type: 'note',
-				filter: {
-					user,
-				},
-				order: 'updateTime',
-			},
-			range: {
-				start: Infinity,
-				before: 100,
-				after: 0,
-			},
-		},
-	},
-});
+	componentWillUnmount() {
+		if (this._subscription) {
+			this._subscription.remove();
+		}
+		this._handle.cancel();
+	}
 
-export default flowRight(
-	createUserContainer(),
-	createContainer(mapSubscriptionToProps, mapDispatchToProps),
-	createTransformPropsContainer(transformFunction)
-)(NotificationCenter);
+	_subscription: any;
+	_handle: any;
+
+	_dismissNote = (id: string) => {
+		this.setState({
+			data: this.state.data.filter(note => {
+				/* $FlowFixMe */
+				return note.id !== id;
+			}),
+		});
+
+		store.dispatch(dismissNote(id));
+	}
+
+	_updateData = async () => {
+		const data = await GCM.getCurrentNotifications();
+
+		if (data) {
+			this.setState({
+				data: data.slice(0).reverse(),
+			});
+		}
+	};
+
+	render() {
+		return (
+			<NotificationCenter
+				{...this.props}
+				data={this.state.data}
+				dismissNote={this._dismissNote}
+			/>
+		);
+	}
+}

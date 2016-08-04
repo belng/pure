@@ -1,7 +1,6 @@
 /* @flow */
 
 import React, { Component, PropTypes, Children } from 'react';
-import storeShape from './storeShape';
 
 type Props = {
 	children: React.Element;
@@ -9,7 +8,7 @@ type Props = {
 
 export default class Container extends Component<void, Props, void> {
 	static contextTypes = {
-		store: storeShape.isRequired,
+		store: PropTypes.object.isRequired,
 	};
 
 	static propTypes = {

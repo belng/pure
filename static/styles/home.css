@@ -1,3 +1,11 @@
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -7,70 +15,136 @@ body {
   font: 900 24px/1.5em "Alegreya Sans",sans-serif;
 }
 
-.inline-blocks {
-  display: inline-block;
-  vertical-align: middle;
+.more {
+  padding-left: 3em;
 }
 
-.discussion-container {
-  max-width: 590px;
-  font-size: 16px;
-  font-family: Lato;
-  line-height: 1.64;
-  margin: 160px auto;
+.thread {
+  width: 30em;
+  max-width: 100%;
+  margin: 3em auto 0 auto;
   font-weight: 400;
+  padding: 1em 1em 1em 3em;
+  font-weight: 300;
 }
 
-.message-body {
+.oembed {
+  width: 100%;
   margin: 0;
+  display: flex;
+  flex-direction: row;
+  font-size: 16px;
+  line-height: 1.25em;
+  padding-bottom: 1em;
+  margin-bottom: 1em;
+  border-bottom: 1px solid #ccc;
 }
 
-.discussion-container:before, .discussion-container:after {
-  content: '';
-  display: table;
+.oembed .thumbnail-container {
+  width: 35%;
 }
 
-.discussion-container:after {
-  clear: both;
+.oembed .thumbnail{
+  width: 100%;
+  max-width: 25em;
+  max-height: 15em;
 }
 
-.dp {
-  border-radius: 50%;
+.oembed .title-description {
+  padding-left: 1em;
+}
+
+.oembed .title {
+  font-weight: 500;
+}
+
+.avatar {
+  width: 2em;
+  height: 2em;
+  border-radius: 100%;
   float: left;
-  width: 48px;
-  height: 48px;
-  margin-top: 16px;
+  margin-left: -2.5em;
 }
 
-.discussion-card {
-  float: right;
-  width: 525px;
+.metadata {
+  font-weight: 300;
+  font-size: 16px;
+  vertical-align: middle;
+  color: #666;
 }
 
-.discussion-title {
-  font-weight: bold;
-  font-size: 1.4em;
-  margin-bottom: .5em;
+.metadata > div {
+  display: inline-block;
+  margin-right: 3em;
+}
+
+.thread > .body {
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.text {
+  border-radius: 0.25em;
+  background: #eee;
+  padding: 0.5em 1em;
+  margin: 0.25em 0 0.25em 2.5em;
+  position: relative;
+  font-size: 16px;
+  line-height: 24px;
+  float: left;
+  clear: left;
+  width: auto;
+}
+
+.text::before {
+  content: ' ';
+  display: block;
+  position: absolute;
+  top: 0; left: -0.75em;
+  height: 10px; width: 10px;
+  border: 0px solid transparent;
+  border-right: 1.5em solid #eee;
+  border-bottom: 1.5em solid transparent;
+}
+
+.text .avatar {
+  margin-left: -3.3em;
+  margin-top: -0.3em;
 }
 
 .stamp {
-  margin: 10px auto;
-  color: #999;
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1em;
+  color: #666;
+}
+.stamp b {
+  font-weight: 500;
 }
 
-.card-footer {
-  margin-top: 15px;
-  display: inline-block;
-  color: #999;
+.action {
+  clear: both; text-align: center;
 }
 
-.location {
-  margin-right: 20px;
+.blurb {
+  font-size: 16px;
+  font-weight: 300;
+  clear: both;
 }
 
-.join-button-container {
-  margin: 22px 0;
+.header {
+  background-color: #6644bb;
+  position: absolute;
+  height: 48px;
+  width: 100%;
+  z-index: 999999;
 }
+
+.header-logo {
+  height: 30px;
+  margin: 9px;
+}
+
 
 .join-button {
   background: #ff1144;
@@ -89,8 +163,6 @@ body {
 .icon {
   display: inline-block;
   vertical-align: middle;
-  width: 16px;
-  height: 32px;
   margin-right: 8px;
 }
 
@@ -98,6 +170,10 @@ body {
   margin: -3px 0 -3px 8px;
   height: 16px;
   display: inline-block;
+}
+
+.title {
+  margin-top: 0.25em;
 }
 
 .share-title {
@@ -149,7 +225,6 @@ body {
 
 section {
   padding: 1em 0;
-  min-width: 400px;
 }
 
 .top {
@@ -229,7 +304,7 @@ img, svg {
   padding: 1em;
   text-align: center;
   border-radius: 4px;
-  width: 8em;
+  width: 9em;
   position: relative;
   left: 40%;
   margin: 3.5em 0 -4.5em -4em;

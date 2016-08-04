@@ -39,14 +39,15 @@ async function initMailSending(contacts, inviter) {
 	log.info('refferer: ', userName);
 
 	log.info('Got invitations to send: ', contacts, inviterLocalityName, userName);
-	const emailBody = template({
-		referrer: userName,
-		message,
-	});
-	const inlinedTemplate = juice(emailBody);
 	const sub = `Introducing Belong: Referred by ${userName}`;
 
 	contacts.forEach(async invitee => {
+		const emailBody = template({
+			link: '&referrer=utm_source%3DBelongInvite%26utm_medium%3DEmail%26utm_term%3D'+ encodeURIComponent(inviter) + '%26utm_content%3D'+encodeURIComponent(invitee)+'%26utm_campaign%3D'+Date.now(),
+			referrer: userName,
+			message,
+		});
+		const inlinedTemplate = juice(emailBody);
 		if (AlreadySent.includes(invitee)) {
 			log.info('once invitation is sent ', AlreadySent, invitee);
 			return;

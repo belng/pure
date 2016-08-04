@@ -8,6 +8,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.UUID;
+
 public class GCMPreferences {
 
     private static final String STORAGE_KEY = "gcm_shared_preferences";
@@ -137,6 +139,7 @@ public class GCMPreferences {
         String items = getPreferences(context).getString(NOTIFICATIONS_KEY, null);
 
         JSONArray notifications = items == null ? new JSONArray() : new JSONArray(items);
+        note.put("id", UUID.randomUUID());
         notifications.put(note);
         SharedPreferences.Editor editor = getEditor(context);
         editor.putString(NOTIFICATIONS_KEY, notifications.toString());
@@ -153,9 +156,54 @@ public class GCMPreferences {
         return new JSONArray(items);
     }
 
+    public static void deleteNotification(Context context, String id) throws JSONException {
+        String items = getPreferences(context).getString(NOTIFICATIONS_KEY, null);
+
+        if (items != null) {
+            JSONArray currentNotifications = new JSONArray(items);
+            JSONArray newNotifications = new JSONArray();
+
+            for (int i = 0; i < currentNotifications.length(); i++) {
+                JSONObject note = currentNotifications.getJSONObject(i);
+
+                if (note.get("id").equals(id)) {
+                    continue;
+                }
+
+                newNotifications.put(note);
+            }
+
+            SharedPreferences.Editor editor = getEditor(context);
+            editor.putString(NOTIFICATIONS_KEY, newNotifications.toString());
+            editor.apply();
+        }
+    }
+
+    public static void markCurrentNotificationsAsRead(Context context) throws JSONException {
+        String items = getPreferences(context).getString(NOTIFICATIONS_KEY, null);
+
+        if (items != null) {
+            JSONArray notifications = new JSONArray(items);
+
+            for (int i = 0; i < notifications.length(); i++) {
+                JSONObject notification = notifications.getJSONObject(i);
+
+                if (notification.has("readTime")) {
+                    continue;
+                }
+
+                notification.put("readTime", System.currentTimeMillis());
+            }
+
+            SharedPreferences.Editor editor = getEditor(context);
+            editor.putString(NOTIFICATIONS_KEY, notifications.toString());
+            editor.apply();
+        }
+    }
+
     public static void clearCurrentNotifications(Context context) {
         SharedPreferences.Editor editor = getEditor(context);
-        editor.clear();
+        editor.remove(NOTIFICATIONS_KEY);
         editor.apply();
     }
 
@@ -168,5 +216,13 @@ public class GCMPreferences {
     @Nullable
     public static String getRegistrationToken(Context context) {
         return getPreferences(context).getString(REGISTRATION_TOKEN_KEY, null);
+    }
+
+    public static void addListener(Context context, final SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        getPreferences(context).registerOnSharedPreferenceChangeListener(listener);
+    }
+
+    public static void removeListener(Context context, final SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        getPreferences(context).unregisterOnSharedPreferenceChangeListener(listener);
     }
 }

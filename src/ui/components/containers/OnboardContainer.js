@@ -17,7 +17,6 @@ import {
 } from '../../../modules/store/actions';
 import { ERRORS } from '../../../lib/Constants';
 import type { User } from '../../../lib/schemaTypes';
-import { bus } from '../../../core-client';
 
 type Props = {
 	user: ?string;
@@ -356,7 +355,7 @@ const mapDispatchToProps = dispatch => ({
 	clearSignUpError: pendingUser => dispatch(clearSignUpError(pendingUser)),
 	signIn: (provider, auth) => dispatch(signIn(provider, auth)),
 	cancelSignUp: () => {
-		bus.emit('signout');
+		dispatch({ type: 'SIGNOUT' });
 		dispatch(cancelSignUp());
 	},
 	signUp: (id: string, name: string, pendingUser) => {
@@ -398,10 +397,8 @@ const mapDispatchToProps = dispatch => ({
 const mapSubscriptionToProps = ({ user }) => {
 	const queries = {
 		pendingUser: {
-			key: {
-				type: 'state',
-				path: 'signup',
-			},
+			type: 'state',
+			path: 'signup',
 		},
 	};
 
@@ -409,10 +406,8 @@ const mapSubscriptionToProps = ({ user }) => {
 		return {
 			...queries,
 			me: {
-				key: {
-					type: 'entity',
-					id: user,
-				},
+				type: 'entity',
+				id: user,
 			},
 		};
 	}

@@ -4,7 +4,6 @@ import flowRight from 'lodash/flowRight';
 import createContainer from '../../../modules/store/createContainer';
 import createTransformPropsContainer from '../../../modules/store/createTransformPropsContainer';
 import Profile from '../views/Profile/Profile';
-import { bus } from '../../../core-client';
 import {
 	ROLE_FOLLOWER,
 	ROLE_HOME,
@@ -83,69 +82,63 @@ const transformFunction = props => {
 	return props;
 };
 
-const mapDispatchToProps = () => ({
-	signOut: () => bus.emit('signout'),
+const mapDispatchToProps = dispatch => ({
+	signOut: () => dispatch({ type: 'SIGNOUT' }),
 });
 
 const mapSubscriptionToProps = ({ user }) => ({
 	currentUser: {
-		key: {
-			type: 'state',
-			path: 'user',
-		},
+		type: 'state',
+		path: 'user',
 	},
 	user: {
-		key: {
-			type: 'entity',
-			id: user,
-		},
+		type: 'entity',
+		id: user,
 	},
 	areas: {
-		key: {
-			slice: {
-				type: 'roomrel',
-				link: {
-					room: 'item',
-				},
-				filter: {
-					roomrel: {
-						user,
-						roles_cts: [ ROLE_FOLLOWER ],
-					},
-					room: {
-						tags_cts: [ TAG_ROOM_AREA ],
-					},
-				},
-				order: 'createTime',
+		type: 'list',
+		slice: {
+			type: 'roomrel',
+			link: {
+				room: 'item',
 			},
-			range: {
-				start: -Infinity,
-				end: Infinity,
+			filter: {
+				roomrel: {
+					user,
+					roles_cts: [ ROLE_FOLLOWER ],
+				},
+				room: {
+					tags_cts: [ TAG_ROOM_AREA ],
+				},
 			},
+			order: 'createTime',
+		},
+		range: {
+			start: -Infinity,
+			end: Infinity,
 		},
 	},
 	cities: {
-		key: {
-			slice: {
-				type: 'roomrel',
-				link: {
-					room: 'item',
-				},
-				filter: {
-					roomrel: {
-						user,
-						roles_cts: [ ROLE_FOLLOWER ],
-					},
-					room: {
-						tags_cts: [ TAG_ROOM_CITY ],
-					},
-				},
-				order: 'createTime',
+		type: 'list',
+		slice: {
+			type: 'roomrel',
+			link: {
+				room: 'item',
 			},
-			range: {
-				start: -Infinity,
-				end: Infinity,
+			filter: {
+				roomrel: {
+					user,
+					roles_cts: [ ROLE_FOLLOWER ],
+				},
+				room: {
+					tags_cts: [ TAG_ROOM_CITY ],
+				},
 			},
+			order: 'createTime',
+		},
+		range: {
+			start: -Infinity,
+			end: Infinity,
 		},
 	},
 });

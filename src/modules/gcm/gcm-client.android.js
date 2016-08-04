@@ -6,8 +6,9 @@ import Colors from '../../ui/Colors';
 
 const TITLE_TEMPLATE = '{{#roomNames.1}}{{#roomNames.0}}{{roomNames.0}}, {{roomNames.1}} and others{{/roomNames.0}}{{/roomNames.1}}{{^roomNames.1}}New activity in {{#roomNames.0}}{{roomNames.0}}{{/roomNames.0}}{{^roomNames.0}}Belong{{/roomNames.0}}{{/roomNames.1}}';
 
-GCM.clearCurrentNotifications();
+GCM.markCurrentNotificationsAsRead();
 GCM.configureSchema({
+	event: 'number',
 	count: 'number',
 	data: {
 		body: 'string',
@@ -16,7 +17,7 @@ GCM.configureSchema({
 		title: 'string',
 	},
 	createTime: 'number',
-	score: 'number',
+	group: 'string',
 });
 GCM.configureNotification({
 	style: 'inbox',
@@ -30,7 +31,7 @@ GCM.configureNotification({
 		title: `{{#single}}{{items.0.data.title}}{{/single}}{{^single}}${TITLE_TEMPLATE}{{/single}}`,
 		body: '<b>{{items.0.data.creator}}</b>: {{items.0.data.body}}',
 		picture: '{{#single}}{{{items.0.data.picture}}}{{/single}}',
-		link: '{{{items.0.data.link}}}',
+		link: '{{#single}}{{{items.0.data.link}}}{{/single}}{{^single}}/p/notes{{/single}}',
 		style: {
 			title: TITLE_TEMPLATE,
 			line: '<b>{{item.data.creator}}</b>: {{item.data.body}}',
