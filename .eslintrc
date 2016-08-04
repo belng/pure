@@ -275,7 +275,7 @@
     "babel/func-params-comma-dangle": 0,
 
     "import/no-unresolved": 2,
-    "import/named": 2,
+    "import/named": 0,
     "import/default": 0,
     "import/namespace": 0,
     "import/no-restricted-paths": 0,
