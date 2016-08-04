@@ -6,39 +6,84 @@ import promisify from '../../lib/promisify';
 import send from './sendEmail';
 import juice from 'juice';
 import { config } from '../../core-server';
-const log = new Logger(__filename);
+const log = new Logger(__filename, 'invite');
 const JOB_INVOCATION_INTERVAL = config.invitationEmail.interval;
 const conf = config.email;
 const readSync = promisify(pg.read.bind(pg, config.connStr));
 const template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' + config.app_id + '.invite.hbs', 'utf-8').toString());
-let perUserLog;
+const AlreadySent = [];
 
-const initMailSending = (invitee, inviterLocalityName, inviterName) => {
+async function initMailSending(contacts, inviter) {
+	let userRoom, message, inviterLocalityName;
+	userRoom = await readSync({
+		$: `SELECT
+			users.id, users.name uname, rooms.name rname
+			FROM
+				users, rooms, roomrels
+				WHERE
+					users.id=&{id} AND rooms.id=item AND
+					roomrels.user=&{id} AND rooms.tags @> '{22}' AND
+					roomrels.roles<>'{}' LIMIT 1`,
+		id: inviter
+	});
+
+	if (userRoom.length === 0) {
+		userRoom.push({id: inviter, rname: 'Belong'});
+		message = ` a neighborhood group on our platform `;
+	} else {
+		inviterLocalityName = userRoom[0].rname;
+		message = ` the ${inviterLocalityName} neighborhood group `;
+		log.info(`Found locality associated with inviter ${inviterLocalityName}`);
+	}
+	let userName = userRoom[0].uname || userRoom[0].id;
+	log.info('refferer: ', userName);
+
+	log.info('Got invitations to send: ', contacts, inviterLocalityName, userName);
 	const emailBody = template({
-		referrer: inviterName,
-		inviterLocalityName,
+		referrer: userName,
+		message,
 	});
 	const inlinedTemplate = juice(emailBody);
-	send(conf.from, invitee.contact.email, `Introducing Belong: Referred by ${inviterName}`, inlinedTemplate, e => {
-		if (e) {
-			perUserLog.error('Error in sending email');
+	const sub = `Introducing Belong: Referred by ${userName}`;
+
+	contacts.forEach(async invitee => {
+		if (AlreadySent.includes(invitee)) {
+			log.info('once invitation is sent ', AlreadySent, invitee);
 			return;
 		}
-		pg.write(config.connStr, [ {
-			$: `UPDATE contacts SET lastmailtime = &{now} WHERE
-				referrer = &{referrer} AND contact->>'email' = &{email}`,
-			now: Date.now(),
-			email: invitee.contact.email,
-			referrer: invitee.referrer
-		} ], (err, res) => {
-			if (err) {
-				perUserLog.error(err);
-			} else {
-				perUserLog.info(`successfully updated ${res[0].rowCount} row(s) the contacts table`);
+		AlreadySent.push(invitee);
+		const userExists = await readSync({
+			$: 'select *  from users where identities @> &{identities}',
+			identities: [invitee]
+		});
+
+		if (userExists.length > 0) {
+			log.info('This user exists or once invitation is sent ', userExists);
+			return;
+		}
+
+		log.info(`Sending invitation email to: ${invitee}`);
+
+		send(conf.from, invitee, sub, inlinedTemplate, e => {
+			if (e) {
+				log.error('Error in sending email');
+				return;
 			}
+			pg.write(config.connStr, [{
+				$: `UPDATE contacts SET lastmailtime = &{now} WHERE
+					contact->>'email' = &{email}`,
+				now: Date.now(),
+				email: invitee,
+			}], (err, res) => {
+				if (err) {
+					log.error(err);
+				} else {
+					log.info(`successfully updated ${res[0].rowCount} row(s) the contacts table`);
+				}
+			});
 		});
 	});
-};
+}
 
 const sendInvitationEmail = () => {
 	const UTCHours = new Date().getUTCHours();
@@ -48,45 +93,28 @@ const sendInvitationEmail = () => {
 		return;
 	}
 	let row = false;
+	let contactEmails = [], prevReferrer;
 	pg.readStream(config.connStr, {
 		$: `SELECT * FROM contacts WHERE (contact->>'email') IS NOT NULL AND valid = 'true'
-			AND lastmailtime IS NULL LIMIT &{limit}`,
+			AND lastmailtime IS NULL ORDER BY referrer LIMIT &{limit}`,
 		limit: config.invitationEmail.limit /*5*/
 	})
 	.on('row', async invitee => {
 		row = true;
 		log.info(`starting invitation process for invitee with email ${invitee.contact.email}, referred by ${invitee.referrer}`);
-		let inviterLocalityName;
-		const user = await readSync({
-			$: 'select *  from users where id=&{id}',
-			id: invitee.referrer
-		});
-		let userName = user[0].name || user[0].id;
-		log.info('refferer: ', user);
-		const userExists = await readSync({
-			$: 'select *  from users where identities @> &{identities}',
-			identities: [invitee.contact.email]
-		});
-		if (userExists.length > 0) {
-			perUserLog.info('This user exists: ', userExists);
-			return;
+		if(invitee.referrer !== prevReferrer && contactEmails.length > 0) {
+			initMailSending(contactEmails, prevReferrer);
+			contactEmails = [];
 		}
-		const roomFollowing = await readSync({
-			$: `SELECT rooms.name AS roomname FROM rooms
-				JOIN roomrels ON id = item WHERE "user" = &{user} AND rooms.tags @> '{22}'
-				AND roomrels.roles <> '{}' LIMIT 1`,
-			user: invitee.referrer
-		});
-
-		inviterLocalityName = roomFollowing[0].roomname;
-		log.info(`Found locality associated with inviter: ${userName} is ${inviterLocalityName}`);
-		perUserLog = new Logger(__filename, invitee.contact.email);
-		perUserLog.info(`Sending invitation email to: ${invitee.contact.email}`);
-		initMailSending(invitee, inviterLocalityName, userName);
+		prevReferrer = invitee.referrer;
+		contactEmails.push(invitee.contact.email);
 	})
 	.on('end', () => {
-		if (row) log.info('invitation process finished !');
-		else log.info('Did not send any invitation email');
+		if (row) {
+			log.info('invitation process finished !');
+			log.info('Sending for last inviter: ', prevReferrer);
+			initMailSending(contactEmails, prevReferrer);
+		} else log.info('Did not send any invitation email');
 	});
 };
 
