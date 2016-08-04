@@ -7,7 +7,7 @@ test('generate policies for "content" type upload', t => {
 			user: 'harish',
 		},
 		uploadType: 'content',
-		textId: 'df37y32-h87er-efewrywe-we',
+		contentId: 'df37y32-h87er-efewrywe-we',
 		filename: 'myfile.jpg',
 	};
 	const response = getResponse(req);

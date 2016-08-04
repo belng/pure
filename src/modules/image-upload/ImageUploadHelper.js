@@ -6,7 +6,7 @@ type UploadOptions = {
 	filename: string;
 	uploadType: 'content';
 	generateThumb?: boolean;
-	textId: string;
+	contentId: string;
 } | {
 	filename: string;
 	uploadType: 'avatar';

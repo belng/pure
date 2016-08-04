@@ -33,12 +33,12 @@ function sign(key, data) {
 	return crypto.createHmac('sha256', key).update(data).digest();
 }
 
-function getKeyPrefix(userId, uploadType, textId) {
+function getKeyPrefix(userId, uploadType, contentId) {
 	switch (uploadType) {
 	case 'avatar':
-		return uploadType + '/' + userId + '/';
+		return `a/${userId}/`;
 	case 'content':
-		return uploadType + '/' + userId + '/' + textId + '/';
+		return `c/${userId}/${contentId}/`;
 	default:
 		throw new Error('Invalid upload type specified: ' + uploadType);
 	}
@@ -114,7 +114,7 @@ function getOldSignature(policy) {
 }
 
 export function getResponse(policyReq) {
-	const keyPrefix = getKeyPrefix(policyReq.auth.user, policyReq.uploadType, policyReq.textId),
+	const keyPrefix = getKeyPrefix(policyReq.auth.user, policyReq.uploadType, policyReq.contentId),
 		policy = getPolicy(keyPrefix),
 		signature = getSignature(policy),
 		upload_url = `https://${config.s3.uploadBucket}/`,
@@ -182,7 +182,7 @@ if (!config.s3) {
 	winston.info('Image upload is disabled');
 	bus.on('s3/getPolicy', (policyReq) => {
 		policyReq.response = {};
-		policyReq.response.error = new EnhancedError('Image upload is temporarily disabled', 'NO_CONFIG_FOUND_FOR_S3');
+		policyReq.response.error = new EnhancedError('Image upload is disabled', 'NO_CONFIG_FOUND_FOR_S3');
 	}, APP_PRIORITIES.IMAGE_UPLOAD);
 } else {
 	bus.on('s3/getPolicy', (policyReq) => {
@@ -208,7 +208,7 @@ if (!config.s3) {
 
 const uploadImage = async (userName: string, imageUrl: string, propName: string) => {
 	const imageName = 'avatar.jpg';
-	await urlTos3(buildAvatarURLForSize(imageUrl, 1024), 'avatar/' + userName + '/' + imageName);
+	await urlTos3(buildAvatarURLForSize(imageUrl, 1024), 'a/' + userName + '/' + imageName);
 	const changes = {
 		entities: {
 			[userName]: {

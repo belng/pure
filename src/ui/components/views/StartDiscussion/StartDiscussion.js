@@ -530,7 +530,7 @@ export default class StartDiscussion extends Component<void, Props, State> {
 							uploadOptions={{
 								uploadType: 'content',
 								generateThumb: true,
-								textId: this.state.nextId,
+								contentId: this.state.nextId,
 							}}
 							autoStart
 						/> :

@@ -315,7 +315,7 @@ export default class ChatInput extends Component<void, Props, State> {
 						uploadOptions={{
 							uploadType: 'content',
 							generateThumb: true,
-							textId: this.state.nextId,
+							contentId: this.state.nextId,
 						}}
 					/> : null
 				}
