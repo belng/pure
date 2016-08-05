@@ -51,7 +51,10 @@ function sendMentionEmail() {
 	let puser = {}, prels = [];
 	pg.readStream(connStr, {
 		$: `SELECT
-				users.id, users.identities, threads.name tname, threads.id tid, threads.body tbody, threads.counts->>'upvote' upvote, texts.body textbody, threads.meta->'photo'->>'thumbnail_url' photo, threads.creator threadcreator, texts.creator textcreator, rooms.name rname, rooms.id rid
+				users.id, users.identities, threads.name tname, threads.id tid,
+				threads.body tbody, threads.counts->>'upvote' upvote,
+				texts.body textbody, threads.meta->'photo'->>'thumbnail_url' photo,
+				threads.creator threadcreator, texts.creator textcreator, rooms.name rname, rooms.id rid
 				FROM
 					threadrels, textrels, users, threads, texts, rooms
 					WHERE
@@ -59,6 +62,7 @@ function sendMentionEmail() {
 						threadrels.createtime <&{end} AND threadrels.user=users.id AND
 						threadrels.item=threads.id AND threads.parents[1]=rooms.id AND
 						texts.parents[1]=threads.id AND textrels.roles @> '{2}' AND
+						(users.params-> 'email'->>'notifications' = 'true' OR (users.params->'email') IS NULL) AND
 						textrels.item=texts.id AND textrels.user=users.id
 						ORDER BY
 							users.id`,

@@ -103,10 +103,22 @@ async function sendDigestEmail () {
 		for(let i=0; i< users.length; i++) {
 			log.info('Getting rels of: ', users[i].id);
 			let threadRels = await readSync({
-				$: `SELECT * FROM (SELECT
-					CAST(coalesce(rooms.counts ->> 'follower' , '0') as integer) follower, threads.counts->>'children' children, threads.score, threads.name threadtitle, threads.creator, threads.body, threads.meta->'photo'->>'thumbnail_url' photo, threads.score/(1+ 0.1*CAST(coalesce(rooms.counts ->> 'follower' , '0') as integer)) scoreperfollower, threads.counts->>'upvote' upvote, threads.createtime, threads.id threadid, rooms.name roomname, rooms.id roomid FROM  roomrels, threads, rooms
+				$: `SELECT * FROM
+				(SELECT
+					CAST(coalesce(rooms.counts ->> 'follower' , '0') as integer) follower,
+					threads.counts->>'children' children, threads.score, threads.name threadtitle,
+					threads.creator, threads.body, threads.meta->'photo'->>'thumbnail_url' photo,
+					threads.score/(1+ 0.1*CAST(coalesce(rooms.counts ->> 'follower' , '0') as integer)) scoreperfollower,
+					threads.counts->>'upvote' upvote, threads.createtime, threads.id threadid, rooms.name roomname,
+					rooms.id roomid FROM  roomrels, threads, rooms
 						WHERE
-							roomrels.user=&{userid} AND threads.parents[1]=roomrels.item AND (threads.counts->'upvote') IS NOT NULL AND CAST(coalesce(threads.counts ->> 'upvote' , '0') as integer) > 1 AND roomrels.item=rooms.id AND threads.counts IS NOT NULL AND CAST(coalesce(threads.counts ->> 'children' , '0') as integer) > 5 AND threads.createtime >= extract(epoch from now()-interval '2 days')*1000 AND roles @> '{3}') as t WHERE creator NOT IN ('juhi', 'shreyaskutty', 'belong', 'belongbot')
+							roomrels.user=&{userid} AND threads.parents[1]=roomrels.item AND
+							(threads.counts->'upvote') IS NOT NULL AND
+							CAST(coalesce(threads.counts ->> 'upvote' , '0') as integer) > 1 AND
+							roomrels.item=rooms.id AND threads.counts IS NOT NULL AND
+							CAST(coalesce(threads.counts ->> 'children' , '0') as integer) > 5
+							AND threads.createtime >= extract(epoch from now()-interval '2 days')*1000
+							AND roles @> '{3}') as t WHERE creator NOT IN ('juhi', 'shreyaskutty', 'belong', 'belongbot')
 							ORDER BY scoreperfollower DESC`,
 				userid: users[i].id
 			});
