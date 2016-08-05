@@ -1,35 +1,21 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import ReactNative from 'react-native';
 import shallowCompare from 'react-addons-shallow-compare';
 import AppText from './AppText';
-import Link from './Link';
+import BigEmoji from './BigEmoji';
+import LinkContainer from '../../containers/LinkContainer';
 import { buildLink } from '../../../../lib/URL';
 import { format, isEmoji } from '../../../../lib/Smiley';
 
-const {
-	StyleSheet,
-} = ReactNative;
-
-const styles = StyleSheet.create({
-	emojiOnly: {
-		textAlign: 'center',
-		fontSize: 32,
-		lineHeight: 48,
-	},
-});
-
 type Props = {
 	text: string;
-	onOpenLink?: Function;
 	style?: any;
 }
 
 export default class RichText extends Component<void, Props, void> {
 	static propTypes = {
 		text: PropTypes.string.isRequired,
-		onOpenLink: PropTypes.func,
 		style: AppText.propTypes.style,
 	};
 
@@ -37,34 +23,18 @@ export default class RichText extends Component<void, Props, void> {
 		return shallowCompare(this, nextProps, nextState);
 	}
 
-	setNativeProps(nativeProps: any) {
-		this._root.setNativeProps(nativeProps);
-	}
-
-	_root: Object;
-
 	render() {
-		const { onOpenLink } = this.props;
-
 		const textWithEmoji = format(this.props.text);
 
 		if (isEmoji(textWithEmoji)) {
 			return (
-				<AppText
-					{...this.props}
-					style={[ styles.emojiOnly, this.props.style ]}
-					ref={c => (this._root = c)}
-				>
+				<BigEmoji {...this.props}>
 					{textWithEmoji}
-				</AppText>
+				</BigEmoji>
 			);
 		} else {
 			return (
-				<AppText
-					{...this.props}
-					style={[ styles.text, this.props.style ]}
-					ref={c => (this._root = c)}
-				>
+				<AppText {...this.props}>
 					{textWithEmoji.split('\n').map((text, index, arr) => {
 						return ([
 							text.split(' ').map((inner, i) => {
@@ -86,22 +56,16 @@ export default class RichText extends Component<void, Props, void> {
 
 								if (/^@[a-z0-9\-]{3,}$/.test(t)) {
 									// a mention
-									items.push(<Link onOpen={onOpenLink} key={key}>{t}</Link>);
+									items.push(<LinkContainer key={key}>{t}</LinkContainer>);
 								} else if (/^#\S{2,}$/.test(t)) {
 									// a hashtag
-									items.push(<Link onOpen={onOpenLink} key={key}>{t}</Link>);
+									items.push(<LinkContainer key={key}>{t}</LinkContainer>);
 								} else {
 									const url = buildLink(t);
 
 									if (url !== null) {
 										items.push(
-											<Link
-												onOpen={onOpenLink}
-												key={key}
-												url={url}
-											>
-												{t}
-											</Link>
+											<LinkContainer key={key} url={url}>{t}</LinkContainer>,
 										);
 									} else {
 										return t + punctuation + ' ';
