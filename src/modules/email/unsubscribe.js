@@ -39,14 +39,16 @@ function *handleRequest() {
 
 		// Received the user from the database! Changing the settings...
 		const user = results.arr[0];
-
+		let type;
 		user.params.email = user.params.email || {};
 
 		if(this.request.query.type === 'digest') {
 			user.params.email.frequency = 'never';
+			type = 'daily emails';
 		}
 		if(this.request.query.type === 'mention') {
 			user.params.email.notifications = false;
+			type = 'mention emails';
 		}
 
 		yield new Promise((resolve, reject) => {
@@ -65,7 +67,7 @@ function *handleRequest() {
 		});
 
 		this.body =	template({
-			message: 'You have been unsubscribed.',
+			message: `You have been unsubscribed from ${type}.`,
 			message2: 'You can again subscribe from "My account" page.',
 		});
 	} catch (err) {
