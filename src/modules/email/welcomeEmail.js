@@ -20,7 +20,7 @@ function initMailSending(user) {
 		return;
 	}
 	const mailIds = user.identities.filter((el) => {
-			return /mailto:/.test(el);
+			return el.startsWith('mailto:');
 	});
 	mailIds.forEach((mailId) => {
 		const emailAdd = mailId.slice(7);
