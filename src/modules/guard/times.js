@@ -16,7 +16,7 @@ async function validateTime(changes, next) {
 	let now = Date.now();
 
 	const promises = Object.keys(changes.entities).map(async id => {
-		const entity = changes.entities[id];
+		let entity = changes.entities[id];
 		if (!entity) {
 			delete changes.entities[id];
 			return;
@@ -26,8 +26,11 @@ async function validateTime(changes, next) {
 
 		now++;
 
-		entity.createTime = now;
-		entity.updateTime = now;
+		entity = {
+			...entity,
+			createTime: now,
+			updateTime: now,
+		};
 
 		if (result) {
 			entity.createTime = result.createTime;
@@ -38,7 +41,6 @@ async function validateTime(changes, next) {
 				return !entity.roles.includes(role);
 			}) || [];
 			const rolesChanged = newRoles.concat(removedRoles);
-			console.log('times module: ', entity, result, rolesChanged);
 			// if only counts changed, retain the old updateTime
 			// if counts.children changed or new role added, don't retain the old updateTime
 			if (

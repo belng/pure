@@ -15,7 +15,6 @@ function *handleRequest() {
 	// extract the Email address from the request
 	try {
 		decoded = jwt.verify(this.request.query.email, config.email.secret);
-
 	} catch (e) {
 		log.i('Invalid unsubscribe JWT: ' + this.request.query.email);
 		this.body = template({
@@ -42,8 +41,13 @@ function *handleRequest() {
 		const user = results.arr[0];
 
 		user.params.email = user.params.email || {};
-		user.params.email.frequency = 'never';
-		user.params.email.notifications = false;
+
+		if(this.request.query.type === 'digest') {
+			user.params.email.frequency = 'never';
+		}
+		if(this.request.query.type === 'mention') {
+			user.params.email.notifications = false;
+		}
 
 		yield new Promise((resolve, reject) => {
 			// Saving the saved settings back into the database.
