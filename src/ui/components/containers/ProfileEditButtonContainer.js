@@ -6,10 +6,8 @@ import ProfileEditButton from '../views/Profile/ProfileEditButton';
 
 const mapSubscriptionToProps = {
 	currentUser: {
-		key: {
-			type: 'state',
-			path: 'user',
-		},
+		type: 'state',
+		path: 'user',
 	},
 };
 

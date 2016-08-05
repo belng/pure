@@ -4,7 +4,7 @@ include ':app'
 include ':react-native-fabric'
 project(':react-native-fabric').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-fabric/android')
 include ':react-native-fbsdk'
-project(':react-native-fbsdk').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-fbsdk/android')
+project(':react-native-fbsdk').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-fbsdk/Android')
 
 include ':react-native-image-chooser'
 project(':react-native-image-chooser').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-image-chooser/android')

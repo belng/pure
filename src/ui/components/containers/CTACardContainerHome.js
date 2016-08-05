@@ -17,13 +17,11 @@ const mapDispatchToProps = dispatch => ({
 
 const mapSubscriptionToProps = {
 	user: {
-		key: 'me',
+		type: 'me',
 	},
 	data: {
-		key: {
-			type: 'state',
-			path: 'ctahome',
-		},
+		type: 'state',
+		path: 'ctahome',
 	},
 };
 

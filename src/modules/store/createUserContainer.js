@@ -4,10 +4,8 @@ import createContainer from './createContainer';
 
 const mapSubscriptionToProps = {
 	user: {
-		key: {
-			type: 'state',
-			path: 'user',
-		}
+		type: 'state',
+		path: 'user',
 	},
 };
 

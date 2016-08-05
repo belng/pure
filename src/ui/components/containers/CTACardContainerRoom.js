@@ -17,19 +17,15 @@ const mapDispatchToProps = dispatch => ({
 
 const mapSubscriptionToProps = ({ room }) => ({
 	user: {
-		key: 'me',
+		type: 'me',
 	},
 	data: {
-		key: {
-			type: 'state',
-			path: 'ctaroom',
-		},
+		type: 'state',
+		path: 'ctaroom',
 	},
 	room: {
-		key: {
-			type: 'entity',
-			id: room,
-		},
+		type: 'entity',
+		id: room,
 	},
 });
 

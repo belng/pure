@@ -7,16 +7,12 @@ import App from '../views/App';
 
 const mapSubscriptionToProps = {
 	connection: {
-		key: {
-			type: 'state',
-			path: 'connectionStatus',
-		},
+		type: 'state',
+		path: 'connectionStatus',
 	},
 	session: {
-		key: {
-			type: 'state',
-			path: 'session',
-		},
+		type: 'state',
+		path: 'session',
 	},
 };
 

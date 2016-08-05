@@ -17,7 +17,7 @@ import {
 	ROLE_SHARE,
 } from '../../lib/Constants';
 import type { User } from '../../lib/schemaTypes';
-import type { Action } from '../../modules/store/SimpleStoreTypes';
+import type { Action } from '../../modules/store/storeTypeDefinitions';
 
 /*
  * User related actions

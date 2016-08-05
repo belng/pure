@@ -1,6 +1,7 @@
 /* @flow */
 
 import uuid from 'node-uuid';
+import store from '../store/store';
 import { bus, config } from '../../core-client';
 import packer from '../../lib/packer';
 import BuildConfig from '../../ui/modules/BuildConfig';
@@ -39,8 +40,9 @@ function disconnected() {
 		backOff = 256;
 	}
 
-	bus.emit('change', {
-		state: { connectionStatus: 'offline', backOff },
+	store.dispatch({
+		type: 'SET_CONNECTION_STATUS',
+		payload: 'offline',
 	});
 
 	setTimeout(connect, backOff * 1000);
@@ -72,8 +74,10 @@ function connect() {
 
 	client.on('open', () => {
 		backOff = 1;
-		bus.emit('change', {
-			state: { connectionStatus: 'online', backOff },
+
+		store.dispatch({
+			type: 'SET_CONNECTION_STATUS',
+			payload: 'online',
 		});
 	});
 
@@ -115,20 +119,16 @@ bus.on('postchange', changes => {
 	}
 });
 
-bus.on('state:init', state => {
-	state.connectionStatus = 'connecting';
-	setTimeout(connect, 0);
-});
-
 bus.on('signout', () => {
 	if (client) {
 		client.close();
 	}
-	bus.emit('change', {
-		state: {
-			connectionStatus: 'connecting',
-		},
+
+	store.dispatch({
+		type: 'SET_CONNECTION_STATUS',
+		payload: 'connecting',
 	});
+
 	connect();
 });
 
@@ -146,3 +146,5 @@ bus.on('s3/getPolicy', (policy, next) => {
 
 	send(frame);
 }, 1);
+
+setTimeout(connect, 0);

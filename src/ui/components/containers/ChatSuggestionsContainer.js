@@ -48,6 +48,7 @@ class ChatSuggestionsContainerInner extends Component<void, Props, State> {
 
 	_getResults = (prefix: string, count: number) => {
 		return store.observe({
+			type: 'list',
 			slice: {
 				type: 'user',
 				filter: {
@@ -140,25 +141,22 @@ class ChatSuggestionsContainerInner extends Component<void, Props, State> {
 
 const mapSubscriptionToProps = ({ thread }) => ({
 	thread: {
-		key: {
-			type: 'entity',
-			id: thread,
-		},
+		type: 'entity',
+		id: thread,
 	},
 	texts: {
-		key: {
-			slice: {
-				type: 'text',
-				filter: {
-					parents_first: thread,
-				},
-				order: 'createTime',
+		type: 'list',
+		slice: {
+			type: 'text',
+			filter: {
+				parents_first: thread,
 			},
-			range: {
-				start: Infinity,
-				before: 30,
-				after: 0,
-			},
+			order: 'createTime',
+		},
+		range: {
+			start: Infinity,
+			before: 30,
+			after: 0,
 		},
 		defer: false,
 	},
