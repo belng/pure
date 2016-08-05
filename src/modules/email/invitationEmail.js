@@ -17,7 +17,7 @@ async function initMailSending(contacts, inviter) {
 	let userRoom, message, inviterLocalityName;
 	userRoom = await readSync({
 		$: `SELECT
-			users.id, users.name uname, rooms.name rname
+			users.id, users.name username, rooms.name roomname
 			FROM
 				users, rooms, roomrels
 				WHERE
@@ -28,14 +28,14 @@ async function initMailSending(contacts, inviter) {
 	});
 
 	if (userRoom.length === 0) {
-		userRoom.push({id: inviter, rname: 'Belong'});
+		userRoom.push({id: inviter, roomname: 'Belong'});
 		message = ` a neighborhood group on our platform `;
 	} else {
-		inviterLocalityName = userRoom[0].rname;
+		inviterLocalityName = userRoom[0].roomname;
 		message = ` the ${inviterLocalityName} neighborhood group `;
 		log.info(`Found locality associated with inviter ${inviterLocalityName}`);
 	}
-	let userName = userRoom[0].uname || userRoom[0].id;
+	let userName = userRoom[0].username || userRoom[0].id;
 	log.info('refferer: ', userName);
 
 	log.info('Got invitations to send: ', contacts, inviterLocalityName, userName);
@@ -97,8 +97,9 @@ const sendInvitationEmail = () => {
 	let contactEmails = [], prevReferrer;
 	pg.readStream(config.connStr, {
 		$: `SELECT * FROM contacts WHERE (contact->>'email') IS NOT NULL AND valid = 'true'
-			AND lastmailtime IS NULL ORDER BY referrer LIMIT &{limit}`,
-		limit: config.invitationEmail.limit /*5*/
+			AND (lastmailtime IS NULL OR lastmailtime < extract(epoch from now()-interval '7 days')*1000)
+			ORDER BY referrer LIMIT &{limit}`,
+		limit: config.invitationEmail.limit
 	})
 	.on('row', async invitee => {
 		row = true;
