@@ -7,7 +7,7 @@ if [[ $branch = "ERR_NOT_MASTER" ]]; then
    exit
 fi
 
-read -p "Release branch $branch created. Deploy to producation server $1 (y/N)? " confirm
+read -p "Release branch $branch created. Deploy to production server $1 (y/N)? " confirm
 if [[ $confirm = "y" ]]; then
    echo $branch 'will be deployed'
    $HOME/pure/tools/./deploy.sh $branch $1

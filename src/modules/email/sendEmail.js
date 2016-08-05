@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 import smtpTransport from 'nodemailer-smtp-transport';
 import Logger from '../../lib/logger';
 const transport = nodemailer.createTransport(smtpTransport({
-	host: 'email-smtp.us-west-2.amazonaws.com',
+	host: config && config.email && config.email.host,
 	protocol: 'smtp',
 	secureConnection: true,
 	port: 465,
