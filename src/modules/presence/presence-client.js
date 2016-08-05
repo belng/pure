@@ -31,7 +31,7 @@ async function getRelationAndSetPresence(slice: Object, status: 'online' | 'offl
 		return;
 	}
 
-	const user = cache.getState('user');
+	const user = store.getState().user;
 	const item = getItemFromFilter(slice.filter);
 
 	if (item) {
@@ -58,14 +58,14 @@ store.observe({ type: 'state', path: 'user', source: 'presence' }).forEach(id =>
 	}
 });
 
-store.on('subscribe', options => {
-	if (options.slice) {
-		getRelationAndSetPresence(options.slice, 'online');
+cache.onWatch(({ slice }) => {
+	if (slice) {
+		getRelationAndSetPresence(slice, 'online');
 	}
 });
 
-store.on('unsubscribe', options => {
-	if (options.slice) {
-		getRelationAndSetPresence(options.slice, 'offline');
+cache.onUnWatch(({ slice }) => {
+	if (slice) {
+		getRelationAndSetPresence(slice, 'offline');
 	}
 });
