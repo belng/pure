@@ -25,18 +25,13 @@ function initMailSending (userRel) {
 
 		const rels = userRel.prels,
 			mailIds = user.identities.filter((el) => {
-				return /mailto:/.test(el);
+				return el.startsWith('mailto:');
 			});
 			if(mailIds.length === 0) return;
 		const emailAdd = mailIds[0].slice(7);
-		const date = new Date().getDate(),
-			month = new Date().getMonth()+1,
-			year = new Date().getFullYear();
- 			const formattedDate = date + '-' + month + '-' + year;
 		const emailHtml = template({
 				token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: '5 days' }),
 				domain: config.server.protocol + '//' + config.server.host,
-				link : '&utm_content=' + encodeURIComponent(user.id) + '&utm_campaign=' + encodeURIComponent(formattedDate),
 				rooms: rels,
 			});
 		const emailSub = `You have been mentioned`;
@@ -44,7 +39,6 @@ function initMailSending (userRel) {
 			log.info('Send complete');
 		});
 }
-
 function sendMentionEmail() {
 	let start = lastEmailSent;
 	let row = false;
@@ -73,7 +67,12 @@ function sendMentionEmail() {
 	}).on('row', async t => {
 		row = true;
 		log.info("Got user to send mention email: ", t);
-
+		const date = new Date().getDate(),
+			month = new Date().getMonth()+1,
+			year = new Date().getFullYear();
+ 		const formattedDate = date + '-' + month + '-' + year;
+		t.utm = '?utm_source=Belongmention&utm_medium=Email&utm_term='+ encodeURIComponent(t.tid) +
+		'&utm_content=' + encodeURIComponent(t.id) + '&utm_campaign=' + encodeURIComponent(formattedDate);
 		if(t.id !== puser.id && prels.length > 0) {
 			const emailObj = {puser, prels};
 			prels = [];
@@ -89,6 +88,7 @@ function sendMentionEmail() {
 	}).on('end', async () => {
 		if (!row) {
 			log.info('Did not get any user for mention email');
+			return;
 		}
 		log.info('Sending meantion email to last user: ', puser);
 		i++;
