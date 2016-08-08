@@ -6,10 +6,14 @@ import shallowCompare from 'react-addons-shallow-compare';
 import ChatItem from './ChatItem';
 import ChatDiscussionItemContainer from '../../containers/ChatDiscussionItemContainer';
 import PageLoading from '../Page/PageLoading';
+import PageEmpty from '../Page/PageEmpty';
 import LoadingItem from '../Core/LoadingItem';
 import type {
 	Text,
 	TextRel,
+	Thread,
+	ThreadRel,
+	Room,
 } from '../../../../lib/schemaTypes';
 
 const {
@@ -43,9 +47,10 @@ type DataItem = {
 
 type Props = {
 	data: Array<DataItem>;
+	thread: Thread;
+	threadrel: ThreadRel;
+	room: Room;
 	user: string;
-	thread: string;
-	room: string;
 	loadMore: (count: number) => void;
 	quoteMessage: Function;
 	replyToMessage: Function;
@@ -59,9 +64,10 @@ type State = {
 export default class ChatMessages extends Component<void, Props, State> {
 	static propTypes = {
 		data: PropTypes.arrayOf(PropTypes.object).isRequired,
+		thread: PropTypes.object.isRequired,
+		threadrel: PropTypes.object.isRequired,
+		room: PropTypes.object.isRequired,
 		user: PropTypes.string.isRequired,
-		thread: PropTypes.string.isRequired,
-		room: PropTypes.string.isRequired,
 		loadMore: PropTypes.func.isRequired,
 		quoteMessage: PropTypes.func.isRequired,
 		replyToMessage: PropTypes.func.isRequired,
@@ -95,16 +101,21 @@ export default class ChatMessages extends Component<void, Props, State> {
 	};
 
 	_renderHeader = () => {
-		return (
-			<ChatDiscussionItemContainer
-				showTimestamp
-				room={this.props.room}
-				thread={this.props.thread}
-				user={this.props.user}
-				onNavigate={this.props.onNavigate}
-				style={[ styles.item, styles.inverted ]}
-			/>
-		);
+		if (this.props.thread && this.props.thread.type !== 'loading') {
+			return (
+				<ChatDiscussionItemContainer
+					showTimestamp
+					room={this.props.room}
+					thread={this.props.thread}
+					threadrel={this.props.threadrel}
+					user={this.props.user}
+					onNavigate={this.props.onNavigate}
+					style={[ styles.item, styles.inverted ]}
+				/>
+			);
+		}
+
+		return null;
 	};
 
 	_renderRow = (item: DataItem) => {
@@ -141,9 +152,13 @@ export default class ChatMessages extends Component<void, Props, State> {
 	};
 
 	render() {
-		const { data } = this.props;
+		const { data, thread } = this.props;
 
 		let placeHolder;
+
+		if (!thread) {
+			placeHolder = <PageEmpty label='Discussion not found' image={require('../../../../../assets/empty-box.png')} />;
+		}
 
 		if (data.length === 1) {
 			switch (data[0] && data[0].type) {
