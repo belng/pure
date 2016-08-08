@@ -9,14 +9,12 @@ import PageEmpty from '../Page/PageEmpty';
 import PageLoading from '../Page/PageLoading';
 import LoadingItem from '../Core/LoadingItem';
 import DiscussionItem from './DiscussionItem';
-import StartDiscussionButton from '../StartDiscussion/StartDiscussionButton';
 import type { Thread, ThreadRel } from '../../../../lib/schemaTypes';
 
 const {
 	Dimensions,
 	StyleSheet,
 	ListView,
-	View,
 } = ReactNative;
 
 const styles = StyleSheet.create({
@@ -121,38 +119,27 @@ export default class Discussions extends Component<void, Props, State> {
 			data,
 		} = this.props;
 
-		let placeHolder;
-
 		if (data.length === 0) {
-			placeHolder = <PageEmpty label='No discussions yet' image={require('../../../../../assets/empty-box.png')} />;
+			return <PageEmpty label='No discussions yet' image={require('../../../../../assets/empty-box.png')} />;
 		} else if (data.length === 1) {
 			switch (data[0] && data[0].type) {
 			case 'loading':
-				placeHolder = <PageLoading />;
-				break;
+				return <PageLoading />;
 			}
 		}
 
 		return (
-			<View {...this.props}>
-				{placeHolder ? placeHolder :
-					<GridView
-						removeClippedSubviews
-						initialListSize={2}
-						pageSize={4}
-						renderRow={this._renderRow}
-						onEndReached={this.props.loadMore}
-						dataSource={this.state.dataSource}
-						contentContainerStyle={styles.container}
-						itemStyle={styles.item}
-					/>
-				}
-
-				<StartDiscussionButton
-					room={this.props.room}
-					onNavigate={this.props.onNavigate}
-				/>
-			</View>
+			<GridView
+				{...this.props}
+				removeClippedSubviews
+				initialListSize={2}
+				pageSize={4}
+				renderRow={this._renderRow}
+				onEndReached={this.props.loadMore}
+				dataSource={this.state.dataSource}
+				contentContainerStyle={styles.container}
+				itemStyle={styles.item}
+			/>
 		);
 	}
 }
