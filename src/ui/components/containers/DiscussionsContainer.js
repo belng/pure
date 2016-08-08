@@ -70,13 +70,13 @@ function sliceFromProps(props) {
 				user: props.user,
 			},
 		},
-		order: 'createTime',
+		order: props.sortBy,
 	};
 }
 
 export default flowRight(
 	createUserContainer(),
-	createPaginatedContainer(sliceFromProps, 10),
+	createPaginatedContainer(sliceFromProps, 4),
 	createContainer(mapSubscriptionToProps),
 	createTransformPropsContainer(transformFunction),
 )(Discussions);
