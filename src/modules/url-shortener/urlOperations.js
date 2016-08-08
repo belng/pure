@@ -151,14 +151,12 @@ bus.on('http/init', app => {
 		const path = this.request.path.slice(1);
 
 		if (isShortURL(path)) {
-			try {
-				const longURL = yield getLongURL(path);
-				if (longURL) {
-					this.response.redirect(longURL);
-				}
-			} catch (e) {
-				// do nothing
+			const longURL = yield getLongURL(path);
+			if (longURL) {
+				this.redirect(longURL);
+				return;
 			}
+			this.throw(404, 'not found');
 		}
 
 		yield *next;
