@@ -1,91 +1,48 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import ReactNative from 'react-native';
+import Radium from 'radium';
 import shallowCompare from 'react-addons-shallow-compare';
-import AppText from './AppText';
 import Colors from '../../../Colors';
 
-const {
-	Linking,
-	StyleSheet,
-} = ReactNative;
-
-const styles = StyleSheet.create({
+const styles = {
 	link: {
 		color: Colors.info,
+		textDecoration: 'none',
 	},
-});
+};
 
 type Props = {
 	children?: React.Element<*>;
 	url?: string;
-	onPress?: Function;
-	onOpen?: Function;
 	style?: any;
 }
 
-type DefaultProps = {
-	url: string;
-}
-
-export default class Link extends Component<DefaultProps, Props, void> {
-	static defaultProps = {
-		url: '#',
-	};
-
+class Link extends Component<void, Props, void> {
 	static propTypes = {
 		children: PropTypes.string.isRequired,
 		url: PropTypes.string,
-		onPress: PropTypes.func,
-		onOpen: PropTypes.func,
-		style: AppText.propTypes.style,
+		style: PropTypes.any,
 	};
 
-	shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+	shouldComponentUpdate(nextProps: Props, nextState: any): boolean {
 		return shallowCompare(this, nextProps, nextState);
 	}
 
-	_openLink = (url: ?string) => {
-		const event = {
-			preventDefault() {
-				this.defaultPrevented = true;
-			},
-
-			defaultPrevented: false,
-			url,
-		};
-
-		if (this.props.onOpen) {
-			this.props.onOpen(event);
-		}
-
-		if (typeof url !== 'string' || /^#/.test(url)) {
-			return;
-		}
-
-		if (!event.defaultPrevented) {
-			Linking.openURL(url);
-		}
-	};
-
-	_handlePress = (e: SyntheticEvent) => {
-		if (this.props.onPress) {
-			this.props.onPress(e);
-		}
-
-		this._openLink(this.props.url);
-	};
-
 	render() {
+		const { url, style, children, ...rest } = this.props;
+
 		return (
-			<AppText
-				{...this.props}
-				onPress={this._handlePress}
-				style={[ styles.link, this.props.style ]}
+			<a
+				target='_blank'
+				{...rest}
+				style={[ styles.link, style ]}
+				href={url}
 			>
-				{this.props.children}
-			</AppText>
+				{children}
+			</a>
 		);
 	}
 }
+
+export default Radium(Link);
