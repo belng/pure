@@ -13,7 +13,7 @@ const styles = {
 };
 
 type Props = {
-	children?: React.Element;
+	children?: React.Element<*>;
 	url?: string;
 	style?: any;
 }
