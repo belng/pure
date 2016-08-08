@@ -64,24 +64,7 @@ const mapDispatchToProps = dispatch => ({
 	},
 });
 
-const mapSubscriptionToProps = ({ user, thread, room }) => {
-	return {
-		thread: {
-			type: 'entity',
-			id: thread,
-		},
-		threadrel: {
-			type: 'entity',
-			id: `${user}_${thread}`,
-		},
-		room: {
-			type: 'entity',
-			id: `${room}`,
-		},
-	};
-};
-
 export default flowRight(
 	createUserContainer(),
-	createContainer(mapSubscriptionToProps, mapDispatchToProps),
+	createContainer(null, mapDispatchToProps),
 )(ChatDiscussionItem);
