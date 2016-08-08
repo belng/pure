@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16,
 	},
 	input: {
+		flex: 1,
 		paddingVertical: 8,
 		margin: 0,
 		backgroundColor: 'transparent',
