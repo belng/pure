@@ -32,6 +32,8 @@ async function validateTime(changes, next) {
 			updateTime: now,
 		};
 
+		changes.entities[entity.id] = entity;
+
 		if (result) {
 			entity.createTime = result.createTime;
 			const newRoles = entity.roles && entity.roles.length > 0 && entity.roles.filter(role => {
