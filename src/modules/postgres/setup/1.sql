@@ -159,11 +159,11 @@ CREATE TABLE postednews (
 	createtime bigint NOT NULL
 );
 
-CREATE TABLE preview_cache (
-		url text,
-		preview jsonb,
-		expiry timestamp,
-		PRIMARY KEY("url")
+CREATE TABLE events (
+	"type" text,
+	"eventtime" timestamp NOT NULL DEFAULT NOW(),
+	"user" text,
+	"data" jsonb
 );
 
 INSERT INTO jobs VALUES (1), (2), (3);
