@@ -8,7 +8,7 @@ bus.on('presence/offline', presence => {
 
 	if (user) {
 		cache.getEntity(user, (err, u) => {
-			if (err) {
+			if (err && !u) {
 				return;
 			}
 
