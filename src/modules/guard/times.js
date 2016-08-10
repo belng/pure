@@ -32,7 +32,7 @@ async function validateTime(changes, next) {
 			updateTime: now,
 		};
 
-		changes.entities[entity.id] = entity;
+		changes.entities[id] = entity;
 
 		if (result) {
 			entity.createTime = result.createTime;
