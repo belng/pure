@@ -57,7 +57,7 @@ function onMessage(message) {
 	frame.message.source = 'server';
 
 	if (frame.message.id && pendingCallbacks[frame.message.id]) {
-		pendingCallbacks[frame.message.id].data.response = frame.message;
+		pendingCallbacks[frame.message.id].options.response = frame.message;
 		pendingCallbacks[frame.message.id].next();
 	} else {
 		bus.emit(frame.type, frame.message);
@@ -132,19 +132,19 @@ bus.on('signout', () => {
 	connect();
 });
 
-bus.on('socket/get', ({ type, data }, next) => {
+bus.on('socket/get', (options, next) => {
 	const id = uuid.v4();
 	const frame: Frame = {
-		type,
+		type: options.type,
 		message: {
 			id,
-			...data
+			...options.data
 		}
 	};
 
 	pendingCallbacks[id] = {
 		next,
-		data,
+		options,
 	};
 
 	send(frame);
