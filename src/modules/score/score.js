@@ -24,7 +24,7 @@ export default function getScore(entity) {
 	const score = 0.7 * updateTime + 0.3 * createTime +
 	10 * upvote + 5 * children + 7.5 * follower +
 	1E9 * (entity.tags && entity.tags.indexOf(TAG_POST_STICKY) > -1 ? 1 : 0); // for pinned posts
-	return score;
+	return Math.floor(score);
 }
 
 bus.on('change', async (changes, next) => {
