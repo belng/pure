@@ -5,6 +5,7 @@ import BulkEmailChecker from '../src/lib/BulkEmailChecker';
 import Logger from '../src/lib/logger';
 import promisify from '../src/lib/promisify';
 import { config } from '../src/core-server';
+import fs from 'fs';
 
 const LIMIT_CONTACT_TO = config.contactsFilter.limitContactTo;
 // const JOB_INVOCATION_INTERVAL = config.contactsFilter.jobInvocationInterval;
@@ -17,6 +18,14 @@ const verifyMails = async () => {
 	const invalidMails = [];
 	const unsureMails = [];
 	const bec = new BulkEmailChecker();
+	let blackListedEmails;
+
+	if (fs.existsSync(__dirname + '/emailBlackList')) {
+		blackListedEmails = new RegExp(fs.readFileSync(__dirname + '/emailBlackList')
+		.toString('utf-8').trim().split('\n').map(w => {
+			return '\\b' + w + '\\b';
+		}).join('|'));
+	}
 
 	const contacts = await performReadQuery({
 		$: `SELECT contact->>'email' AS email FROM contacts
@@ -25,6 +34,13 @@ const verifyMails = async () => {
 	});
 
 	bec.on('data', data => {
+		if (
+			(blackListedEmails && blackListedEmails.test(data.email)) ||
+			data.email.length > 50
+		) {
+			data.isValid = false;
+			log.info('Black listed: ', data);
+		}
 		if (data.isValid === true && validMails.indexOf(data.email) === -1) {
 			validMails.push(data.email);
 		} else if (data.isValid === false && invalidMails.indexOf(data.email) === -1) {
@@ -36,23 +52,23 @@ const verifyMails = async () => {
 
 	bec.on('error', async error => {
 		log.info(error);
-		if(error.code === 'ENOTFOUND') {
+		if (error.code === 'ENOTFOUND') {
 			const now = Date.now();
-			await performWriteQuery([{
+			await performWriteQuery([ {
 				$: `UPDATE contacts SET valid='false', lastmailverifytime = &{now}
 				WHERE (contact->>'email') IS NOT NULL AND contact->>'email' IN (&(invalidMails))`,
 				now,
 				invalidMails: error.emails,
-			}]);
+			} ]);
 		}
-		if(error.code === 'ENODATA') {
+		if (error.code === 'ENODATA') {
 			const now = Date.now();
-			await performWriteQuery([{
+			await performWriteQuery([ {
 				$: `UPDATE contacts SET valid='unsure', lastmailverifytime = &{now}
 				WHERE (contact->>'email') IS NOT NULL AND contact->>'email' IN (&(unsureMails))`,
 				now,
 				unsureMails: error.emails,
-			}]);
+			} ]);
 		}
 	});
 	const queries = [];
@@ -74,7 +90,7 @@ const verifyMails = async () => {
 				invalidMails,
 			});
 		}
-		if(unsureMails.length > 0) {
+		if (unsureMails.length > 0) {
 			queries.push({
 				$: `UPDATE contacts SET valid='unsure', lastmailverifytime = &{now}
 				WHERE (contact->>'email') IS NOT NULL AND contact->>'email' IN (&(unsureMails));`,
@@ -94,4 +110,3 @@ const verifyMails = async () => {
 };
 
 verifyMails();
-/*setInterval(verifyMails, JOB_INVOCATION_INTERVAL);*/
