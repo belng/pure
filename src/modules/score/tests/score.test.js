@@ -28,7 +28,7 @@ test('should add score on thread update', t => {
 	};
 	const score = getScore(entity);
 
-	t.is(score, 490250.96194397844);
+	t.is(score, 490250);
 });
 
 test('scores with minor changes to create or update time shouldnt be same', t => {
