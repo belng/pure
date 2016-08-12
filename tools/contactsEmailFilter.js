@@ -18,12 +18,16 @@ const verifyMails = async () => {
 	const invalidMails = [];
 	const unsureMails = [];
 	const bec = new BulkEmailChecker();
-	let blackListedEmails;
+	let blacklist;
+
+	function escape(reg) {
+		return reg.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+	}
 
 	if (fs.existsSync(__dirname + '/emailBlackList')) {
-		blackListedEmails = new RegExp(fs.readFileSync(__dirname + '/emailBlackList')
+		blacklist = new RegExp(fs.readFileSync(__dirname + '/emailBlackList')
 		.toString('utf-8').trim().split('\n').map(w => {
-			return '\\b' + w + '\\b';
+			return '\\b' + escape(w) + '\\b';
 		}).join('|'));
 	}
 
@@ -34,13 +38,6 @@ const verifyMails = async () => {
 	});
 
 	bec.on('data', data => {
-		if (
-			(blackListedEmails && blackListedEmails.test(data.email)) ||
-			data.email.length > 50
-		) {
-			data.isValid = false;
-			log.info('Black listed: ', data);
-		}
 		if (data.isValid === true && validMails.indexOf(data.email) === -1) {
 			validMails.push(data.email);
 		} else if (data.isValid === false && invalidMails.indexOf(data.email) === -1) {
@@ -103,6 +100,14 @@ const verifyMails = async () => {
 
 	for (const contact of contacts) {
 		log.info('got this contact: ', contact);
+		if (
+			(blacklist && blacklist.test(contact.email)) ||
+			contact > 50
+		) {
+			invalidMails.push(contact.email);
+			log.info('Black listed: ', contact);
+			continue;
+		}
 		bec.add(contact.email);
 	}
 	bec.done();
