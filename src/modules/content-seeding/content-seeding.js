@@ -83,7 +83,7 @@ function tagStringToNumber(tag) {
 	return '';
 }
 
-function seedContent(room) {
+function seedContentFromFile(room) {
 	log.info('something:', JSON.stringify(room));
 	fs.readdir('./templates/seed-content', (err, files: any) => {
 		const changes = {
@@ -299,38 +299,60 @@ function getPlacesByType(room, type) {
 				}
 			}
 
-			return Promise.all(photoPromises).then(res => [ type, res ]);
+			return Promise.all(photoPromises).then(res => {
+				return {
+					type,
+					content: res
+				};
+			});
 		});
 	});
 }
 
-function buildChange(changes, room) {
-	return Promise.all(types.map(e => {
-		return getPlacesByType(room, e);
-	})).then(results => {
-		return results.reduce((prev, cur) => {
-			prev[cur[0]] = cur[1];
-			return prev;
-		}, {});
-	}).then((typeToContent) => {
-		let time = Date.now();
-		const promises = [];
-		for (const i in typeToContent) {
-			const thread = buildThread(room, i);
-			thread.createTime = thread.updateTime = ++time;
+function seedRoom(room) {
+	types.forEach(e => {
+		const changes = {
+			entities: {}
+		};
+
+		getPlacesByType(room, e).then(result => {
+			const promises = [];
+			const thread = buildThread(room, result.type);
+
+			thread.createTime = thread.updateTime = Date.now();
 			changes.entities[thread.id] = thread;
-			for (const part of typeToContent[i]) {
+			for (const part of result.res) {
 				promises.push(buildTexts(part, thread));
 			}
-		}
-		return Promise.all(promises).then(results => {
-			results.reduce((prev, cur) => {
+
+			return Promise.all(promises);
+		}).then(results => {
+			let texts = results.reduce((prev, cur) => {
 				return prev.concat(cur);
-			}, []).reduce((prev, cur) => {
+			}, []);
+			texts = texts.reduce((prev, cur) => {
 				prev[cur.id] = cur;
 				return prev;
 			}, changes.entities);
-			return changes;
+		}).then(() => {
+			let time = Date.now();
+			for (const i in changes.entities) {
+				const newEntity = changes.entities[i];
+				if (newEntity.type === TYPE_THREAD) {
+					newEntity.createTime = newEntity.updateTime = ++time;
+				}
+			}
+
+			for (const i in changes.entities) {
+				const newEntity = changes.entities[i];
+				if (newEntity.type === TYPE_TEXT) {
+					newEntity.createTime = newEntity.updateTime = ++time;
+				}
+			}
+
+			setTimeout(() => {
+				bus.emit('change', changes);
+			}, 60000);
 		});
 	});
 }
@@ -343,9 +365,7 @@ function seedGAPIContent(room) {
 		room.tags.indexOf(TAG_ROOM_CITY) === -1 &&
 		geometry
 	) {
-		return buildChange({ entities: {} }, room);
-	} else {
-		return Promise.resolve({});
+		seedRoom(room);
 	}
 }
 
@@ -363,7 +383,7 @@ function addMeta(room) {
 		if (e.photos && e.photos.length) e.photos = e.photos.slice(0, 1);
 		return new Room(newRoom);
 	}).catch(e => {
-		log.warn("Error in getting meta data: ",e.message);
+		log.warn('Error in getting meta data: ', e.message);
 	});
 }
 
@@ -374,27 +394,7 @@ function saveEntity(entity) {
 		}
 	});
 
-	seedGAPIContent(entity).then(finalChanges => {
-		let time = Date.now();
-		for (const i in finalChanges.entities) {
-			const newEntity = finalChanges.entities[i];
-			if (newEntity.type === TYPE_THREAD) {
-				newEntity.createTime = newEntity.updateTime = ++time;
-			}
-		}
-
-		for (const i in finalChanges.entities) {
-			const newEntity = finalChanges.entities[i];
-			if (newEntity.type === TYPE_TEXT) {
-				newEntity.createTime = newEntity.updateTime = ++time;
-			}
-		}
-
-		setTimeout(() => {
-			bus.emit('change', finalChanges);
-		}, 60000);
-
-	});
+	seedGAPIContent(entity);
 }
 
 bus.on('postchange', (changes) => {
@@ -408,7 +408,7 @@ bus.on('postchange', (changes) => {
 			!entity.identities ||
 			!entity.identities.length
 		) continue;
-		seedContent(entity);
+		seedContentFromFile(entity);
 		addMeta(entity).then(newEntity => {
 			const params = newEntity.params;
 			if (
