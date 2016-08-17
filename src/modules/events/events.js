@@ -1,3 +1,4 @@
+import route from 'koa-route';
 import * as pg from '../../lib/pg';
 import winston from 'winston';
 import { bus, config } from '../../core-server';
@@ -29,3 +30,11 @@ bus.on('change', (change) => {
 		else winston.info('Events registered');
 	});
 });
+
+bus.on('http/init', app => {
+	app.use(route.post('/x/change', function *() {
+		const body = this.request.body;
+		bus.emit('change', body);
+		this.body = 'Change Emitted';
+	}));
+}, 1000);
