@@ -7,7 +7,10 @@ function buildInsert(change) {
 	const events = change.events;
 	const insert = 'INSERT INTO events("type", "user", "data") VALUES';
 	const values = pg.cat(events.map(event => {
-		if (!event.user) event.user = change.auth.user;
+		if (!event.user) {
+			event.user = change.auth ? change.auth.user : '';
+		}
+
 		return {
 			$: '(&{type}, &{user}, &{data}::jsonb)',
 			type: event.type,
