@@ -151,6 +151,7 @@ function seedContent(room) {
 			});
 		});
 
+		changes.source = 'belong';
 		bus.emit('change', changes);
 	});
 }
@@ -371,7 +372,8 @@ function saveEntity(entity) {
 	bus.emit('change', {
 		entities: {
 			[entity.id]: entity
-		}
+		},
+		source: 'belong'
 	});
 
 	seedGAPIContent(entity).then(finalChanges => {
@@ -391,6 +393,7 @@ function saveEntity(entity) {
 		}
 
 		setTimeout(() => {
+			finalChanges.source = 'belong';
 			bus.emit('change', finalChanges);
 		}, 60000);
 

@@ -32,9 +32,15 @@ bus.on('change', (change) => {
 });
 
 bus.on('http/init', app => {
-	app.use(route.post('/x/change', function *() {
+	app.use(route.post('/x/analytics', function *() {
 		const body = this.request.body;
-		bus.emit('change', body);
+		const events = body.event;
+
+		bus.emit('change', {
+			events,
+			source: 'belong'
+		});
+
 		this.body = 'Change Emitted';
 	}));
 }, 1000);

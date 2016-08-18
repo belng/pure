@@ -27,7 +27,8 @@ bus.on('presence/offline', presence => {
 					data: {
 						resource: presence.resource
 					}
-				} ]
+				} ],
+				source: 'belong'
 			});
 		});
 	}
@@ -45,7 +46,8 @@ bus.on('presence/online', presence => {
 			data: {
 				resource: presence.resource
 			}
-		} ]
+		} ],
+		source: 'belong'
 	});
 });
 

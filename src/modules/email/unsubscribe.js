@@ -57,6 +57,7 @@ function *handleRequest() {
 				entities: {
 					[user.id]: user,
 				},
+				source: 'belong'
 			}, (e) => {
 				if (e) {
 					reject(e);

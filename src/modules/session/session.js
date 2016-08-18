@@ -56,7 +56,9 @@ function sessionHandler(changes, n) {
 	}
 	winston.info('setstate: session module listener 1');
 
-	if (changes.auth && changes.auth.session) {
+	if (changes.source === 'belong') {
+		next();
+	} else if (changes.auth && changes.auth.session) {
 		getIDFromSession(changes.auth.session)
 		.then((sub) => {
 			winston.debug('signing in as ', sub);
@@ -67,8 +69,6 @@ function sessionHandler(changes, n) {
 			next();
 		})
 		.catch(next);
-	} else {
-		next();
 	}
 }
 
