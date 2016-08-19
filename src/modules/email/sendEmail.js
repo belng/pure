@@ -2,13 +2,14 @@ import { config } from '../../core-server';
 import nodemailer from 'nodemailer';
 import smtpTransport from 'nodemailer-smtp-transport';
 import Logger from '../../lib/logger';
+
 const transport = nodemailer.createTransport(smtpTransport({
-	host: config && config.email && config.email.host,
-	protocol: 'smtp',
-	secureConnection: true,
-	port: 465,
-	auth: config && config.email && config.email.auth,
-})), log = new Logger(__filename);
+		host: config && config.email && config.email.host,
+		protocol: 'smtp',
+		secureConnection: true,
+		port: 465,
+		auth: config && config.email && config.email.auth,
+	})), log = new Logger(__filename);
 
 export default function send (from, to, sub, html, cb) {
 	const email = {
