@@ -87,7 +87,8 @@ function seedContent(room) {
 	log.info('something:', JSON.stringify(room));
 	fs.readdir('./templates/seed-content', (err, files: any) => {
 		const changes = {
-			entities: {}
+			entities: {},
+			source: 'belong'
 		};
 
 		if (err || !files || files.length === 0) return;
@@ -343,7 +344,10 @@ function seedGAPIContent(room) {
 		room.tags.indexOf(TAG_ROOM_CITY) === -1 &&
 		geometry
 	) {
-		return buildChange({ entities: {} }, room);
+		return buildChange({
+			entities: {},
+			source: 'belong'
+		}, room);
 	} else {
 		return Promise.resolve({});
 	}
@@ -371,7 +375,8 @@ function saveEntity(entity) {
 	bus.emit('change', {
 		entities: {
 			[entity.id]: entity
-		}
+		},
+		source: 'belong'
 	});
 
 	seedGAPIContent(entity).then(finalChanges => {
@@ -391,6 +396,7 @@ function saveEntity(entity) {
 		}
 
 		setTimeout(() => {
+			finalChanges.source = 'belong';
 			bus.emit('change', finalChanges);
 		}, 60000);
 

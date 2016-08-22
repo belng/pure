@@ -176,7 +176,7 @@ function insertNewArticles (articles: Array<Article>): Promise<Array<{ rowCount:
 function updateFeedsOnNewArticles (lastupdatetime: number, url: string, newArticlesCount: number): Promise<Array<{ rowCount: number }>> {
 	return performWriteQuery([ {
 		$: `UPDATE feeds SET lastrequesttime = extract(epoch from NOW()) * 1000,
-			lastupdatetime = &{lastupdatetime}, mtbu = &{mtbu} 
+			lastupdatetime = &{lastupdatetime}, mtbu = &{mtbu}
 			WHERE url=&{url}`,
 		lastupdatetime,
 		url,
@@ -237,6 +237,7 @@ export const postThreads = async () => {
 		if (roomSpecificNewsArticles.length > 0) {
 			const threads = await buildThreads(roomSpecificNewsArticles);
 			winston.info(threads);
+			threads.source = 'belong';
 			bus.emit('change', threads);
 		} else {
 			winston.info('Duplicate or No new news stories found !!');

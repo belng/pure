@@ -28,6 +28,7 @@ async function getUser(session) {
 		auth: {
 			session,
 		},
+		source: 'http'
 	});
 
 	return change.response.state.user;

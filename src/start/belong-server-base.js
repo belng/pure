@@ -13,6 +13,7 @@ import '../modules/on-start/on-start';
 
 // Socket
 import '../modules/socket/socket-server';
+import '../modules/events/events';
 
 // Auth modules
 import '../modules/facebook/facebook';
