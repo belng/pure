@@ -4,6 +4,7 @@ import android.content.Context;
 import android.provider.Settings;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,6 +30,14 @@ public class BelongLogger {
         event.put("type", type);
         event.put("data", data);
 
+        JSONArray events = new JSONArray();
+
+        events.put(event);
+
+        JSONObject json = new JSONObject();
+
+        json.put("events", events);
+
         final String endpoint = context.getString(R.string.app_protocol)
                 + "//"
                 + context.getString(R.string.app_host)
@@ -36,7 +45,7 @@ public class BelongLogger {
 
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         OkHttpClient client = new OkHttpClient();
-        RequestBody body = RequestBody.create(JSON, event.toString());
+        RequestBody body = RequestBody.create(JSON, json.toString());
 
         Request request = new Request.Builder()
                 .url(endpoint)
