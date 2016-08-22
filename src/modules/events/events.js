@@ -37,7 +37,7 @@ bus.on('change', (change) => {
 bus.on('http/init', app => {
 	app.use(route.post('/x/analytics', function *() {
 		const body = this.request.body;
-		const events = body.event;
+		const events = body.events;
 
 		bus.emit('change', {
 			events,
