@@ -46,7 +46,7 @@ async function validateTime(changes, next) {
 			// if only counts changed, retain the old updateTime
 			// if counts.children changed or new role added, don't retain the old updateTime
 			if (
-				(Object.keys(entity).length === 1 && (entity.counts && !('children' in entity.counts))) ||
+				(entity.counts && !('children' in entity.counts)) ||
 				(entity.roles && rolesChanged.length === 0)
 			) {
 				entity.updateTime = result.updateTime;
@@ -56,7 +56,6 @@ async function validateTime(changes, next) {
 					entity.updateTime++;
 				}
 			}
-
 		}
 	});
 

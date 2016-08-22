@@ -22,7 +22,7 @@ export default function getScore(entity) {
 	children = 60000 * 2 * Math.atan(children / 5) / Math.PI;
 	follower = 60000 * 2 * Math.atan(follower / 3) / Math.PI;
 	const score = 0.7 * updateTime + 0.3 * createTime +
-	10 * upvote + 5 * children + 7.5 * follower +
+	180 * upvote + 90 * children + 150 * follower +
 	1E9 * (entity.tags && entity.tags.indexOf(TAG_POST_STICKY) > -1 ? 1 : 0); // for pinned posts
 	return Math.floor(score);
 }
@@ -40,8 +40,12 @@ bus.on('change', async (changes, next) => {
 			const entity = changes.entities[id];
 
 			if (entity.type === TYPE_THREAD) {
+				// Do not update score if only visitor count changes
+				if (entity.counts && Object.keys(entity.counts).length === 1 && entity.counts.visitor) {
+					continue;
+				}
 				promises.push(getEntityAsync(entity.id).then(result => {
-					const newThread = jsonop.apply(entity, result || {});
+					const newThread = jsonop.apply(result || {}, entity);
 					entity.score = getScore(newThread);
 				}));
 			}

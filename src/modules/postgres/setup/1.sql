@@ -68,7 +68,7 @@ CREATE TABLE rooms (
 
 CREATE TABLE threads (
 	body text NOT NULL, -- thread start message
-	score double precision -- sort ordering
+	score bigint -- sort ordering
 ) INHERITS (items);
 
 CREATE TABLE texts (
