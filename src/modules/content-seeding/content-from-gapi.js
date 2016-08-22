@@ -4,7 +4,6 @@ import { bus, config } from '../../core-server';
 import Thread from '../../models/thread';
 import Text from '../../models/text';
 import Room from '../../models/room';
-
 import * as places from '../../lib/places';
 import * as upload from '../../lib/upload';
 
@@ -18,7 +17,6 @@ import { TYPE_ROOM,
 
 const botName = 'belongbot';
 const types = [ 'hospital', 'restaurant', 'school', 'grocery_or_supermarket' ];
-
 
 function parseAttributions(html) {
 	return {
@@ -91,7 +89,7 @@ function buildThread(room, type) {
 	});
 }
 
-function buildTexts(place, thread) {
+async function buildTexts(place, thread) {
 	const details = {
 		name: place.details.name,
 		website: place.details.website,
@@ -119,148 +117,149 @@ function buildTexts(place, thread) {
 	});
 
 	if (!place.photo) {
-		return Promise.resolve([ text ]);
+		return [ text ];
 	} else {
-		return upload.urlTos3(place.photo.url, url).then(() => {
-			const text2 = new Text({
-				id,
-				type: TYPE_TEXT,
-				name: '',
-				body: name,
-				parents: [ thread.id ],
-				creator: botName,
-				createTime: Date.now(),
-				tags: [ TAG_POST_GAPI_SEED ]
-			});
-			text.meta = {
-				photo: {
-					width: place.photo.width,
-					height: place.photo.height,
-					title: 'image.jpeg',
-					type: 'photo'
-				}
-			};
-
-			const thumbnail = getThumbnailObject('content', id, place.photo.width / place.photo.height);
-			text.meta.photo.url = getImageUrl('content', id, 'image.jpeg', false);
-			text.meta.photo.thumbnail_url = thumbnail.url;
-			text.meta.photo.thumbnail_width = thumbnail.width;
-			text.meta.photo.thumbnail_height = thumbnail.height;
-
-			if (place.photo.attributions && place.photo.attributions.length) {
-				const attributions = parseAttributions(place.photo.attributions[0]);
-				text.meta.photo.author_name = attributions.author_name;
-				text.meta.photo.author_url = attributions.author_url;
-			}
-
-			text.tags.push(TAG_POST_PHOTO);
-			text.body = '📷 ' + text.meta.photo.url;
-			return [ text, text2 ];
+		await upload.urlTos3(place.photo.url, url);
+		const text2 = new Text({
+			id,
+			type: TYPE_TEXT,
+			name: '',
+			body: name,
+			parents: [ thread.id ],
+			creator: botName,
+			createTime: Date.now(),
+			tags: [ TAG_POST_GAPI_SEED ]
 		});
+		text.meta = {
+			photo: {
+				width: place.photo.width,
+				height: place.photo.height,
+				title: 'image.jpeg',
+				type: 'photo'
+			}
+		};
+
+		const thumbnail = getThumbnailObject('content', id, place.photo.width / place.photo.height);
+		text.meta.photo.url = getImageUrl('content', id, 'image.jpeg', false);
+		text.meta.photo.thumbnail_url = thumbnail.url;
+		text.meta.photo.thumbnail_width = thumbnail.width;
+		text.meta.photo.thumbnail_height = thumbnail.height;
+
+		if (place.photo.attributions && place.photo.attributions.length) {
+			const attributions = parseAttributions(place.photo.attributions[0]);
+			text.meta.photo.author_name = attributions.author_name;
+			text.meta.photo.author_url = attributions.author_url;
+		}
+
+		text.tags.push(TAG_POST_PHOTO);
+		text.body = '📷 ' + text.meta.photo.url;
+		return [ text, text2 ];
 	}
 }
 
 
-function getPlacesByType(room, type) {
+async function getPlacesByType(room, type) {
 	const geometry = room.params.placeDetails.geometry;
-	return places.getNearByPlaces(
+	const results = await places.getNearByPlaces(
 		geometry.location.lat,
 		geometry.location.lng,
 		2000,
 		type
-	).then(results => {
-		const detailsPromises = [];
+	);
 
-		results.slice(0, 4).forEach(result => {
-			detailsPromises.push(places.getPlaceDetails(result.place_id));
-		});
-
-		return Promise.all(detailsPromises)
-		.then(detailedPlaces => {
-			const photoPromises = [];
-			for (let i = 0; i < detailedPlaces.length; i++) {
-				const place = detailedPlaces[i], details = {
-						name: place.name,
-						website: place.website,
-						address: place.formatted_address,
-						phone: place.formatted_phone_number
-					};
-				if (place.photos && place.photos.length) {
-					photoPromises.push(places.getPhotoFromReference(place.photos[0].photo_reference, 960)
-					.then(photo => ({
-						details,
-						photo: {
-							attributions: place.photos[0].html_attributions,
-							url: photo.location,
-							width: 960,
-							height: Math.floor(place.photos[0].height / place.photos[0].width * 960),
-							reference: place.photos[0].photo_reference
-						}
-					})));
-				} else {
-					photoPromises.push(Promise.resolve({
-						details,
-						photo: null
-					}));
-				}
-			}
-
-			return Promise.all(photoPromises).then(res => {
-				return {
-					type,
-					content: res
-				};
-			});
-		});
+	const detailsPromises = [];
+	results.slice(0, 4).forEach(result => {
+		detailsPromises.push(places.getPlaceDetails(result.place_id));
 	});
+
+	const detailedPlaces = await Promise.all(detailsPromises);
+
+	const photoPromises = [];
+	for (let i = 0; i < detailedPlaces.length; i++) {
+		const place = detailedPlaces[i], details = {
+				name: place.name,
+				website: place.website,
+				address: place.formatted_address,
+				phone: place.formatted_phone_number
+			};
+
+		photoPromises.push((async function() {
+			if (place.photos && place.photos.length) {
+				const photo = await places.getPhotoFromReference(place.photos[0].photo_reference, 960);
+
+				return {
+					details,
+					photo: {
+						attributions: place.photos[0].html_attributions,
+						url: photo.location,
+						width: 960,
+						height: Math.floor(place.photos[0].height / place.photos[0].width * 960),
+						reference: place.photos[0].photo_reference
+					}
+				};
+			} else {
+				return {
+					details,
+					photo: null
+				};
+			}
+		}()));
+	}
+
+	const content = await Promise.all(photoPromises);
+
+	return {
+		type,
+		content
+	};
 }
 
 
 function seedRoom(room) {
-	types.forEach(e => {
-		const changes = {
-			entities: {}
-		};
+	types.forEach(async e => {
+		// const changes = {
+		// 	entities: {}
+		// };
+		const content = await getPlacesByType(room, e);
 
-		getPlacesByType(room, e).then(result => {
-			const promises = [];
-			const thread = buildThread(room, result.type);
-
-			thread.createTime = thread.updateTime = Date.now();
-			changes.entities[thread.id] = thread;
-			for (const part of result.res) {
-				promises.push(buildTexts(part, thread));
-			}
-
-			return Promise.all(promises);
-		}).then(results => {
-			let texts = results.reduce((prev, cur) => {
-				return prev.concat(cur);
-			}, []);
-			texts = texts.reduce((prev, cur) => {
-				prev[cur.id] = cur;
-				return prev;
-			}, changes.entities);
-		}).then(() => {
-			let time = Date.now();
-			for (const i in changes.entities) {
-				const newEntity = changes.entities[i];
-				if (newEntity.type === TYPE_THREAD) {
-					newEntity.createTime = newEntity.updateTime = ++time;
-				}
-			}
-
-			for (const i in changes.entities) {
-				const newEntity = changes.entities[i];
-				if (newEntity.type === TYPE_TEXT) {
-					newEntity.createTime = newEntity.updateTime = ++time;
-				}
-			}
-
-			setTimeout(() => {
-				bus.emit('change', changes);
-			}, 60000);
-		});
+		console.log(JSON.stringify(content));
+		// const promises = [];
+		// const thread = buildThread(room, result.type);
+		//
+		// thread.createTime = thread.updateTime = Date.now();
+		// changes.entities[thread.id] = thread;
+		// for (const part of result.res) {
+		// 	promises.push(buildTexts(part, thread));
+		// }
+		//
+		// let results = await Promise.all(promises);
+		//
+		// let texts = results.reduce((prev, cur) => {
+		// 	return prev.concat(cur);
+		// }, []);
+		// texts = texts.reduce((prev, cur) => {
+		// 	prev[cur.id] = cur;
+		// 	return prev;
+		// }, changes.entities);
+		//
+		// let time = Date.now();
+		// for (const i in changes.entities) {
+		// 	const newEntity = changes.entities[i];
+		// 	if (newEntity.type === TYPE_THREAD) {
+		// 		newEntity.createTime = newEntity.updateTime = ++time;
+		// 	}
+		// }
+		//
+		// for (const i in changes.entities) {
+		// 	const newEntity = changes.entities[i];
+		// 	if (newEntity.type === TYPE_TEXT) {
+		// 		newEntity.createTime = newEntity.updateTime = ++time;
+		// 	}
+		// }
+		//
+		// setTimeout(() => {
+		// 	bus.emit('change', changes);
+		// }, 60000);
 	});
 }
 
