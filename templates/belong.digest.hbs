@@ -4,9 +4,9 @@
     <tr><td class="logo" colspan="2" style="text-align: center;padding-bottom: 10px;">
       <img alt="Belong" src="https://raw.githubusercontent.com/RahulKondi/belongemail/master/img/belong.png" style="width:144px; height:54px;">
     </td></tr>
-    <tr><td class="hero" colspan="2" style="background: #ff1144;padding: 30px 50px;text-align: left;max-width: 400px;font-size: 1.5em;color: white;margin: 0 auto;border-radius: 3px;box-shadow: 2px 2px 2.5px #e6e6e6;text-shadow: 2px 2px #e42c5;">
+    <tr><td class="hero" colspan="2" style="background: {{backGroundColor}};padding: 30px 50px;text-align: left;max-width: 400px;font-size: 1.5em;color: white;margin: 0 auto;border-radius: 3px;box-shadow: 2px 2px 2.5px #e6e6e6;text-shadow: 2px 2px #e42c5;">
       <div>
-        <p><b>There ought to be a better way to start the day than by getting out of bed.</b></p>
+        <p><b>{{message}}</b></p>
         <p>Here's some fun chatter for you to catch up with.</p>
       </div>
     </td></tr>
@@ -35,29 +35,28 @@
               {{/unless}}
               {{/if}}
               <span class="card-footer" style="margin-top: 15px;display: inline-block;color: #888888;">
-                <span class="inline-blocks creator" style="margin-right: 20px;display: inline-block;vertical-align: middle;padding-right: 6.75px;">
-                  <span class="inline-blocks" style="display: inline-block;vertical-align: middle;padding-right: 6.75px;"> <img class="dp" src="/i/picture?user={{this.creator}}&size=48" alt="⇣" style="border-radius: 50%;float: left;width: 24px;height: 24px;"> </span>
+                <span class="inline-blocks creator" style="margin-right: 5px;display: inline-block;vertical-align: middle;padding-right: 6.75px;">
+                  <span class="inline-blocks" style="display: inline-block;vertical-align: middle;padding-right: 6.75px;"> <img class="dp" src="https://bel.ng/i/picture?user={{this.creator}}&size=48" alt="⇣" style="border-radius: 50%;float: left;width: 24px;height: 24px;"> </span>
                   <span class="inline-blocks" style="display: inline-block;vertical-align: middle;padding-right: 6.75px;"> <b>{{this.creator}}</b> </span>
                 </span>
-                <span class="inline-blocks location" style="margin-right: 20px;display: inline-block;vertical-align: middle;padding-right: 6.75px;">
+                <span class="inline-blocks location" style="margin-right: 5px;display: inline-block;vertical-align: middle;padding-right: 6.75px;">
                   <span class="inline-blocks" style="display: inline-block;vertical-align: middle;padding-right: 6.75px;">
                     <img src="http://s.bel.ng/s/location.png">
 
                   </span>
                   <span class="inline-blocks" style="display: inline-block;vertical-align: middle;padding-right: 6.75px;">{{this.roomname}}</span>
                 </span>
-                <span class="inline-blocks likes" style="margin-right: 20px;display: inline-block;vertical-align: middle;padding-right: 6.75px;">
+                <span class="inline-blocks likes" style="margin-right: 0px;display: inline-block;vertical-align: middle;padding-right: 6.75px;">
                   <span class="inline-blocks" style="display: inline-block;vertical-align: middle;padding-right: 6.75px;">
                     <img class="img-heart" src="http://s.bel.ng/s/heart.png" style="width: 16px;height: 14.170px;">
                   </span>
                   <span class="inline-blocks" style="display: inline-block;vertical-align: middle;padding-right: 6.75px;">{{this.upvote}} Likes</span>
                 </span>
-                <span class="inline-blocks" style="display: inline-block;vertical-align: middle;padding-right: 6.75px;">
-                  <a href="{{../this.domain}}/{{this.roomid}}/{{this.threadid}}{{../this.link}}" style="text-decoration: none;">
-                    <button class="read-button" style="background: #ff1144;border-radius: 2px;box-shadow: 2px 2px 2.5px #e6e6e6;text-shadow: 2px 2px #e42c5;padding: 10px;text-align: center;min-width: 100px;font-size: 1em;font-weight: bold;color: white;display: block;appearance: none;-webkit-appearance: none;-moz-appearance: none;border: 0;vertical-align: middle;">Read more
-                    </button>
-                  </a>
-                </span>
+                <a href="{{../this.domain}}/{{this.roomid}}/{{this.threadid}}{{../this.link}}" style="text-decoration: none;">
+                  <div class="read-button" style="background: #ff1144;border-radius: 2px;box-shadow: 2px 2px 2.5px #e6e6e6;text-shadow: 2px 2px #e42c5;padding: 10px;text-align: center;min-width: 100px;font-size: 1em;font-weight: bold;color: white;display: block;appearance: none;-webkit-appearance: none;-moz-appearance: none;border: 0;vertical-align: middle; max-width: 20%; margin-top: 10px;">Read more
+                  </div>
+                </a>
+
               </span>
             </div></div></div></td>
           </tr>
@@ -67,7 +66,6 @@
           <b>&copy; Belong</b> Your friendly neighborhood, #43, KR Garden, Murugeshpalya, Bangalore, Karnataka, 560017
           <p>Ignorance is bliss? <a href="{{domain}}/r/unsubscribe?email={{token}}&type=digest" style="color:#6644bb; text-decoration: none"> Unsubscribe</a> </p>
         </td>
-
 
     </table>
   </body>

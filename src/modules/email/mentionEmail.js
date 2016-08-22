@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import * as pg from '../../lib/pg';
 import send from './sendEmail';
 import handlebars from 'handlebars';
+
 const MENTION_INTERVAL = 60 * 60 * 1000, MENTION_DELAY = 60 * 60 * 1000,
 	template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' +
 	config.app_id + '.mention.hbs', 'utf-8').toString()), log = new Logger(__filename, 'mention'),
@@ -16,28 +17,38 @@ const MENTION_INTERVAL = 60 * 60 * 1000, MENTION_DELAY = 60 * 60 * 1000,
 let lastEmailSent, end, i = 0;
 
 function initMailSending (userRel) {
-		const user = userRel.puser;
-		log.info('Sending to : ', user, userRel.prels.length);
-		if (!user.identities || !Array.isArray(user.identities)) {
-			log.info('No identities found for user: ', user);
-			return;
-		}
+	const user = userRel.puser;
+	log.info('Sending to : ', user, userRel.prels.length);
+	if (!user.identities || !Array.isArray(user.identities)) {
+		log.info('No identities found for user: ', user);
+		return;
+	}
 
-		const rels = userRel.prels,
-			mailIds = user.identities.filter((el) => {
-				return el.startsWith('mailto:');
-			});
-			if(mailIds.length === 0) return;
-		const emailAdd = mailIds[0].slice(7);
-		const emailHtml = template({
-				token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: '5 days' }),
-				domain: config.server.protocol + '//' + config.server.host,
-				rooms: rels,
-			});
-		const emailSub = `You have been mentioned`;
-		send(conf.from, emailAdd, emailSub, emailHtml, () => {
-			log.info('Send complete');
+	const rels = userRel.prels,
+		mailIds = user.identities.filter((el) => {
+			return el.startsWith('mailto:');
 		});
+	if (mailIds.length === 0) return;
+	const emailAdd = mailIds[0].slice(7);
+	const emailHtml = template({
+		token: jwt.sign({ email: emailAdd }, conf.secret, { expiresIn: '5 days' }),
+		domain: config.server.protocol + '//' + config.server.host,
+		rooms: rels,
+	});
+	const emailSub = `You have been mentioned`;
+	send(conf.from, emailAdd, emailSub, emailHtml, e => {
+		if (!e) {
+			log.info('Send complete');
+			pg.write(connStr, [ {
+				$: 'UPDATE jobs SET lastrun=&{end} WHERE id=&{jid}',
+				end,
+				jid: Constants.JOB_EMAIL_MENTION,
+			} ], (error) => {
+				lastEmailSent = end;
+				if (!error) log.info('successfully updated jobs for mention email');
+			});
+		}
+	});
 }
 function sendMentionEmail() {
 	let start = lastEmailSent;
@@ -48,7 +59,8 @@ function sendMentionEmail() {
 		log.info('email debug is enabed');
 		start = 0; end = Date.now();
 	}
-	let puser = {}, prels = [];
+	const puser = {};
+	let prels = [];
 	pg.readStream(connStr, {
 		$: `SELECT
 				users.id, users.identities, threads.name tname, threads.id tid,
@@ -72,13 +84,13 @@ function sendMentionEmail() {
 		row = true;
 		log.info("Got user to send mention email: ", t);
 		const date = new Date().getDate(),
-			month = new Date().getMonth()+1,
+			month = new Date().getMonth() + 1,
 			year = new Date().getFullYear();
- 		const formattedDate = date + '-' + month + '-' + year;
-		t.utm = '?utm_source=Belongmention&utm_medium=Email&utm_term='+ encodeURIComponent(t.tid) +
+		const formattedDate = date + '-' + month + '-' + year;
+		t.utm = '?utm_source=Belongmention&utm_medium=Email&utm_term=' + encodeURIComponent(t.tid) +
 		'&utm_content=' + encodeURIComponent(t.id) + '&utm_campaign=' + encodeURIComponent(formattedDate);
-		if(t.id !== puser.id && prels.length > 0) {
-			const emailObj = {puser, prels};
+		if (t.id !== puser.id && prels.length > 0) {
+			const emailObj = { puser, prels };
 			prels = [];
 			i++;
 			initMailSending(emailObj);
@@ -96,18 +108,9 @@ function sendMentionEmail() {
 		}
 		log.info('Sending meantion email to last user: ', puser);
 		i++;
-		initMailSending({puser, prels});
+		initMailSending({ puser, prels });
 		log.info('ended');
 		log.info('Mention email sent to ', i, ' users');
-		pg.write(connStr, [ {
-			$: 'UPDATE jobs SET lastrun=&{end} WHERE id=&{jid}',
-			end,
-			jid: Constants.JOB_EMAIL_MENTION,
-		} ], (error) => {
-			lastEmailSent = end;
-			log.info('Mention email sent to ', i, ' users');
-			if (!error) log.info('successfully updated jobs for mention email');
-		});
 	});
 
 }

@@ -7,19 +7,23 @@ import handlebars from 'handlebars';
 import * as pg from '../../lib/pg';
 import jwt from 'jsonwebtoken';
 import send from './sendEmail';
+import * as Constants from '../../lib/Constants';
 
 const DIGEST_INTERVAL = 60 * 60 * 1000,
 	template = handlebars.compile(
 		fs.readFileSync(__dirname + '/../../../templates/' + config.app_id + '.digest.hbs', 'utf-8').toString()
 	),
-	connStr = config.connStr, conf = config.email;
-let lastEmailSent; /* end,*/
+	connStr = config.connStr, conf = config.email,
+	digestTexts = fs.readFileSync(__dirname + '/../../../templates/digestTexts').toString('utf-8').trim().split('\n'),
+	digestColors = fs.readFileSync(__dirname + '/../../../templates/digestColors').toString('utf-8').trim().split('\n');
+let lastEmailSent;
 const log = new Logger(__filename, 'digest');
 
 function initMailSending (userThreadRel) {
 	const threads = userThreadRel.threadRels,
 		user = userThreadRel.user;
-
+	const message = digestTexts[Math.floor(Math.random() * digestTexts.length)],
+		backGroundColor = digestColors[new Date().getDay() - 1];
 	for (let i = 0; i < threads.length; i++) {
 		if (i === 3) {
 			threads[i].indexFourth = true;
@@ -37,6 +41,7 @@ function initMailSending (userThreadRel) {
 	const mailIds = user.identities.filter((el) => {
 		return /mailto:/.test(el);
 	});
+
 	if (mailIds.length === 0) return;
 	const emailAdd = mailIds[0].slice(7),
 		emailSub = threads[0].threadtitle + ' & More from Belong',
@@ -51,7 +56,9 @@ function initMailSending (userThreadRel) {
 			 '&utm_content=' + encodeURIComponent(emailSub) + '&utm_campaign=' + encodeURIComponent(formattedDate),
 			threads,
 			email: emailAdd,
-			sub: emailSub
+			sub: emailSub,
+			message,
+			backGroundColor
 		},
 		emailHtml = template(templateObj);
 	log.info('Digest email to: ', emailAdd);
@@ -93,7 +100,7 @@ async function sendDigestEmail () {
 					CAST(coalesce(rooms.counts ->> 'follower' , '0') as integer) follower,
 					threads.counts->>'children' children, threads.score,
 					threads.name threadtitle, threads.creator, threads.body,
-					threads.meta->'photo'->>'thumbnail_url' photo,
+					concat(threads.meta->'photo'->'thumbnail_url', threads.meta->'oembed'->'thumbnail_url') photo,
 					threads.score/(1+ 0.1*CAST(coalesce(rooms.counts ->> 'follower' , '0') as integer)) scoreperfollower,
 					threads.counts->>'upvote' upvote, threads.createtime,
 					threads.id threadid, rooms.name roomname, rooms.id roomid
@@ -103,10 +110,9 @@ async function sendDigestEmail () {
 							AND users.id ~ &{range}
 							AND (users.params-> 'email'->>'frequency' = 'daily' OR (users.params->'email') IS NULL)
 							AND roomrels.user=users.id AND threads.parents[1]=roomrels.item
-							AND (threads.counts->'upvote') IS NOT NULL
-							AND CAST(coalesce(threads.counts ->> 'upvote' , '0') as integer) > 2
-							AND roomrels.item=rooms.id AND threads.counts IS NOT NULL
-							AND CAST(coalesce(threads.counts ->> 'children' , '0') as integer) > 2
+							AND CAST(coalesce(threads.counts ->> 'upvote' , '0') as integer) > 1
+							AND roomrels.item=rooms.id
+							AND CAST(coalesce(threads.counts ->> 'children' , '0') as integer) > 1
 							AND threads.createtime >= extract(epoch from now()-interval '2 days')*1000
 							AND threads.creator NOT IN ('juhi', 'shreyaskutty', 'belong', 'belongbot')
 							AND roles @> '{3}'
@@ -131,6 +137,7 @@ async function sendDigestEmail () {
 
 	}).on('end', () => {
 		i++;
+		const now = Date.now();
 		log.info('Sending digest email to last user: ', puser, threadRels.length);
 		log.info('Got ', i, ' users');
 		threadRels = threadRels.slice(0, 8);
@@ -141,6 +148,14 @@ async function sendDigestEmail () {
 				e => {
 					if (!e) {
 						log.info('Confirmation email successfully sent');
+						pg.write(connStr, [ {
+							$: 'UPDATE jobs SET lastrun=&{now} WHERE id=&{jid}',
+							now,
+							jid: Constants.JOB_EMAIL_DIGEST,
+						} ], (error) => {
+							lastEmailSent = now;
+							if (!error) log.info('successfully updated jobs for welcome email');
+						});
 					}
 				});
 		});
