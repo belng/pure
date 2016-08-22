@@ -55,6 +55,7 @@ export function updateUser(u: Object, cb?: Function) {
 		auth: {
 			session: u.data.sessionId,
 		},
+		source: 'gcm'
 	}, (err, changes) => {
 		if (err) {
 			log.error('error on auth user: ', err, u.data.sessionId);
@@ -110,6 +111,7 @@ export function updateUser(u: Object, cb?: Function) {
 				entities: {
 					[user.id]: user,
 				},
+				source: 'belong'
 			}, (e) => {
 				if (e) {
 					log.debug('error on saving token: ', e);

@@ -29,7 +29,8 @@ async function addOEmbed(id, item, links) {
 			bus.emit('change', {
 				entities: {
 					[id]: entity
-				}
+				},
+				source: 'belong'
 			});
 			break;
 		} catch (e) {

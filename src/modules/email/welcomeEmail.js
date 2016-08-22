@@ -6,6 +6,7 @@ import * as pg from '../../lib/pg';
 import send from './sendEmail';
 import { config } from '../../core-server';
 import * as Constants from '../../lib/Constants';
+
 const log = new Logger(__filename, 'welcome');
 const WELCOME_INTERVAL = 5 * 60 * 1000, WELCOME_DELAY = 5 * 60 * 1000, connStr = config.connStr, conf = config.email,
 	template = handlebars.compile(fs.readFileSync(__dirname + '/../../../templates/' +
@@ -20,7 +21,7 @@ function initMailSending(user) {
 		return;
 	}
 	const mailIds = user.identities.filter((el) => {
-			return el.startsWith('mailto:');
+		return el.startsWith('mailto:');
 	});
 	mailIds.forEach((mailId) => {
 		const emailAdd = mailId.slice(7);
@@ -34,6 +35,15 @@ function initMailSending(user) {
 		send(conf.from, emailAdd, 'Welcome to ' + config.app_name, emailHtml, e => {
 			if (e) {
 				log.error('Error in sending email');
+			} else {
+				pg.write(connStr, [ {
+					$: 'UPDATE jobs SET lastrun=&{end} WHERE id=&{jid}',
+					end,
+					jid: Constants.JOB_EMAIL_WELCOME,
+				} ], (error) => {
+					lastEmailSent = end;
+					if (!error) log.info('successfully updated jobs for welcome email');
+				});
 			}
 		});
 	});
@@ -56,14 +66,6 @@ function sendWelcomeEmail () {
 		initMailSending(user);
 	}).on('end', () => {
 		log.info('ended Welcome email');
-		pg.write(connStr, [{
-			$: 'UPDATE jobs SET lastrun=&{end} WHERE id=&{jid}',
-			end,
-			jid: Constants.JOB_EMAIL_WELCOME,
-		}], (error) => {
-			lastEmailSent = end;
-			if (!error) log.info('successfully updated jobs for welcome email');
-		});
 	});
 }
 

@@ -1,1 +1,1 @@
-ALTER TABLE threads ALTER COLUMN score TYPE double precision;
+ALTER TABLE threads ALTER COLUMN score TYPE bigint;
