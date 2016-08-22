@@ -23,24 +23,22 @@ import type { Action } from '../../modules/store/storeTypeDefinitions';
  * User related actions
  */
 export const initializeSession = (session: string): Action => ({
-	type: 'AUTH',
+	type: 'AUTHORIZE',
 	payload: {
 		session,
 	}
 });
 
 export const signIn = (provider: string, auth: { accessToken: string; } | { idToken: string; } | { code: string; }): Action => ({
-	type: 'AUTH',
+	type: 'AUTHORIZE',
 	payload: {
 		[provider]: auth,
 	},
 });
 
 export const signUp = (user: User): Action => ({
-	type: 'AUTH',
-	payload: {
-		signup: new UserModel({ ...user, presence: PRESENCE_FOREGROUND }),
-	},
+	type: 'SIGNUP',
+	payload: user,
 });
 
 export const clearSignUpError = (signup: Object): Action => ({
