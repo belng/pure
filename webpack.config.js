@@ -57,7 +57,7 @@ module.exports = {
 				exclude: /node_modules/,
 				loader: 'babel',
 				query: Object.assign({}, babelrc, {
-					presets: babelrc.presets.concat({ modules: false }),
+					presets: babelrc.presets.map(p => p === 'es2015' ? [ 'es2015', { modules: false } ] : p),
 					env: {
 						developement: {
 							presets: [ 'react-hmre' ],
