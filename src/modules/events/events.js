@@ -25,7 +25,7 @@ function buildInsert(change) {
 	], ' ');
 }
 bus.on('change', (change) => {
-	if (!change.events && change.events.length) return;
+	if (!change.events || !change.events.length) return;
 
 	const sql = buildInsert(change);
 	pg.write(config.connStr, [ sql ], (err) => {
