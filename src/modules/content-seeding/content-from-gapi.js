@@ -90,6 +90,7 @@ function buildThread(room, type) {
 }
 
 async function buildTexts(place, thread) {
+	const texts = [];
 	const details = {
 		name: place.details.name,
 		website: place.details.website,
@@ -116,44 +117,52 @@ async function buildTexts(place, thread) {
 		tags: [ TAG_POST_GAPI_SEED ]
 	});
 
+	texts.push(text);
 	if (!place.photo) {
-		return [ text ];
+		return texts;
 	} else {
-		await upload.urlTos3(place.photo.url, url);
-		const text2 = new Text({
-			id,
-			type: TYPE_TEXT,
-			name: '',
-			body: name,
-			parents: [ thread.id ],
-			creator: botName,
-			createTime: Date.now(),
-			tags: [ TAG_POST_GAPI_SEED ]
-		});
-		text.meta = {
-			photo: {
-				width: place.photo.width,
-				height: place.photo.height,
-				title: 'image.jpeg',
-				type: 'photo'
+		let text2;
+		try {
+			await upload.urlTos3(place.photo.url, url);
+			text2 = new Text({
+				id,
+				type: TYPE_TEXT,
+				name: '',
+				body: name,
+				parents: [ thread.id ],
+				creator: botName,
+				createTime: Date.now(),
+				tags: [ TAG_POST_GAPI_SEED ]
+			});
+			text.meta = {
+				photo: {
+					width: place.photo.width,
+					height: place.photo.height,
+					title: 'image.jpeg',
+					type: 'photo'
+				}
+			};
+
+			const thumbnail = getThumbnailObject('content', id, place.photo.width / place.photo.height);
+			text.meta.photo.url = getImageUrl('content', id, 'image.jpeg', false);
+			text.meta.photo.thumbnail_url = thumbnail.url;
+			text.meta.photo.thumbnail_width = thumbnail.width;
+			text.meta.photo.thumbnail_height = thumbnail.height;
+
+			if (place.photo.attributions && place.photo.attributions.length) {
+				const attributions = parseAttributions(place.photo.attributions[0]);
+				text.meta.photo.author_name = attributions.author_name;
+				text.meta.photo.author_url = attributions.author_url;
 			}
-		};
 
-		const thumbnail = getThumbnailObject('content', id, place.photo.width / place.photo.height);
-		text.meta.photo.url = getImageUrl('content', id, 'image.jpeg', false);
-		text.meta.photo.thumbnail_url = thumbnail.url;
-		text.meta.photo.thumbnail_width = thumbnail.width;
-		text.meta.photo.thumbnail_height = thumbnail.height;
-
-		if (place.photo.attributions && place.photo.attributions.length) {
-			const attributions = parseAttributions(place.photo.attributions[0]);
-			text.meta.photo.author_name = attributions.author_name;
-			text.meta.photo.author_url = attributions.author_url;
+			text.tags.push(TAG_POST_PHOTO);
+			text.body = '📷 ' + text.meta.photo.url;
+			texts.push(text2);
+		} catch (e) {
+			text2 = null;
 		}
 
-		text.tags.push(TAG_POST_PHOTO);
-		text.body = '📷 ' + text.meta.photo.url;
-		return [ text, text2 ];
+		return texts;
 	}
 }
 
@@ -217,49 +226,52 @@ async function getPlacesByType(room, type) {
 
 function seedRoom(room) {
 	types.forEach(async e => {
-		// const changes = {
-		// 	entities: {}
-		// };
-		const content = await getPlacesByType(room, e);
+		const changes = {
+			entities: {},
+			source: 'belong'
+		};
+		const nearByPlaces = await getPlacesByType(room, e);
+		const thread = buildThread(room, nearByPlaces.type);
 
-		console.log(JSON.stringify(content));
-		// const promises = [];
-		// const thread = buildThread(room, result.type);
-		//
-		// thread.createTime = thread.updateTime = Date.now();
-		// changes.entities[thread.id] = thread;
-		// for (const part of result.res) {
-		// 	promises.push(buildTexts(part, thread));
-		// }
-		//
-		// let results = await Promise.all(promises);
-		//
-		// let texts = results.reduce((prev, cur) => {
-		// 	return prev.concat(cur);
-		// }, []);
-		// texts = texts.reduce((prev, cur) => {
-		// 	prev[cur.id] = cur;
-		// 	return prev;
-		// }, changes.entities);
-		//
-		// let time = Date.now();
-		// for (const i in changes.entities) {
-		// 	const newEntity = changes.entities[i];
-		// 	if (newEntity.type === TYPE_THREAD) {
-		// 		newEntity.createTime = newEntity.updateTime = ++time;
-		// 	}
-		// }
-		//
-		// for (const i in changes.entities) {
-		// 	const newEntity = changes.entities[i];
-		// 	if (newEntity.type === TYPE_TEXT) {
-		// 		newEntity.createTime = newEntity.updateTime = ++time;
-		// 	}
-		// }
-		//
-		// setTimeout(() => {
-		// 	bus.emit('change', changes);
-		// }, 60000);
+		thread.createTime = thread.updateTime = Date.now();
+		changes.entities[thread.id] = thread;
+
+		const promises = nearByPlaces.content.map(place => {
+			return buildTexts(place, thread);
+		});
+
+		const results = await Promise.all(promises);
+
+
+		let texts = results.reduce((prev, cur) => {
+			return prev.concat(cur);
+		}, []);
+
+		texts = texts.reduce((prev, cur) => {
+			prev[cur.id] = cur;
+			return prev;
+		}, changes.entities);
+
+
+		let time = Date.now();
+		for (const i in changes.entities) {
+			const newEntity = changes.entities[i];
+			if (newEntity.type === TYPE_THREAD) {
+				newEntity.createTime = newEntity.updateTime = ++time;
+			}
+		}
+
+
+		for (const i in changes.entities) {
+			const newEntity = changes.entities[i];
+			if (newEntity.type === TYPE_TEXT) {
+				newEntity.createTime = newEntity.updateTime = ++time;
+			}
+		}
+
+		setTimeout(() => {
+			bus.emit('change', changes);
+		}, 6000);
 	});
 }
 
@@ -321,7 +333,8 @@ function saveEntity(entity) {
 	bus.emit('change', {
 		entities: {
 			[entity.id]: entity
-		}
+		},
+		source: 'belong'
 	});
 
 	seedGAPIContent(entity);
