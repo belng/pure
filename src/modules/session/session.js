@@ -56,9 +56,7 @@ function sessionHandler(changes, n) {
 	}
 	winston.info('setstate: session module listener 1');
 
-	if (changes.source === 'belong') {
-		next();
-	} else if (changes.auth && changes.auth.session) {
+	if (changes.auth && changes.auth.session) {
 		getIDFromSession(changes.auth.session)
 		.then((sub) => {
 			winston.debug('signing in as ', sub);
@@ -69,6 +67,8 @@ function sessionHandler(changes, n) {
 			next();
 		})
 		.catch(next);
+	} else if (changes.source === 'belong' || changes.auth) {
+		next();
 	}
 }
 
@@ -82,8 +82,6 @@ bus.on('change', (changes, next) => {
 	} else {
 		next();
 	}
-
-	return null;
 }, APP_PRIORITIES.AUTHENTICATION_SESSION_2);
 
 winston.info('Session module ready.');
