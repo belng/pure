@@ -3,6 +3,7 @@ package chat.belong.hello.modules.gcm;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -174,10 +175,16 @@ public class NotificationItem {
 
             switch (appearance.getString("style")) {
                 case "bigtext":
-                    style = new NotificationCompat.BigTextStyle();
-                    break;
-                case "bigpicture":
-                    style = new NotificationCompat.BigPictureStyle();
+                    NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
+
+                    if (template.has("body")) {
+                        String body = buildTemplateForNotifications(template.getString("body"), items, rooms);
+                        if (!body.isEmpty()) {
+                            bigTextStyle.bigText(Html.fromHtml(body));
+                        }
+                    }
+
+                    style = bigTextStyle;
                     break;
                 case "inbox":
                     NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
@@ -236,6 +243,41 @@ public class NotificationItem {
                 if (bitmap != null) {
                     builder.setLargeIcon(bitmap);
                 }
+            }
+        }
+
+        if (template.has("actions")) {
+            JSONArray actions = template.getJSONArray("actions");
+            for (int i = 0; i < actions.length(); i++) {
+                JSONObject action = actions.getJSONObject(i);
+                String label = buildTemplateForNotifications(action.getString("label"), items, rooms);
+                if (label.isEmpty()) {
+                    continue;
+                }
+                String link = buildTemplateForNotifications(action.getString("link"), items, rooms);
+                String icon = buildTemplateForNotifications(action.getString("icon"), items, rooms);
+
+                Intent intent = new Intent(context, MainActivity.class);
+                intent.setAction(Intent.ACTION_VIEW);
+
+                if (!link.isEmpty()) {
+                    intent.setData(Uri.parse(link));
+                }
+
+                int resource;
+
+                try {
+                    resource = Resources.getSystem().getIdentifier(icon, "drawable", context.getPackageName());
+                } catch (Exception err) {
+                    try {
+                        resource = Resources.getSystem().getIdentifier(icon, "drawable", "android");
+                    } catch (Exception e) {
+                        resource = 0;
+                    }
+                }
+
+                PendingIntent actionIntent = PendingIntent.getActivity(context, i + 1, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                builder.addAction(resource, label, actionIntent);
             }
         }
 
