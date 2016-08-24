@@ -175,10 +175,16 @@ public class NotificationItem {
 
             switch (appearance.getString("style")) {
                 case "bigtext":
-                    style = new NotificationCompat.BigTextStyle();
-                    break;
-                case "bigpicture":
-                    style = new NotificationCompat.BigPictureStyle();
+                    NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
+
+                    if (template.has("body")) {
+                        String body = buildTemplateForNotifications(template.getString("body"), items, rooms);
+                        if (!body.isEmpty()) {
+                            bigTextStyle.bigText(Html.fromHtml(body));
+                        }
+                    }
+
+                    style = bigTextStyle;
                     break;
                 case "inbox":
                     NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
