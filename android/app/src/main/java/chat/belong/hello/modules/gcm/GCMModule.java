@@ -1,5 +1,7 @@
 package chat.belong.hello.modules.gcm;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.facebook.react.bridge.Arguments;
@@ -103,6 +105,18 @@ public class GCMModule extends ReactContextBaseJavaModule implements LifecycleEv
     public void deleteNotification(final String id, final Promise promise) {
         try {
             GCMPreferences.deleteNotification(getReactApplicationContext(), id);
+            promise.resolve(null);
+        } catch (Exception e) {
+            promise.reject(e);
+        }
+    }
+
+    @ReactMethod
+    public void cancelCurrentNotifications(final Promise promise) {
+        try {
+            NotificationManager manager = (NotificationManager) getReactApplicationContext()
+                    .getSystemService(Context.NOTIFICATION_SERVICE);
+            manager.cancelAll();
             promise.resolve(null);
         } catch (Exception e) {
             promise.reject(e);
