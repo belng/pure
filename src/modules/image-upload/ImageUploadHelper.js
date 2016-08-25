@@ -115,7 +115,7 @@ export default class ImageUploadHelper {
 		const request = new XMLHttpRequest();
 
 		const requestPromise = new Promise((resolve, reject) => {
-			request.onerror = () => reject(new Error('ERR_UPLOAD_FAIL'));
+			request.onerror = () => reject(new Error(`${request.responseText}: ${request.status}`));
 			request.onabort = () => reject(new Error('ERR_UPLOAD_ABORTED'));
 			request.onload = () => {
 				if (request.status === 201) {
