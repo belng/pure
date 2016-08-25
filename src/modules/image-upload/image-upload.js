@@ -220,6 +220,8 @@ const uploadImage = async (userName: string, imageUrl: string, propName: string)
 			}
 		}
 	};
+
+	changes.source = 'belong';
 	bus.emit('change', changes);
 };
 

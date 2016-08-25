@@ -15,7 +15,6 @@ function *handleRequest() {
 	// extract the Email address from the request
 	try {
 		decoded = jwt.verify(this.request.query.email, config.email.secret);
-
 	} catch (e) {
 		log.i('Invalid unsubscribe JWT: ' + this.request.query.email);
 		this.body = template({
@@ -40,10 +39,17 @@ function *handleRequest() {
 
 		// Received the user from the database! Changing the settings...
 		const user = results.arr[0];
-
+		let type;
 		user.params.email = user.params.email || {};
-		user.params.email.frequency = 'never';
-		user.params.email.notifications = false;
+
+		if(this.request.query.type === 'digest') {
+			user.params.email.frequency = 'never';
+			type = 'daily emails';
+		}
+		if(this.request.query.type === 'mention') {
+			user.params.email.notifications = false;
+			type = 'mention emails';
+		}
 
 		yield new Promise((resolve, reject) => {
 			// Saving the saved settings back into the database.
@@ -51,6 +57,7 @@ function *handleRequest() {
 				entities: {
 					[user.id]: user,
 				},
+				source: 'belong'
 			}, (e) => {
 				if (e) {
 					reject(e);
@@ -61,7 +68,7 @@ function *handleRequest() {
 		});
 
 		this.body =	template({
-			message: 'You have been unsubscribed.',
+			message: `You have been unsubscribed from ${type}.`,
 			message2: 'You can again subscribe from "My account" page.',
 		});
 	} catch (err) {

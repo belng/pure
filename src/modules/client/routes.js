@@ -6,6 +6,7 @@ import handlebars from 'handlebars';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import ServerHTML from './ServerHTML';
+import RichText from '../../ui/components/views/Core/RichText';
 import promisify from '../../lib/promisify';
 import { convertURLToRoute } from '../../lib/Route';
 import { bus, cache, config } from '../../core-server';
@@ -79,7 +80,10 @@ bus.on('http/init', app => {
 				order: 'createTime',
 			}, [ -Infinity, Infinity ]);
 
-			response.texts = queryTexts && queryTexts.arr ? queryTexts.arr.slice(0, 10) : [];
+			response.texts = (queryTexts && queryTexts.arr ? queryTexts.arr.slice(0, 10) : []).map(text => ({
+				...text,
+				html: ReactDOMServer.renderToStaticMarkup(<RichText text={text.body} />),
+			}));
 			if (thread.meta && thread.meta.photo) {
 				image = thread.meta.photo.thumbnail_url;
 				description = thread.counts && thread.counts.follower ? thread.counts.follower + 'people talking' : '';

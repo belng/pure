@@ -10,7 +10,7 @@ type UploadResult = {
 
 type Props = {
 	photo: any;
-	component: ReactClass;
+	component: ReactClass<*>;
 	autoStart?: boolean;
 	onUploadClose?: Function;
 	onUploadFinish?: (result: UploadResult) => void;

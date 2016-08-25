@@ -6,6 +6,17 @@
 # Ignore templates with `@flow` in header
 .*/local-cli/generator.*
 
+# Ignore unexpected extra @providesModule
+.*/node_modules/commoner/test/source/widget/share.js
+
+# Ignore duplicate module providers
+# For RN Apps installed via npm, "Libraries" folder is inside node_modules/react-native but in the source repo it is in the root
+.*/Libraries/react-native/React.js
+.*/Libraries/react-native/ReactNative.js
+.*/node_modules/jest-runtime/build/__tests__/.*
+
+# Ugh
+.*/node_modules/radium/src/components/style.js
 .*/node_modules/radium/src/components/style-root.js
 .*/node_modules/radium/src/components/style-sheet.js
 

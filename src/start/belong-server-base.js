@@ -13,6 +13,7 @@ import '../modules/on-start/on-start';
 
 // Socket
 import '../modules/socket/socket-server';
+import '../modules/events/events';
 
 // Auth modules
 import '../modules/facebook/facebook';
@@ -33,7 +34,7 @@ import '../modules/postgres/postgres';
 import '../modules/image-upload/image-upload';
 import '../modules/query-compatability/query-compatability';
 import '../modules/email/unsubscribe';
-import '../modules/url-shortener/urlOperations';
+import '../modules/url-shortener/url-shortener';
 import '../modules/contacts/contacts';
 import '../modules/avatar/avatar';
 import '../modules/client/client';
@@ -42,7 +43,6 @@ import '../modules/debug/debug-server';
 
 import '../modules/belong/belong';
 import '../modules/content-seeding/content-seeding';
-import '../modules/content-seeding/news-aggregator';
 import '../modules/url-preview/url-preview';
 
 // Moderator UI

@@ -29,12 +29,12 @@
         <h2 class="title">{{thread.name}}</h2>
         <p class="body">
             {{#if thread.meta.photo}}
-                <img src="{{thread.meta.photo.url}}" alt="{{thread.meta.photo.name}}" />
+                <img src="{{thread.meta.photo.url}}" alt="Picture" />
             {{else}}
                 {{#if thread.meta.oembed}}
                     <div class = 'oembed'>
                         <div class='thumbnail-container'>
-                            <img class='thumbnail' src="{{thread.meta.oembed.thumbnail_url}}" alt="{{thread.meta.oembed.title}}: {{thread.meta.oembed.description}}" />
+                            <img class='thumbnail' src="{{thread.meta.oembed.thumbnail_url}}" alt="Picture" />
                         </div>
                         <div class='title-description'>
                             <div class = 'title'>{{thread.meta.oembed.title}}</div>
@@ -80,22 +80,22 @@
             <div class="text">
                 <img class="avatar" src="/i/picture?user={{this.creator}}" />
                 <div class="stamp">{{this.creator}}</div>
-                <div class="body">
+                <div class="body" data-id="{{this.id}}">
                     {{#if this.meta.photo}}
-                        <img src="{{this.meta.photo.thumbnail_url}}" alt="{{this.meta.photo.title}}" />
+                        <img src="{{this.meta.photo.thumbnail_url}}" alt="Picture" />
                     {{else}}
                         {{#if this.meta.oembed}}
-                            <div class = 'oembed'>
+                            <div class='oembed'>
                                 <div class='thumbnail-container'>
-                                    <img class='thumbnail' src="{{this.meta.oembed.thumbnail_url}}" alt="{{this.meta.oembed.title}}: {{this.meta.oembed.description}}" />
+                                    <img class='thumbnail' src="{{this.meta.oembed.thumbnail_url}}" alt="Picture" />
                                 </div>
                                 <div class='title-description'>
-                                    <div class = 'title'>{{this.meta.oembed.title}}</div>
-                                    <div class = 'description'>{{this.meta.oembed.description}}</div>
+                                    <div class='title'>{{this.meta.oembed.title}}</div>
+                                    <div class='description'>{{this.meta.oembed.description}}</div>
                                 </div>
                             </div>
                         {{/if}}
-                        <div> {{this.body}} </div>
+                        <div>{{{this.html}}}</div>
                     {{/if}}
                 </div>
                 <!-- {{#if this.counts.upvote}}

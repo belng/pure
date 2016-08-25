@@ -67,7 +67,7 @@ function sessionHandler(changes, n) {
 			next();
 		})
 		.catch(next);
-	} else {
+	} else if (changes.source === 'belong' || changes.auth) {
 		next();
 	}
 }
@@ -82,8 +82,6 @@ bus.on('change', (changes, next) => {
 	} else {
 		next();
 	}
-
-	return null;
 }, APP_PRIORITIES.AUTHENTICATION_SESSION_2);
 
 winston.info('Session module ready.');

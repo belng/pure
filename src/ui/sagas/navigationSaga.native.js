@@ -11,7 +11,7 @@ import PersistentStorage from '../../lib/PersistentStorage';
 
 const PERSISTANCE_KEY = process.env.NODE_ENV !== 'production' ? 'FLAT_NAVIGATION_PERSISTENCE_0' : null;
 
-function *restoreNavgationSaga(): Generator<Array<Generator<any, any, any>>, void, void> {
+function *initialURLSaga(): Generator<Array<Generator<any, any, any>>, void, void> {
 	yield* takeLatest('INITIALIZE_STATE', function *() {
 		let initialURL;
 		try {
@@ -26,11 +26,17 @@ function *restoreNavgationSaga(): Generator<Array<Generator<any, any, any>>, voi
 			type: 'SET_INITIAL_URL',
 			payload: initialURL,
 		});
+	});
+}
+
+function *restoreNavgationSaga(): Generator<Array<Generator<any, any, any>>, void, void> {
+	yield* takeLatest('SET_INITIAL_URL', function *(action) {
+		const initialURL = action.payload;
 		let navigationState;
 		if (initialURL) {
 			navigationState = convertURLToState(initialURL);
 		} else if (PERSISTANCE_KEY) {
-			const storage = new PersistentStorage(PERSISTANCE_KEY);
+			const storage = PersistentStorage.getInstance(PERSISTANCE_KEY);
 			navigationState = yield storage.getItem('navigation');
 		}
 		if (navigationState) {
@@ -52,7 +58,7 @@ function *restoreNavgationSaga(): Generator<Array<Generator<any, any, any>>, voi
 function *persistNavgationSaga(): Generator<Array<Generator<any, any, any>>, void, void> {
 	yield* takeLatest([ 'PUSH_ROUTE', 'POP_ROUTE', 'SET_NAVIGATION' ], function *() {
 		if (PERSISTANCE_KEY) {
-			const storage = new PersistentStorage(PERSISTANCE_KEY);
+			const storage = PersistentStorage.getInstance(PERSISTANCE_KEY);
 			const navigationState = yield select(state => state.navigation);
 			yield storage.setItem('navigation', navigationState);
 		}
@@ -61,6 +67,7 @@ function *persistNavgationSaga(): Generator<Array<Generator<any, any, any>>, voi
 
 export default function *navigationSaga(): Generator<Array<Generator<any, any, any>>, void, void> {
 	yield [
+		initialURLSaga(),
 		restoreNavgationSaga(),
 		persistNavgationSaga(),
 	];

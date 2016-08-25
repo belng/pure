@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1036580994918",
+    "project_id": "belong-dev-141212"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1036580994918:android:b04644528fae5cd1",
+        "android_client_info": {
+          "package_name": "chat.belong.hello.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1036580994918-mu6jv7ki4ejbijlqil6mpvgeqksmjluk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "chat.belong.hello.dev",
+            "certificate_hash": "A79B322EF656B440DC64E77054A28BF273F49C86"
+          }
+        },
+        {
+          "client_id": "1036580994918-4mohu6b2ihrsvbras7db0hgquuob4h6s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5iHO9b1wmb7lzwAwtgaAM8AAnWGNbtEU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

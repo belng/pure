@@ -12,7 +12,7 @@ const {
 } = ReactNative;
 
 const LEFT_BUBBLE_COLOR = Colors.white;
-const RIGHT_BUBBLE_COLOR = '#ddd';
+const RIGHT_BUBBLE_COLOR = '#e3e3e3';
 
 const styles = StyleSheet.create({
 	containerLeft: {
@@ -82,7 +82,7 @@ type Props = {
 	showAuthor?: boolean;
 	showArrow?: boolean;
 	onPress?: Function;
-	children?: React.Element;
+	children?: React.Element<*>;
 	style?: any;
 }
 

@@ -145,15 +145,26 @@ function getRoomSpecificNews (): Promise<Array<RoomSpecificNews>> {
 		- Remove the news that were already posted.
 	*/
 	return performReadQuery({
-		$: `SELECT roomArticles.id AS roomid, roomArticles.name AS roomname, roomArticles.rawjson AS rawjson, roomArticles.url AS url FROM (
-				SELECT * FROM rooms JOIN LATERAL (
-					SELECT * FROM articles
-		   			WHERE articles.terms @@ plainto_tsquery(rooms.name) AND NOT rooms.tags @> &{noNewsRoom}
-		   			ORDER  BY articles.rawjson->>'published' DESC NULLS LAST LIMIT  1
-				) article ON TRUE
+		$: `SELECT roomArticles.id AS roomid, roomArticles.name AS roomname,
+				roomArticles.rawjson AS rawjson, roomArticles.url AS url
+			FROM (
+			    SELECT * FROM rooms JOIN LATERAL (
+			        SELECT * FROM articles
+			        WHERE articles.terms @@ plainto_tsquery(rooms.name) AND NOT rooms.tags @> '{24}'
+			        ORDER  BY articles.rawjson->>'published' DESC NULLS LAST LIMIT  1
+			    ) article ON TRUE
 			) as roomArticles LEFT OUTER JOIN postednews
 			ON roomArticles.id::text = postednews.roomid AND roomArticles.url = postednews.url
-			WHERE postednews.url IS NULL`,
+			WHERE postednews.url IS NULL AND
+			roomid::uuid IN (
+			    SELECT id FROM (
+			        SELECT rooms.id, rooms.updatetime, MAX(postednews.createtime) AS lastposttime
+			        FROM rooms, postednews
+			        WHERE rooms.id = postednews.roomid::uuid
+			        GROUP BY rooms.id
+			    ) AS groupedrooms
+			        WHERE groupedrooms.updatetime > groupedrooms.lastposttime
+			)`,
 		noNewsRoom: `{${TAG_ROOM_NO_NEWS}}`
 	});
 }
@@ -176,7 +187,7 @@ function insertNewArticles (articles: Array<Article>): Promise<Array<{ rowCount:
 function updateFeedsOnNewArticles (lastupdatetime: number, url: string, newArticlesCount: number): Promise<Array<{ rowCount: number }>> {
 	return performWriteQuery([ {
 		$: `UPDATE feeds SET lastrequesttime = extract(epoch from NOW()) * 1000,
-			lastupdatetime = &{lastupdatetime}, mtbu = &{mtbu} 
+			lastupdatetime = &{lastupdatetime}, mtbu = &{mtbu}
 			WHERE url=&{url}`,
 		lastupdatetime,
 		url,
@@ -237,6 +248,7 @@ export const postThreads = async () => {
 		if (roomSpecificNewsArticles.length > 0) {
 			const threads = await buildThreads(roomSpecificNewsArticles);
 			winston.info(threads);
+			threads.source = 'belong';
 			bus.emit('change', threads);
 		} else {
 			winston.info('Duplicate or No new news stories found !!');

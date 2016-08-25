@@ -2,6 +2,7 @@
 
 import type { Route } from '../lib/RouteTypes';
 import Homescreen from './components/views/Homescreen/Homescreen';
+import Roomscreen from './components/views/Discussion/Roomscreen';
 import NotificationIcon from './components/views/Notification/NotificationIcon';
 import ProfileButtonContainer from './components/containers/ProfileButtonContainer';
 import ShareButtonContainer from './components/containers/ShareButtonContainer';
@@ -9,7 +10,6 @@ import DiscussionsDetailsContainer from './components/containers/DiscussionDetai
 import ChatContainer from './components/containers/ChatContainer';
 import ChatTitleContainer from './components/containers/ChatTitleContainer';
 import RoomTitleContainer from './components/containers/RoomTitleContainer';
-import DiscussionsContainer from './components/containers/DiscussionsContainer';
 import NotificationCenterContainer from './components/containers/NotificationCenterContainer';
 import NotificationClearIconContainer from './components/containers/NotificationClearIconContainer';
 import AccountContainer from './components/containers/AccountContainer';
@@ -35,7 +35,7 @@ export default function(route: Route): RouteDescription {
 		return {
 			titleComponent: RoomTitleContainer,
 			rightComponent: NotificationIcon,
-			component: DiscussionsContainer,
+			component: Roomscreen,
 		};
 	case 'chat':
 		return {
@@ -51,7 +51,7 @@ export default function(route: Route): RouteDescription {
 		};
 	case 'profile':
 		return {
-			title: `${route.props ? route.props.user : 'someone'}'s profile`,
+			title: `${route.props && route.props.user ? route.props.user : 'someone'}'s profile`,
 			component: ProfileContainer,
 			type: 'modal',
 		};

@@ -64,11 +64,23 @@ function transformFunction(props) {
 	return props;
 }
 
-function mapSubscriptionToProps({ user }) {
+function mapSubscriptionToProps({ user, thread, room }) {
 	return {
 		me: {
 			type: 'entity',
 			id: user,
+		},
+		thread: {
+			type: 'entity',
+			id: thread,
+		},
+		threadrel: {
+			type: 'entity',
+			id: `${user}_${thread}`,
+		},
+		room: {
+			type: 'entity',
+			id: `${room}`,
 		},
 	};
 }

@@ -15,7 +15,7 @@ import {
 
 const conf = config.email, connString = config.connStr, log = new Logger(__filename);
 
-if (!conf.auth.user && !conf.auth.pass) {
+if (!conf.auth.user && !conf.auth.pass && !conf.host) {
 	log.info('Email module not enabled');
 } else {
 	log.info('Email module ready.');

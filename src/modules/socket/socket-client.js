@@ -34,6 +34,7 @@ function disconnected() {
 
 	/* eslint-disable no-use-before-define */
 	pendingCallbacks = {};
+
 	if (backOff < 256) {
 		backOff *= 2;
 	} else {
@@ -54,11 +55,10 @@ function onMessage(message) {
 	console.log('-->', frame);
 
 	frame.message.source = 'server';
-	if (frame.type === 'contacts' || frame.type === 's3/getPolicy') {
-		if (pendingCallbacks[frame.message.id]) {
-			pendingCallbacks[frame.message.id].data.response = frame.message;
-			pendingCallbacks[frame.message.id].next();
-		}
+
+	if (frame.message.id && pendingCallbacks[frame.message.id]) {
+		pendingCallbacks[frame.message.id].options.response = frame.message;
+		pendingCallbacks[frame.message.id].next();
 	} else {
 		bus.emit(frame.type, frame.message);
 	}
@@ -93,7 +93,7 @@ function send(data) {
 	}));
 }
 
-const props = [ 'queries', 'entities', 'auth' ];
+const props = [ 'queries', 'entities', 'auth', 'events' ];
 
 bus.on('postchange', changes => {
 	if (changes.source === 'server') return;
@@ -132,16 +132,19 @@ bus.on('signout', () => {
 	connect();
 });
 
-bus.on('s3/getPolicy', (policy, next) => {
+bus.on('socket/get', (options, next) => {
+	const id = uuid.v4();
 	const frame: Frame = {
-		type: 's3/getPolicy',
-		message: policy,
+		type: options.type,
+		message: {
+			id,
+			...options.data
+		}
 	};
 
-	policy.id = uuid.v4();
-	pendingCallbacks[policy.id] = {
-		data: policy,
+	pendingCallbacks[id] = {
 		next,
+		options,
 	};
 
 	send(frame);
