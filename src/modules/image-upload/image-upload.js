@@ -117,12 +117,12 @@ export function getResponse(policyReq) {
 	const keyPrefix = getKeyPrefix(policyReq.auth.user, policyReq.uploadType, policyReq.contentId),
 		policy = getPolicy(keyPrefix),
 		signature = getSignature(policy),
-		upload_url = `https://${config.s3.uploadBucket}/`,
-		thumbnail_url = `https://${config.s3.generateBucket}/`,
+		requestUrl = `http://${config.s3.uploadBucket}.${config.s3.service}-${config.s3.uploadRegion}.amazonaws.com/`,
 		filename = policyReq.filename;
+
 	let key = keyPrefix,
-		thumbnail = thumbnail_url + keyPrefix,
-		url;
+		original = `https://${config.s3.uploadBucket}/`,
+		thumbnail = `https://${config.s3.generateBucket}/${keyPrefix}`;
 
 	if (/\s{2,}/.test(filename)) {
 		throw new Error('S3 does not support filenames with multiple spaces');
@@ -133,19 +133,19 @@ export function getResponse(policyReq) {
 	switch (policyReq.uploadType) {
 	case 'avatar':
 		key += 'avatar.' + ext;
-		url = upload_url + key;
+		original += key;
 		thumbnail += '256.jpg';
 		break;
 	case 'content':
 		key += 'content.' + ext;
-		url = upload_url + key;
+		original += key;
 		thumbnail += '320.jpg';
 		break;
 	}
 
 	return {
-		request_url: upload_url,
-		original: url,
+		request_url: requestUrl,
+		original,
 		thumbnail,
 		policy: {
 			key,
