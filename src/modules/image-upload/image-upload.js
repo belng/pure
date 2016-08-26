@@ -55,7 +55,7 @@ function getOldKeyPrefix(userId, uploadType, textId) {
 }
 
 function getCredential() {
-	return `${config.s3.accessKey}/${getDate()}/${config.s3.region}/${config.s3.service}/${config.s3.signatureVersion}`;
+	return `${config.s3.accessKey}/${getDate()}/${config.s3.uploadRegion}/${config.s3.service}/${config.s3.signatureVersion}`;
 }
 
 // For old bucket
@@ -96,7 +96,7 @@ function getOldPolicy(keyPrefix) {
 
 function getSignature(policy) {
 	const kDate = sign('AWS4' + config.s3.secretKey, getDate());
-	const kRegion = sign(kDate, config.s3.region);
+	const kRegion = sign(kDate, config.s3.uploadRegion);
 	const kService = sign(kRegion, config.s3.service);
 	const signingKey = sign(kService, config.s3.signatureVersion);
 	const signature = sign(signingKey, policy).toString('hex');
@@ -118,7 +118,7 @@ export function getResponse(policyReq) {
 		policy = getPolicy(keyPrefix),
 		signature = getSignature(policy),
 		upload_url = `https://${config.s3.uploadBucket}/`,
-		thumbnail_url = `https://${config.s3.thumbnailsBucket}/`,
+		thumbnail_url = `https://${config.s3.generateBucket}/`,
 		filename = policyReq.filename;
 	let key = keyPrefix,
 		thumbnail = thumbnail_url + keyPrefix,
