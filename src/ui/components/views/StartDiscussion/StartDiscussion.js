@@ -359,6 +359,12 @@ export default class StartDiscussion extends Component<void, Props, State> {
 		});
 	};
 
+	_handleUploadError = () => {
+		this.setState({
+			nextId: v4(),
+		});
+	};
+
 	_postDiscussion = () => {
 		const SHORT_TITLE_MESSAGE = 'Title needs be at least 2 words';
 		const LONG_TITLE_MESSAGE = 'Title needs be less than 10 words';
@@ -527,6 +533,7 @@ export default class StartDiscussion extends Component<void, Props, State> {
 							photo={this.state.photo}
 							onUploadClose={this._handleUploadClose}
 							onUploadFinish={this._handleUploadFinish}
+							onUploadError={this._handleUploadError}
 							uploadOptions={{
 								uploadType: 'content',
 								generateThumb: true,

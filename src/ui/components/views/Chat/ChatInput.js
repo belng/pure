@@ -190,6 +190,12 @@ export default class ChatInput extends Component<void, Props, State> {
 		});
 	};
 
+	_handleUploadError = () => {
+		this.setState({
+			nextId: v4(),
+		});
+	};
+
 	_handleSuggestionSelect = (user: { id: string }) => {
 		const {
 			text,
@@ -312,6 +318,7 @@ export default class ChatInput extends Component<void, Props, State> {
 						photo={this.state.photo}
 						onUploadClose={this._handleUploadClose}
 						onUploadFinish={this._handleUploadFinish}
+						onUploadError={this._handleUploadError}
 						uploadOptions={{
 							uploadType: 'content',
 							generateThumb: true,

@@ -14,6 +14,7 @@ type Props = {
 	autoStart?: boolean;
 	onUploadClose?: Function;
 	onUploadFinish?: (result: UploadResult) => void;
+	onUploadError?: (e: Error) => void;
 	uploadOptions: any;
 }
 
@@ -29,6 +30,7 @@ export default class ImageUploadContainer extends Component<void, Props, State> 
 		autoStart: PropTypes.bool,
 		onUploadClose: PropTypes.func,
 		onUploadFinish: PropTypes.func,
+		onUploadError: PropTypes.func,
 		uploadOptions: PropTypes.object.isRequired,
 	};
 
@@ -78,6 +80,10 @@ export default class ImageUploadContainer extends Component<void, Props, State> 
 				upload: null,
 				status: 'error',
 			});
+
+			if (this.props.onUploadError) {
+				this.props.onUploadError(e);
+			}
 		}
 	};
 
