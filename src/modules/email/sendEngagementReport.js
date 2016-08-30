@@ -1,15 +1,14 @@
 import * as pg from '../../lib/pg';
 import fs from 'fs';
 import handlebars from 'handlebars';
-import log from 'winston';
 import { config } from '../../core-server';
 import send from './sendEmail';
+import Logger from '../../lib/logger';
 
 const template = handlebars.compile(
   fs.readFileSync(__dirname + '/../../../templates/engagementReport.hbs', 'utf-8').toString()
 );
-const connstr = config.connStr;
-
+const connstr = config.connStr, log = new Logger(__filename, 'engagementReport');
 function sendEmail() {
 	if (config.email.auth && !config.email.auth.user && !config.email.host) return;
 	const data = [];
@@ -41,7 +40,7 @@ function sendEmail() {
 		// console.log(row);
 		data.push(row);
 	}).on('end', () => {
-		// console.log(roomNames);
+		log.info(data);
 		if (data.length === 0) return;
 		const emailHtml = template({ rows: data });
 		// console.log(emailHtml)
