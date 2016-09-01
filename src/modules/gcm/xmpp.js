@@ -48,6 +48,8 @@ export function connect (cb: Function) {
 		client.on('online', onOnline);
 		client.on('error', onError);
 		client.on('stanza', onStanza);
+		client.connection.socket.setTimeout(0);
+		client.connection.socket.setKeepAlive(true, 10000);
 		if (cb) cb(null, client);
 	} catch (e) {
 		if (cb) cb(e, null);
