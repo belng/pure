@@ -1,6 +1,6 @@
 /* @flow */
 
-import { connect } from './xmpp';
+import connect from './xmpp';
 import { bus, config, cache } from '../../core-server';
 import Logger from '../../lib/logger';
 import * as Constants from '../../lib/Constants';

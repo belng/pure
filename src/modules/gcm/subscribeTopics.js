@@ -1,13 +1,17 @@
 /* @flow */
 /* eslint dot-notation: 0*/
+/* eslint array-callback-return: 0 */
+/* eslint consistent-return: 0*/
 import { config, bus, cache } from '../../core-server';
 import * as Constants from '../../lib/Constants';
-import Counter from '../../lib/counter';
+import promisify from '../../lib/promisify';
 import Logger from '../../lib/logger';
 import values from 'lodash/values';
 import request from 'request';
 import { getTokenFromSession, updateUser } from './handleUpstreamMessage';
 
+const queryAsync = promisify(cache.query.bind(cache));
+const getEntityAsync = promisify(cache.getEntity.bind(cache));
 const authKey = 'key=' + config.gcm.apiKey, log = new Logger(__filename);
 const options = {
 	url: 'https://iid.googleapis.com/iid/v1:batchAdd',
@@ -19,14 +23,34 @@ const options = {
 	body: {},
 };
 
-export function getIIDInfo(iid: string, cb: Function) {
-	request({
-		url: `https://iid.googleapis.com/iid/info/${iid}?details=true`,
-		method: 'GET',
-		headers: {
-			Authorization: authKey,
-		},
-	}, cb);
+export function getIIDInfo(iid: string, cb?: Function) {
+	if (!cb) {
+		request({
+			url: `https://iid.googleapis.com/iid/info/${iid}?details=true`,
+			method: 'GET',
+			headers: {
+				Authorization: authKey,
+			},
+		}, (e, r, b) => {
+			if (e || !b) {
+				log.error(e);
+				return null;
+			}
+			try {
+				return JSON.parse(b).rel.topics;
+			} catch (error) {
+				return null;
+			}
+		});
+	} else {
+		request({
+			url: `https://iid.googleapis.com/iid/info/${iid}?details=true`,
+			method: 'GET',
+			headers: {
+				Authorization: authKey,
+			},
+		}, cb);
+	}
 }
 
 function unsubscribeTopics (data, cb) {
@@ -57,60 +81,40 @@ function unsubscribeTopics (data, cb) {
 		});
 	} else {
 		iids.forEach(iid => {
-			getIIDInfo(iid, async (e, r, b) => {
-				if (e || !b) {
-					log.debug(e);
-					return;
+			const topics = getIIDInfo(iid);
+			if (!topics) return;
+			topics.map(topic => {
+				if (!/thread-/.test(topic)) {
+					log.debug('does not match thread');
+					return null;
 				}
-				if (b && !JSON.parse(b).rel) {
-					log.debug(e, JSON.parse(b));
-					return;
-				}
-				try {
-					// unsubscribe thread topics
-					await Object.keys(JSON.parse(b).rel.topics).map(topic => {
-						if (!/thread-/.test(topic)) {
-							log.debug('does not match thread');
-							return null;
-						}
 
-						return new Promise((resolve, reject) => {
-							request({
-								...options,
-								url: 'https://iid.googleapis.com/iid/v1:batchRemove',
-								body: {
-									registration_tokens: [ iid ],
-									to: '/topics/' + topic,
-								},
-							}, (err, rspns, bdy) => {
-								if (!err) {
-									log.info('unsubscribed from ', topic);
-									log.info(bdy);
-									resolve();
-								} else {
-									log.error(err);
-									reject(err);
-								}
-							});
-						});
-					});
-				} catch (err) {
-					// ignore
-				}
-				if (cb) {
-					cb();
-				}
+				request({
+					...options,
+					url: 'https://iid.googleapis.com/iid/v1:batchRemove',
+					body: {
+						registration_tokens: [ iid ],
+						to: '/topics/' + topic,
+					},
+				}, err => {
+					if (!err) {
+						log.info('unsubscribed from ', topic);
+					} else {
+						log.error('Error unsubscribing: ', err);
+					}
+				});
 			});
+			if (cb) {
+				cb();
+			}
 		});
 	}
-
 }
 
 export function subscribe (userRel: Object) {
 	const gcm = userRel.params ? userRel.params.gcm : null;
 	const tokens = values(gcm);
 	function register () {
-
 		log.info('tokens: ', tokens);
 		request({
 			...options,
@@ -133,13 +137,9 @@ export function subscribe (userRel: Object) {
 			}
 			if (body && body.error) {
 				log.error(body, userRel.topic, response);
-				console.log(options);
+				// console.log(options);
 			} else {
 				log.info(userRel.params + ' is subscribed to ' + userRel.topic);
-				// getIIDInfo(token, (e, r, b) => {
-				// 	log.info(b);
-				// 	// return;
-				// });
 			}
 		}).on('error', (err) => {
 			log.error('on error here:', err);
@@ -162,136 +162,121 @@ export function subscribe (userRel: Object) {
 	} else {
 		register();
 	}
-
 }
 
-function mapRelsAndSubscriptions(entity) {
-	log.info('map here gcm');
-	cache.getEntity(entity.user, (err, user) => {
-		log.info('user gcm: ', user);
-		if (err || !user || !user.params || !user.params.gcm) return;
-		const tokens = values(user.params.gcm);
-		log.info('token: ', tokens);
-		cache.query({
+async function mapRelsAndSubscriptions(entity) {
+	const user = await getEntityAsync(entity.user);
+	log.info('user gcm: ', user);
+	if (!user || !user.params || !user.params.gcm) return;
+	const tokens = values(user.params.gcm);
+	log.info('token: ', tokens);
+	const rels = await queryAsync(
+		{
 			type: 'roomrel',
 			filter: {
 				user: user.id,
 				roles_cts: [ Constants.ROLE_FOLLOWER ]
 			},
 			order: 'createTime',
-		}, [ -Infinity, Infinity ], (error, rels) => {
-			log.info('rels gcm: ', rels, err);
-			if (err) { return; }
-			tokens.forEach((token) => {
-				function callback (e, r, b) {
-					try {
-						let parsedBody = JSON.parse(b);
+		}, [ -Infinity, Infinity ]
+	);
 
-						if(e || !b || !parsedBody.rel) {
-							log.error(e, parsedBody);
-							return;
-						}
-						const subscribedRooms = Object.keys(parsedBody.rel.topics).filter(topic => {
-							return /room-/.test(topic);
-						}).map(room => {
-							return room.replace('room-', '');
-						});
-						const roomsFollowing = rels.arr.map((room) => {
-							return room.item;
-						});
-						log.info('all here: ', subscribedRooms, roomsFollowing);
+	// console.log('rels gcm: ', rels);
+	tokens.forEach((token) => {
+		getIIDInfo(token, (e, r, b) => {
+			if (e) return;
+			try {
+				const parsedBody = JSON.parse(b);
 
-						const roomsNotSubscribed = roomsFollowing.filter(room => {
-							return subscribedRooms.indexOf(room) === -1;
-						});
-						const notFollowingSubscribed = subscribedRooms.filter(room => {
-							return roomsFollowing.indexOf(room) === -1;
-						});
-						log.info('rooms following but not subscribed: ', roomsNotSubscribed);
-						log.info('rooms not following but subscribed: ', notFollowingSubscribed);
-
-						if (roomsNotSubscribed.length > 0) {
-							roomsNotSubscribed.forEach(room => {
-								subscribe({
-									params: user.params,
-									topic: 'room-' + room,
-								});
-							});
-						}
-
-						if (notFollowingSubscribed.length > 0) {
-							notFollowingSubscribed.forEach(room => {
-								unsubscribeTopics({ iid: token, topic: 'room-' + room });
-							});
-						}
-					} catch(er) {
-						log.error('Error parsing body: ', er, b);
-					}
+				if (e || !b || !parsedBody.rel) {
+					log.error(e, parsedBody);
+					return;
 				}
-				getIIDInfo(token, callback);
-			});
+				const subscribedRooms = Object.keys(parsedBody.rel.topics).filter(topic => {
+					return /room-/.test(topic);
+				}).map(room => {
+					return room.replace('room-', '');
+				});
+				const roomsFollowing = rels.arr.map((room) => {
+					return room.item;
+				});
+				log.info('all here: ', subscribedRooms, roomsFollowing);
+
+				const roomsNotSubscribed = roomsFollowing.filter(room => {
+					return subscribedRooms.indexOf(room) === -1;
+				});
+				const notFollowingSubscribed = subscribedRooms.filter(room => {
+					return roomsFollowing.indexOf(room) === -1;
+				});
+				log.info('rooms following but not subscribed: ', roomsNotSubscribed);
+				log.info('rooms not following but subscribed: ', notFollowingSubscribed);
+
+				if (roomsNotSubscribed.length > 0) {
+					roomsNotSubscribed.forEach(room => {
+						subscribe({
+							params: user.params,
+							topic: 'room-' + room,
+						});
+					});
+				}
+
+				if (notFollowingSubscribed.length > 0) {
+					notFollowingSubscribed.forEach(room => {
+						unsubscribeTopics({ iid: token, topic: 'room-' + room });
+					});
+				}
+			} catch (er) {
+				log.error('Error parsing body: ', er);
+				// console.log(b, e, r);
+			}
 		});
 	});
 }
 
-function handleSubscription(changes, next) {
-	const counter = new Counter();
-
+async function handleSubscription(changes, next) {
+// Map users relations and subscriptions only when user opens the app. not every time
+	if (changes.auth && changes.auth.session) {
+		mapRelsAndSubscriptions({ user: changes.auth.user });
+	}
 	if (!changes.entities || !config.gcm.apiKey) {
 		next();
 		return;
 	}
-	// console.log("chandra: ", changes);
-	for (const i in changes.entities) {
-		const entity = changes.entities[i];
 
-		if (entity.type === Constants.TYPE_ROOMREL) {
-			// console.log('ksdfhjhadf : ', entity);
-			mapRelsAndSubscriptions(entity);
-			if (!entity.createTime || entity.createTime !== entity.updateTime) {
-				if (entity.roles && entity.roles.length > 0) {
-					log.info('Not created now, return', entity);
-					continue;
-				}
+	const promises = Object.keys(changes.entities).map(async id => {
+		const entity = changes.entities[id];
+		if (entity && !entity.roles) return;
+		const user = await getEntityAsync(entity.user);
+		const gcm = user.params && user.params.gcm;
+		const	tokens = values(gcm);
+		const topic = entity.type === Constants.TYPE_ROOMREL ? 'room-' +
+		 entity.item : 'thread-' + entity.item;
 
-			}
-			let user = changes.entities[entity.user];
-
-			if (!user) {
-				counter.inc();
-				cache.getEntity(entity.user, (e, u) => {
-					user = u;
-					counter.dec();
+		if (entity.roles.length > 0) {
+			const prevRel = await getEntityAsync(id);
+			if (
+				!prevRel ||
+				(prevRel.roles && prevRel.roles.length === 0)
+			) {
+				log.info('subscribe ' + user.id + ' to ' + entity.item);
+				subscribe({
+					params: user.params || {},
+					topic,
 				});
 			}
-			counter.then(() => {
-				if (
-					entity.roles && entity.roles.length === 0 /* ||
-					entity.roles.indexOf(Constants.ROLE_FOLLOWER) === -1*/
-				) {
-					log.info('Got unfollow, unsubscribe from topics');
-					const gcm = user.params && user.params.gcm;
-					const	tokens = values(gcm);
-					const topic = entity.type === Constants.TYPE_ROOMREL ? 'room-' +
-					 entity.item : 'thread-' + entity.item;
-					tokens.forEach((token) => {
-						unsubscribeTopics({ iid: token, topic }, () => {
-							log.info('Unsubscribed from topic: ', topic);
-						});
-					});
-					return;
-				} else if (entity.roles && entity.roles.length > 0) {
-					// console.log("jhgf shfg: ", entity)
-					log.info('subscribe ' + user.id + ' to ' + entity.item);
-					subscribe({
-						params: user.params || {},
-						topic: entity.type === Constants.TYPE_ROOMREL ? 'room-' + entity.item :
-						'thread-' + entity.item,
-					});
-				}
-			});
 		}
-	}
+
+		if (entity.roles && entity.roles.length === 0) {
+			log.info('Got unfollow, unsubscribe from topics');
+			tokens.forEach((token) => {
+				unsubscribeTopics({ iid: token, topic }, () => {
+					log.info('Unsubscribed from topic: ', topic);
+				});
+			});
+			return;
+		}
+	});
+	await Promise.all(promises);
 	next();
 }
 
