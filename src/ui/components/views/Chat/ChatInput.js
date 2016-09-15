@@ -143,7 +143,7 @@ export default class ChatInput extends Component<void, Props, State> {
 		}
 	};
 
-	_handleUploadFinish = (result: { url: ?string; thumbnail: ?string; }) => {
+	_handleUploadSuccess = (result: { url: ?string; thumbnails: ?Array<string>; }) => {
 		const {
 			room,
 			thread,
@@ -174,7 +174,7 @@ export default class ChatInput extends Component<void, Props, State> {
 					url: result.url,
 					thumbnail_height: Math.min(480, width) * aspectRatio,
 					thumbnail_width: Math.min(480, width),
-					thumbnail_url: result.thumbnail,
+					thumbnail_url: result.thumbnails ? result.thumbnails.find(url => /240\.[a-z]+/i.test(url)) : null,
 					type: 'photo',
 				},
 			},
@@ -317,7 +317,7 @@ export default class ChatInput extends Component<void, Props, State> {
 						component={ImageUploadChat}
 						photo={this.state.photo}
 						onUploadClose={this._handleUploadClose}
-						onUploadFinish={this._handleUploadFinish}
+						onUploadSuccess={this._handleUploadSuccess}
 						onUploadError={this._handleUploadError}
 						uploadOptions={{
 							uploadType: 'content',
