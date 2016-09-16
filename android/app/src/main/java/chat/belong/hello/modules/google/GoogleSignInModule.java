@@ -132,7 +132,7 @@ public class GoogleSignInModule extends ReactContextBaseJavaModule implements Ac
     }
 
     @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+    public void onActivityResult(final Activity activity, final int requestCode, final int resultCode, final Intent data) {
         if (requestCode == REQUEST_CODE_SIGN_IN) {
             if (resultCode == Activity.RESULT_CANCELED) {
                 rejectSignInPromise(ERR_SIGNIN_CANCELLED_CODE, ERR_SIGNIN_CANCELLED);
