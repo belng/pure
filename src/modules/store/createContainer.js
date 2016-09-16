@@ -85,10 +85,9 @@ export default function(mapSubscriptionToProps?: ?MapSubscriptionToProps, mapDis
 				if (subscriptionPropsMap) {
 					for (const item in subscriptionPropsMap) {
 						const sub = subscriptionPropsMap[item];
-						const defer = typeof sub === 'object' ? sub.defer !== false : false;
 						const source = ChildComponent.displayName || ChildComponent.name;
 
-						const listener = store.observe({ ...sub, source, defer }).subscribe(
+						const listener = store.observe({ ...sub, source }).subscribe(
 							this._createUpdateObserver(item),
 						);
 

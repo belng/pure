@@ -83,14 +83,16 @@ export default function(sliceFromProps: SliceFromProps, pageSize: number) {
 			};
 
 			render() {
+				const slice = this._sliceFromProps(this.props);
+
 				return (
 					<Container
 						{...this.props}
 						loadMore={this._loadMore}
 						paginationProps={{
-							slice: this._sliceFromProps(this.props),
+							slice,
 							range: this.state,
-							defer: this._updated !== true
+							defer: slice.defer ? this._updated !== true : false,
 						}}
 					/>
 				);

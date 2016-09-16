@@ -18,6 +18,7 @@ const styles = StyleSheet.create({
 
 type Route = {
 	key: string;
+	defer: boolean;
 }
 
 type Scene = {
@@ -26,7 +27,7 @@ type Scene = {
 
 const routes = [
 	{ key: 'createTime', title: 'Latest' },
-	{ key: 'score', title: 'Popular' },
+	{ key: 'score', title: 'Popular', defer: true },
 ];
 
 export default class Roomscreen extends Component<void, *, void> {
@@ -41,6 +42,7 @@ export default class Roomscreen extends Component<void, *, void> {
 			<DiscussionsContainer
 				{...this.props}
 				sortBy={scene.route.key}
+				defer={scene.route.defer}
 				style={styles.container}
 			/>
 		);
