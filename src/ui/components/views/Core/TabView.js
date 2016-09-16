@@ -1,10 +1,11 @@
 /* @flow */
 
 import React, { PropTypes, Component } from 'react';
-import { StyleSheet } from 'react-native';
+import { Animated, StyleSheet } from 'react-native';
 import { TabViewAnimated, TabViewPage, TabBarTop } from 'react-native-tab-view';
 import AppText from '../Core/AppText';
 import Colors from '../../../Colors';
+
 
 const styles = StyleSheet.create({
 	container: {

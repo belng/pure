@@ -367,7 +367,7 @@ public class GooglePlacesModule extends ReactContextBaseJavaModule implements Ac
     }
 
     @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+    public void onActivityResult(final Activity activity, final int requestCode, final int resultCode, final Intent data) {
         switch (requestCode) {
             case PLACE_AUTOCOMPLETE_REQUEST_CODE:
                 if (resultCode == Activity.RESULT_CANCELED) {

@@ -220,7 +220,7 @@ public class LocationListenerModule extends ReactContextBaseJavaModule implement
             promise.reject(ERR_GOOGLE_API_NOT_INITIALIZED_CODE, ERR_GOOGLE_API_NOT_INITIALIZED);
             return;
         }
-        
+
         Location location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
 
         if (location != null) {
@@ -238,7 +238,7 @@ public class LocationListenerModule extends ReactContextBaseJavaModule implement
             sendLocationError(ERR_GOOGLE_API_NOT_INITIALIZED);
             return;
         }
-        
+
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 googleApiClient, buildLocationRequest(options), mLocationListener);
     }
@@ -251,7 +251,7 @@ public class LocationListenerModule extends ReactContextBaseJavaModule implement
             sendLocationError(ERR_GOOGLE_API_NOT_INITIALIZED);
             return;
         }
-        
+
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, mLocationListener);
     }
 
@@ -260,7 +260,7 @@ public class LocationListenerModule extends ReactContextBaseJavaModule implement
     }
 
     @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+    public void onActivityResult(final Activity activity, final int requestCode, final int resultCode, final Intent data) {
         switch (requestCode) {
             case LOCATION_PROMPT_REQUEST_CODE:
                 if (resultCode == Activity.RESULT_CANCELED) {

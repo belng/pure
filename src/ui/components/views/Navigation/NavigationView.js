@@ -5,6 +5,7 @@ import ReactNative from 'react-native';
 import type { NavigationState } from '../../../../lib/RouteTypes';
 
 const {
+	Animated,
 	NavigationExperimental,
 	BackAndroid,
 	StyleSheet,
@@ -82,11 +83,34 @@ export default class NavigationView extends Component<void, Props, void> {
 		});
 	};
 
+	_configureTransition = (transitionProps: any, previousTransitionProps: any) => {
+		let speed = 30;
+		let restSpeedThreshold = 0.001;
+		let restDisplacementThreshold = 0.001;
+
+		// Popping should be faster than pushing
+		if (previousTransitionProps.navigationState.index >= transitionProps.navigationState.index) {
+			speed = 45;
+			restSpeedThreshold = 0.2;
+			restDisplacementThreshold = 0.15;
+		}
+
+		return {
+			timing: Animated.spring,
+			bounciness: 0,
+			speed,
+			restSpeedThreshold,
+			restDisplacementThreshold,
+			useNativeDriver: true,
+		};
+	  }
+
 	render() {
 		return (
 			<NavigationTransitioner
 				{...this.props}
 				render={this._render}
+				configureTransition={this._configureTransition}
 				style={[ styles.container, this.props.style ]}
 			/>
 		);

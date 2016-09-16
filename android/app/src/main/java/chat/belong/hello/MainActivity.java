@@ -2,12 +2,9 @@ package chat.belong.hello;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.facebook.react.ReactActivity;
-import com.facebook.react.ReactRootView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
@@ -25,24 +22,6 @@ public class MainActivity extends ReactActivity {
         if (checkPlayServices()) {
             mRegistrationManager.startIntentService();
         }
-    }
-
-    @Override
-    protected ReactRootView createRootView() {
-        final ReactRootView view = new ReactRootView(this);
-
-        view.setBackgroundColor(ContextCompat.getColor(this, R.color.primary));
-
-        final Handler handler = new Handler();
-
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                view.setBackgroundColor(0);
-            }
-        }, 3000);
-
-        return view;
     }
 
     @Override

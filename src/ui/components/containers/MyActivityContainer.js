@@ -64,6 +64,7 @@ function sliceFromProps({ user }) {
 			},
 		},
 		order: 'updateTime',
+		defer: true,
 	};
 }
 

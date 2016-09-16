@@ -71,6 +71,7 @@ function sliceFromProps(props) {
 			},
 		},
 		order: props.sortBy,
+		defer: props.defer,
 	};
 }
 
